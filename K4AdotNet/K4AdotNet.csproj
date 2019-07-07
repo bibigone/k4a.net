@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.0</Version>
+    <Authors>bibigone</Authors>
+    <Company />
+    <Product>K4AdotNet</Product>
+    <Copyright>Copyright (c) 2019</Copyright>
+    <PackageLicenseUrl>https://github.com/bibigone/k4a.net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/bibigone/k4a.net/blob/master/README.md</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bibigone/k4a.net</RepositoryUrl>
+    <PackageTags>Kinect for Azure .Net Wrapper</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>K4AdotNet.xml</DocumentationFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>K4AdotNet.xml</DocumentationFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="BodyTracking\" />
+  </ItemGroup>
+
+</Project>

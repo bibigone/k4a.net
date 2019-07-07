@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet", "K4AdotNet\K4AdotNet.csproj", "{0646EAF8-8941-4CBE-9D1A-59C643171F3E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Solution Items", "0 - Solution Items", "{4214990D-F0AF-4206-9A3B-47919B99AB1C}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Libraries", "1 - Libraries", "{8A43FD41-5FDD-4106-B41B-FF9C3135D12A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Samples", "2 - Samples", "{11E945CD-4D46-4856-8467-72CE65DD4DF7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Tests", "3 - Tests", "{B227E80C-8E74-486D-887E-AC31D7A70F96}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0646EAF8-8941-4CBE-9D1A-59C643171F3E} = {8A43FD41-5FDD-4106-B41B-FF9C3135D12A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2012927-1A97-4801-B3C9-76EBC40D34F4}
+	EndGlobalSection
+EndGlobal
