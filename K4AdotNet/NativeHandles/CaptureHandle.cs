@@ -15,16 +15,16 @@
         /// <summary>
         /// Call this method if you want to have one more reference to the same capture.
         /// </summary>
-        /// <returns>Additional reference to the same capture. Don't forget to call <c>Dispose()</c> method for object returned.</returns>
+        /// <returns>Additional reference to the same capture. Don't forget to call <see cref="System.IDisposable.Dispose"/> method for object returned.</returns>
         public CaptureHandle DuplicateReference()
         {
-            DllImports.CaptureReference(handle);
+            NativeApi.CaptureReference(handle);
             return new CaptureHandle { handle = handle };
         }
 
         protected override bool ReleaseHandle()
         {
-            DllImports.CaptureRelease(handle);
+            NativeApi.CaptureRelease(handle);
             return true;
         }
     }

@@ -32,14 +32,14 @@ namespace K4AdotNet
             Y = y;
         }
 
-        public Float2(float[] values)
+        public Float2(float[] xy)
         {
-            if (values is null)
-                throw new ArgumentNullException(nameof(values));
-            if (values.Length != 2)
-                throw new ArgumentOutOfRangeException(nameof(values) + "." + nameof(values.Length));
-            X = values[0];
-            Y = values[1];
+            if (xy is null)
+                throw new ArgumentNullException(nameof(xy));
+            if (xy.Length != 2)
+                throw new ArgumentOutOfRangeException(nameof(xy) + "." + nameof(xy.Length));
+            X = xy[0];
+            Y = xy[1];
         }
 
         public float[] ToArray()
@@ -107,9 +107,9 @@ namespace K4AdotNet
         public static readonly Float2 Zero = new Float2();
 
         /// <summary>Unit vector in +X direction.</summary>
-        public static readonly Float2 UnitX = new Float2(1, 0);
+        public static readonly Float2 UnitX = new Float2(1f, 0f);
 
         /// <summary>Unit vector in +Y direction.</summary>
-        public static readonly Float2 UnitY = new Float2(0, 1);
+        public static readonly Float2 UnitY = new Float2(0f, 1f);
     }
 }

@@ -10,16 +10,16 @@
         { }
 
         /// <summary>Call this method if you want to have one more reference to the same image.</summary>
-        /// <returns>Additional reference to the same image. Don't forget to call <c>Dispose()</c> method for object returned.</returns>
+        /// <returns>Additional reference to the same image. Don't forget to call <see cref="System.IDisposable.Dispose"/> method for object returned.</returns>
         public ImageHandle DuplicateReference()
         {
-            DllImports.ImageReference(handle);
+            NativeApi.ImageReference(handle);
             return new ImageHandle { handle = handle };
         }
 
         protected override bool ReleaseHandle()
         {
-            DllImports.ImageRelease(handle);
+            NativeApi.ImageRelease(handle);
             return true;
         }
     }

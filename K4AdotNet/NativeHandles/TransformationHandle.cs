@@ -11,7 +11,7 @@
 
         protected override bool ReleaseHandle()
         {
-            DllImports.TransformationDestroy(handle);
+            NativeApi.TransformationDestroy(handle);
             return true;
         }
     }

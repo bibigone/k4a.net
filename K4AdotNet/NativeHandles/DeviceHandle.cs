@@ -10,7 +10,7 @@
 
         protected override bool ReleaseHandle()
         {
-            DllImports.DeviceClose(handle);
+            NativeApi.DeviceClose(handle);
             return true;
         }
     }

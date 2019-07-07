@@ -38,15 +38,15 @@ namespace K4AdotNet
             Z = z;
         }
 
-        public Float3(float[] values)
+        public Float3(float[] xyz)
         {
-            if (values is null)
-                throw new ArgumentNullException(nameof(values));
-            if (values.Length != 3)
-                throw new ArgumentOutOfRangeException(nameof(values) + "." + nameof(values.Length));
-            X = values[0];
-            Y = values[1];
-            Z = values[2];
+            if (xyz is null)
+                throw new ArgumentNullException(nameof(xyz));
+            if (xyz.Length != 3)
+                throw new ArgumentOutOfRangeException(nameof(xyz) + "." + nameof(xyz.Length));
+            X = xyz[0];
+            Y = xyz[1];
+            Z = xyz[2];
         }
 
         public float[] ToArray()
@@ -116,12 +116,12 @@ namespace K4AdotNet
         public static readonly Float3 Zero = new Float3();
 
         /// <summary>Unit vector in +X direction.</summary>
-        public static readonly Float3 UnitX = new Float3(1, 0, 0);
+        public static readonly Float3 UnitX = new Float3(1f, 0f, 0f);
 
         /// <summary>Unit vector in +Y direction.</summary>
-        public static readonly Float3 UnitY = new Float3(0, 1, 0);
+        public static readonly Float3 UnitY = new Float3(0f, 1f, 0f);
 
         /// <summary>Unit vector in +Z direction.</summary>
-        public static readonly Float3 UnitZ = new Float3(0, 0, 1);
+        public static readonly Float3 UnitZ = new Float3(0f, 0f, 1f);
     }
 }

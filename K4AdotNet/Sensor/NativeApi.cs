@@ -4,8 +4,8 @@ using System.Text;
 
 namespace K4AdotNet.Sensor
 {
-    /// <summary>Interops to most of native functions from <c>k4a.h</c> header file.</summary>
-    internal static class DllImports
+    /// <summary>DLL imports for most of native functions from <c>k4a.h</c> header file.</summary>
+    internal static class NativeApi
     {
         /// <summary>Default device index.</summary>
         /// <remarks>Passed as an argument to <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/> to open the default sensor.</remarks>
@@ -14,7 +14,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT uint32_t k4a_device_get_installed_count(void);
         /// <summary>Gets the number of connected devices.</summary>
         /// <returns>Number of sensors connected to the PC.</returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_installed_count", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_installed_count", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint DeviceGetInstalledCount();
 
         // K4A_EXPORT k4a_result_t k4a_device_open(uint32_t index, k4a_device_t *device_handle);
@@ -22,7 +22,7 @@ namespace K4AdotNet.Sensor
         /// <param name="index">The index of the device to open, starting with 0. Use <see cref="DEFAULT_DEVICE_INDEX"/> constant as value for this parameter to open default device.</param>
         /// <param name="deviceHandle">Output parameter which on success will return a handle to the device.</param>
         /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_open", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_open", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle deviceHandle);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_capture(k4a_device_t device_handle,
@@ -46,7 +46,7 @@ namespace K4AdotNet.Sensor
         /// This function needs to be called while the device is in a running state;
         /// after <see cref="DeviceStartCameras"/> is called and before <see cref="DeviceStopCameras"/> is called.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_capture", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.WaitResult DeviceGetCapture(
             NativeHandles.DeviceHandle deviceHandle,
             out NativeHandles.CaptureHandle captureHandle,
@@ -73,7 +73,7 @@ namespace K4AdotNet.Sensor
         /// This function needs to be called while the device is in a running state;
         /// after <see cref="DeviceStartCameras"/> is called and before <see cref="DeviceStopCameras"/> is called.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_imu_sample", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_imu_sample", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.WaitResult DeviceGetImuSample(
             NativeHandles.DeviceHandle deviceHandle,
             out ImuSample imuSample,
@@ -83,7 +83,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Create an empty capture object.</summary>
         /// <param name="captureHandle">Output parameter which on success will return a handle to the capture.</param>
         /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_create", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result CaptureCreate(out NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT k4a_image_t k4a_capture_get_color_image(k4a_capture_t capture_handle);
@@ -91,7 +91,7 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle containing the image.</param>
         /// <returns>Image handle.</returns>
         /// <remarks>Call this function to access the color image part of this capture.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_get_color_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_get_color_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeHandles.ImageHandle CaptureGetColorImage(NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT k4a_image_t k4a_capture_get_depth_image(k4a_capture_t capture_handle);
@@ -99,7 +99,7 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle containing the image.</param>
         /// <returns>Image handle.</returns>
         /// <remarks>Call this function to access the depth image part of this capture.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_get_depth_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_get_depth_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeHandles.ImageHandle CaptureGetDepthImage(NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT k4a_image_t k4a_capture_get_ir_image(k4a_capture_t capture_handle);
@@ -107,7 +107,7 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle containing the image.</param>
         /// <returns>Image handle.</returns>
         /// <remarks>Call this function to access the IR image part of this capture.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_get_ir_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_get_ir_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeHandles.ImageHandle CaptureGetIRImage(NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT void k4a_capture_set_color_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
@@ -115,7 +115,7 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle to hold the image.</param>
         /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove color image from a given capture if any.</param>
         /// <remarks>If there is already a color image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_set_color_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_color_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetColorImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT void k4a_capture_set_depth_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
@@ -123,7 +123,7 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle to hold the image.</param>
         /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove depth image from a given capture if any.</param>
         /// <remarks>If there is already a depth image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_set_depth_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_depth_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetDepthImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT void k4a_capture_set_ir_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
@@ -131,14 +131,14 @@ namespace K4AdotNet.Sensor
         /// <param name="captureHandle">Capture handle to hold the image.</param>
         /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove IR image from a given capture if any.</param>
         /// <remarks>If there is already a IR image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_set_ir_image", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_ir_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetIRImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT void k4a_capture_set_temperature_c(k4a_capture_t capture_handle, float temperature_c);
         /// <summary>Set the temperature associated with the capture.</summary>
         /// <param name="captureHandle">Capture handle to set the temperature on.</param>
         /// <param name="temperatureC">Temperature in Celsius to store.</param>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_set_temperature_c", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_temperature_c", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetTemperatureC(NativeHandles.CaptureHandle captureHandle, float temperatureC);
 
         // K4A_EXPORT float k4a_capture_get_temperature_c(k4a_capture_t capture_handle);
@@ -148,7 +148,7 @@ namespace K4AdotNet.Sensor
         /// This function returns the temperature of the device at the time of the capture in Celsius.
         /// If the temperature is unavailable, the function will return <see cref="float.NaN"/>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_capture_get_temperature_c", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_get_temperature_c", CallingConvention = CallingConvention.Cdecl)]
         public static extern float CaptureGetTemperatureC(NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT k4a_result_t k4a_image_create(k4a_image_format_t format,
@@ -171,7 +171,7 @@ namespace K4AdotNet.Sensor
         /// To create an image object without the API allocating memory, or to represent an image that has a non-deterministic
         /// stride, use <see cref="ImageCreateFromBuffer"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_create", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result ImageCreate(
             ImageFormat format,
             int widthPixels,
@@ -214,7 +214,7 @@ namespace K4AdotNet.Sensor
         /// This function creates an <see cref="NativeHandles.ImageHandle"/> from a pre-allocated buffer. When all references to this object reach zero
         /// the provided <paramref name="bufferReleaseCallback"/> callback function is called so that the memory can be released.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_create_from_buffer", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_create_from_buffer", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result ImageCreateFromBuffer(
             ImageFormat format,
             int widthPixels,
@@ -233,7 +233,7 @@ namespace K4AdotNet.Sensor
         /// The function will return <see cref="IntPtr.Zero"/> if there is an error, and will normally return a pointer to the image buffer.
         /// </returns>
         /// <remarks>Use this buffer to access the raw image data.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_buffer", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_buffer", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ImageGetBuffer(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT size_t k4a_image_get_size(k4a_image_t image_handle);
@@ -241,7 +241,7 @@ namespace K4AdotNet.Sensor
         /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
         /// <returns>The function will return <see cref="UIntPtr.Zero"/> if there is an error, and will normally return the image size.</returns>
         /// <remarks>Use this function to know what the size of the image buffer is returned by <see cref="ImageGetBuffer"/>.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_size", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_size", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr ImageGetSize(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT k4a_image_format_t k4a_image_get_format(k4a_image_t image_handle);
@@ -252,7 +252,7 @@ namespace K4AdotNet.Sensor
         /// If the <paramref name="imageHandle"/> is invalid, the function will return <see cref="ImageFormat.Custom"/>.
         /// </returns>
         /// <remarks>Use this function to determine the format of the image buffer.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_format", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_format", CallingConvention = CallingConvention.Cdecl)]
         public static extern ImageFormat ImageGetFormat(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT int k4a_image_get_width_pixels(k4a_image_t image_handle);
@@ -262,7 +262,7 @@ namespace K4AdotNet.Sensor
         /// This function is not expected to fail, all images are created with a known width.
         /// If the <paramref name="imageHandle"/> is invalid, the function will return <c>0</c>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_width_pixels", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_width_pixels", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ImageGetWidthPixels(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT int k4a_image_get_height_pixels(k4a_image_t image_handle);
@@ -272,7 +272,7 @@ namespace K4AdotNet.Sensor
         /// This function is not expected to fail, all images are created with a known height.
         /// If the <paramref name="imageHandle"/> is invalid, the function will return <c>0</c>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_height_pixels", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_height_pixels", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ImageGetHeightPixels(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT int k4a_image_get_stride_bytes(k4a_image_t image_handle);
@@ -282,7 +282,7 @@ namespace K4AdotNet.Sensor
         /// This function is not expected to fail, all images are created with a known stride.
         /// If the <paramref name="imageHandle"/> is invalid or the image's format does not have a stride, the function will return <c>0</c>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_stride_bytes", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_stride_bytes", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ImageGetStrideBytes(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_timestamp_usec(k4a_image_t image_handle);
@@ -298,7 +298,7 @@ namespace K4AdotNet.Sensor
         /// Returns the time stamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
         /// They may be used for relative comparison, but their absolute value has no defined meaning.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern TimeStamp ImageGetTimeStamp(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_exposure_usec(k4a_image_t image_handle);
@@ -310,7 +310,7 @@ namespace K4AdotNet.Sensor
         /// it will return the image exposure time in microseconds.
         /// </returns>
         /// <remarks>Returns an exposure time in microseconds. This is only supported on color image formats.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_exposure_usec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_exposure_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong ImageGetExposureUsec(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint32_t k4a_image_get_white_balance(k4a_image_t image_handle);
@@ -321,7 +321,7 @@ namespace K4AdotNet.Sensor
         /// not applicable to the image, the function will return <c>0</c>.
         /// </returns>
         /// <remarks>Returns the image's white balance. This function is only valid for color captures, and not for depth or IR captures.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_white_balance", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_white_balance", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint ImageGetWhiteBalance(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint32_t k4a_image_get_iso_speed(k4a_image_t image_handle);
@@ -331,7 +331,7 @@ namespace K4AdotNet.Sensor
         /// Returns the ISO speed of the image. <c>0</c> indicates the ISO speed was not available or an error occurred.
         /// </returns>
         /// <remarks>This function is only valid for color captures, and not for depth  or IR captures.</remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_get_iso_speed", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_iso_speed", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint ImageGetIsoSpeed(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT void k4a_image_set_timestamp_usec(k4a_image_t image_handle, uint64_t timestamp_usec);
@@ -342,7 +342,7 @@ namespace K4AdotNet.Sensor
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_set_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImageSetTimeStamp(NativeHandles.ImageHandle imageHandle, TimeStamp timestamp);
 
         // K4A_EXPORT void k4a_image_set_exposure_time_usec(k4a_image_t image_handle, uint64_t exposure_usec);
@@ -353,7 +353,7 @@ namespace K4AdotNet.Sensor
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_set_exposure_time_usec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_exposure_time_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImageSetExposureTimeUsec(NativeHandles.ImageHandle imageHandle, ulong exposureUsec);
 
         // K4A_EXPORT void k4a_image_set_white_balance(k4a_image_t image_handle, uint32_t white_balance);
@@ -364,7 +364,7 @@ namespace K4AdotNet.Sensor
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_set_white_balance", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_white_balance", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImageSetWhiteBalance(NativeHandles.ImageHandle imageHandle, uint whiteBalance);
 
         // K4A_EXPORT void k4a_image_set_iso_speed(k4a_image_t image_handle, uint32_t iso_speed);
@@ -375,7 +375,7 @@ namespace K4AdotNet.Sensor
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_image_set_iso_speed", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_iso_speed", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImageSetIsoSpeed(NativeHandles.ImageHandle imageHandle, uint isoSpeed);
 
         // K4A_EXPORT k4a_result_t k4a_device_start_cameras(k4a_device_t device_handle, k4a_device_configuration_t *config);
@@ -388,7 +388,7 @@ namespace K4AdotNet.Sensor
         /// 
         /// It is not valid to call this method a second time on the same device until <see cref="DeviceStopCameras(NativeHandles.DeviceHandle)"/> has been called.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_start_cameras", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_start_cameras", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceStartCameras(NativeHandles.DeviceHandle deviceHandle, [In] ref DeviceConfiguration config);
 
         // K4A_EXPORT void k4a_device_stop_cameras(k4a_device_t device_handle);
@@ -401,7 +401,7 @@ namespace K4AdotNet.Sensor
         /// This function may be called while another thread is blocking in <see cref="DeviceGetCapture(NativeHandles.DeviceHandle, out NativeHandles.CaptureHandle, Timeout)"/>.
         /// Calling this function while another thread is in that function will result in that function returning a failure.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_stop_cameras", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_stop_cameras", CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeviceStopCameras(NativeHandles.DeviceHandle deviceHandle);
 
         // K4A_EXPORT k4a_result_t k4a_device_start_imu(k4a_device_t device_handle);
@@ -415,7 +415,7 @@ namespace K4AdotNet.Sensor
         /// This function is dependent on the state of the cameras. The color or depth camera must be started before the IMU.
         /// <see cref="NativeApiCallResults.Result.Failed"/> will be returned if one of the cameras is not running.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_start_imu", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_start_imu", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceStartImu(NativeHandles.DeviceHandle deviceHandle);
 
 
@@ -429,7 +429,7 @@ namespace K4AdotNet.Sensor
         /// This function may be called while another thread is blocking in <see cref="DeviceGetImuSample(NativeHandles.DeviceHandle, out ImuSample, Timeout)"/>.
         /// Calling this function while another thread is in that function will result in that function returning a failure.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_stop_imu", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_stop_imu", CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeviceStopImu(NativeHandles.DeviceHandle deviceHandle);
 
         // K4A_EXPORT k4a_buffer_result_t k4a_device_get_serialnum(k4a_device_t device_handle,
@@ -453,7 +453,7 @@ namespace K4AdotNet.Sensor
         /// returned in the <paramref name="serialNumberSize"/> parameter.
         /// All other failures return <see cref="NativeApiCallResults.BufferResult.Failed"/>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
         public static extern NativeApiCallResults.BufferResult DeviceGetSerialnum(
             NativeHandles.DeviceHandle deviceHandle,
             StringBuilder serialNumber,
@@ -467,7 +467,7 @@ namespace K4AdotNet.Sensor
         /// A return of <see cref="NativeApiCallResults.Result.Succeeded"/> means that the version structure has been filled in.
         /// All other failures return <see cref="NativeApiCallResults.Result.Failed"/>.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_version", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_version", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceGetVersion(
             NativeHandles.DeviceHandle deviceHandle,
             out HardwareVersion version);
@@ -490,7 +490,7 @@ namespace K4AdotNet.Sensor
         /// <param name="defaultValue">Output: the color sensor's control default value of <paramref name="command"/>.</param>
         /// <param name="defaultMode">Output: the color sensor's control default mode of <paramref name="command"/>.</param>
         /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the value was successfully returned, <see cref="NativeApiCallResults.Result.Failed"/> if an error occurred</returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_color_control_capabilities", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_color_control_capabilities", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceGetColorControlCapabilities(
             NativeHandles.DeviceHandle deviceHandle,
             ColorControlCommand command,
@@ -521,7 +521,7 @@ namespace K4AdotNet.Sensor
         /// Control values set on a device are reset only when the device is power cycled. The device will retain the
         /// settings even if the <paramref name="deviceHandle"/> is closed or the application is restarted.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_color_control", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_color_control", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceGetColorControl(
             NativeHandles.DeviceHandle deviceHandle, ColorControlCommand command, out ColorControlMode mode, out int value);
 
@@ -548,7 +548,7 @@ namespace K4AdotNet.Sensor
         /// Control values set on a device are reset only when the device is power cycled. The device will retain the settings
         /// even if the device is closed or the application is restarted.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_set_color_control", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_set_color_control", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceSetColorControl(
             NativeHandles.DeviceHandle deviceHandle,
             ColorControlCommand command,
@@ -575,7 +575,7 @@ namespace K4AdotNet.Sensor
         /// too small to hold the output or <paramref name="data"/> data is <see langword="null"/>, <see cref="NativeApiCallResults.BufferResult.TooSmall"/> is returned
         /// and <paramref name="dataSize"/> is updated to contain the minimum buffer size needed to capture the calibration data.
         /// </returns>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.BufferResult DeviceGetRawCalibration(
             NativeHandles.DeviceHandle deviceHandle,
             [Out] byte[] data,
@@ -597,7 +597,7 @@ namespace K4AdotNet.Sensor
         /// 
         /// The <paramref name="calibration"/> output is used as input to all calibration and transformation functions.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_calibration", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceGetCalibration(
             NativeHandles.DeviceHandle deviceHandle,
             DepthMode depthMode,
@@ -617,7 +617,7 @@ namespace K4AdotNet.Sensor
         /// <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Master"/>. If <paramref name="syncInJackConnected"/> is <see langword="true"/> then
         /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Subordinate"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_device_get_sync_jack", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_sync_jack", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result DeviceGetSyncJack(
             NativeHandles.DeviceHandle deviceHandle,
             out bool syncInJackConnected,
@@ -641,7 +641,7 @@ namespace K4AdotNet.Sensor
         /// 
         /// The <paramref name="calibration"/> output is used as input to all transformation functions.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_calibration_get_from_raw", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_get_from_raw", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result CalibrationGetFromRaw(
             byte[] rawCalibration,
             UIntPtr rawCalibrationSize,
@@ -670,7 +670,7 @@ namespace K4AdotNet.Sensor
         /// rotation and a 3D translation. If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are the same, then <paramref name="targetPoint3DMm"/> will
         /// be identical to <paramref name="sourcePoint3DMm"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_3d", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_3d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result Calibration3DTo3D(
             [In] ref Calibration calibration,
             [In] ref Float3 sourcePoint3DMm,
@@ -720,7 +720,7 @@ namespace K4AdotNet.Sensor
         /// If it is valid, <paramref name="valid"/> valid will be set to <see langword="true"/>. The user
         /// should not use the value of <paramref name="targetPoint3DMm"/> if <paramref name="valid"/> was set to <see langword="false"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_3d", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_3d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result Calibration2DTo3D(
             [In] ref Calibration calibration,
             [In] ref Float2 sourcePoint2D,
@@ -764,7 +764,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="valid"/> is set to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
         /// The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_2d", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result Calibration3DTo2D(
             [In] ref Calibration calibration,
             [In] ref Float3 sourcePoint3DMm,
@@ -812,7 +812,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="valid"/> is set to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
         /// The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to 0.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_2d", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result Calibration2DTo2D(
             [In] ref Calibration calibration,
             [In] ref Float2 sourcePoint2D,
@@ -831,7 +831,7 @@ namespace K4AdotNet.Sensor
         /// transformation handle requires some pre-computed resources to be allocated, which are retained until the handle is
         /// destroyed.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_transformation_create", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeHandles.TransformationHandle TransformationCreate([In] ref Calibration calibration);
 
         // K4A_EXPORT k4a_result_t k4a_transformation_depth_image_to_color_camera(k4a_transformation_t transformation_handle,
@@ -859,7 +859,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="transformedDepthImage"/> should be created by the caller using <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_color_camera", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_color_camera", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result TransformationDepthImageToColorCamera(
             NativeHandles.TransformationHandle transformationHandle,
             NativeHandles.ImageHandle depthImage,
@@ -894,7 +894,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="transformedColorImage"/> should be created by the caller using <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_transformation_color_image_to_depth_camera", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_color_image_to_depth_camera", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result TransformationColorImageToDepthCamera(
             NativeHandles.TransformationHandle transformationHandle,
             NativeHandles.ImageHandle depthImage,
@@ -932,7 +932,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="xyzImage"/> should be created by the caller using <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
-        [DllImport(Sdk.K4A_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_point_cloud", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_point_cloud", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeApiCallResults.Result TransformationDepthImageToPointCloud(
                 NativeHandles.TransformationHandle transformationHandle,
                 NativeHandles.ImageHandle depthImage,

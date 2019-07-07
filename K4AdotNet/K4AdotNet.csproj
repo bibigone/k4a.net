@@ -24,8 +24,4 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="BodyTracking\" />
-  </ItemGroup>
-
 </Project>
