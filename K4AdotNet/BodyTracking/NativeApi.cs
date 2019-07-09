@@ -11,9 +11,9 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Create a body tracker handle.</summary>
         /// <param name="sensorCalibration">The sensor calibration that will be used for capture processing.</param>
         /// <param name="trackerHandle">Output parameter which on success will return a handle to the body tracker.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the body tracker handle was created successfully.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the body tracker handle was created successfully.</returns>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_create", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result TrackerCreate(
+        public static extern NativeCallResults.Result TrackerCreate(
             [In] ref Sensor.Calibration sensorCalibration,
             out NativeHandles.TrackerHandle trackerHandle);
 
@@ -32,9 +32,9 @@ namespace K4AdotNet.BodyTracking
         /// Passing <see cref="Timeout.Infinite"/> will block indefinitely until the capture is added to the process queue.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.WaitResult.Succeeded"/> if a sensor capture is successfully added to the processing queue. If the queue is still
-        /// full before the timeout elapses, the function will return <see cref="NativeApiCallResults.WaitResult.Timeout"/>. All other failures will return
-        /// <see cref="NativeApiCallResults.WaitResult.Failed"/>.
+        /// <see cref="NativeCallResults.WaitResult.Succeeded"/> if a sensor capture is successfully added to the processing queue. If the queue is still
+        /// full before the timeout elapses, the function will return <see cref="NativeCallResults.WaitResult.Timeout"/>. All other failures will return
+        /// <see cref="NativeCallResults.WaitResult.Failed"/>.
         /// </returns>
         /// <remarks>
         /// Add a Azure Kinect capture to the tracker input queue so that it can be processed asynchronously to generate the body tracking
@@ -44,12 +44,12 @@ namespace K4AdotNet.BodyTracking
         /// 
         /// Upon successfully insert a sensor capture to the input queue this function will return success.
         /// 
-        /// This function returns <see cref="NativeApiCallResults.WaitResult.Failed"/> when either the tracker is shut down by <see cref="TrackerShutdown(NativeHandles.TrackerHandle)"/> API,
+        /// This function returns <see cref="NativeCallResults.WaitResult.Failed"/> when either the tracker is shut down by <see cref="TrackerShutdown(NativeHandles.TrackerHandle)"/> API,
         /// or an internal problem is encountered before adding to the input queue: such as low memory condition,
         /// <paramref name="sensorCaptureHandle"/> not containing the depth data, or other unexpected issues.
         /// </remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_enqueue_capture", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.WaitResult TrackerEnqueueCapture(
+        public static extern NativeCallResults.WaitResult TrackerEnqueueCapture(
             NativeHandles.TrackerHandle trackerHandle,
             NativeHandles.CaptureHandle sensorCaptureHandle,
             Timeout timeout);
@@ -65,8 +65,8 @@ namespace K4AdotNet.BodyTracking
         /// Passing <see cref="Timeout.Infinite"/> will block indefinitely until the body frame becomes available.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.WaitResult.Succeeded"/> if a body frame is returned. If a body frame is not available before the timeout elapses,
-        /// the function will return <see cref="NativeApiCallResults.WaitResult.Timeout"/>. All other failures will return <see cref="NativeApiCallResults.WaitResult.Failed"/>.
+        /// <see cref="NativeCallResults.WaitResult.Succeeded"/> if a body frame is returned. If a body frame is not available before the timeout elapses,
+        /// the function will return <see cref="NativeCallResults.WaitResult.Timeout"/>. All other failures will return <see cref="NativeCallResults.WaitResult.Failed"/>.
         /// </returns>
         /// <remarks>
         /// Retrieves the next available body frame result and pop it from the output queue in the <see cref="NativeHandles.TrackerHandle"/>.
@@ -75,12 +75,12 @@ namespace K4AdotNet.BodyTracking
         /// 
         /// Upon successfully reads a body frame this function will return success.
         /// 
-        /// This function returns <see cref="NativeApiCallResults.WaitResult.Failed"/> when either the tracker is shut down by <see cref="TrackerShutdown(NativeHandles.TrackerHandle)"/> API
+        /// This function returns <see cref="NativeCallResults.WaitResult.Failed"/> when either the tracker is shut down by <see cref="TrackerShutdown(NativeHandles.TrackerHandle)"/> API
         /// and the remaining tracker queue is empty, or an internal problem is encountered: such as low memory condition, or
         /// other unexpected issues.
         /// </remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_pop_result", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.WaitResult TrackerPopResult(
+        public static extern NativeCallResults.WaitResult TrackerPopResult(
             NativeHandles.TrackerHandle trackerHandle,
             out NativeHandles.BodyFrameHandle bodyFrameHandle,
             Timeout timeout);
@@ -111,10 +111,10 @@ namespace K4AdotNet.BodyTracking
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <param name="index">The index of the body of which the joint information is queried.</param>
         /// <param name="skeleton">If successful this contains the body skeleton information.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if a valid body skeleton is returned. All failures will return <see cref="NativeApiCallResults.Result.Failed"/>.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if a valid body skeleton is returned. All failures will return <see cref="NativeCallResults.Result.Failed"/>.</returns>
         /// <remarks>Called when the user has received a body frame handle and wants to access the data contained in it.</remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_body_skeleton", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result FrameGetBodySkeleton(
+        public static extern NativeCallResults.Result FrameGetBodySkeleton(
             NativeHandles.BodyFrameHandle bodyFrameHandle,
             UIntPtr index,
             out Skeleton skeleton);
@@ -133,14 +133,14 @@ namespace K4AdotNet.BodyTracking
             UIntPtr index);
 
         // K4ABT_EXPORT uint64_t k4abt_frame_get_timestamp_usec(k4abt_frame_t body_frame_handle);
-        /// <summary>Get the body frame time stamp.</summary>
+        /// <summary>Get the body frame timestamp.</summary>
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <returns>
-        /// Returns the time stamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="TimeStamp.Zero"/>.
-        /// It is also possible for <see cref="TimeStamp.Zero"/> to be a valid time stamp originating from the beginning of a recording or the start of streaming.
+        /// Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="Timestamp.Zero"/>.
+        /// It is also possible for <see cref="Timestamp.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
         /// </returns>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern TimeStamp FrameGetTimeStamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
+        public static extern Timestamp FrameGetTimestamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
         // K4ABT_EXPORT k4a_image_t k4abt_frame_get_body_index_map(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body index map from <see cref="NativeHandles.BodyFrameHandle"/>.</summary>

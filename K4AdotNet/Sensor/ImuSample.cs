@@ -23,7 +23,8 @@ namespace K4AdotNet.Sensor
         public Float3 AccelerometerSample;
 
         /// <summary>Time stamp of the accelerometer.</summary>
-        public TimeStamp AccelerometerTimeStamp;
+        [MarshalAs(UnmanagedType.Struct)]
+        public Timestamp AccelerometerTimestamp;
 
         /// <summary>Gyro sample in radians per second.</summary>
         [MarshalAs(UnmanagedType.Struct)]

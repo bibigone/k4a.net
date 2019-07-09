@@ -13,10 +13,10 @@ namespace K4AdotNet
             => ValueUsec = valueUsec;
 
         public Delay(TimeSpan value)
-            => ValueUsec = checked((int)(value.Ticks / TimeStamp.UsecToTimeSpanTicksFactor));
+            => ValueUsec = checked((int)(value.Ticks / Timestamp.UsecToTimeSpanTicksFactor));
 
         public TimeSpan ToTimeSpan()
-            => TimeSpan.FromTicks(ValueUsec * TimeStamp.UsecToTimeSpanTicksFactor);
+            => TimeSpan.FromTicks(ValueUsec * Timestamp.UsecToTimeSpanTicksFactor);
 
         public bool Equals(Delay other)
             => ValueUsec.Equals(other.ValueUsec);

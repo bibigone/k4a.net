@@ -21,9 +21,9 @@ namespace K4AdotNet.Sensor
         /// <summary>Open an Azure Kinect device.</summary>
         /// <param name="index">The index of the device to open, starting with 0. Use <see cref="DEFAULT_DEVICE_INDEX"/> constant as value for this parameter to open default device.</param>
         /// <param name="deviceHandle">Output parameter which on success will return a handle to the device.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_open", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle deviceHandle);
+        public static extern NativeCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle deviceHandle);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_capture(k4a_device_t device_handle,
         //                                                     k4a_capture_t *capture_handle,
@@ -38,16 +38,16 @@ namespace K4AdotNet.Sensor
         /// device is disconnected, or another error occurs.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.WaitResult.Succeeded"/> if a capture is returned.
-        /// If a capture is not available before the timeout elapses, the function will return <see cref="NativeApiCallResults.WaitResult.Timeout"/>.
-        /// All other failures will return <see cref="NativeApiCallResults.WaitResult.Failed"/>.
+        /// <see cref="NativeCallResults.WaitResult.Succeeded"/> if a capture is returned.
+        /// If a capture is not available before the timeout elapses, the function will return <see cref="NativeCallResults.WaitResult.Timeout"/>.
+        /// All other failures will return <see cref="NativeCallResults.WaitResult.Failed"/>.
         /// </returns>
         /// <remarks>
         /// This function needs to be called while the device is in a running state;
         /// after <see cref="DeviceStartCameras"/> is called and before <see cref="DeviceStopCameras"/> is called.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_capture", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.WaitResult DeviceGetCapture(
+        public static extern NativeCallResults.WaitResult DeviceGetCapture(
             NativeHandles.DeviceHandle deviceHandle,
             out NativeHandles.CaptureHandle captureHandle,
             Timeout timeout);
@@ -65,16 +65,16 @@ namespace K4AdotNet.Sensor
         /// device is disconnected, or another error occurs.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.WaitResult.Succeeded"/> if a sample is returned.
-        /// If a sample is not available before the timeout elapses, the function will return <see cref="NativeApiCallResults.WaitResult.Timeout"/>.
-        /// All other failures will return <see cref="NativeApiCallResults.WaitResult.Failed"/>.
+        /// <see cref="NativeCallResults.WaitResult.Succeeded"/> if a sample is returned.
+        /// If a sample is not available before the timeout elapses, the function will return <see cref="NativeCallResults.WaitResult.Timeout"/>.
+        /// All other failures will return <see cref="NativeCallResults.WaitResult.Failed"/>.
         /// </returns>
         /// <remarks>
         /// This function needs to be called while the device is in a running state;
         /// after <see cref="DeviceStartCameras"/> is called and before <see cref="DeviceStopCameras"/> is called.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_imu_sample", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.WaitResult DeviceGetImuSample(
+        public static extern NativeCallResults.WaitResult DeviceGetImuSample(
             NativeHandles.DeviceHandle deviceHandle,
             out ImuSample imuSample,
             Timeout timeout);
@@ -82,9 +82,9 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT k4a_result_t k4a_capture_create(k4a_capture_t *capture_handle);
         /// <summary>Create an empty capture object.</summary>
         /// <param name="captureHandle">Output parameter which on success will return a handle to the capture.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_create", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result CaptureCreate(out NativeHandles.CaptureHandle captureHandle);
+        public static extern NativeCallResults.Result CaptureCreate(out NativeHandles.CaptureHandle captureHandle);
 
         // K4A_EXPORT k4a_image_t k4a_capture_get_color_image(k4a_capture_t capture_handle);
         /// <summary>Get the color image associated with the given capture.</summary>
@@ -164,7 +164,7 @@ namespace K4AdotNet.Sensor
         /// <param name="heightPixels">Height in pixels.</param>
         /// <param name="strideBytes">The number of bytes per horizontal line of the image.</param>
         /// <param name="imageHandle">Handle of created image in case of success.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> on success.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> on success.</returns>
         /// <remarks>This function is used to create images of formats that have consistent stride.
         /// The function is not suitable for compressed formats that may not be represented by the same number of bytes per line.
         /// The function will allocate an image buffer of size <paramref name="heightPixels"/> * <paramref name="strideBytes"/> bytes.
@@ -172,7 +172,7 @@ namespace K4AdotNet.Sensor
         /// stride, use <see cref="ImageCreateFromBuffer"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_create", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result ImageCreate(
+        public static extern NativeCallResults.Result ImageCreate(
             ImageFormat format,
             int widthPixels,
             int heightPixels,
@@ -209,13 +209,13 @@ namespace K4AdotNet.Sensor
         /// when the callback is invoked.
         /// </param>
         /// <param name="imageHandle">Handle of created image in case of success.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> on success.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> on success.</returns>
         /// <remarks>
         /// This function creates an <see cref="NativeHandles.ImageHandle"/> from a pre-allocated buffer. When all references to this object reach zero
         /// the provided <paramref name="bufferReleaseCallback"/> callback function is called so that the memory can be released.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_create_from_buffer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result ImageCreateFromBuffer(
+        public static extern NativeCallResults.Result ImageCreateFromBuffer(
             ImageFormat format,
             int widthPixels,
             int heightPixels,
@@ -286,20 +286,20 @@ namespace K4AdotNet.Sensor
         public static extern int ImageGetStrideBytes(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_timestamp_usec(k4a_image_t image_handle);
-        /// <summary>Get the image time stamp.</summary>
+        /// <summary>Get the image timestamp.</summary>
         /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
         /// <returns>
-        /// If the <paramref name="imageHandle"/> is invalid or if no time stamp was set for the image,
-        /// this function will return <see cref="TimeStamp.Zero"/>.
-        /// It is also possible for <see cref="TimeStamp.Zero"/> to be a valid time stamp originating from the beginning
+        /// If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image,
+        /// this function will return <see cref="Timestamp.Zero"/>.
+        /// It is also possible for <see cref="Timestamp.Zero"/> to be a valid timestamp originating from the beginning
         /// of a recording or the start of streaming.
         /// </returns>
         /// <remarks>
-        /// Returns the time stamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
+        /// Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
         /// They may be used for relative comparison, but their absolute value has no defined meaning.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern TimeStamp ImageGetTimeStamp(NativeHandles.ImageHandle imageHandle);
+        public static extern Timestamp ImageGetTimestamp(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_exposure_usec(k4a_image_t image_handle);
         /// <summary>Get the image exposure in microseconds.</summary>
@@ -335,7 +335,7 @@ namespace K4AdotNet.Sensor
         public static extern uint ImageGetIsoSpeed(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT void k4a_image_set_timestamp_usec(k4a_image_t image_handle, uint64_t timestamp_usec);
-        /// <summary>Set the time stamp, in microseconds, of the image.</summary>
+        /// <summary>Set the timestamp, in microseconds, of the image.</summary>
         /// <param name="imageHandle">Handle of the image to set the timestamp on.</param>
         /// <param name="timestamp">Time stamp of the image.</param>
         /// <remarks>
@@ -343,7 +343,7 @@ namespace K4AdotNet.Sensor
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImageSetTimeStamp(NativeHandles.ImageHandle imageHandle, TimeStamp timestamp);
+        public static extern void ImageSetTimestamp(NativeHandles.ImageHandle imageHandle, Timestamp timestamp);
 
         // K4A_EXPORT void k4a_image_set_exposure_time_usec(k4a_image_t image_handle, uint64_t exposure_usec);
         /// <summary>Set the exposure time, in microseconds, of the image.</summary>
@@ -382,14 +382,14 @@ namespace K4AdotNet.Sensor
         /// <summary>Starts color and depth camera capture.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <param name="config">The configuration we want to run the device in. This can be initialized with <see cref="DeviceConfiguration.DisableAll"/>.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         /// <remarks>
         /// Individual sensors configured to run will now start to stream captured data.
         /// 
         /// It is not valid to call this method a second time on the same device until <see cref="DeviceStopCameras(NativeHandles.DeviceHandle)"/> has been called.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_start_cameras", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceStartCameras(NativeHandles.DeviceHandle deviceHandle, [In] ref DeviceConfiguration config);
+        public static extern NativeCallResults.Result DeviceStartCameras(NativeHandles.DeviceHandle deviceHandle, [In] ref DeviceConfiguration config);
 
         // K4A_EXPORT void k4a_device_stop_cameras(k4a_device_t device_handle);
         /// <summary>Stops the color and depth camera capture.</summary>
@@ -407,16 +407,16 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT k4a_result_t k4a_device_start_imu(k4a_device_t device_handle);
         /// <summary>Starts the IMU sample stream.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         /// <remarks>
         /// Call this API to start streaming IMU data. It is not valid to call this function a second time on the same
         /// device until <see cref="DeviceStopImu(NativeHandles.DeviceHandle)"/> has been called.
         /// 
         /// This function is dependent on the state of the cameras. The color or depth camera must be started before the IMU.
-        /// <see cref="NativeApiCallResults.Result.Failed"/> will be returned if one of the cameras is not running.
+        /// <see cref="NativeCallResults.Result.Failed"/> will be returned if one of the cameras is not running.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_start_imu", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceStartImu(NativeHandles.DeviceHandle deviceHandle);
+        public static extern NativeCallResults.Result DeviceStartImu(NativeHandles.DeviceHandle deviceHandle);
 
 
         // K4A_EXPORT void k4a_device_stop_imu(k4a_device_t device_handle);
@@ -438,7 +438,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Get the Azure Kinect device serial number.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <param name="serialNumber">
-        /// Location to write the serial number to. If the function returns <see cref="NativeApiCallResults.BufferResult.Succeeded"/>,
+        /// Location to write the serial number to. If the function returns <see cref="NativeCallResults.BufferResult.Succeeded"/>,
         /// this will be a NULL-terminated string of ASCII characters.
         /// If this input is <see langword="null"/>, <paramref name="serialNumberSize"/> will still be updated to return
         /// the size of the buffer needed to store the string.
@@ -448,13 +448,13 @@ namespace K4AdotNet.Sensor
         /// On output, this value is set to the actual number of bytes in the serial number (including the null terminator).
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeApiCallResults.BufferResult.Succeeded"/> means that the <paramref name="serialNumber"/> has been filled in.
-        /// If the buffer is too small the function returns <see cref="NativeApiCallResults.BufferResult.TooSmall"/> and the size of the serial number is
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="serialNumber"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/> and the size of the serial number is
         /// returned in the <paramref name="serialNumberSize"/> parameter.
-        /// All other failures return <see cref="NativeApiCallResults.BufferResult.Failed"/>.
+        /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-        public static extern NativeApiCallResults.BufferResult DeviceGetSerialnum(
+        public static extern NativeCallResults.BufferResult DeviceGetSerialnum(
             NativeHandles.DeviceHandle deviceHandle,
             StringBuilder serialNumber,
             ref UIntPtr serialNumberSize);
@@ -464,11 +464,11 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <param name="version">Output parameter which on success will return version info.</param>
         /// <returns>
-        /// A return of <see cref="NativeApiCallResults.Result.Succeeded"/> means that the version structure has been filled in.
-        /// All other failures return <see cref="NativeApiCallResults.Result.Failed"/>.
+        /// A return of <see cref="NativeCallResults.Result.Succeeded"/> means that the version structure has been filled in.
+        /// All other failures return <see cref="NativeCallResults.Result.Failed"/>.
         /// </returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_version", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceGetVersion(
+        public static extern NativeCallResults.Result DeviceGetVersion(
             NativeHandles.DeviceHandle deviceHandle,
             out HardwareVersion version);
 
@@ -489,9 +489,9 @@ namespace K4AdotNet.Sensor
         /// <param name="stepValue">Output: the color sensor's control step value of <paramref name="command"/>.</param>
         /// <param name="defaultValue">Output: the color sensor's control default value of <paramref name="command"/>.</param>
         /// <param name="defaultMode">Output: the color sensor's control default mode of <paramref name="command"/>.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the value was successfully returned, <see cref="NativeApiCallResults.Result.Failed"/> if an error occurred</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the value was successfully returned, <see cref="NativeCallResults.Result.Failed"/> if an error occurred</returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_color_control_capabilities", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceGetColorControlCapabilities(
+        public static extern NativeCallResults.Result DeviceGetColorControlCapabilities(
             NativeHandles.DeviceHandle deviceHandle,
             ColorControlCommand command,
             out bool supportsAuto,
@@ -510,7 +510,7 @@ namespace K4AdotNet.Sensor
         /// <param name="command">Color sensor control command.</param>
         /// <param name="mode">This mode represents whether the command is in automatic or manual mode.</param>
         /// <param name="value">This value is always written, but is only valid when the <paramref name="mode"/> returned is <see cref="ColorControlMode.Manual"/> for the current <paramref name="command"/>.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the value was successfully returned, <see cref="NativeApiCallResults.Result.Failed"/> if an error occurred.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the value was successfully returned, <see cref="NativeCallResults.Result.Failed"/> if an error occurred.</returns>
         /// <remarks>
         /// Each control command may be set to manual or automatic. See the definition of <see cref="ColorControlCommand"/> on
         /// how to interpret the <paramref name="value"/> for each command.
@@ -522,7 +522,7 @@ namespace K4AdotNet.Sensor
         /// settings even if the <paramref name="deviceHandle"/> is closed or the application is restarted.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_color_control", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceGetColorControl(
+        public static extern NativeCallResults.Result DeviceGetColorControl(
             NativeHandles.DeviceHandle deviceHandle, ColorControlCommand command, out ColorControlMode mode, out int value);
 
         // K4A_EXPORT k4a_result_t k4a_device_set_color_control(k4a_device_t device_handle,
@@ -537,7 +537,7 @@ namespace K4AdotNet.Sensor
         /// Value to set the color sensor's control to. The value is only valid if <paramref name="mode"/>
         /// is set to <see cref="ColorControlMode.Manual"/>, and is otherwise ignored.
         /// </param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the value was successfully set, <see cref="NativeApiCallResults.Result.Failed"/> if an error occurred</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the value was successfully set, <see cref="NativeCallResults.Result.Failed"/> if an error occurred</returns>
         /// <remarks>
         /// Each control command may be set to manual or automatic. See the definition of <see cref="ColorControlCommand"/> on how
         /// to interpret the <paramref name="value"/> for each command.
@@ -549,7 +549,7 @@ namespace K4AdotNet.Sensor
         /// even if the device is closed or the application is restarted.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_set_color_control", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceSetColorControl(
+        public static extern NativeCallResults.Result DeviceSetColorControl(
             NativeHandles.DeviceHandle deviceHandle,
             ColorControlCommand command,
             ColorControlMode mode,
@@ -570,13 +570,13 @@ namespace K4AdotNet.Sensor
         /// required to store the calibration buffer if <paramref name="data"/> is <see langword="null"/>.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
+        /// <see cref="NativeCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
         /// If <paramref name="dataSize"/> points to a buffer size that is
-        /// too small to hold the output or <paramref name="data"/> data is <see langword="null"/>, <see cref="NativeApiCallResults.BufferResult.TooSmall"/> is returned
+        /// too small to hold the output or <paramref name="data"/> data is <see langword="null"/>, <see cref="NativeCallResults.BufferResult.TooSmall"/> is returned
         /// and <paramref name="dataSize"/> is updated to contain the minimum buffer size needed to capture the calibration data.
         /// </returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.BufferResult DeviceGetRawCalibration(
+        public static extern NativeCallResults.BufferResult DeviceGetRawCalibration(
             NativeHandles.DeviceHandle deviceHandle,
             [Out] byte[] data,
             ref UIntPtr dataSize);
@@ -590,7 +590,7 @@ namespace K4AdotNet.Sensor
         /// <param name="depthMode">Mode in which depth camera is operated.</param>
         /// <param name="colorResolution">Resolution in which color camera is operated.</param>
         /// <param name="calibration">Output: calibration data.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="calibration"/> was successfully written. <see cref="NativeApiCallResults.Result.Failed"/> otherwise.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="calibration"/> was successfully written. <see cref="NativeCallResults.Result.Failed"/> otherwise.</returns>
         /// <remarks>
         /// The <paramref name="calibration"/> represents the data needed to transform between the camera views and may be
         /// different for each operating <paramref name="depthMode"/> and <paramref name="colorResolution"/> the device is configured to operate in.
@@ -598,7 +598,7 @@ namespace K4AdotNet.Sensor
         /// The <paramref name="calibration"/> output is used as input to all calibration and transformation functions.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_calibration", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceGetCalibration(
+        public static extern NativeCallResults.Result DeviceGetCalibration(
             NativeHandles.DeviceHandle deviceHandle,
             DepthMode depthMode,
             ColorResolution colorResolution,
@@ -611,14 +611,14 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <param name="syncInJackConnected">Upon successful return this value will be set to true if a cable is connected to this sync in jack.</param>
         /// <param name="syncOutJackConnected">Upon successful return this value will be set to true if a cable is connected to this sync out jack.</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if the connector status was successfully read.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the connector status was successfully read.</returns>
         /// <remarks>
         /// If <paramref name="syncOutJackConnected"/> is <see langword="true"/> then <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to
         /// <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Master"/>. If <paramref name="syncInJackConnected"/> is <see langword="true"/> then
         /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Subordinate"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_sync_jack", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result DeviceGetSyncJack(
+        public static extern NativeCallResults.Result DeviceGetSyncJack(
             NativeHandles.DeviceHandle deviceHandle,
             out bool syncInJackConnected,
             out bool syncOutJackConnected);
@@ -634,7 +634,7 @@ namespace K4AdotNet.Sensor
         /// <param name="depthMode">Mode in which depth camera is operated.</param>
         /// <param name="colorResolution">Resolution in which color camera is operated.</param>
         /// <param name="calibration">Result: calibration data</param>
-        /// <returns><see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="calibration"/> was successfully written. <see cref="NativeApiCallResults.Result.Failed"/> otherwise.</returns>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="calibration"/> was successfully written. <see cref="NativeCallResults.Result.Failed"/> otherwise.</returns>
         /// <remarks>
         /// The <paramref name="calibration"/> represents the data needed to transform between the camera views and is
         /// different for each operating <paramref name="depthMode"/> and <paramref name="colorResolution"/> the device is configured to operate in.
@@ -642,7 +642,7 @@ namespace K4AdotNet.Sensor
         /// The <paramref name="calibration"/> output is used as input to all transformation functions.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_get_from_raw", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result CalibrationGetFromRaw(
+        public static extern NativeCallResults.Result CalibrationGetFromRaw(
             byte[] rawCalibration,
             UIntPtr rawCalibrationSize,
             DepthMode depthMode,
@@ -661,8 +661,8 @@ namespace K4AdotNet.Sensor
         /// <param name="targetCamera">The target camera.</param>
         /// <param name="targetPoint3DMm">Output: the new 3D coordinates of the input point in the coordinate space <paramref name="targetCamera"/> in millimeters.</param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="targetPoint3DMm"/> was successfully written.
-        /// <see cref="NativeApiCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint3DMm"/> was successfully written.
+        /// <see cref="NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
         /// </returns>
         /// <remarks>
         /// This function is used to transform 3D points between depth and color camera coordinate systems. The function uses the
@@ -671,7 +671,7 @@ namespace K4AdotNet.Sensor
         /// be identical to <paramref name="sourcePoint3DMm"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_3d", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result Calibration3DTo3D(
+        public static extern NativeCallResults.Result Calibration3DTo3D(
             [In] ref Calibration calibration,
             [In] ref Float3 sourcePoint3DMm,
             CalibrationGeometry sourceCamera,
@@ -700,10 +700,10 @@ namespace K4AdotNet.Sensor
         /// and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="targetPoint3DMm"/> was successfully written.
-        /// <see cref="NativeApiCallResults.Result.Failed"/> if <paramref name="calibration"/>
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint3DMm"/> was successfully written.
+        /// <see cref="NativeCallResults.Result.Failed"/> if <paramref name="calibration"/>
         /// contained invalid transformation parameters.
-        /// If the function returns <see cref="NativeApiCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
+        /// If the function returns <see cref="NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
         /// the transformation was computed, but the results in <paramref name="targetPoint3DMm"/> are outside of the range of valid
         /// calibration and should be ignored.
         /// </returns>
@@ -721,7 +721,7 @@ namespace K4AdotNet.Sensor
         /// should not use the value of <paramref name="targetPoint3DMm"/> if <paramref name="valid"/> was set to <see langword="false"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_3d", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result Calibration2DTo3D(
+        public static extern NativeCallResults.Result Calibration2DTo3D(
             [In] ref Calibration calibration,
             [In] ref Float2 sourcePoint2D,
             float sourceDepthMm,
@@ -747,9 +747,9 @@ namespace K4AdotNet.Sensor
         /// coordinate system, and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
-        /// <see cref="NativeApiCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
-        /// If the function returns <see cref="NativeApiCallResults.Result.Succeeded"/>, but <paramref name="valid"/> is <see langword="false"/>,
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
+        /// <see cref="NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+        /// If the function returns <see cref="NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> is <see langword="false"/>,
         /// the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
         /// and should be ignored.
         /// </returns>
@@ -765,7 +765,7 @@ namespace K4AdotNet.Sensor
         /// The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_2d", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result Calibration3DTo2D(
+        public static extern NativeCallResults.Result Calibration3DTo2D(
             [In] ref Calibration calibration,
             [In] ref Float3 sourcePoint3DMm,
             CalibrationGeometry sourceCamera,
@@ -794,9 +794,9 @@ namespace K4AdotNet.Sensor
         /// coordinate system, and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
         /// </param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
-        /// <see cref="NativeApiCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
-        /// If the function returns <see cref="NativeApiCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
+        /// <see cref="NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+        /// If the function returns <see cref="NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
         /// the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
         /// and should be ignored.
         /// </returns>
@@ -813,7 +813,7 @@ namespace K4AdotNet.Sensor
         /// The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to 0.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_2d", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result Calibration2DTo2D(
+        public static extern NativeCallResults.Result Calibration2DTo2D(
             [In] ref Calibration calibration,
             [In] ref Float2 sourcePoint2D,
             float sourceDepthMm,
@@ -842,8 +842,8 @@ namespace K4AdotNet.Sensor
         /// <param name="depthImage">Handle to input depth image.</param>
         /// <param name="transformedDepthImage">Handle to output transformed depth image.</param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="transformedDepthImage"/> was successfully written
-        /// and <see cref="NativeApiCallResults.Result.Failed"/> otherwise.
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="transformedDepthImage"/> was successfully written
+        /// and <see cref="NativeCallResults.Result.Failed"/> otherwise.
         /// </returns>
         /// <remarks>
         /// This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
@@ -860,7 +860,7 @@ namespace K4AdotNet.Sensor
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_color_camera", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result TransformationDepthImageToColorCamera(
+        public static extern NativeCallResults.Result TransformationDepthImageToColorCamera(
             NativeHandles.TransformationHandle transformationHandle,
             NativeHandles.ImageHandle depthImage,
             NativeHandles.ImageHandle transformedDepthImage);
@@ -875,8 +875,8 @@ namespace K4AdotNet.Sensor
         /// <param name="colorImage">Handle to input color image.</param>
         /// <param name="transformedColorImage">Handle to output transformed color image.</param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="transformedColorImage"/> was successfully written
-        /// and <see cref="NativeApiCallResults.Result.Failed"/> otherwise.
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="transformedColorImage"/> was successfully written
+        /// and <see cref="NativeCallResults.Result.Failed"/> otherwise.
         /// </returns>
         /// <remarks>
         /// This produces a color image for which each pixel matches the corresponding pixel coordinates of the depth camera.
@@ -895,7 +895,7 @@ namespace K4AdotNet.Sensor
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_color_image_to_depth_camera", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result TransformationColorImageToDepthCamera(
+        public static extern NativeCallResults.Result TransformationColorImageToDepthCamera(
             NativeHandles.TransformationHandle transformationHandle,
             NativeHandles.ImageHandle depthImage,
             NativeHandles.ImageHandle colorImage,
@@ -911,8 +911,8 @@ namespace K4AdotNet.Sensor
         /// <param name="camera">Geometry in which depth map was computed.</param>
         /// <param name="xyzImage">Handle to output xyz image.</param>
         /// <returns>
-        /// <see cref="NativeApiCallResults.Result.Succeeded"/> if <paramref name="xyzImage"/> was successfully written
-        /// and <see cref="NativeApiCallResults.Result.Failed"/> otherwise.
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="xyzImage"/> was successfully written
+        /// and <see cref="NativeCallResults.Result.Failed"/> otherwise.
         /// </returns>
         /// <remarks>
         /// <paramref name="depthImage"/> must be of format <see cref="ImageFormat.Depth16"/>.
@@ -933,7 +933,7 @@ namespace K4AdotNet.Sensor
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_point_cloud", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeApiCallResults.Result TransformationDepthImageToPointCloud(
+        public static extern NativeCallResults.Result TransformationDepthImageToPointCloud(
                 NativeHandles.TransformationHandle transformationHandle,
                 NativeHandles.ImageHandle depthImage,
                 CalibrationGeometry camera,

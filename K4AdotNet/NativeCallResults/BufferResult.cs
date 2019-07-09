@@ -1,4 +1,4 @@
-﻿namespace K4AdotNet.NativeApiCallResults
+﻿namespace K4AdotNet.NativeCallResults
 {
     // Defined in k4atypes.h:
     // typedef enum

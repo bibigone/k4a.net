@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
-    /// <summary>DLL imports of some native functions from <c>k4a.h</c> and <c>k4abt.h</c> header files.</summary>
+    /// <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record/record.h</c>, <c>record/playback.h</c> and <c>k4abt.h</c> header files.</summary>
     /// <remarks>These functions are required for implementation of Handle classes.</remarks>
     internal static class NativeApi
     {
@@ -80,6 +80,24 @@ namespace K4AdotNet.NativeHandles
         /// <remarks>Call this function to add an additional reference to a body frame.</remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_reference", CallingConvention = CallingConvention.Cdecl)]
         public static extern void FrameReference(IntPtr bodyFrameHandle);
+
+        #endregion
+
+        #region record/record.h and record/playback.h
+
+        // K4ARECORD_EXPORT void k4a_record_close(k4a_record_t recording_handle);
+        /// <summary>Closes a recording handle.</summary>
+        /// <param name="recordingHandle">Recording handle to be closed.</param>
+        /// <remarks>If there is any unwritten data it will be flushed to disk before closing the recording.</remarks>
+        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4a_record_close", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RecordClose(IntPtr recordingHandle);
+
+        // K4ARECORD_EXPORT void k4a_playback_close(k4a_playback_t playback_handle);
+        /// <summary>Closes a recording playback handle.</summary>
+        /// <param name="recordingHandle">Recording playback handle to be closed.</param>
+        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4a_playback_close", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void PlaybackClose(IntPtr recordingHandle);
+
         #endregion
     }
 }
