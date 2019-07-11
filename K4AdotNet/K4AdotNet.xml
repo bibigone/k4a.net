@@ -336,7 +336,7 @@
             <returns>Additional reference to the same image. Don't forget to call <see cref="M:System.IDisposable.Dispose"/> method for object returned.</returns>
         </member>
         <member name="T:K4AdotNet.NativeHandles.NativeApi">
-            <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record/record.h</c>, <c>record/playback.h</c> and <c>k4abt.h</c> header files.</summary>
+            <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record.h</c>, <c>playback.h</c> and <c>k4abt.h</c> header files.</summary>
             <remarks>These functions are required for implementation of Handle classes.</remarks>
         </member>
         <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(System.IntPtr)">
@@ -706,7 +706,7 @@
             recording location.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordAddTag(K4AdotNet.NativeHandles.RecordHandle)">
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddImuTrack(K4AdotNet.NativeHandles.RecordHandle)">
             <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
             <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
@@ -754,6 +754,9 @@
         </member>
         <member name="F:K4AdotNet.Sdk.SENSOR_DLL_NAME">
             <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sdk.RECORD_DLL_NAME">
+            <summary>Name of record DLL in Kinect for Azure Sensor SDK.</summary>
         </member>
         <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME">
             <summary>Name of Kinect for Azure Body Tracking SDK DLL.</summary>
@@ -1240,7 +1243,7 @@
         <member name="T:K4AdotNet.Sensor.ImageFormat">
             <summary>Image format type.</summary>
         </member>
-        <member name="F:K4AdotNet.Sensor.ImageFormat.ColorMJPG">
+        <member name="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg">
             <summary>
             The buffer for each image is encoded as a JPEG and can be decoded by a JPEG decoder.
             </summary>
@@ -1327,7 +1330,7 @@
         <member name="F:K4AdotNet.Sensor.ImuSample.GyroSample">
             <summary>Gyro sample in radians per second.</summary>
         </member>
-        <member name="F:K4AdotNet.Sensor.ImuSample.GyroTimeStamp">
+        <member name="F:K4AdotNet.Sensor.ImuSample.GyroTimestamp">
             <summary>Time stamp of the gyroscope in microseconds.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.NativeApi">

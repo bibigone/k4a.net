@@ -6,6 +6,8 @@ namespace K4AdotNet.BodyTracking
     /// <summary>DLL imports for most of native functions from <c>k4abt.h</c> header file.</summary>
     internal static class NativeApi
     {
+        public const int MAX_TRACKING_QUEUE_SIZE = 3;
+
         // K4ABT_EXPORT k4a_result_t k4abt_tracker_create(const k4a_calibration_t* sensor_calibration,
         //                                                k4abt_tracker_t* tracker_handle);
         /// <summary>Create a body tracker handle.</summary>

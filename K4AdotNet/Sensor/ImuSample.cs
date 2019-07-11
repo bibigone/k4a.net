@@ -31,6 +31,7 @@ namespace K4AdotNet.Sensor
         public Float3 GyroSample;
 
         /// <summary>Time stamp of the gyroscope in microseconds.</summary>
-        public long GyroTimeStamp;
+        [MarshalAs(UnmanagedType.Struct)]
+        public Timestamp GyroTimestamp;
     }
 }

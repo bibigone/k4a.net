@@ -11,6 +11,7 @@ namespace K4AdotNet.Playback
     //      bool color_track_enabled;
     //      bool depth_track_enabled;
     //      bool ir_track_enabled;
+    //      bool imu_track_enabled;
     //      int32_t depth_delay_off_color_usec;
     //      k4a_wired_sync_mode_t wired_sync_mode;
     //      uint32_t subordinate_delay_off_master_usec;

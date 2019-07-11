@@ -93,7 +93,7 @@ namespace K4AdotNet.Sensor
         /// <remarks>Use this setting to initialize a <see cref="DeviceConfiguration"/> to a disabled state.</remarks>
         public static readonly DeviceConfiguration DisableAll = new DeviceConfiguration
         {
-             ColorFormat = ImageFormat.ColorMJPG,
+             ColorFormat = ImageFormat.ColorMjpg,
              ColorResolution = ColorResolution.Off,
              DepthMode = DepthMode.Off,
              CameraFps = FrameRate.Thirty,

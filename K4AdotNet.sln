@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet", "K4AdotNet\K4Ad
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Solution Items", "0 - Solution Items", "{4214990D-F0AF-4206-9A3B-47919B99AB1C}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
@@ -18,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Samples", "2 - Samples"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Tests", "3 - Tests", "{B227E80C-8E74-486D-887E-AC31D7A70F96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.BodyTrackingSpeedTest", "K4AdotNet.Samples.BodyTrackingSpeedTest\K4AdotNet.Samples.BodyTrackingSpeedTest.csproj", "{45AEA3B6-EB45-479A-8962-93AC42B6AA41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,12 +31,17 @@ Global
 		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0646EAF8-8941-4CBE-9D1A-59C643171F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45AEA3B6-EB45-479A-8962-93AC42B6AA41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45AEA3B6-EB45-479A-8962-93AC42B6AA41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45AEA3B6-EB45-479A-8962-93AC42B6AA41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45AEA3B6-EB45-479A-8962-93AC42B6AA41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0646EAF8-8941-4CBE-9D1A-59C643171F3E} = {8A43FD41-5FDD-4106-B41B-FF9C3135D12A}
+		{45AEA3B6-EB45-479A-8962-93AC42B6AA41} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2012927-1A97-4801-B3C9-76EBC40D34F4}

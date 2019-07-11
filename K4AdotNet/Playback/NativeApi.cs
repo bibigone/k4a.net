@@ -12,7 +12,7 @@ namespace K4AdotNet.Playback
         /// <param name="path">File system path of the existing recording.</param>
         /// <param name="playbackHandle">If successful, this contains a pointer to the recording handle.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_open", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_open", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
         public static extern NativeCallResults.Result PlaybackOpen(
             [MarshalAs(UnmanagedType.LPStr)] string path,
             out NativeHandles.PlaybackHandle playbackHandle);
@@ -37,7 +37,7 @@ namespace K4AdotNet.Playback
         /// minimum buffer size needed to capture the calibration data.
         /// </returns>
         /// <remarks>The raw calibration may not exist if the device was not specified during recording.</remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult PlaybackGetRawCalibration(
             NativeHandles.PlaybackHandle playbackHandle,
             [Out] byte[] data,
@@ -53,7 +53,7 @@ namespace K4AdotNet.Playback
         /// <param name="calibration">Output: calibration data.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         /// <remarks>The calibration may not exist if the device was not specified during recording.</remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_calibration", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result PlaybackGetCalibration(
             NativeHandles.PlaybackHandle playbackHandle,
             out Sensor.Calibration calibration);
@@ -64,7 +64,7 @@ namespace K4AdotNet.Playback
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(string, out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="config">Output: recording configuration.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="config"/> was successfully written. <see cref="NativeCallResults.Result.Failed"/> otherwise.</returns>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_record_configuration", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_record_configuration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result PlaybackGetRecordConfiguration(
             NativeHandles.PlaybackHandle playbackHandle,
             out RecordConfiguration config);
@@ -95,7 +95,7 @@ namespace K4AdotNet.Playback
         /// Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
         /// recording location.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_tag", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_tag", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
         public static extern NativeCallResults.BufferResult PlaybackGetTag(
             NativeHandles.PlaybackHandle playbackHandle,
             string name,
@@ -119,7 +119,7 @@ namespace K4AdotNet.Playback
         /// stored in the file may significantly increase the latency of <see cref="PlaybackGetNextCapture"/> and
         /// <see cref="PlaybackGetPreviousCapture"/>.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_set_color_conversion", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_set_color_conversion", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result PlaybackSetColorConversion(
             NativeHandles.PlaybackHandle playbackHandle,
             Sensor.ImageFormat targetFormat);
@@ -147,7 +147,7 @@ namespace K4AdotNet.Playback
         /// <see cref="Sensor.NativeApi.CaptureGetDepthImage(NativeHandles.CaptureHandle)"/>, or <see cref="Sensor.NativeApi.CaptureGetIRImage(NativeHandles.CaptureHandle)"/>,
         /// the image should be checked for <see langword="null"/>.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_next_capture", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_next_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetNextCapture(
             NativeHandles.PlaybackHandle playbackHandle,
             out NativeHandles.CaptureHandle captureHandle);
@@ -175,7 +175,7 @@ namespace K4AdotNet.Playback
         /// <see cref="Sensor.NativeApi.CaptureGetDepthImage(NativeHandles.CaptureHandle)"/>, or <see cref="Sensor.NativeApi.CaptureGetIRImage(NativeHandles.CaptureHandle)"/>,
         /// the image should be checked for <see langword="null"/>.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_next_capture", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_previous_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetPreviousCapture(
             NativeHandles.PlaybackHandle playbackHandle,
             out NativeHandles.CaptureHandle captureHandle);
@@ -198,7 +198,7 @@ namespace K4AdotNet.Playback
         /// If a call was made to <see cref="PlaybackGetPreviousImuSample(NativeHandles.PlaybackHandle, out Sensor.ImuSample)"/> that returned <see cref="NativeCallResults.StreamResult.Eof"/>, the playback
         /// position is at the beginning of the stream and this method will return the first IMU sample in the recording.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_next_imu_sample", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_next_imu_sample", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetNextImuSample(
             NativeHandles.PlaybackHandle playbackHandle,
             out Sensor.ImuSample imuSample);
@@ -221,7 +221,7 @@ namespace K4AdotNet.Playback
         /// If a call was made to <see cref="PlaybackGetPreviousImuSample(NativeHandles.PlaybackHandle, out Sensor.ImuSample)"/> that returned <see cref="NativeCallResults.StreamResult.Eof"/>, the playback
         /// position is at the beginning of the stream and this method will return the first IMU sample in the recording.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_previous_imu_sample", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_previous_imu_sample", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetPreviousImuSample(
             NativeHandles.PlaybackHandle playbackHandle,
             out Sensor.ImuSample imuSample);
@@ -250,7 +250,7 @@ namespace K4AdotNet.Playback
         /// The first call to <see cref="PlaybackGetPreviousImuSample(NativeHandles.PlaybackHandle, out Sensor.ImuSample)"/> after this method
         /// will return the first IMU sample with a timestamp less than the seek time.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_seek_timestamp", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_seek_timestamp", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result PlaybackSeekTimestamp(
             NativeHandles.PlaybackHandle playbackHandle,
             Timestamp offset,
@@ -261,7 +261,7 @@ namespace K4AdotNet.Playback
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(string, out NativeHandles.PlaybackHandle)"/>.</param>
         /// <returns>The timestamp of the last capture image or IMU sample.</returns>
         /// <remarks>Recordings start at timestamp <see cref="Timestamp.Zero"/>, and end at the timestamp returned by this method.</remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_playback_get_last_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_last_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern Timestamp PlaybackGetLastTimestamp(NativeHandles.PlaybackHandle playbackHandle);
     }
 }

@@ -21,7 +21,7 @@
         /// Because the image is compressed, the stride parameter is not applicable.
         /// Each MJPG encoded image in a stream may be of differing size depending on the compression efficiency.
         /// </remarks>
-        ColorMJPG = 0,
+        ColorMjpg = 0,
 
         /// <summary>
         /// NV12 images separate the luminance and chroma data such that all the luminance is at the
