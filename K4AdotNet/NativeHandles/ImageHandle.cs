@@ -4,7 +4,7 @@
     // K4A_DECLARE_HANDLE(k4a_image_t);
     /// <summary>Handle to an Azure Kinect image.</summary>
     /// <remarks>Images from a device are retrieved through a <c>k4a_capture_t</c> object returned by <c>k4a_device_get_capture()</c>.</remarks>
-    internal sealed class ImageHandle : HandleBase
+    internal sealed class ImageHandle : HandleBase, IReferenceDuplicatable<ImageHandle>
     {
         private ImageHandle()
         { }

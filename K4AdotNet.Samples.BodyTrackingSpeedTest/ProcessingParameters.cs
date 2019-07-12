@@ -3,12 +3,12 @@ using System.IO;
 
 namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
-    internal sealed class ExecutionParameters
+    internal sealed class ProcessingParameters
     {
         public const string MKV_FILE_EXTENSION = ".mkv";
 
         public static readonly string MkvPathDescription = "Path to MKV file";
-        public static readonly string MultiThreadedDescription = "Optional multi/single threaded implementation (M/S, default - S)";
+        public static readonly string ImplementationDescription = "Optional implementation type (S - single thread, P - pop in background, E - enqueue in background, default - S)";
         public static readonly string StartTimeDescription = "Optional start time of video interval in seconds (default - beginning of recording)";
         public static readonly string EndTimeDescription = "Optional end time of video interval in seconds (default - end of recording)";
 
@@ -26,7 +26,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         }
 
         public string MkvPath { get; private set; }
-        public bool MultiThreaded { get; private set; }
+        public ProcessingImplementation Implementation { get; private set; }
         public TimeSpan? StartTime { get; private set; }
         public TimeSpan? EndTime { get; private set; }
 
@@ -68,11 +68,11 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
             return true;
         }
 
-        public bool TrySetMultiThreaded(string value, out string message)
+        public bool TrySetImplementation(string value, out string message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                MultiThreaded = false;
+                Implementation = ProcessingImplementation.SingleThread;
                 message = null;
                 return true;
             }
@@ -80,17 +80,21 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
             value = value.Trim().ToLowerInvariant();
             switch (value)
             {
-                case "m":
-                    MultiThreaded = true;
+                case "s":
+                    Implementation = ProcessingImplementation.SingleThread;
                     message = null;
                     return true;
-                case "s":
-                    MultiThreaded = false;
+                case "p":
+                    Implementation = ProcessingImplementation.PopInBackground;
+                    message = null;
+                    return true;
+                case "e":
+                    Implementation = ProcessingImplementation.EnqueueInBackground;
                     message = null;
                     return true;
             }
 
-            message = $"Invalid value. Expected 'M' or 'S' characters.";
+            message = $"Invalid value. Expected 'S' or 'P' or 'E' characters.";
             return false;
         }
 

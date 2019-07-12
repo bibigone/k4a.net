@@ -3,18 +3,18 @@ using System.Threading;
 
 namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
-    internal sealed class MultiThreadProcessor : Processor
+    internal sealed class PopInBackgroundProcessor : Processor
     {
         private volatile bool processing;
         private volatile int queueSize;
         private volatile int processedFrameCount;
         private volatile int frameWithBodyCount;
 
-        public MultiThreadProcessor(ExecutionParameters executionParameters)
-            : base(executionParameters)
+        public PopInBackgroundProcessor(ProcessingParameters processingParameters)
+            : base(processingParameters)
         {
             processing = true;
-            new Thread(ProcessingLoop) { Priority = ThreadPriority.AboveNormal, IsBackground = true }.Start();
+            new Thread(ProcessingLoop) { IsBackground = true }.Start();
         }
 
         public override void Dispose()
@@ -42,17 +42,17 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
             using (captureHandle)
             {
-                if (executionParameters.EndTime.HasValue)
+                if (processingParameters.EndTime.HasValue)
                 {
                     var timestamp = GetTimestamp(captureHandle);
-                    if (timestamp.HasValue && !executionParameters.IsTimeInStartEndInterval(timestamp.Value))
+                    if (timestamp.HasValue && !processingParameters.IsTimeInStartEndInterval(timestamp.Value))
                     {
                         WaitForProcessingOfQueueTail();
                         return false;
                     }
                 }
 
-                EnqueueCapture(captureHandle, Timeout.Infinite);
+                TryEnqueueCapture(captureHandle, Timeout.Infinite);
                 Interlocked.Increment(ref queueSize);
             }
 
@@ -83,6 +83,10 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
                         {
                             Interlocked.Increment(ref frameWithBodyCount);
                         }
+                    }
+                    else
+                    {
+                        Thread.Sleep(0);
                     }
                 }
             }

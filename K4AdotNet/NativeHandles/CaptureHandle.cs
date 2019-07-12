@@ -7,7 +7,7 @@
     /// Empty captures are created with <c>k4a_capture_create()</c>.
     /// Captures can be obtained from a device using <c>k4a_device_get_capture()</c>.
     /// </remarks>
-    internal sealed class CaptureHandle : HandleBase
+    internal sealed class CaptureHandle : HandleBase, IReferenceDuplicatable<CaptureHandle>
     {
         private CaptureHandle()
         { }

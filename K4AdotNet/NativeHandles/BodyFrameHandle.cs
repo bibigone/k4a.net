@@ -3,7 +3,7 @@
     // Defined in k4abttypes.h:
     // K4A_DECLARE_HANDLE(k4abt_frame_t);
     /// <summary>Handle to an Azure Kinect body tracking frame.</summary>
-    internal sealed class BodyFrameHandle : HandleBase
+    internal sealed class BodyFrameHandle : HandleBase, IReferenceDuplicatable<BodyFrameHandle>
     {
         private BodyFrameHandle()
         { }

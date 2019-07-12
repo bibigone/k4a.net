@@ -8,8 +8,8 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         private int frameWithBodyCount;
         private int queueSize;
 
-        public SingleThreadProcessor(ExecutionParameters executionParameters)
-            : base(executionParameters)
+        public SingleThreadProcessor(ProcessingParameters processingParameters)
+            : base(processingParameters)
         { }
 
         public override int TotalFrameCount => totalFrameCount;
@@ -37,17 +37,17 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
             using (captureHandle)
             {
-                if (executionParameters.EndTime.HasValue)
+                if (processingParameters.EndTime.HasValue)
                 {
                     var timestamp = GetTimestamp(captureHandle);
-                    if (timestamp.HasValue && !executionParameters.IsTimeInStartEndInterval(timestamp.Value))
+                    if (timestamp.HasValue && !processingParameters.IsTimeInStartEndInterval(timestamp.Value))
                     {
                         ProcessQueueTail();
                         return false;
                     }
                 }
 
-                EnqueueCapture(captureHandle, Timeout.Infinite);
+                TryEnqueueCapture(captureHandle, Timeout.Infinite);
                 queueSize++;
 
                 Pop(wait: false);

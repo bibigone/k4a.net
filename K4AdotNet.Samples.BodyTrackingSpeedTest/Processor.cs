@@ -4,26 +4,32 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
     internal abstract class Processor : IDisposable
     {
-        public static Processor Create(ExecutionParameters executionParameters)
-            => executionParameters.MultiThreaded
-                ? (Processor)new MultiThreadProcessor(executionParameters)
-                : new SingleThreadProcessor(executionParameters);
+        public static Processor Create(ProcessingParameters processingParameters)
+        {
+            switch (processingParameters.Implementation)
+            {
+                case ProcessingImplementation.SingleThread: return new SingleThreadProcessor(processingParameters);
+                case ProcessingImplementation.PopInBackground: return new PopInBackgroundProcessor(processingParameters);
+                case ProcessingImplementation.EnqueueInBackground: return new EnqueueInBackgroundProcessor(processingParameters);
+                default: throw new NotSupportedException();
+            }
+        }
 
-        protected readonly ExecutionParameters executionParameters;
+        protected readonly ProcessingParameters processingParameters;
         protected readonly NativeHandles.PlaybackHandle playbackHandle;
         protected readonly Playback.RecordConfiguration recordConfig;
         protected readonly Sensor.Calibration calibration;
         protected readonly NativeHandles.TrackerHandle trackerHandle;
 
-        protected Processor(ExecutionParameters executionParameters)
+        protected Processor(ProcessingParameters processingParameters)
         {
-            this.executionParameters = executionParameters;
+            this.processingParameters = processingParameters;
             playbackHandle = OpenRecord();
             GetRecordConfig(out recordConfig);
             RecordLength = GetRecordLength();
             GetCalibration(out calibration);
-            if (executionParameters.StartTime.HasValue)
-                Seek(executionParameters.StartTime.Value);
+            if (processingParameters.StartTime.HasValue)
+                Seek(processingParameters.StartTime.Value);
             trackerHandle = CreateTracker(ref calibration);
         }
 
@@ -47,9 +53,9 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         private NativeHandles.PlaybackHandle OpenRecord()
         {
-            var res = Playback.NativeApi.PlaybackOpen(executionParameters.MkvPath, out var playbackHandle);
+            var res = Playback.NativeApi.PlaybackOpen(processingParameters.MkvPath, out var playbackHandle);
             if (res != NativeCallResults.Result.Succeeded)
-                throw new ApplicationException($"Cannot open \"{executionParameters.MkvPath}\" file for playback.");
+                throw new ApplicationException($"Cannot open \"{processingParameters.MkvPath}\" file for playback.");
             return playbackHandle;
         }
 
@@ -103,11 +109,14 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
             return null;
         }
 
-        protected void EnqueueCapture(NativeHandles.CaptureHandle captureHandle, Timeout timeout)
+        protected bool TryEnqueueCapture(NativeHandles.CaptureHandle captureHandle, Timeout timeout)
         {
             var waitResult = BodyTracking.NativeApi.TrackerEnqueueCapture(trackerHandle, captureHandle, timeout);
-            if (waitResult != NativeCallResults.WaitResult.Succeeded)
-                throw new ApplicationException("Cannot enqueue next capture to body tracking pipeline.");
+            if (waitResult == NativeCallResults.WaitResult.Succeeded)
+                return true;
+            if (waitResult == NativeCallResults.WaitResult.Timeout)
+                return false;
+            throw new ApplicationException("Cannot enqueue capture to body tracking pipeline.");
         }
 
         protected NativeHandles.BodyFrameHandle TryPopBodyFrame(Timeout timeout)
