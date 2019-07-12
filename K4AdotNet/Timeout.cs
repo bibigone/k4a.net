@@ -184,6 +184,12 @@ namespace K4AdotNet
         public static implicit operator Timeout(int value)
             => new Timeout(value);
 
+        public static Timeout FromSeconds(double timeoutSec)
+            => new Timeout((int)(timeoutSec * 1000000));
+
+        public static Timeout FromMilliseconds(double timeoutMs)
+            => new Timeout((int)(timeoutMs * 1000));
+
         public static readonly Timeout NoWait = new Timeout(0);
 
         public static readonly Timeout Infinite = new Timeout(-1);

@@ -33,7 +33,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing || queueSize > 0)
             {
-                using (var frameHandle = TryPopBodyFrame(Timeout.NoWait))
+                using (var frameHandle = TryPopBodyFrame(Timeout.FromMilliseconds(10)))
                 {
                     if (frameHandle != null)
                     {
@@ -50,7 +50,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
                     }
                     else
                     {
-                        Thread.Sleep(0);
+                        Thread.Sleep(1);
                     }
                 }
             }
@@ -83,12 +83,12 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
                     while (processing)
                     {
-                        if (TryEnqueueCapture(captureHandle, Timeout.NoWait))
+                        if (TryEnqueueCapture(captureHandle, Timeout.FromMilliseconds(10)))
                         {
                             Interlocked.Increment(ref queueSize);
                             break;
                         }
-                        Thread.Sleep(0);
+                        Thread.Sleep(1);
                     }
                 }
             }

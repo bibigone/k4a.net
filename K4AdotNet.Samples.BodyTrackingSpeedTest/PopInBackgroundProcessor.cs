@@ -63,7 +63,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (queueSize > 0)
             {
-                Thread.Sleep(0);
+                Thread.Sleep(1);
             }
         }
 
@@ -71,7 +71,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing)
             {
-                using (var frameHandle = TryPopBodyFrame(Timeout.NoWait))
+                using (var frameHandle = TryPopBodyFrame(Timeout.FromMilliseconds(10)))
                 {
                     if (frameHandle != null)
                     {
@@ -86,7 +86,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
                     }
                     else
                     {
-                        Thread.Sleep(0);
+                        Thread.Sleep(1);
                     }
                 }
             }
