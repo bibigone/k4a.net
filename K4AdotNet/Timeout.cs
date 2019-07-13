@@ -20,6 +20,10 @@ namespace K4AdotNet
         public TimeSpan ToTimeSpan()
             => TimeSpan.FromMilliseconds(ValueMs);
 
+        public double TotalSeconds => ValueMs / 1_000;
+
+        public int TotalMilliseconds => ValueMs;
+
         public bool Equals(Timeout other)
             => ValueMs.Equals(other.ValueMs);
 
@@ -57,7 +61,7 @@ namespace K4AdotNet
                 return nameof(Infinite);
             if (ValueMs == 0)
                 return nameof(NoWait);
-            return ValueMs.ToString(format, formatProvider) + " ms";
+            return ValueMs.ToString(format, formatProvider) + UNIT_POSTFIX;
         }
 
         public override bool Equals(object obj)
@@ -82,7 +86,7 @@ namespace K4AdotNet
                 return nameof(Infinite);
             if (ValueMs == 0)
                 return nameof(NoWait);
-            return ValueMs.ToString() + " ms";
+            return ValueMs.ToString() + UNIT_POSTFIX;
         }
 
         public static bool operator ==(Timeout left, Timeout right)
@@ -185,13 +189,15 @@ namespace K4AdotNet
             => new Timeout(value);
 
         public static Timeout FromSeconds(double timeoutSec)
-            => new Timeout((int)(timeoutSec * 1000000));
+            => new Timeout((int)(timeoutSec * 1_000));
 
-        public static Timeout FromMilliseconds(double timeoutMs)
-            => new Timeout((int)(timeoutMs * 1000));
+        public static Timeout FromMilliseconds(int timeoutMs)
+            => new Timeout(timeoutMs);
 
         public static readonly Timeout NoWait = new Timeout(0);
 
         public static readonly Timeout Infinite = new Timeout(-1);
+
+        private const string UNIT_POSTFIX = " ms";
     }
 }

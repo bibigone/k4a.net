@@ -13,5 +13,7 @@
             NativeApi.TrackerDestroy(handle);
             return true;
         }
+
+        public static readonly TrackerHandle Zero = new TrackerHandle();
     }
 }

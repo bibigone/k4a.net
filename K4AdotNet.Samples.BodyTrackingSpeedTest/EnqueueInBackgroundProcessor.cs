@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 
 namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
     internal sealed class EnqueueInBackgroundProcessor : Processor
     {
         private volatile bool processing;
-        private volatile int queueSize;
         private int processedFrameCount;
         private int frameWithBodyCount;
 
@@ -27,24 +25,18 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         public override int FrameWithBodyCount => frameWithBodyCount;
 
-        public override int QueueSize => queueSize;
-
         public override bool NextFrame()
         {
-            while (processing || queueSize > 0)
+            while (processing || QueueSize > 0)
             {
-                using (var frameHandle = TryPopBodyFrame(Timeout.FromMilliseconds(10)))
+                using (var frame = tracker.TryPopResult(Timeout.FromMilliseconds(10)))
                 {
-                    if (frameHandle != null)
+                    if (frame != null)
                     {
-                        Interlocked.Decrement(ref queueSize);
                         processedFrameCount++;
 
-                        var bodyCount = (int)BodyTracking.NativeApi.FrameGetNumBodies(frameHandle).ToUInt32();
-                        if (bodyCount > 0)
-                        {
+                        if (frame.BodyCount > 0)
                             frameWithBodyCount++;
-                        }
 
                         return true;
                     }
@@ -62,32 +54,16 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing)
             {
-                var streamRes = Playback.NativeApi.PlaybackGetNextCapture(playbackHandle, out var captureHandle);
-                if (streamRes == NativeCallResults.StreamResult.Eof)
+                using (var capture = playback.TryGetNextCapture())
                 {
-                    break;
-                }
-                if (streamRes == NativeCallResults.StreamResult.Failed)
-                    throw new ApplicationException("Cannot read next frame from recording");
-
-                using (captureHandle)
-                {
-                    if (processingParameters.EndTime.HasValue)
-                    {
-                        var timestamp = GetTimestamp(captureHandle);
-                        if (timestamp.HasValue && !processingParameters.IsTimeInStartEndInterval(timestamp.Value))
-                        {
-                            break;
-                        }
-                    }
+                    if (!IsCaptureInInterval(capture))
+                        break;
 
                     while (processing)
                     {
-                        if (TryEnqueueCapture(captureHandle, Timeout.FromMilliseconds(10)))
-                        {
-                            Interlocked.Increment(ref queueSize);
+                        if (tracker.TryEnqueueCapture(capture, Timeout.FromMilliseconds(10)))
                             break;
-                        }
+
                         Thread.Sleep(1);
                     }
                 }

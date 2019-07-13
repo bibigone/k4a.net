@@ -56,7 +56,7 @@ namespace K4AdotNet.Sensor
         /// Any value between negative and positive one capture period is valid.
         /// </remarks>
         [MarshalAs(UnmanagedType.Struct)]
-        public Delay DepthDelayOffColor;
+        public Microseconds32 DepthDelayOffColor;
 
         /// <summary>The external synchronization mode.</summary>
         public WiredSyncMode WiredSyncMode;
@@ -73,7 +73,7 @@ namespace K4AdotNet.Sensor
         /// If this is not a subordinate, then this value is ignored.
         /// </remarks>
         [MarshalAs(UnmanagedType.Struct)]
-        public Delay SubordinateDelayOffMaster;
+        public Microseconds32 SubordinateDelayOffMaster;
 
         /// <summary>Streaming indicator automatically turns on when the color or depth camera's are in use.</summary>
         /// <remarks>This setting disables that behavior and keeps the LED in an off state.</remarks>
@@ -98,9 +98,9 @@ namespace K4AdotNet.Sensor
              DepthMode = DepthMode.Off,
              CameraFps = FrameRate.Thirty,
              SynchronizedImagesOnly = false,
-             DepthDelayOffColor = Delay.Zero,
+             DepthDelayOffColor = Microseconds32.Zero,
              WiredSyncMode = WiredSyncMode.Standalone,
-             SubordinateDelayOffMaster = Delay.Zero,
+             SubordinateDelayOffMaster = Microseconds32.Zero,
              DisableStreamingIndicator = false,
         };
     }

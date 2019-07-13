@@ -1,7 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace K4AdotNet.Playback
+namespace K4AdotNet.Record
 {
+    // Defined in types.h:
     // typedef struct _k4a_record_configuration_t
     // {
     //      k4a_image_format_t color_format;
@@ -49,16 +50,16 @@ namespace K4AdotNet.Playback
         /// A negative delay means depth images are first, and a positive delay means color images are first.
         /// </summary>
         [MarshalAs(UnmanagedType.Struct)]
-        public Delay DepthDelayOffColor;
+        public Microseconds32 DepthDelayOffColor;
 
         /// <summary>External synchronization mode.</summary>
         public Sensor.WiredSyncMode WiredSyncMode;
 
         /// <summary>
         /// The timestamp offset of the start of the recording. All recorded time stamps are offset by this value such that
-        /// the recording starts at timestamp <see cref="Delay.Zero"/>. This value can be used to synchronize time stamps between two recording files.
+        /// the recording starts at timestamp <see cref="Microseconds32.Zero"/>. This value can be used to synchronize time stamps between two recording files.
         /// </summary>
         [MarshalAs(UnmanagedType.Struct)]
-        public Delay SubordinateDelayOffMaster;
+        public Microseconds32 SubordinateDelayOffMaster;
     }
 }

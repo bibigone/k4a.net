@@ -24,7 +24,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Time stamp of the accelerometer.</summary>
         [MarshalAs(UnmanagedType.Struct)]
-        public Timestamp AccelerometerTimestamp;
+        public Microseconds64 AccelerometerTimestamp;
 
         /// <summary>Gyro sample in radians per second.</summary>
         [MarshalAs(UnmanagedType.Struct)]
@@ -32,6 +32,6 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Time stamp of the gyroscope in microseconds.</summary>
         [MarshalAs(UnmanagedType.Struct)]
-        public Timestamp GyroTimestamp;
+        public Microseconds64 GyroTimestamp;
     }
 }

@@ -13,5 +13,7 @@
             NativeApi.DeviceClose(handle);
             return true;
         }
+
+        public static readonly DeviceHandle Zero = new DeviceHandle();
     }
 }

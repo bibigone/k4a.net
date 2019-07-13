@@ -21,5 +21,7 @@
             NativeApi.FrameRelease(handle);
             return true;
         }
+
+        public static readonly BodyFrameHandle Zero = new BodyFrameHandle();
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 
 namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
     internal sealed class PopInBackgroundProcessor : Processor
     {
         private volatile bool processing;
-        private volatile int queueSize;
         private volatile int processedFrameCount;
         private volatile int frameWithBodyCount;
 
@@ -27,33 +25,17 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         public override int FrameWithBodyCount => frameWithBodyCount;
 
-        public override int QueueSize => queueSize;
-
         public override bool NextFrame()
         {
-            var streamRes = Playback.NativeApi.PlaybackGetNextCapture(playbackHandle, out var captureHandle);
-            if (streamRes == NativeCallResults.StreamResult.Eof)
+            using (var capture = playback.TryGetNextCapture())
             {
-                WaitForProcessingOfQueueTail();
-                return false;
-            }
-            if (streamRes == NativeCallResults.StreamResult.Failed)
-                throw new ApplicationException("Cannot read next frame from recording");
-
-            using (captureHandle)
-            {
-                if (processingParameters.EndTime.HasValue)
+                if (!IsCaptureInInterval(capture))
                 {
-                    var timestamp = GetTimestamp(captureHandle);
-                    if (timestamp.HasValue && !processingParameters.IsTimeInStartEndInterval(timestamp.Value))
-                    {
-                        WaitForProcessingOfQueueTail();
-                        return false;
-                    }
+                    WaitForProcessingOfQueueTail();
+                    return false;
                 }
 
-                TryEnqueueCapture(captureHandle, Timeout.Infinite);
-                Interlocked.Increment(ref queueSize);
+                tracker.TryEnqueueCapture(capture, Timeout.Infinite);
             }
 
             return true;
@@ -61,28 +43,22 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         private void WaitForProcessingOfQueueTail()
         {
-            while (queueSize > 0)
-            {
+            while (QueueSize > 0)
                 Thread.Sleep(1);
-            }
         }
 
         private void ProcessingLoop()
         {
             while (processing)
             {
-                using (var frameHandle = TryPopBodyFrame(Timeout.FromMilliseconds(10)))
+                using (var frame = tracker.TryPopResult(Timeout.FromMilliseconds(10)))
                 {
-                    if (frameHandle != null)
+                    if (frame != null)
                     {
-                        Interlocked.Decrement(ref queueSize);
                         Interlocked.Increment(ref processedFrameCount);
 
-                        var bodyCount = (int)BodyTracking.NativeApi.FrameGetNumBodies(frameHandle).ToUInt32();
-                        if (bodyCount > 0)
-                        {
+                        if (frame.BodyCount > 0)
                             Interlocked.Increment(ref frameWithBodyCount);
-                        }
                     }
                     else
                     {

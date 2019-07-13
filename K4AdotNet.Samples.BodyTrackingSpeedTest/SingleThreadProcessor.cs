@@ -1,12 +1,9 @@
-﻿using System;
-
-namespace K4AdotNet.Samples.BodyTrackingSpeedTest
+﻿namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 {
     internal sealed class SingleThreadProcessor : Processor
     {
         private int totalFrameCount;
         private int frameWithBodyCount;
-        private int queueSize;
 
         public SingleThreadProcessor(ProcessingParameters processingParameters)
             : base(processingParameters)
@@ -16,39 +13,23 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         public override int FrameWithBodyCount => frameWithBodyCount;
 
-        public override int QueueSize => queueSize;
-
         public override bool NextFrame()
         {
-            if (QueueSize == BodyTracking.NativeApi.MAX_TRACKING_QUEUE_SIZE)
+            if (QueueSize == BodyTracking.Tracker.MaxQueueSize)
             {
                 Pop(wait: true);
                 return true;
             }
 
-            var streamRes = Playback.NativeApi.PlaybackGetNextCapture(playbackHandle, out var captureHandle);
-            if (streamRes == NativeCallResults.StreamResult.Eof)
+            using (var capture = playback.TryGetNextCapture())
             {
-                ProcessQueueTail();
-                return false;
-            }
-            if (streamRes == NativeCallResults.StreamResult.Failed)
-                throw new ApplicationException("Cannot read next frame from recording");
-
-            using (captureHandle)
-            {
-                if (processingParameters.EndTime.HasValue)
+                if (!IsCaptureInInterval(capture))
                 {
-                    var timestamp = GetTimestamp(captureHandle);
-                    if (timestamp.HasValue && !processingParameters.IsTimeInStartEndInterval(timestamp.Value))
-                    {
-                        ProcessQueueTail();
-                        return false;
-                    }
+                    ProcessQueueTail();
+                    return false;
                 }
 
-                TryEnqueueCapture(captureHandle, Timeout.Infinite);
-                queueSize++;
+                tracker.TryEnqueueCapture(capture, Timeout.Infinite);
 
                 Pop(wait: false);
             }
@@ -59,28 +40,22 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         private void Pop(bool wait)
         {
             var timeout = wait ? Timeout.Infinite : Timeout.NoWait;
-            using (var frameHandle = TryPopBodyFrame(timeout))
+            using (var frame = tracker.TryPopResult(timeout))
             {
-                if (frameHandle == null)
+                if (frame == null)
                     return;
 
-                queueSize--;
                 totalFrameCount++;
 
-                var bodyCount = (int)BodyTracking.NativeApi.FrameGetNumBodies(frameHandle).ToUInt32();
-                if (bodyCount > 0)
-                {
+                if (frame.BodyCount > 0)
                     frameWithBodyCount++;
-                }
             }
         }
 
         private void ProcessQueueTail()
         {
             while (QueueSize > 0)
-            {
                 Pop(wait: true);
-            }
         }
     }
 }

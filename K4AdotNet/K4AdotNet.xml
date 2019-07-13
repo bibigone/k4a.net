@@ -130,8 +130,8 @@
             <summary>Get the body frame timestamp.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
             <returns>
-            Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Timestamp.Zero"/>.
-            It is also possible for <see cref="F:K4AdotNet.Timestamp.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+            Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
+            It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
             </returns>
         </member>
         <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodyIndexMap(K4AdotNet.NativeHandles.BodyFrameHandle)">
@@ -411,18 +411,109 @@
             <summary>Handle to an Azure Kinect transformation context.</summary>
             <remarks>Handles are created with <c>k4a_transformation_create()</c>.</remarks>
         </member>
-        <member name="T:K4AdotNet.Playback.NativeApi">
-            <summary>DLL imports for most of native functions from <c>playback.h</c> header file.</summary>
+        <member name="T:K4AdotNet.Quaternion">
+            <summary>WXYZ representation of quaternion.</summary>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)">
+        <member name="F:K4AdotNet.Quaternion.W">
+            <summary>W component of a vector. Corresponds to <c>0</c> index in array representation.</summary>
+        </member>
+        <member name="F:K4AdotNet.Quaternion.X">
+            <summary>X component of a vector. Corresponds to <c>1</c> index in array representation.</summary>
+        </member>
+        <member name="F:K4AdotNet.Quaternion.Y">
+            <summary>Y component of a vector. Corresponds to <c>2</c> index in array representation.</summary>
+        </member>
+        <member name="F:K4AdotNet.Quaternion.Z">
+            <summary>Z component of a vector. Corresponds to <c>3</c> index in array representation.</summary>
+        </member>
+        <member name="T:K4AdotNet.Record.NativeApi">
+            <summary>DLL imports for most of native functions from <c>record.h</c> and <c>playback.h</c> header files.</summary>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)">
+            <summary>
+            Opens a new recording file for writing.
+            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
+            </summary>
+            <param name="path">File system path for the new recording.</param>
+            <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
+            number information. May be <see cref="F:K4AdotNet.NativeHandles.DeviceHandle.Zero"/> if recording user-generated data.</param>
+            <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
+            <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Streaming does not need to be started on the device at the time this function is called, but when it is started
+            it should be started with the same configuration provided in <paramref name="deviceConfiguration"/>.
+            
+            Subsequent calls to <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)"/> will need to have images in the resolution and format defined
+            in <paramref name="deviceConfiguration"/>.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddTag(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],System.Byte[])">
+            <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="name">The name of the tag to write.</param>
+            <param name="value">The string value to store in the tag.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
+            recording location.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddImuTrack(K4AdotNet.NativeHandles.RecordHandle)">
+            <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteHeader(K4AdotNet.NativeHandles.RecordHandle)">
+            <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)">
+            <summary>
+            Writes a camera capture to file.
+            Captures must be written in increasing order of timestamp, and the file's header must already be written.
+            </summary>
+            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="captureHandle">The handle of a capture to write to file.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            This method will write all images in the capture to the corresponding tracks in the recording file.
+            If any of the images fail to write, other images will still be written before a failure is returned.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteImuSample(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.Sensor.ImuSample)">
+            <summary>Writes an IMU sample to file.</summary>
+            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="imuSample">A structure containing the IMU sample data and time stamps.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Samples must be written in increasing order of timestamp, and the file's header must already be written.
+            When writing IMU samples at the same time as captures, the samples should be within 1 second of the most recently
+            written capture.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordFlush(K4AdotNet.NativeHandles.RecordHandle)">
+            <summary>Flushes all pending recording data to disk.</summary>
+            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            This method ensures that all data passed to the recording API prior to calling flush is written to disk.
+            If continuing to write recording data, care must be taken to ensure no new time stamps are added from before the flush.
+            
+            If an error occurs, best effort is made to flush as much data to disk as possible, but the integrity of the file is
+            not guaranteed.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)">
             <summary>Opens an existing recording file for reading.</summary>
             <param name="path">File system path of the existing recording.</param>
             <param name="playbackHandle">If successful, this contains a pointer to the recording handle.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetRawCalibration(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetRawCalibration(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.UIntPtr@)">
             <summary>Get the raw calibration blob for the Azure Kinect device used during recording.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="data">
             Location to write the calibration data to. This field may optionally be set to <see langword="null"/>
             if the caller wants to query for the needed data size.
@@ -439,25 +530,25 @@
             </returns>
             <remarks>The raw calibration may not exist if the device was not specified during recording.</remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetCalibration(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.Calibration@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetCalibration(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.Calibration@)">
             <summary>
             Get the camera calibration for Azure Kinect device used during recording.
             The output struct is used as input to all transformation functions.
             </summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="calibration">Output: calibration data.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
             <remarks>The calibration may not exist if the device was not specified during recording.</remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetRecordConfiguration(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Playback.RecordConfiguration@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetRecordConfiguration(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Record.RecordConfiguration@)">
             <summary>Get the device configuration used during recording.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="config">Output: recording configuration.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="config"/> was successfully written. <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> otherwise.</returns>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.String,System.Text.StringBuilder,System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
             <summary>Read the value of a tag from a recording.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="name">The name of the tag to read.</param>
             <param name="value">
             Location to write the tag value. If a <see langword="null"/> buffer is specified,
@@ -479,12 +570,12 @@
             recording location.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackSetColorConversion(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImageFormat)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackSetColorConversion(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImageFormat)">
             <summary>
             Set the image format that color captures will be converted to. By default the conversion format will be the same as
             the image format stored in the recording file, and no conversion will occur.
             </summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="targetFormat">The target image format to be returned in captures.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if the format conversion is supported. <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> otherwise.</returns>
             <remarks>
@@ -492,13 +583,13 @@
             their color images converted to the <paramref name="targetFormat"/>.
             
             Color format conversion occurs in the user-thread, so setting <paramref name="targetFormat"/> to anything other than the format
-            stored in the file may significantly increase the latency of <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> and
-            <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/>.
+            stored in the file may significantly increase the latency of <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> and
+            <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)">
             <summary>Read the next capture in the recording sequence.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="captureHandle">If successful this contains a handle to a capture object.</param>
             <returns>
             <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a capture is returned, or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>
@@ -507,10 +598,10 @@
             <remarks>
             This method always returns the next capture in sequence after the most recently returned capture.
             
-            The first call to this method after <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Timestamp,K4AdotNet.Playback.PlaybackSeekOrigin)"/> will return the capture
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> will return the capture
             in the recording closest to the seek time with an image timestamp greater than or equal to the seek time.
             
-            If a call was made to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
             position is at the beginning of the stream and this method will return the first capture in the recording.
             
             Capture objects returned by the playback API will always contain at least one image, but may have images missing if
@@ -519,9 +610,9 @@
             the image should be checked for <see langword="null"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)">
             <summary>Read the previous capture in the recording sequence.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="captureHandle">If successful this contains a handle to a capture object.</param>
             <returns>
             <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a capture is returned, or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>
@@ -530,10 +621,10 @@
             <remarks>
             This method always returns the previous capture in sequence before the most recently returned capture.
             
-            The first call to this method after <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Timestamp,K4AdotNet.Playback.PlaybackSeekOrigin)"/> will return the capture
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> will return the capture
             in the recording closest to the seek time with all image time stamps less than the seek time.
             
-            If a call was made to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
             position is at the end of the stream and this method will return the last capture in the recording.
             
             Capture objects returned by the playback API will always contain at least one image, but may have images missing if
@@ -542,9 +633,9 @@
             the image should be checked for <see langword="null"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)">
             <summary>Read the next IMU sample in the recording sequence.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="imuSample">If successful this contains IMU sample.</param>
             <returns>
             <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a sample is returned, or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>
@@ -553,16 +644,16 @@
             <remarks>
             This method always returns the next IMU sample in sequence after the most recently returned sample.
             
-            The first call to this method after <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Timestamp,K4AdotNet.Playback.PlaybackSeekOrigin)"/> will return the IMU sample
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> will return the IMU sample
             in the recording closest to the seek time with timestamp greater than or equal to the seek time.
             
-            If a call was made to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
             position is at the beginning of the stream and this method will return the first IMU sample in the recording.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)">
             <summary>Read the previous IMU sample in the recording sequence.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="imuSample">If successful this contains IMU sample.</param>
             <returns>
             <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a sample is returned, or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>
@@ -571,16 +662,16 @@
             <remarks>
             This method always returns the previous IMU sample in sequence before the most recently returned sample.
             
-            The first call to this method after <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Timestamp,K4AdotNet.Playback.PlaybackSeekOrigin)"/> will return the IMU sample
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> will return the IMU sample
             in the recording closest to the seek time with timestamp less than the seek time.
             
-            If a call was made to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> that returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, the playback
             position is at the beginning of the stream and this method will return the first IMU sample in the recording.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Timestamp,K4AdotNet.Playback.PlaybackSeekOrigin)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)">
             <summary>Seek to a specific timestamp within a recording.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
             <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
             <returns>
@@ -588,169 +679,75 @@
             if an error occurred. The current seek position is left unchanged if a failure is returned.
             </returns>
             <remarks>
-            The first call to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
+            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
             will return the first capture containing an image timestamp greater than or equal to the seek time.
             
-            The first call to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
+            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
             will return the firs capture with all image timestamps less than the seek time.
             
-            The first call to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
+            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
             will return the first IMU sample with a timestamp greater than or equal to the seek time.
             
-            The first call to <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
+            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
             will return the first IMU sample with a timestamp less than the seek time.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Playback.NativeApi.PlaybackGetLastTimestamp(K4AdotNet.NativeHandles.PlaybackHandle)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetLastTimestamp(K4AdotNet.NativeHandles.PlaybackHandle)">
             <summary>Gets the last timestamp in a recording.</summary>
-            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Playback.NativeApi.PlaybackOpen(System.String,K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <returns>The timestamp of the last capture image or IMU sample.</returns>
-            <remarks>Recordings start at timestamp <see cref="F:K4AdotNet.Timestamp.Zero"/>, and end at the timestamp returned by this method.</remarks>
+            <remarks>Recordings start at timestamp <see cref="F:K4AdotNet.Microseconds64.Zero"/>, and end at the timestamp returned by this method.</remarks>
         </member>
-        <member name="T:K4AdotNet.Playback.PlaybackSeekOrigin">
+        <member name="T:K4AdotNet.Record.PlaybackSeekOrigin">
             <summary>Playback seeking positions.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.PlaybackSeekOrigin.Begin">
+        <member name="F:K4AdotNet.Record.PlaybackSeekOrigin.Begin">
             <summary>Seek relative to the beginning of a recording.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.PlaybackSeekOrigin.End">
+        <member name="F:K4AdotNet.Record.PlaybackSeekOrigin.End">
             <summary>Seek relative to the end of a recording.</summary>
         </member>
-        <member name="T:K4AdotNet.Playback.RecordConfiguration">
+        <member name="T:K4AdotNet.Record.RecordConfiguration">
             <summary>Structure containing the device configuration used to record.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.ColorFormat">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.ColorFormat">
             <summary>Image format used to record the color camera.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.ColorResolution">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.ColorResolution">
             <summary>Image resolution used to record the color camera.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.DepthMode">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.DepthMode">
             <summary>Mode used to record the depth camera.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.CameraFps">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.CameraFps">
             <summary>Frame rate used to record the color and depth camera.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.ColorTrackEnabled">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.ColorTrackEnabled">
             <summary><see langword="true"/> if the recording contains Color camera frames.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.DepthTrackEnabled">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.DepthTrackEnabled">
             <summary><see langword="true"/> if the recording contains Depth camera frames.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.IRTrackEnabled">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.IRTrackEnabled">
             <summary><see langword="true"/> if the recording contains IR camera frames.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.ImuTrackEnabled">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.ImuTrackEnabled">
             <summary><see langword="true"/> if the recording contains IMU sample data.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.DepthDelayOffColor">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.DepthDelayOffColor">
             <summary>
             The delay between color and depth images in the recording.
             A negative delay means depth images are first, and a positive delay means color images are first.
             </summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.WiredSyncMode">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.WiredSyncMode">
             <summary>External synchronization mode.</summary>
         </member>
-        <member name="F:K4AdotNet.Playback.RecordConfiguration.SubordinateDelayOffMaster">
+        <member name="F:K4AdotNet.Record.RecordConfiguration.SubordinateDelayOffMaster">
             <summary>
             The timestamp offset of the start of the recording. All recorded time stamps are offset by this value such that
-            the recording starts at timestamp <see cref="F:K4AdotNet.Delay.Zero"/>. This value can be used to synchronize time stamps between two recording files.
+            the recording starts at timestamp <see cref="F:K4AdotNet.Microseconds32.Zero"/>. This value can be used to synchronize time stamps between two recording files.
             </summary>
-        </member>
-        <member name="T:K4AdotNet.Quaternion">
-            <summary>WXYZ representation of quaternion.</summary>
-        </member>
-        <member name="F:K4AdotNet.Quaternion.W">
-            <summary>W component of a vector. Corresponds to <c>0</c> index in array representation.</summary>
-        </member>
-        <member name="F:K4AdotNet.Quaternion.X">
-            <summary>X component of a vector. Corresponds to <c>1</c> index in array representation.</summary>
-        </member>
-        <member name="F:K4AdotNet.Quaternion.Y">
-            <summary>Y component of a vector. Corresponds to <c>2</c> index in array representation.</summary>
-        </member>
-        <member name="F:K4AdotNet.Quaternion.Z">
-            <summary>Z component of a vector. Corresponds to <c>3</c> index in array representation.</summary>
-        </member>
-        <member name="T:K4AdotNet.Record.NativeApi">
-            <summary>DLL imports for most of native functions from <c>record.h</c> header file.</summary>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)">
-            <summary>
-            Opens a new recording file for writing.
-            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
-            </summary>
-            <param name="path">File system path for the new recording.</param>
-            <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
-            number information. May be <see langword="null"/> if recording user-generated data.</param>
-            <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
-            <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            Streaming does not need to be started on the device at the time this function is called, but when it is started
-            it should be started with the same configuration provided in <paramref name="deviceConfiguration"/>.
-            
-            Subsequent calls to <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)"/> will need to have images in the resolution and format defined
-            in <paramref name="deviceConfiguration"/>.
-            </remarks>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordAddTag(K4AdotNet.NativeHandles.RecordHandle,System.String,System.String)">
-            <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
-            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <param name="name">The name of the tag to write.</param>
-            <param name="value">The string value to store in the tag.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
-            recording location.
-            </remarks>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordAddImuTrack(K4AdotNet.NativeHandles.RecordHandle)">
-            <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
-            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteHeader(K4AdotNet.NativeHandles.RecordHandle)">
-            <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
-            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)">
-            <summary>
-            Writes a camera capture to file.
-            Captures must be written in increasing order of timestamp, and the file's header must already be written.
-            </summary>
-            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <param name="captureHandle">The handle of a capture to write to file.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            This method will write all images in the capture to the corresponding tracks in the recording file.
-            If any of the images fail to write, other images will still be written before a failure is returned.
-            </remarks>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteImuSample(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.Sensor.ImuSample)">
-            <summary>Writes an IMU sample to file.</summary>
-            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <param name="imuSample">A structure containing the IMU sample data and time stamps.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            Samples must be written in increasing order of timestamp, and the file's header must already be written.
-            When writing IMU samples at the same time as captures, the samples should be within 1 second of the most recently
-            written capture.
-            </remarks>
-        </member>
-        <member name="M:K4AdotNet.Record.NativeApi.RecordFlush(K4AdotNet.NativeHandles.RecordHandle)">
-            <summary>Flushes all pending recording data to disk.</summary>
-            <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.String,K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            This method ensures that all data passed to the recording API prior to calling flush is written to disk.
-            If continuing to write recording data, care must be taken to ensure no new time stamps are added from before the flush.
-            
-            If an error occurs, best effort is made to flush as much data to disk as possible, but the integrity of the file is
-            not guaranteed.
-            </remarks>
         </member>
         <member name="F:K4AdotNet.Sdk.SENSOR_DLL_NAME">
             <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
@@ -1416,19 +1413,19 @@
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetColorImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a color image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove color image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove color image from a given capture if any.</param>
             <remarks>If there is already a color image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetDepthImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a depth image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove depth image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove depth image from a given capture if any.</param>
             <remarks>If there is already a depth image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetIRImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a IR image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove IR image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove IR image from a given capture if any.</param>
             <remarks>If there is already a IR image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetTemperatureC(K4AdotNet.NativeHandles.CaptureHandle,System.Single)">
@@ -1540,8 +1537,8 @@
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <returns>
             If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image,
-            this function will return <see cref="F:K4AdotNet.Timestamp.Zero"/>.
-            It is also possible for <see cref="F:K4AdotNet.Timestamp.Zero"/> to be a valid timestamp originating from the beginning
+            this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
+            It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from the beginning
             of a recording or the start of streaming.
             </returns>
             <remarks>
@@ -1554,7 +1551,7 @@
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <returns>
             If the <paramref name="imageHandle"/> is invalid or if no exposure was set for the image,
-            this function will return <c>0</c>. Otherwise,
+            this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>. Otherwise,
             it will return the image exposure time in microseconds.
             </returns>
             <remarks>Returns an exposure time in microseconds. This is only supported on color image formats.</remarks>
@@ -1576,7 +1573,7 @@
             </returns>
             <remarks>This function is only valid for color captures, and not for depth  or IR captures.</remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Timestamp)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
             <summary>Set the timestamp, in microseconds, of the image.</summary>
             <param name="imageHandle">Handle of the image to set the timestamp on.</param>
             <param name="timestamp">Time stamp of the image.</param>
@@ -1585,10 +1582,10 @@
             or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/> to construct an image.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetExposureTimeUsec(K4AdotNet.NativeHandles.ImageHandle,System.UInt64)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetExposureTimeUsec(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
             <summary>Set the exposure time, in microseconds, of the image.</summary>
             <param name="imageHandle">Handle of the image to set the exposure time on.</param>
-            <param name="exposureUsec">Exposure time of the image in microseconds.</param>
+            <param name="exposure">Exposure time of the image in microseconds.</param>
             <remarks>
             Use this function in conjunction with <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
             or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/> to construct an image.
@@ -1657,7 +1654,7 @@
             Calling this function while another thread is in that function will result in that function returning a failure.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSerialnum(K4AdotNet.NativeHandles.DeviceHandle,System.Text.StringBuilder,System.UIntPtr@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSerialnum(K4AdotNet.NativeHandles.DeviceHandle,System.Byte[],System.UIntPtr@)">
             <summary>Get the Azure Kinect device serial number.</summary>
             <param name="deviceHandle">Handle obtained by <see cref="M:K4AdotNet.Sensor.NativeApi.DeviceOpen(System.UInt32,K4AdotNet.NativeHandles.DeviceHandle@)"/>.</param>
             <param name="serialNumber">

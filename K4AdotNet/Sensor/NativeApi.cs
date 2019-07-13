@@ -113,7 +113,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_color_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a color image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove color image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove color image from a given capture if any.</param>
         /// <remarks>If there is already a color image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_color_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetColorImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -121,7 +121,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_depth_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a depth image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove depth image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove depth image from a given capture if any.</param>
         /// <remarks>If there is already a depth image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_depth_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetDepthImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -129,7 +129,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_ir_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a IR image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see langword="null"/> to remove IR image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove IR image from a given capture if any.</param>
         /// <remarks>If there is already a IR image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_ir_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetIRImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -290,8 +290,8 @@ namespace K4AdotNet.Sensor
         /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
         /// <returns>
         /// If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image,
-        /// this function will return <see cref="Timestamp.Zero"/>.
-        /// It is also possible for <see cref="Timestamp.Zero"/> to be a valid timestamp originating from the beginning
+        /// this function will return <see cref="Microseconds64.Zero"/>.
+        /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from the beginning
         /// of a recording or the start of streaming.
         /// </returns>
         /// <remarks>
@@ -299,19 +299,19 @@ namespace K4AdotNet.Sensor
         /// They may be used for relative comparison, but their absolute value has no defined meaning.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern Timestamp ImageGetTimestamp(NativeHandles.ImageHandle imageHandle);
+        public static extern Microseconds64 ImageGetTimestamp(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_exposure_usec(k4a_image_t image_handle);
         /// <summary>Get the image exposure in microseconds.</summary>
         /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
         /// <returns>
         /// If the <paramref name="imageHandle"/> is invalid or if no exposure was set for the image,
-        /// this function will return <c>0</c>. Otherwise,
+        /// this function will return <see cref="Microseconds64.Zero"/>. Otherwise,
         /// it will return the image exposure time in microseconds.
         /// </returns>
         /// <remarks>Returns an exposure time in microseconds. This is only supported on color image formats.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_exposure_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong ImageGetExposureUsec(NativeHandles.ImageHandle imageHandle);
+        public static extern Microseconds64 ImageGetExposureUsec(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint32_t k4a_image_get_white_balance(k4a_image_t image_handle);
         /// <summary>Get the image white balance.</summary>
@@ -343,18 +343,18 @@ namespace K4AdotNet.Sensor
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImageSetTimestamp(NativeHandles.ImageHandle imageHandle, Timestamp timestamp);
+        public static extern void ImageSetTimestamp(NativeHandles.ImageHandle imageHandle, Microseconds64 timestamp);
 
         // K4A_EXPORT void k4a_image_set_exposure_time_usec(k4a_image_t image_handle, uint64_t exposure_usec);
         /// <summary>Set the exposure time, in microseconds, of the image.</summary>
         /// <param name="imageHandle">Handle of the image to set the exposure time on.</param>
-        /// <param name="exposureUsec">Exposure time of the image in microseconds.</param>
+        /// <param name="exposure">Exposure time of the image in microseconds.</param>
         /// <remarks>
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_exposure_time_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImageSetExposureTimeUsec(NativeHandles.ImageHandle imageHandle, ulong exposureUsec);
+        public static extern void ImageSetExposureTimeUsec(NativeHandles.ImageHandle imageHandle, Microseconds64 exposure);
 
         // K4A_EXPORT void k4a_image_set_white_balance(k4a_image_t image_handle, uint32_t white_balance);
         /// <summary>Set the white balance of the image.</summary>
@@ -453,10 +453,10 @@ namespace K4AdotNet.Sensor
         /// returned in the <paramref name="serialNumberSize"/> parameter.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult DeviceGetSerialnum(
             NativeHandles.DeviceHandle deviceHandle,
-            StringBuilder serialNumber,
+            [Out] byte[] serialNumber,
             ref UIntPtr serialNumberSize);
 
         // K4A_EXPORT k4a_result_t k4a_device_get_version(k4a_device_t device_handle, k4a_hardware_version_t *version);

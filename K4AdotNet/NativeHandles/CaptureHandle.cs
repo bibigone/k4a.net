@@ -27,5 +27,7 @@
             NativeApi.CaptureRelease(handle);
             return true;
         }
+
+        public static readonly CaptureHandle Zero = new CaptureHandle();
     }
 }

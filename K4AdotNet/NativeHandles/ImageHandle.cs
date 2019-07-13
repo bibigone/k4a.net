@@ -22,5 +22,7 @@
             NativeApi.ImageRelease(handle);
             return true;
         }
+
+        public static readonly ImageHandle Zero = new ImageHandle();
     }
 }

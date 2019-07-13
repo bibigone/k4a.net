@@ -13,5 +13,7 @@
             NativeApi.RecordClose(handle);
             return true;
         }
+
+        public static readonly RecordHandle Zero = new RecordHandle();
     }
 }

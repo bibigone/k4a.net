@@ -1,4 +1,4 @@
-﻿namespace K4AdotNet.Playback
+﻿namespace K4AdotNet.Record
 {
     // Defined in types.h:
     // typedef enum
