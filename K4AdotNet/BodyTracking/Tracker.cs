@@ -3,26 +3,36 @@ using System.Threading;
 
 namespace K4AdotNet.BodyTracking
 {
-    public sealed class Tracker : IDisposable
+    public sealed class Tracker : IDisposablePlus
     {
-        private readonly NativeHandles.TrackerHandle handle;
+        private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;
         private volatile int queueSize;
 
         public Tracker(ref Sensor.Calibration calibration)
         {
-            if (NativeApi.TrackerCreate(ref calibration, out handle) != NativeCallResults.Result.Succeeded)
+            if (NativeApi.TrackerCreate(ref calibration, out var handle) != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new BodyTrackingException("Cannot create body tracking infrastructure");
+            this.handle = handle;
+            this.handle.Disposed += Handle_Disposed;
+        }
+
+        private void Handle_Disposed(object sender, EventArgs e)
+        {
+            queueSize = 0;
+            handle.Disposed -= Handle_Disposed;
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()
-        {
-            handle.Dispose();
-            queueSize = 0;
-        }
+            => handle.Dispose();
+
+        public bool IsDisposed => handle.IsDisposed;
+
+        public event EventHandler Disposed;
 
         public void Shutdown()
         {
-            NativeApi.TrackerShutdown(handle);
+            NativeApi.TrackerShutdown(handle.Value);
             queueSize = 0;
         }
 
@@ -37,7 +47,7 @@ namespace K4AdotNet.BodyTracking
             if (capture == null)
                 throw new ArgumentNullException(nameof(capture));
 
-            var res = NativeApi.TrackerEnqueueCapture(handle, Sensor.Capture.ToHandle(capture), timeout);
+            var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture), timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
                 return false;
             if (res == NativeCallResults.WaitResult.Failed)
@@ -51,7 +61,7 @@ namespace K4AdotNet.BodyTracking
 
         public BodyFrame TryPopResult(Timeout timeout = default(Timeout))
         {
-            var res = NativeApi.TrackerPopResult(handle, out var bodyFrameHandle, timeout);
+            var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
                 return null;
             if (res == NativeCallResults.WaitResult.Failed)

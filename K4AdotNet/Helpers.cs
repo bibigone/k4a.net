@@ -5,6 +5,12 @@ namespace K4AdotNet
 {
     internal static class Helpers
     {
+        public static int UIntPtrToInt32(UIntPtr value)
+            => checked((int)value.ToUInt32());
+
+        public static UIntPtr Int32ToUIntPtr(int value)
+            => new UIntPtr((ulong)value);
+
         public delegate NativeCallResults.BufferResult GetInByteBufferMethod<T>(T parameter, byte[] data, ref UIntPtr dataSize);
 
         public static bool TryGetValueInByteBuffer<T>(GetInByteBufferMethod<T> getMethod, T parameter, out byte[] result)
@@ -16,11 +22,11 @@ namespace K4AdotNet
             var res = getMethod(parameter, buffer, ref bufferSize);
             if (res == NativeCallResults.BufferResult.TooSmall)
             {
-                size = checked((int)bufferSize.ToUInt32());
+                size = UIntPtrToInt32(bufferSize);
                 if (size > 1)
                 {
                     buffer = new byte[size];
-                    bufferSize = new UIntPtr((uint)size);
+                    bufferSize = Int32ToUIntPtr(size);
                     res = getMethod(parameter, buffer, ref bufferSize);
                 }
             }

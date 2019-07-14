@@ -4,9 +4,9 @@ using System.Text;
 
 namespace K4AdotNet.Record
 {
-    public sealed class Playback : IDisposable
+    public sealed class Playback : IDisposablePlus
     {
-        private readonly NativeHandles.PlaybackHandle handle;
+        private readonly NativeHandles.HandleWrapper<NativeHandles.PlaybackHandle> handle;
 
         public Playback(string filePath)
         {
@@ -19,35 +19,48 @@ namespace K4AdotNet.Record
 
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
-            var res = NativeApi.PlaybackOpen(pathAsBytes, out handle);
-            if (res != NativeCallResults.Result.Succeeded)
+            var res = NativeApi.PlaybackOpen(pathAsBytes, out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new PlaybackException($"Cannot open file \"{filePath}\" for playback.");
 
+            this.handle = handle;
+            this.handle.Disposed += Handle_Disposed;
+
             FilePath = filePath;
+        }
+
+        private void Handle_Disposed(object sender, EventArgs e)
+        {
+            handle.Disposed -= Handle_Disposed;
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()
             => handle.Dispose();
 
+        public bool IsDisposed => handle.IsDisposed;
+
+        public event EventHandler Disposed;
+
         public string FilePath { get; }
 
-        public Microseconds64 LastTimestamp => NativeApi.PlaybackGetLastTimestamp(handle);
+        public Microseconds64 LastTimestamp => NativeApi.PlaybackGetLastTimestamp(handle.ValueNotDisposed);
 
         public override string ToString()
             => "Playback from " + FilePath;
 
         public byte[] GetRawCalibration()
         {
-            if (!Helpers.TryGetValueInByteBuffer(NativeApi.PlaybackGetRawCalibration, handle, out var result))
+            if (!Helpers.TryGetValueInByteBuffer(NativeApi.PlaybackGetRawCalibration, handle.ValueNotDisposed, out var result))
                 ThrowException();
             return result;
         }
 
         public void GetCalibration(out Sensor.Calibration calibration)
-            => CheckResult(NativeApi.PlaybackGetCalibration(handle, out calibration));
+            => CheckResult(NativeApi.PlaybackGetCalibration(handle.ValueNotDisposed, out calibration));
 
         public void GetRecordConfiguration(out RecordConfiguration config)
-            => CheckResult(NativeApi.PlaybackGetRecordConfiguration(handle, out config));
+            => CheckResult(NativeApi.PlaybackGetRecordConfiguration(handle.ValueNotDisposed, out config));
 
         public bool TryGetTag(string name, out string value)
         {
@@ -69,43 +82,43 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetTag(byte[] name, byte[] value, ref UIntPtr valueSize)
-            => NativeApi.PlaybackGetTag(handle, name, value, ref valueSize);
+            => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, value, ref valueSize);
 
         public void SetColorConversion(Sensor.ImageFormat format)
         {
-            var res = NativeApi.PlaybackSetColorConversion(handle, format);
+            var res = NativeApi.PlaybackSetColorConversion(handle.ValueNotDisposed, format);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new NotSupportedException($"Format {format} is not supported for color conversion");
         }
 
         public bool TrySeekTimestamp(Microseconds64 offset, PlaybackSeekOrigin origin)
-            => NativeApi.PlaybackSeekTimestamp(handle, offset, origin) == NativeCallResults.Result.Succeeded;
+            => NativeApi.PlaybackSeekTimestamp(handle.ValueNotDisposed, offset, origin) == NativeCallResults.Result.Succeeded;
 
         public Sensor.Capture TryGetNextCapture()
         {
-            var res = NativeApi.PlaybackGetNextCapture(handle, out var captureHandle);
+            var res = NativeApi.PlaybackGetNextCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
                 return null;
             if (res == NativeCallResults.StreamResult.Succeeded)
-                return new Sensor.Capture(captureHandle);
+                return Sensor.Capture.Create(captureHandle);
             ThrowException();
             return null;
         }
 
         public Sensor.Capture TryGetPreviousCapture()
         {
-            var res = NativeApi.PlaybackGetPreviousCapture(handle, out var captureHandle);
+            var res = NativeApi.PlaybackGetPreviousCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
                 return null;
             if (res == NativeCallResults.StreamResult.Succeeded)
-                return new Sensor.Capture(captureHandle);
+                return Sensor.Capture.Create(captureHandle);
             ThrowException();
             return null;
         }
 
         public bool TryGetNextImuSample(out Sensor.ImuSample imuSample)
         {
-            var res = NativeApi.PlaybackGetNextImuSample(handle, out imuSample);
+            var res = NativeApi.PlaybackGetNextImuSample(handle.ValueNotDisposed, out imuSample);
             if (res == NativeCallResults.StreamResult.Eof)
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)
@@ -116,7 +129,7 @@ namespace K4AdotNet.Record
 
         public bool TryGetPreviousImuSample(out Sensor.ImuSample imuSample)
         {
-            var res = NativeApi.PlaybackGetPreviousImuSample(handle, out imuSample);
+            var res = NativeApi.PlaybackGetPreviousImuSample(handle.ValueNotDisposed, out imuSample);
             if (res == NativeCallResults.StreamResult.Eof)
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)

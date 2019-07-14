@@ -8,6 +8,9 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
     {
         private static void Main(string[] args)
         {
+            Sdk.ConfigureLogging(TraceLevel.Warning, logToStdout: true);
+            Sdk.ConfigureBodyTrackingLogging(TraceLevel.Warning);
+
             Console.WriteLine("Body tracking speed test on prerecorded video from Kinect for Azure device");
 
             var processingParameters = args.Length == 0

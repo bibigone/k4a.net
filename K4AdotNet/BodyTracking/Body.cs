@@ -2,6 +2,7 @@
 
 namespace K4AdotNet.BodyTracking
 {
+    /// <summary>Looks like this structure is unused in current version of Body Tracking SDK.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct Body
     {

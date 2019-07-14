@@ -20,5 +20,8 @@ namespace K4AdotNet.NativeHandles
 
         /// <summary>Invalid handle is <c>IntPtr.Zero</c>.</summary>
         public override bool IsInvalid => handle == IntPtr.Zero;
+
+        public override string ToString()
+            => GetType().Name + "#" + handle.ToString("X");
     }
 }

@@ -4,6 +4,9 @@
         <name>K4AdotNet</name>
     </assembly>
     <members>
+        <member name="T:K4AdotNet.BodyTracking.Body">
+            <summary>Looks like this structure is unused in current version of Body Tracking SDK.</summary>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.Body.Id">
             <summary>An ID for the body that can be used for frame-to-frame correlation.</summary>
         </member>
@@ -757,6 +760,20 @@
         </member>
         <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME">
             <summary>Name of Kinect for Azure Body Tracking SDK DLL.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sdk.ConfigureLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
+            <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
+            <param name="level">Level of logging.</param>
+            <param name="logToStdout">Log messages to STDOUT?</param>
+            <param name="logToFile">
+            Log all messages to the path and file specified.
+            Must end in '.log' to be considered a valid entry.
+            Use <see langword="null"/> or empty string to completely disable logging to a file.
+            </param>
+        </member>
+        <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel)">
+            <summary>Current version of Body Tracking SDK can log data only to the console.</summary>
+            <param name="level">Level of logging.</param>
         </member>
         <member name="T:K4AdotNet.Sensor.Calibration">
             <summary>Information about device calibration in particular depth mode and color resolution.</summary>
