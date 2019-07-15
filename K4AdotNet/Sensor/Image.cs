@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
 {
@@ -43,7 +44,7 @@ namespace K4AdotNet.Sensor
 
         public IntPtr Buffer => NativeApi.ImageGetBuffer(handle.ValueNotDisposed);
 
-        public int Size => Helpers.UIntPtrToInt32(NativeApi.ImageGetSize(handle.ValueNotDisposed));
+        public int SizeBytes => Helpers.UIntPtrToInt32(NativeApi.ImageGetSize(handle.ValueNotDisposed));
 
         public ImageFormat Format => NativeApi.ImageGetFormat(handle.ValueNotDisposed);
 
@@ -75,6 +76,110 @@ namespace K4AdotNet.Sensor
         {
             get => checked((int)NativeApi.ImageGetIsoSpeed(handle.ValueNotDisposed));
             set => NativeApi.ImageSetIsoSpeed(handle.ValueNotDisposed, checked((uint)value));
+        }
+
+        public int CopyTo(byte[] dst)
+        {
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+            var size = SizeBytes;
+            if (dst.Length < size)
+                throw new ArgumentOutOfRangeException(nameof(dst) + "." + nameof(dst.Length));
+            Marshal.Copy(Buffer, dst, 0, size);
+            return size;
+        }
+
+        public int CopyTo(short[] dst)
+        {
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+            var size = SizeBytes;
+            var elementSize = sizeof(short);
+            if (dst.Length * elementSize < size)
+                throw new ArgumentOutOfRangeException(nameof(dst) + "." + nameof(dst.Length));
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            var dstCount = SizeBytes / elementSize;
+            Marshal.Copy(Buffer, dst, 0, dstCount);
+            return dstCount;
+        }
+
+        public int CopyTo(float[] dst)
+        {
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+            var size = SizeBytes;
+            var elementSize = sizeof(float);
+            if (dst.Length * elementSize < size)
+                throw new ArgumentOutOfRangeException(nameof(dst) + "." + nameof(dst.Length));
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            var dstCount = SizeBytes / elementSize;
+            Marshal.Copy(Buffer, dst, 0, dstCount);
+            return dstCount;
+        }
+
+        public int CopyTo(int[] dst)
+        {
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+            var size = SizeBytes;
+            var elementSize = sizeof(int);
+            if (dst.Length * elementSize < size)
+                throw new ArgumentOutOfRangeException(nameof(dst) + "." + nameof(dst.Length));
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            var dstCount = SizeBytes / elementSize;
+            Marshal.Copy(Buffer, dst, 0, dstCount);
+            return dstCount;
+        }
+
+        public void FillFrom(byte[] src)
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (src.Length != SizeBytes)
+                throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
+            Marshal.Copy(src, 0, Buffer, src.Length);
+        }
+
+        public void FillFrom(short[] src)
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            var size = SizeBytes;
+            var elementSize = sizeof(short);
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            if (src.Length * elementSize != size)
+                throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
+            Marshal.Copy(src, 0, Buffer, src.Length);
+        }
+
+        public void FillFrom(float[] src)
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            var size = SizeBytes;
+            var elementSize = sizeof(float);
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            if (src.Length * elementSize != size)
+                throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
+            Marshal.Copy(src, 0, Buffer, src.Length);
+        }
+
+        public void FillFrom(int[] src)
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            var size = SizeBytes;
+            var elementSize = sizeof(int);
+            if (size % elementSize != 0)
+                throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
+            if (src.Length * elementSize != size)
+                throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
+            Marshal.Copy(src, 0, Buffer, src.Length);
         }
 
         internal static NativeHandles.ImageHandle ToHandle(Image image)

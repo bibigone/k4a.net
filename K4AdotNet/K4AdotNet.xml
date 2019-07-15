@@ -1046,10 +1046,10 @@
         <member name="T:K4AdotNet.Sensor.ColorResolutionExtenstions">
             <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.ColorResolution"/> enumeration.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.Width(K4AdotNet.Sensor.ColorResolution)">
+        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.WidthPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image width in pixels for a given resolution.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.Height(K4AdotNet.Sensor.ColorResolution)">
+        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.HeightPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image height in pixels for a given resolution.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.DepthMode">
@@ -1083,10 +1083,10 @@
         <member name="T:K4AdotNet.Sensor.DepthModeExtenstions">
             <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.DepthMode"/> enumeration.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.Width(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.WidthPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images width in pixels for a given depth mode.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.Height(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.HeightPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images height in pixels for a given depth mode.</summary>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.IsWideView(K4AdotNet.Sensor.DepthMode)">

@@ -7,11 +7,11 @@
         private static readonly int[] heights = new[] { 0, 720, 1080, 1440, 1536, 2160, 3072 };
 
         /// <summary>Returns image width in pixels for a given resolution.</summary>
-        public static int Width(this ColorResolution resolution)
+        public static int WidthPixels(this ColorResolution resolution)
             => widths[(int)resolution];
 
         /// <summary>Returns image height in pixels for a given resolution.</summary>
-        public static int Height(this ColorResolution resolution)
+        public static int HeightPixels(this ColorResolution resolution)
             => heights[(int)resolution];
     }
 }

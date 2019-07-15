@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
 {
@@ -44,5 +45,79 @@ namespace K4AdotNet.Sensor
 
         public void SetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor, CalibrationExtrinsics extrinsics)
             => Extrinsics[(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
+
+        #region Wrappers around native API (inspired by struct calibration from k4a.hpp)
+
+        public static void CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
+        {
+            if (rawCalibration == null)
+                throw new ArgumentNullException(nameof(rawCalibration));
+            var res = NativeApi.CalibrationGetFromRaw(rawCalibration, Helpers.Int32ToUIntPtr(rawCalibration.Length), depthMode, colorResolution, out calibration);
+            if (res == NativeCallResults.Result.Failed)
+                throw new InvalidOperationException("Cannot create calibration from parameters specified.");
+        }
+
+        public Float2? Convert2DTo2D(Float2 sourcePoint2D, float sourceDepthMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
+        {
+            if (sourceDepthMm <= float.Epsilon)
+                throw new ArgumentOutOfRangeException(nameof(sourceDepthMm));
+            if (!IsCamera(sourceCamera))
+                throw new ArgumentOutOfRangeException(nameof(sourceCamera));
+            if (!IsCamera(targetCamera))
+                throw new ArgumentOutOfRangeException(nameof(targetCamera));
+            var res = NativeApi.Calibration2DTo2D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
+            if (res == NativeCallResults.Result.Failed)
+                throw new InvalidOperationException("Cannot transform 2D point to 2D point: invalid calibration data.");
+            if (!valid)
+                return null;
+            return targetPoint2D;
+        }
+
+        public Float3? Convert2DTo3D(Float2 sourcePoint2D, float sourceDepthMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
+        {
+            if (sourceDepthMm <= float.Epsilon)
+                throw new ArgumentOutOfRangeException(nameof(sourceDepthMm));
+            if (!IsCamera(sourceCamera))
+                throw new ArgumentOutOfRangeException(nameof(sourceCamera));
+            if (!IsCamera(targetCamera))
+                throw new ArgumentOutOfRangeException(nameof(targetCamera));
+            var res = NativeApi.Calibration2DTo3D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint3DMm, out var valid);
+            if (res == NativeCallResults.Result.Failed)
+                throw new InvalidOperationException("Cannot transform 2D point to 3D point: invalid calibration data.");
+            if (!valid)
+                return null;
+            return targetPoint3DMm;
+        }
+
+        public Float2? Convert3DTo2D(Float3 sourcePoint3DMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
+        {
+            if (!IsCamera(sourceCamera))
+                throw new ArgumentOutOfRangeException(nameof(sourceCamera));
+            if (!IsCamera(targetCamera))
+                throw new ArgumentOutOfRangeException(nameof(targetCamera));
+            var res = NativeApi.Calibration3DTo2D(ref this, ref sourcePoint3DMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
+            if (res == NativeCallResults.Result.Failed)
+                throw new InvalidOperationException("Cannot transform 3D point to 2D point: invalid calibration data.");
+            if (!valid)
+                return null;
+            return targetPoint2D;
+        }
+
+        public Float3 Convert3DTo3D(Float3 sourcePoint3DMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
+        {
+            if (!IsCamera(sourceCamera))
+                throw new ArgumentOutOfRangeException(nameof(sourceCamera));
+            if (!IsCamera(targetCamera))
+                throw new ArgumentOutOfRangeException(nameof(targetCamera));
+            var res = NativeApi.Calibration3DTo3D(ref this, ref sourcePoint3DMm, sourceCamera, targetCamera, out var targetPoint3DMm);
+            if (res == NativeCallResults.Result.Failed)
+                throw new InvalidOperationException("Cannot transform 3D point to 3D point: invalid calibration data.");
+            return targetPoint3DMm;
+        }
+
+        private static bool IsCamera(CalibrationGeometry geometry)
+            => geometry == CalibrationGeometry.Color || geometry == CalibrationGeometry.Depth;
+
+        #endregion
     }
 }
