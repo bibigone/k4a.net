@@ -8,6 +8,13 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
     {
         private static void Main(string[] args)
         {
+            if (!Sdk.CheckPrerequisitesForBodyTracking(out var msg))
+            {
+                Console.WriteLine("Body tracking cannot be used!");
+                Console.WriteLine(msg);
+                return;
+            }
+
             Sdk.ConfigureLogging(TraceLevel.Warning, logToStdout: true);
             Sdk.ConfigureBodyTrackingLogging(TraceLevel.Warning);
 
