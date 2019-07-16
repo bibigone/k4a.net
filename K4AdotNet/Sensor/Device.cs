@@ -55,7 +55,7 @@ namespace K4AdotNet.Sensor
             }
         }
 
-        public void StartCameras(ref DeviceConfiguration config)
+        public void StartCameras(DeviceConfiguration config)
             => CheckResult(NativeApi.DeviceStartCameras(handle.ValueNotDisposed, ref config), nameof(config));
 
         public void StopCameras()
@@ -78,15 +78,15 @@ namespace K4AdotNet.Sensor
             return null;
         }
 
-        public bool TryGetImuSample(out ImuSample imuSample, Timeout timeout = default(Timeout))
+        public ImuSample? TryGetImuSample(Timeout timeout = default(Timeout))
         {
-            var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out imuSample, timeout);
+            var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out var imuSample, timeout);
             if (res == NativeCallResults.WaitResult.Succeeded)
-                return true;
+                return imuSample;
             if (res == NativeCallResults.WaitResult.Timeout)
-                return false;
+                return null;
             ThrowException();
-            return false;
+            return null;
         }
 
         public bool TrySetColorControl(ColorControlCommand command, ColorControlMode mode, int value)

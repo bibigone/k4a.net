@@ -153,7 +153,7 @@ namespace K4AdotNet.BodyTracking
         /// 
         /// Body Index map is the body instance segmentation map. Each pixel maps to the corresponding pixel in the
         /// depth image or the IR image. The value for each pixel represents which body the pixel belongs to. It can be either
-        /// background (value <c>0xFF</c>) or the index of a detected <see cref="Body"/>.
+        /// background (value <c>0xFF</c>) or the index of a detected body.
         /// </remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_body_index_map", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeHandles.ImageHandle FrameGetBodyIndexMap(NativeHandles.BodyFrameHandle bodyFrameHandle);

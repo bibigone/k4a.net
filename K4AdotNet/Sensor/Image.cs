@@ -27,11 +27,71 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
+
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels and stride {strideBytes} bytes.");
+
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
+        }
+
+        public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes, int sizeBytes)
+        {
+            if (widthPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(widthPixels));
+            if (heightPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(heightPixels));
+            if (strideBytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (sizeBytes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(sizeBytes));
+            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && sizeBytes < strideBytes * heightPixels)
+                throw new ArgumentOutOfRangeException(nameof(sizeBytes));
+
+            var buffer = Marshal.AllocHGlobal(sizeBytes);
+            if (buffer == IntPtr.Zero)
+                throw new OutOfMemoryException($"Cannot allocate buffer of {sizeBytes} bytes.");
+
+            var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
+                buffer, Helpers.Int32ToUIntPtr(sizeBytes), unmanagedBufferReleaseCallback, IntPtr.Zero,
+                out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+                throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
+
+            this.handle = handle;
+            this.handle.Disposed += Handle_Disposed;
+        }
+
+        public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
+            where T: struct
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            if (widthPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(widthPixels));
+            if (heightPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(heightPixels));
+            if (strideBytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            var sizeBytes = buffer.Length * Marshal.SizeOf<T>();
+            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && buffer.Length < strideBytes * heightPixels)
+                throw new ArgumentOutOfRangeException(nameof(buffer) + "." + nameof(buffer.Length));
+
+            var bufferPin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            var bufferPtr = bufferPin.AddrOfPinnedObject();
+
+            var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
+                bufferPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedArrayReleaseCallback, (IntPtr)bufferPin,
+                out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+                throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
+
+            return Create(handle);
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
@@ -192,5 +252,22 @@ namespace K4AdotNet.Sensor
 
         internal static NativeHandles.ImageHandle ToHandle(Image image)
             => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
+
+        #region Memory management
+
+        // This field is required to keep callback in memory
+        private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
+            = new NativeApi.MemoryDestroyCallback(ReleaseUnmanagedBuffer);
+
+        private static void ReleaseUnmanagedBuffer(IntPtr buffer, IntPtr context)
+            => Marshal.FreeHGlobal(buffer);
+
+        private static readonly NativeApi.MemoryDestroyCallback pinnedArrayReleaseCallback
+            = new NativeApi.MemoryDestroyCallback(ReleasePinnedArray);
+
+        private static void ReleasePinnedArray(IntPtr buffer, IntPtr context)
+            => ((GCHandle)context).Free();
+
+        #endregion
     }
 }
