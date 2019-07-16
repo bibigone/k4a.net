@@ -1,10 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace K4AdotNet.Sensor
 {
     /// <summary>Helper extension and static methods for <see cref="FrameRate"/> enumeration.</summary>
-    public static class FrameRateExtensions
+    public static class FrameRates
     {
+        public static readonly IReadOnlyList<FrameRate> All = new[]
+        {
+            FrameRate.Five,
+            FrameRate.Fifteen,
+            FrameRate.Thirty,
+        };
+
         /// <summary>Convert enumeration value to appropriate number of frames per second (Hz).</summary>
         public static int ToNumberHz(this FrameRate frameRate)
         {
@@ -28,5 +36,11 @@ namespace K4AdotNet.Sensor
                 default: throw new ArgumentOutOfRangeException(nameof(frameRateHz));
             }
         }
+
+        public static bool IsCompatibleWith(this FrameRate frameRate, DepthMode depthMode)
+            => !(frameRate == FrameRate.Thirty && depthMode == DepthMode.WideViewUnbinned);
+
+        public static bool IsCompatibleWith(this FrameRate frameRate, ColorResolution colorResolution)
+            => !(frameRate == FrameRate.Thirty && colorResolution == ColorResolution.R3072p);
     }
 }

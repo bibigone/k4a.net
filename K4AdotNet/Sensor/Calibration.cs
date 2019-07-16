@@ -61,9 +61,9 @@ namespace K4AdotNet.Sensor
         {
             if (sourceDepthMm <= float.Epsilon)
                 throw new ArgumentOutOfRangeException(nameof(sourceDepthMm));
-            if (!IsCamera(sourceCamera))
+            if (!sourceCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
-            if (!IsCamera(targetCamera))
+            if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
             var res = NativeApi.Calibration2DTo2D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
             if (res == NativeCallResults.Result.Failed)
@@ -77,9 +77,9 @@ namespace K4AdotNet.Sensor
         {
             if (sourceDepthMm <= float.Epsilon)
                 throw new ArgumentOutOfRangeException(nameof(sourceDepthMm));
-            if (!IsCamera(sourceCamera))
+            if (!sourceCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
-            if (!IsCamera(targetCamera))
+            if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
             var res = NativeApi.Calibration2DTo3D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint3DMm, out var valid);
             if (res == NativeCallResults.Result.Failed)
@@ -91,9 +91,9 @@ namespace K4AdotNet.Sensor
 
         public Float2? Convert3DTo2D(Float3 sourcePoint3DMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
         {
-            if (!IsCamera(sourceCamera))
+            if (!sourceCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
-            if (!IsCamera(targetCamera))
+            if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
             var res = NativeApi.Calibration3DTo2D(ref this, ref sourcePoint3DMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
             if (res == NativeCallResults.Result.Failed)
@@ -105,18 +105,15 @@ namespace K4AdotNet.Sensor
 
         public Float3 Convert3DTo3D(Float3 sourcePoint3DMm, CalibrationGeometry sourceCamera, CalibrationGeometry targetCamera)
         {
-            if (!IsCamera(sourceCamera))
+            if (!sourceCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
-            if (!IsCamera(targetCamera))
+            if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
             var res = NativeApi.Calibration3DTo3D(ref this, ref sourcePoint3DMm, sourceCamera, targetCamera, out var targetPoint3DMm);
             if (res == NativeCallResults.Result.Failed)
                 throw new InvalidOperationException("Cannot transform 3D point to 3D point: invalid calibration data.");
             return targetPoint3DMm;
         }
-
-        private static bool IsCamera(CalibrationGeometry geometry)
-            => geometry == CalibrationGeometry.Color || geometry == CalibrationGeometry.Depth;
 
         #endregion
     }

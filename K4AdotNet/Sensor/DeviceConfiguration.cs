@@ -22,7 +22,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Image format to capture with the color camera.</summary>
         /// <remarks>
         /// The color camera does not natively produce BGRA32 images.
-        /// Setting <see cref="ImageFormat.ColorBGRA32"/> value will result in higher CPU utilization.
+        /// Setting <see cref="ImageFormat.ColorBgra32"/> value will result in higher CPU utilization.
         /// </remarks>
         public ImageFormat ColorFormat;
 

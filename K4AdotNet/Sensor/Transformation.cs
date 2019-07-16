@@ -49,8 +49,8 @@ namespace K4AdotNet.Sensor
         public void ColorImageToDepthCamera(Image depthImage, Image colorImage, Image transformedColorImage)
         {
             CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
-            CheckImageParameter(nameof(colorImage), colorImage, ImageFormat.ColorBGRA32, ColorResolution);
-            CheckImageParameter(nameof(transformedColorImage), transformedColorImage, ImageFormat.ColorBGRA32, DepthMode);
+            CheckImageParameter(nameof(colorImage), colorImage, ImageFormat.ColorBgra32, ColorResolution);
+            CheckImageParameter(nameof(transformedColorImage), transformedColorImage, ImageFormat.ColorBgra32, DepthMode);
 
             var res = NativeApi.TransformationColorImageToDepthCamera(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(colorImage), Image.ToHandle(transformedColorImage));
@@ -64,7 +64,7 @@ namespace K4AdotNet.Sensor
             CheckImageParameter(nameof(xyzImage), xyzImage, ImageFormat.Custom, DepthMode);
             if (xyzImage.StrideBytes < 3 * sizeof(short) * xyzImage.WidthPixels)
                 throw new ArgumentException($"{xyzImage} must have a stride in bytes of at least 6 times its width in pixels.");
-            if (camera != CalibrationGeometry.Color && camera != CalibrationGeometry.Depth)
+            if (!camera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(camera));
 
             var res = NativeApi.TransformationDepthImageToPointCloud(handle.ValueNotDisposed,

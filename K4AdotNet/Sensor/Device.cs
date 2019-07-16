@@ -37,7 +37,7 @@ namespace K4AdotNet.Sensor
             => !handle.IsDisposed
                 && NativeApi.DeviceGetSyncJack(handle.Value, out var notUsed1, out var notUsed2) == NativeCallResults.Result.Succeeded;
 
-        public bool SyncInConnected
+        public bool IsSyncInConnected
         {
             get
             {
@@ -46,7 +46,7 @@ namespace K4AdotNet.Sensor
             }
         }
 
-        public bool SyncOutConnected
+        public bool IsSyncOutConnected
         {
             get
             {
@@ -135,6 +135,9 @@ namespace K4AdotNet.Sensor
 
         public static Device TryOpen(int index = 0)
         {
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
             var res = NativeApi.DeviceOpen(checked((uint)index), out var deviceHandle);
             if (res != NativeCallResults.Result.Succeeded || deviceHandle == null || deviceHandle.IsInvalid)
                 return null;

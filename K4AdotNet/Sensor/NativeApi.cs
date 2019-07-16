@@ -885,9 +885,9 @@ namespace K4AdotNet.Sensor
         /// color image to properly warp the color data to the perspective of the depth camera.
         /// 
         /// <paramref name="depthImage"/> must be of type <see cref="ImageFormat.Depth16"/>. <paramref name="colorImage"/> must be of format
-        /// <see cref="ImageFormat.ColorBGRA32"/>.
+        /// <see cref="ImageFormat.ColorBgra32"/>.
         /// 
-        /// <paramref name="transformedColorImage"/> image must be of format <see cref="ImageFormat.ColorBGRA32"/>. <paramref name="transformedColorImage"/> must
+        /// <paramref name="transformedColorImage"/> image must be of format <see cref="ImageFormat.ColorBgra32"/>. <paramref name="transformedColorImage"/> must
         /// have the width and height of the depth camera in the mode specified by the <see cref="Calibration"/> used to create
         /// the <paramref name="transformationHandle"/> with <see cref="TransformationCreate(ref Calibration)"/>.
         /// 

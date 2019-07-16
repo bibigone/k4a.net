@@ -19,6 +19,14 @@ namespace K4AdotNet.Sensor
 
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
         {
+            if (widthPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(widthPixels));
+            if (heightPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(heightPixels));
+            if (strideBytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels and stride {strideBytes} bytes.");

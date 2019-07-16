@@ -54,7 +54,7 @@
         /// The Azure Kinect device does not natively capture in this format. Requesting images of this format
         /// requires additional computation in the API.
         /// </remarks>
-        ColorBGRA32,
+        ColorBgra32,
 
         /// <summary>
         /// Each pixel of DEPTH16 data is two bytes of little endian unsigned depth data. The unit of the data is in

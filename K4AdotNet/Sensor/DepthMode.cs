@@ -17,7 +17,7 @@
     /// 
     /// Binned modes reduce the captured camera resolution by combining adjacent sensor pixels into a bin.
     /// </remarks>
-    /// <seealso cref="DepthModeExtenstions"/>
+    /// <seealso cref="DepthModes"/>
     public enum DepthMode
     {
         /// <summary>Depth sensor will be turned off with this setting.</summary>

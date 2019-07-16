@@ -13,7 +13,7 @@
     /// frame rate may vary slightly due to dropped data, synchronization variation between devices,
     /// clock accuracy, or if the camera exposure priority mode causes reduced frame rate.
     /// </remarks>
-    /// <seealso cref="FrameRateExtensions"/>
+    /// <seealso cref="FrameRates"/>
     public enum FrameRate
     {
         /// <summary>Five (5) frames per second.</summary>

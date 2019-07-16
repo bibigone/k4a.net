@@ -12,7 +12,7 @@
     //     K4A_COLOR_RESOLUTION_3072P,
     // } k4a_color_resolution_t;
     /// <summary>Color sensor resolutions.</summary>
-    /// <seealso cref="ColorResolutionExtenstions"/>
+    /// <seealso cref="ColorResolutions"/>
     public enum ColorResolution
     {
         /// <summary>Color camera will be turned off with this setting</summary>

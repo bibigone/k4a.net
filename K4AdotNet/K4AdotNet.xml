@@ -1020,7 +1020,7 @@
         </member>
         <member name="T:K4AdotNet.Sensor.ColorResolution">
             <summary>Color sensor resolutions.</summary>
-            <seealso cref="T:K4AdotNet.Sensor.ColorResolutionExtenstions"/>
+            <seealso cref="T:K4AdotNet.Sensor.ColorResolutions"/>
         </member>
         <member name="F:K4AdotNet.Sensor.ColorResolution.Off">
             <summary>Color camera will be turned off with this setting</summary>
@@ -1043,13 +1043,13 @@
         <member name="F:K4AdotNet.Sensor.ColorResolution.R3072p">
             <summary>4096x3072 4:3</summary>
         </member>
-        <member name="T:K4AdotNet.Sensor.ColorResolutionExtenstions">
+        <member name="T:K4AdotNet.Sensor.ColorResolutions">
             <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.ColorResolution"/> enumeration.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.WidthPixels(K4AdotNet.Sensor.ColorResolution)">
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.WidthPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image width in pixels for a given resolution.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.ColorResolutionExtenstions.HeightPixels(K4AdotNet.Sensor.ColorResolution)">
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.HeightPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image height in pixels for a given resolution.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.DepthMode">
@@ -1060,7 +1060,7 @@
             
             Binned modes reduce the captured camera resolution by combining adjacent sensor pixels into a bin.
             </remarks>
-            <seealso cref="T:K4AdotNet.Sensor.DepthModeExtenstions"/>
+            <seealso cref="T:K4AdotNet.Sensor.DepthModes"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DepthMode.Off">
             <summary>Depth sensor will be turned off with this setting.</summary>
@@ -1080,19 +1080,19 @@
         <member name="F:K4AdotNet.Sensor.DepthMode.PassiveIR">
             <summary>Passive IR only, captured at 1024x1024.</summary>
         </member>
-        <member name="T:K4AdotNet.Sensor.DepthModeExtenstions">
+        <member name="T:K4AdotNet.Sensor.DepthModes">
             <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.DepthMode"/> enumeration.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.WidthPixels(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModes.WidthPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images width in pixels for a given depth mode.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.HeightPixels(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModes.HeightPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images height in pixels for a given depth mode.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.IsWideView(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModes.IsWideView(K4AdotNet.Sensor.DepthMode)">
             <summary>Is depth mode has wide field of view?</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.DepthModeExtenstions.IsBinned(K4AdotNet.Sensor.DepthMode)">
+        <member name="M:K4AdotNet.Sensor.DepthModes.IsBinned(K4AdotNet.Sensor.DepthMode)">
             <summary>Does depth mode use binning for smoothing/filtering?</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.DeviceConfiguration">
@@ -1102,7 +1102,7 @@
             <summary>Image format to capture with the color camera.</summary>
             <remarks>
             The color camera does not natively produce BGRA32 images.
-            Setting <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBGRA32"/> value will result in higher CPU utilization.
+            Setting <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/> value will result in higher CPU utilization.
             </remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.ColorResolution">
@@ -1213,7 +1213,7 @@
             frame rate may vary slightly due to dropped data, synchronization variation between devices,
             clock accuracy, or if the camera exposure priority mode causes reduced frame rate.
             </remarks>
-            <seealso cref="T:K4AdotNet.Sensor.FrameRateExtensions"/>
+            <seealso cref="T:K4AdotNet.Sensor.FrameRates"/>
         </member>
         <member name="F:K4AdotNet.Sensor.FrameRate.Five">
             <summary>Five (5) frames per second.</summary>
@@ -1224,13 +1224,13 @@
         <member name="F:K4AdotNet.Sensor.FrameRate.Thirty">
             <summary>Thirty (30) frames per second.</summary>
         </member>
-        <member name="T:K4AdotNet.Sensor.FrameRateExtensions">
+        <member name="T:K4AdotNet.Sensor.FrameRates">
             <summary>Helper extension and static methods for <see cref="T:K4AdotNet.Sensor.FrameRate"/> enumeration.</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.FrameRateExtensions.ToNumberHz(K4AdotNet.Sensor.FrameRate)">
+        <member name="M:K4AdotNet.Sensor.FrameRates.ToNumberHz(K4AdotNet.Sensor.FrameRate)">
             <summary>Convert enumeration value to appropriate number of frames per second (Hz).</summary>
         </member>
-        <member name="M:K4AdotNet.Sensor.FrameRateExtensions.FromNumberHz(System.Int32)">
+        <member name="M:K4AdotNet.Sensor.FrameRates.FromNumberHz(System.Int32)">
             <summary>Constructs enumeration value from appropriate number of frames per second (Hz).</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.HardwareVersion">
@@ -1286,7 +1286,7 @@
             line of the image in memory.
             </remarks>
         </member>
-        <member name="F:K4AdotNet.Sensor.ImageFormat.ColorBGRA32">
+        <member name="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32">
              <summary>
              Each pixel of BGRA32 data is four bytes. The first three bytes represent Blue, Green,
              and Red data. The fourth byte is the alpha channel and is unused in the Azure Kinect APIs.
@@ -1981,9 +1981,9 @@
             color image to properly warp the color data to the perspective of the depth camera.
             
             <paramref name="depthImage"/> must be of type <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>. <paramref name="colorImage"/> must be of format
-            <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBGRA32"/>.
+            <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>.
             
-            <paramref name="transformedColorImage"/> image must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBGRA32"/>. <paramref name="transformedColorImage"/> must
+            <paramref name="transformedColorImage"/> image must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>. <paramref name="transformedColorImage"/> must
             have the width and height of the depth camera in the mode specified by the <see cref="T:K4AdotNet.Sensor.Calibration"/> used to create
             the <paramref name="transformationHandle"/> with <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationCreate(K4AdotNet.Sensor.Calibration@)"/>.
             
