@@ -17,6 +17,8 @@ namespace K4AdotNet.Sensor
         internal static Image Create(NativeHandles.ImageHandle handle)
             => handle != null && !handle.IsInvalid ? new Image(handle) : null;
 
+        // Don't use this method to create image with unknown/unspecified stride (like MJPEG).
+        // For such formats, size of image in bytes must be specified to create image.
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
         {
             if (widthPixels <= 0)
@@ -25,6 +27,8 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(heightPixels));
             if (strideBytes < 0)
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (strideBytes == 0)
+                throw new InvalidOperationException("Zero stride is used for formats without complex structure like MJPEG. In this case size of image in bytes must be specified to create image.");
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
 
@@ -79,7 +83,7 @@ namespace K4AdotNet.Sensor
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             var sizeBytes = buffer.Length * Marshal.SizeOf<T>();
-            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && buffer.Length < strideBytes * heightPixels)
+            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && sizeBytes < strideBytes * heightPixels)
                 throw new ArgumentOutOfRangeException(nameof(buffer) + "." + nameof(buffer.Length));
 
             var bufferPin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
