@@ -21,9 +21,10 @@
                 return true;
             }
 
-            using (var capture = playback.TryGetNextCapture())
+            var res = playback.TryGetNextCapture(out var capture);
+            using (capture)
             {
-                if (!IsCaptureInInterval(capture))
+                if (!res || !IsCaptureInInterval(capture))
                 {
                     ProcessQueueTail();
                     return false;
@@ -40,11 +41,10 @@
         private void Pop(bool wait)
         {
             var timeout = wait ? Timeout.Infinite : Timeout.NoWait;
-            using (var frame = tracker.TryPopResult(timeout))
+            if (!tracker.TryPopResult(out var frame, timeout))
+                return;
+            using (frame)
             {
-                if (frame == null)
-                    return;
-
                 totalFrameCount++;
 
                 if (frame.BodyCount > 0)

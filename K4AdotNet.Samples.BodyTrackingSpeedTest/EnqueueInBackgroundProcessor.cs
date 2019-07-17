@@ -29,9 +29,9 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing || QueueSize > 0)
             {
-                using (var frame = tracker.TryPopResult(Timeout.FromMilliseconds(10)))
+                if (tracker.TryPopResult(out var frame, Timeout.FromMilliseconds(10)))
                 {
-                    if (frame != null)
+                    using (frame)
                     {
                         processedFrameCount++;
 
@@ -40,11 +40,9 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
                         return true;
                     }
-                    else
-                    {
-                        Thread.Sleep(1);
-                    }
                 }
+
+                Thread.Sleep(1);
             }
 
             return false;
@@ -54,7 +52,10 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing)
             {
-                using (var capture = playback.TryGetNextCapture())
+                if (!playback.TryGetNextCapture(out var capture))
+                    break;
+
+                using (capture)
                 {
                     if (!IsCaptureInInterval(capture))
                         break;

@@ -27,9 +27,10 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
 
         public override bool NextFrame()
         {
-            using (var capture = playback.TryGetNextCapture())
+            var res = playback.TryGetNextCapture(out var capture);
+            using (capture)
             {
-                if (!IsCaptureInInterval(capture))
+                if (!res || !IsCaptureInInterval(capture))
                 {
                     WaitForProcessingOfQueueTail();
                     return false;
@@ -51,19 +52,19 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         {
             while (processing)
             {
-                using (var frame = tracker.TryPopResult(Timeout.FromMilliseconds(10)))
+                if (tracker.TryPopResult(out var frame, Timeout.FromMilliseconds(10)))
                 {
-                    if (frame != null)
+                    using (frame)
                     {
                         Interlocked.Increment(ref processedFrameCount);
 
                         if (frame.BodyCount > 0)
                             Interlocked.Increment(ref frameWithBodyCount);
                     }
-                    else
-                    {
-                        Thread.Sleep(1);
-                    }
+                }
+                else
+                {
+                    Thread.Sleep(1);
                 }
             }
         }

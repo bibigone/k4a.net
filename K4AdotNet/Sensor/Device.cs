@@ -67,26 +67,46 @@ namespace K4AdotNet.Sensor
         public void StopImu()
             => NativeApi.DeviceStopImu(handle.Value);
 
-        public Capture TryGetCapture(Timeout timeout = default(Timeout))
+        public bool TryGetCapture(out Capture capture, Timeout timeout = default(Timeout))
         {
             var res = NativeApi.DeviceGetCapture(handle.ValueNotDisposed, out var captureHandle, timeout);
             if (res == NativeCallResults.WaitResult.Succeeded)
-                return Capture.Create(captureHandle);
+            {
+                capture = Capture.Create(captureHandle);
+                return capture != null;
+            }
             if (res == NativeCallResults.WaitResult.Timeout)
-                return null;
+            {
+                capture = null;
+                return false;
+            }
             ThrowException();
-            return null;
+            throw new Exception("We mustn't be here!");
         }
 
-        public ImuSample? TryGetImuSample(Timeout timeout = default(Timeout))
+        public Capture GetCapture()
         {
-            var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out var imuSample, timeout);
+            var res = TryGetCapture(out var capture, Timeout.Infinite);
+            System.Diagnostics.Debug.Assert(res);
+            return capture;
+        }
+
+        public bool TryGetImuSample(out ImuSample imuSample, Timeout timeout = default(Timeout))
+        {
+            var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out imuSample, timeout);
             if (res == NativeCallResults.WaitResult.Succeeded)
-                return imuSample;
+                return true;
             if (res == NativeCallResults.WaitResult.Timeout)
-                return null;
+                return false;
             ThrowException();
-            return null;
+            throw new Exception("We mustn't be here!");
+        }
+
+        public ImuSample GetImuSample()
+        {
+            var res = TryGetImuSample(out var imuSample, Timeout.Infinite);
+            System.Diagnostics.Debug.Assert(res);
+            return imuSample;
         }
 
         public bool TrySetColorControl(ColorControlCommand command, ColorControlMode mode, int value)
@@ -133,23 +153,41 @@ namespace K4AdotNet.Sensor
 
         public static int InstalledCount => checked((int)NativeApi.DeviceGetInstalledCount());
 
-        public static Device TryOpen(int index = 0)
+        public const int DefaultDeviceIndex = 0;
+
+        public static bool TryOpen(out Device device, int index = DefaultDeviceIndex)
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
             var res = NativeApi.DeviceOpen(checked((uint)index), out var deviceHandle);
             if (res != NativeCallResults.Result.Succeeded || deviceHandle == null || deviceHandle.IsInvalid)
-                return null;
+            {
+                device = null;
+                return false;
+            }
 
             if (!TryGetSerialNumber(deviceHandle, out var serialNumber)
                 || !TryGetHardwareVersion(deviceHandle, out var version))
             {
                 deviceHandle.Dispose();
-                return null;
+                device = null;
+                return false;
             }
 
-            return new Device(deviceHandle, serialNumber, version);
+            device = new Device(deviceHandle, serialNumber, version);
+            return true;
+        }
+
+        public static Device Open(int index = DefaultDeviceIndex)
+        {
+            if (!TryOpen(out var device, index))
+            {
+                if (index >= InstalledCount)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                throw new DeviceConnectionLostException();
+            }
+            return device;
         }
 
         private static bool TryGetSerialNumber(NativeHandles.DeviceHandle deviceHandle, out string serialNumber)

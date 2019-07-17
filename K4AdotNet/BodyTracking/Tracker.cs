@@ -38,6 +38,8 @@ namespace K4AdotNet.BodyTracking
 
         public int QueueSize => queueSize;
 
+        public bool IsQueueFull => queueSize >= MaxQueueSize;
+
         public event EventHandler QueueSizeIncreased;
 
         public event EventHandler QueueSizeDecreased;
@@ -59,18 +61,35 @@ namespace K4AdotNet.BodyTracking
             return true;
         }
 
-        public BodyFrame TryPopResult(Timeout timeout = default(Timeout))
+        public void EnqueueCapture(Sensor.Capture capture)
+        {
+            var res = TryEnqueueCapture(capture, Timeout.Infinite);
+            System.Diagnostics.Debug.Assert(res);
+        }
+
+        public bool TryPopResult(out BodyFrame bodyFrame, Timeout timeout = default(Timeout))
         {
             var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
-                return null;
+            {
+                bodyFrame = null;
+                return false;
+            }
             if (res == NativeCallResults.WaitResult.Failed)
                 throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline");
 
             Interlocked.Decrement(ref queueSize);
             QueueSizeDecreased?.Invoke(this, EventArgs.Empty);
 
-            return BodyFrame.Create(bodyFrameHandle);
+            bodyFrame = BodyFrame.Create(bodyFrameHandle);
+            return bodyFrame != null;
+        }
+
+        public BodyFrame PopResult()
+        {
+            var res = TryPopResult(out var bodyFrame, Timeout.Infinite);
+            System.Diagnostics.Debug.Assert(res);
+            return bodyFrame;
         }
 
         public static readonly int MaxQueueSize = NativeApi.MAX_TRACKING_QUEUE_SIZE;

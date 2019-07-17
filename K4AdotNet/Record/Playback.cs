@@ -52,7 +52,7 @@ namespace K4AdotNet.Record
         public byte[] GetRawCalibration()
         {
             if (!Helpers.TryGetValueInByteBuffer(NativeApi.PlaybackGetRawCalibration, handle.ValueNotDisposed, out var result))
-                ThrowException();
+                throw new PlaybackException(ExceptionMessage);
             return result;
         }
 
@@ -94,26 +94,43 @@ namespace K4AdotNet.Record
         public bool TrySeekTimestamp(Microseconds64 offset, PlaybackSeekOrigin origin)
             => NativeApi.PlaybackSeekTimestamp(handle.ValueNotDisposed, offset, origin) == NativeCallResults.Result.Succeeded;
 
-        public Sensor.Capture TryGetNextCapture()
+        public void SeekTimestamp(Microseconds64 offset, PlaybackSeekOrigin origin)
+        {
+            var res = TrySeekTimestamp(offset, origin);
+            if (!res)
+                throw new PlaybackException($"Cannot seek playback of \"{FilePath}\" to {offset} from {origin}.");
+        }
+
+        public bool TryGetNextCapture(out Sensor.Capture capture)
         {
             var res = NativeApi.PlaybackGetNextCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
-                return null;
+            {
+                capture = null;
+                return false;
+            }
             if (res == NativeCallResults.StreamResult.Succeeded)
-                return Sensor.Capture.Create(captureHandle);
-            ThrowException();
-            return null;
+            {
+                capture = Sensor.Capture.Create(captureHandle);
+                return capture != null;
+            }
+            throw new PlaybackException(ExceptionMessage);
         }
 
-        public Sensor.Capture TryGetPreviousCapture()
+        public bool TryGetPreviousCapture(out Sensor.Capture capture)
         {
             var res = NativeApi.PlaybackGetPreviousCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
-                return null;
+            {
+                capture = null;
+                return false;
+            }
             if (res == NativeCallResults.StreamResult.Succeeded)
-                return Sensor.Capture.Create(captureHandle);
-            ThrowException();
-            return null;
+            {
+                capture = Sensor.Capture.Create(captureHandle);
+                return capture != null;
+            }
+            throw new PlaybackException(ExceptionMessage);
         }
 
         public bool TryGetNextImuSample(out Sensor.ImuSample imuSample)
@@ -123,8 +140,7 @@ namespace K4AdotNet.Record
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)
                 return true;
-            ThrowException();
-            return false;
+            throw new PlaybackException(ExceptionMessage);
         }
 
         public bool TryGetPreviousImuSample(out Sensor.ImuSample imuSample)
@@ -134,17 +150,15 @@ namespace K4AdotNet.Record
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)
                 return true;
-            ThrowException();
-            return false;
+            throw new PlaybackException(ExceptionMessage);
         }
 
         private void CheckResult(NativeCallResults.Result result)
         {
             if (result != NativeCallResults.Result.Succeeded)
-                ThrowException();
+                throw new PlaybackException(ExceptionMessage);
         }
 
-        private void ThrowException()
-            => throw new PlaybackException($"Error during reading from file \"{FilePath}\".");
+        private string ExceptionMessage => $"Error during reading from file \"{FilePath}\".";
     }
 }
