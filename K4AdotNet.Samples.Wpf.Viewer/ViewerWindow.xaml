@@ -1,0 +1,108 @@
+﻿<Window x:Class="K4AdotNet.Samples.Wpf.Viewer.ViewerWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:K4AdotNet.Samples.Wpf.Viewer"
+        mc:Ignorable="d"
+        Width="1000"
+        SizeToContent="Height"
+        Loaded="Window_Loaded"
+        Title="{Binding Title, Mode=OneWay}"
+        WindowStyle="ToolWindow"
+        d:DataContext="{d:DesignInstance local:ViewerModel, IsDesignTimeCreatable=True}">
+    <Window.Resources>
+        <Style x:Key="Header" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="DarkGray"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="CapturedImage" TargetType="Image">
+            <Setter Property="Margin" Value="1"/>
+        </Style>
+        <Style x:Key="Slider" TargetType="Slider">
+            <Setter Property="Margin" Value="16,3"/>
+            <Setter Property="TickPlacement" Value="BottomRight"/>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding DepthColumnWidth}"/>
+            <ColumnDefinition Width="{Binding IRColumnWidth}"/>
+            <ColumnDefinition Width="{Binding ColorColumnWidth}"/>
+        </Grid.ColumnDefinitions>
+        <!-- DEPTH -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource Header}">
+                D E P T H
+        </TextBlock>
+        <Image Grid.Row="1" Grid.Column="0" Style="{StaticResource CapturedImage}"
+               Source="{Binding DepthImageSource, Mode=OneWay}"/>
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center">Max visible distance (<Run Text="{Binding DepthMaxVisibleDistance, StringFormat=N2, Mode=OneWay}"/> m):</TextBlock>
+            <Slider Style="{StaticResource Slider}"
+                    Minimum="0" Maximum="10"
+                    LargeChange="1" SmallChange="0.25"
+                    TickFrequency="1"
+                    Value="{Binding DepthMaxVisibleDistance}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Vertical">
+            <TextBlock Style="{StaticResource Label}">Resolution: <Run Text="{Binding DepthResolutionInfo, Mode=OneWay}"/></TextBlock>
+            <TextBlock Style="{StaticResource Label}">Actual FPS: <Run Text="{Binding DepthFps, Mode=OneWay}"/></TextBlock>
+        </StackPanel>
+        <!-- PASSIVE IR -->
+        <TextBlock Grid.Row="0" Grid.Column="1"  Style="{StaticResource Header}">
+                P A S S I V E <Run Text=" "/> I R
+        </TextBlock>
+        <Image Grid.Row="1" Grid.Column="1" Style="{StaticResource CapturedImage}"
+               Source="{Binding IRImageSource, Mode=OneWay}"/>
+        <StackPanel Grid.Row="2" Grid.Column="1">
+            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center">
+                Brightness correction (<Run Text="{Binding IRBrightnessCorrection, Mode=OneWay}"/>):
+            </TextBlock>
+            <Slider Style="{StaticResource Slider}" 
+                    Minimum="0" Maximum="4"
+                    LargeChange="1" SmallChange="1"
+                    TickFrequency="1"
+                    Value="{Binding IRBrightnessCorrection}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Vertical">
+            <TextBlock Style="{StaticResource Label}">Resolution: <Run Text="{Binding IRResolutionInfo, Mode=OneWay}"/></TextBlock>
+            <TextBlock Style="{StaticResource Label}">Actual FPS: <Run Text="{Binding IRFps, Mode=OneWay}"/></TextBlock>
+        </StackPanel>
+        <!-- COLOR -->
+        <TextBlock Grid.Row="0" Grid.Column="2" Style="{StaticResource Header}">
+                C O L O R
+        </TextBlock>
+        <Image Grid.Row="1" Grid.Column="2" Style="{StaticResource CapturedImage}"
+               Source="{Binding ColorImageSource, Mode=OneWay}"/>
+        <Image Grid.Row="1" Grid.Column="2" Style="{StaticResource CapturedImage}"
+               Source="{Binding DepthOverColorImageSource, Mode=OneWay}"
+               Opacity="{Binding DepthOverColorOpacity}"/>
+        <StackPanel Grid.Row="2" Grid.Column="2">
+            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center">Depth over color opacity (<Run Text="{Binding DepthOverColorOpacity, StringFormat=N2, Mode=OneWay}"/>):</TextBlock>
+            <Slider Style="{StaticResource Slider}"
+                    Minimum="0" Maximum="1"
+                    LargeChange="0.2" SmallChange="0.1"
+                    TickFrequency="0.2"
+                    Value="{Binding DepthOverColorOpacity}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Vertical">
+            <TextBlock Style="{StaticResource Label}">Resolution: <Run Text="{Binding ColorResolutionInfo, Mode=OneWay}"/></TextBlock>
+            <TextBlock Style="{StaticResource Label}">Actual FPS: <Run Text="{Binding ColorFps, Mode=OneWay}"/></TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>

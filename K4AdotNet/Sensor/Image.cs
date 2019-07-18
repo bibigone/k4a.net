@@ -17,6 +17,10 @@ namespace K4AdotNet.Sensor
         internal static Image Create(NativeHandles.ImageHandle handle)
             => handle != null && !handle.IsInvalid ? new Image(handle) : null;
 
+        public Image(ImageFormat format, int widthPixels, int heightPixels)
+            : this(format, widthPixels, heightPixels, format.StrideBytes(widthPixels))
+        { }
+
         // Don't use this method to create image with unknown/unspecified stride (like MJPEG).
         // For such formats, size of image in bytes must be specified to create image.
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)

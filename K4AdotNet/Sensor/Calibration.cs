@@ -115,6 +115,9 @@ namespace K4AdotNet.Sensor
             return targetPoint3DMm;
         }
 
+        public Transformation CreateTransformation()
+            => new Transformation(ref this);
+
         #endregion
     }
 }

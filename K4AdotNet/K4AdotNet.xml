@@ -866,8 +866,8 @@
         <member name="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.P1">
             <summary>Tangential distortion coefficient 1. Corresponding index in array: 13.</summary>
         </member>
-        <member name="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.MetricRadius">
-            <summary>Metric radius. Corresponding index in array: 14.</summary>
+        <member name="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.NotUsed">
+            <summary>Not used in current version. Corresponding index in array: 14.</summary>
         </member>
         <member name="M:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ToArray">
             <summary>Array representation of intrinsic model parameters.</summary>

@@ -73,8 +73,8 @@ namespace K4AdotNet.Sensor
         /// <summary>Tangential distortion coefficient 1. Corresponding index in array: 13.</summary>
         public float P1;
 
-        /// <summary>Metric radius. Corresponding index in array: 14.</summary>
-        public float MetricRadius;
+        /// <summary>Not used in current version. Corresponding index in array: 14.</summary>
+        public float NotUsed;
 
         public CalibrationIntrinsicParameters(float[] values)
         {
@@ -97,12 +97,12 @@ namespace K4AdotNet.Sensor
             Cody = values[11];
             P2 = values[12];
             P1 = values[13];
-            MetricRadius = values[14];
+            NotUsed = values[14];
         }
 
         /// <summary>Array representation of intrinsic model parameters.</summary>
         public float[] ToArray()
-            => new[] { Cx, Cy, Fx, Fy, K1, K2, K3, K4, K5, K6, Codx, Cody, P2, P1, MetricRadius };
+            => new[] { Cx, Cy, Fx, Fy, K1, K2, K3, K4, K5, K6, Codx, Cody, P2, P1, NotUsed };
 
         public float this[int index]
         {
@@ -124,7 +124,7 @@ namespace K4AdotNet.Sensor
                     case 11: return Cody;
                     case 12: return P2;
                     case 13: return P1;
-                    case 14: return MetricRadius;
+                    case 14: return NotUsed;
                     default: throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
@@ -147,7 +147,7 @@ namespace K4AdotNet.Sensor
                     case 11: Cody = value; break;
                     case 12: P2 = value; break;
                     case 13: P1 = value; break;
-                    case 14: MetricRadius = value; break;
+                    case 14: NotUsed = value; break;
                     default: throw new ArgumentOutOfRangeException(nameof(index));
                 }
             }

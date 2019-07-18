@@ -11,7 +11,7 @@ namespace K4AdotNet.Sensor
         {
             var handle = NativeApi.TransformationCreate(ref calibration);
             if (handle == null || handle.IsInvalid)
-                throw new ArgumentException("Cannot create transformation object from specified calibration data.", nameof(calibration));
+                throw new ArgumentException("Cannot create transformation object from specified calibration data (or depthengine_1_0.dll library cannot be found).", nameof(calibration));
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
             DepthMode = calibration.DepthMode;

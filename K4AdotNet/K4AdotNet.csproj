@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/bibigone/k4a.net/blob/master/README.md</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bibigone/k4a.net</RepositoryUrl>
     <PackageTags>Kinect for Azure .Net Wrapper</PackageTags>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
