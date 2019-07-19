@@ -4,14 +4,68 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:K4AdotNet.Samples.Wpf.Viewer"
         mc:Ignorable="d"
-        Title="K4AdotNet Viewer Sample"
+        Title="K4AdotNet Sample - Viewer"
         SizeToContent="WidthAndHeight"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}">
+    <Window.Resources>
+        <Style x:Key="Option" TargetType="CheckBox">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Command" TargetType="Button">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+    </Window.Resources>
     <StackPanel Margin="10" Orientation="Vertical">
-        <CheckBox Margin="3" Padding="3" x:Name="checkBoxPlaybackDisableColor" VerticalContentAlignment="Center">Don't show color stream on playback (if any)</CheckBox>
-        <CheckBox Margin="3" Padding="3" x:Name="checkBoxPlaybackDisableDepth" VerticalContentAlignment="Center">Don't show depth stream on playback (if any)</CheckBox>
-        <CheckBox Margin="3" Padding="3" x:Name="checkBoxPlaybackFast" VerticalContentAlignment="Center">Play as fast as possible (don't try to keep original FPS)</CheckBox>
-        <Button Margin="3" Padding="3" Content="Open MKV file for playback" Click="OpenPlayback"/>
+        <!-- Playback -->
+        <GroupBox Header="Playback">
+            <StackPanel Orientation="Vertical" Margin="4">
+                <CheckBox Style="{StaticResource Option}" IsChecked="{Binding DisableColor}">Don't show color stream on playback (if any)</CheckBox>
+                <CheckBox Style="{StaticResource Option}" IsChecked="{Binding DisableDepth}">Don't show depth stream on playback (if any)</CheckBox>
+                <CheckBox Style="{StaticResource Option}" IsChecked="{Binding PlayAsFastAsPossible}">Play as fast as possible (don't try to keep original FPS)</CheckBox>
+                <Button Style="{StaticResource Command}" Content="Open MKV file for playback..."
+                        IsEnabled="{Binding IsPlaybackEnabled}" Click="OpenPlayback"/>
+            </StackPanel>
+        </GroupBox>
+        <!-- Kinect Device -->
+        <GroupBox Header="Playback">
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Margin="3">Depth:</Label>
+                <ComboBox Grid.Row="0" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding DepthModes}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding DepthMode}"/>
+                <Label Grid.Row="1" Grid.Column="0" Margin="3">Color:</Label>
+                <ComboBox Grid.Row="1" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding ColorResolutions}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding ColorResolution}"/>
+                <Label Grid.Row="2" Grid.Column="0" Margin="3">Frame rate:</Label>
+                <ComboBox Grid.Row="2" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding FrameRates}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding FrameRate}"/>
+                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Command}"
+                        Content="Open device" Click="OpenDevice" IsEnabled="{Binding IsOpenDeviceEnabled}"/>
+            </Grid>
+        </GroupBox>
     </StackPanel>
 </Window>

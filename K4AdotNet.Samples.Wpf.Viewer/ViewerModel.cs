@@ -10,21 +10,26 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 {
     internal sealed class ViewerModel : INotifyPropertyChanged, IDisposable
     {
+        private readonly IApp app;
         private readonly Dispatcher dispatcher;
         private readonly BackgroundReadLoop readLoop;
 
+        // To transform depth map to color camera plane
         private readonly Transformation transformation;
         private readonly Image depthOverColorImage;
 
+        // To visualize images received from Capture
         private readonly ImageVisualizer colorImageVisualizer;
         private readonly ImageVisualizer depthImageVisualizer;
         private readonly ImageVisualizer depthOverColorImageVisualizer;
         private readonly ImageVisualizer irImageVisualizer;
 
+        // To calculate actual fps
         private readonly ActualFpsCalculator colorFps = new ActualFpsCalculator();
         private readonly ActualFpsCalculator depthFps = new ActualFpsCalculator();
         private readonly ActualFpsCalculator irFps = new ActualFpsCalculator();
 
+        // For designer
         public ViewerModel()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
@@ -32,9 +37,11 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             DepthColumnWidth = IRColumnWidth = ColorColumnWidth = new GridLength(1, GridUnitType.Star);
         }
 
-        public ViewerModel(Dispatcher dispatcher, BackgroundReadLoop readLoop)
+        public ViewerModel(IApp app, BackgroundReadLoop readLoop)
         {
-            this.dispatcher = dispatcher;
+            this.app = app;
+            dispatcher = app.Dispatcher;
+
             this.readLoop = readLoop;
             readLoop.CaptureReady += ReadLoop_CaptureReady;
             readLoop.Failed += ReadLoop_Failed;
@@ -43,26 +50,29 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
             var colorRes = readLoop.ColorResolution;
             var depthMode = readLoop.DepthMode;
-            readLoop.GetCalibration(out var calibration);
 
+            // Image visualizers for color
             if (colorRes != ColorResolution.Off)
             {
                 colorImageVisualizer = ImageVisualizer.CreateForColorBgra(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
 
                 if (depthMode.HasDepth())
                 {
-                    transformation = new Transformation(ref calibration);
+                    readLoop.GetCalibration(out var calibration);
+                    transformation = calibration.CreateTransformation();
                     depthOverColorImage = new Image(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
                     depthOverColorImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
                 }
 
             }
-            
+
+            // Image visualizers for depth and IR (if any)
             if (depthMode.HasDepth())
                 depthImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels());
             if (depthMode.HasPassiveIR())
                 irImageVisualizer = ImageVisualizer.CreateForIR(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels());
 
+            // Proportions between columns
             if (colorRes != ColorResolution.Off && depthMode.HasPassiveIR())
             {
                 IRColumnWidth = new GridLength(irImageVisualizer.WidthPixels, GridUnitType.Star);
@@ -78,15 +88,14 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             }
             else
             {
-                DepthColumnWidth = IRColumnWidth = new GridLength(1, GridUnitType.Star);
+                IRColumnWidth = new GridLength(1, GridUnitType.Star);
                 ColorColumnWidth = new GridLength(0, GridUnitType.Pixel);
+                DepthColumnWidth = depthMode.HasDepth() ? IRColumnWidth : ColorColumnWidth;
             }
         }
 
         private void ReadLoop_Failed(object sender, FailedEventArgs e)
-        {
-            MessageBox.Show(e.Exception.Message);
-        }
+            => app.ShowErrorMessage(e.Exception.Message);
 
         private void ReadLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
         {

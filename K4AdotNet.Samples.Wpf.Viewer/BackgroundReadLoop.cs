@@ -11,6 +11,9 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         public static BackgroundReadLoop CreateForPlayback(string filePath, bool disableColor, bool disableDepth, bool playAsFastAsPossible)
             => new PlaybackReadLoop(filePath, disableColor, disableDepth, playAsFastAsPossible);
 
+        public static BackgroundReadLoop CreateForDevice(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
+            => new DeviceReadLoop(device, depthMode, colorResolution, frameRate);
+
         protected BackgroundReadLoop()
         { }
 
@@ -102,6 +105,75 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                         using (capture)
                         {
                             CaptureReady?.Invoke(this, new CaptureReadyEventArgs(capture));
+                        }
+                    }
+                }
+                catch (ObjectDisposedException)
+                { }
+                catch (Exception exc)
+                {
+                    Failed?.Invoke(this, new FailedEventArgs(exc));
+                }
+            }
+        }
+
+        #endregion
+
+        #region Device
+
+        private sealed class DeviceReadLoop : BackgroundReadLoop
+        {
+            private readonly Device device;
+
+            public DeviceReadLoop(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
+            {
+                this.device = device;
+                DepthMode = depthMode;
+                ColorResolution = colorResolution;
+                FrameRate = frameRate;
+            }
+
+            public override void Dispose()
+                => device.Dispose();
+
+            public override ColorResolution ColorResolution { get; }
+
+            public override DepthMode DepthMode { get; }
+
+            public FrameRate FrameRate { get; }
+
+            public override void GetCalibration(out Calibration calibration)
+                => device.GetCalibration(DepthMode, ColorResolution, out calibration);
+
+            public override string ToString()
+                => device.ToString();
+
+            protected override void BackgroundLoop()
+            {
+                try
+                {
+                    device.StartCameras(new DeviceConfiguration
+                    {
+                        CameraFps = FrameRate,
+                        ColorFormat = ImageFormat.ColorBgra32,
+                        ColorResolution = ColorResolution,
+                        DepthMode = DepthMode,
+                        WiredSyncMode = WiredSyncMode.Standalone,
+                    });
+
+                    while (!device.IsDisposed)
+                    {
+                        var res = device.TryGetCapture(out var capture);
+                        if (res)
+                        {
+                            using (capture)
+                            {
+                                CaptureReady?.Invoke(this, new CaptureReadyEventArgs(capture));
+                            }
+                        }
+                        else
+                        {
+                            Thread.Sleep(1);
                         }
                     }
                 }
