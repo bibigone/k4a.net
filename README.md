@@ -22,16 +22,16 @@
   * Except dependencies on native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download)
   * These native libraries are included to repo (see `externals` directory)
   * For details see below
-* Plenty of poweful samples
+* Plenty of powerful samples
   * More samples will be available soon (stay tuned)
 * Unit-tested
   * To be done ASAP
 * Well documented
   * To be done ASAP
-* Potentially multiplatform (Windows, Linux)
-  * But currently only tested under Windows
-  * Plus there's no Linux-version of [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download)
-  * Plus most of samples are written using WPF
+* Potentially multi-platform (Windows, Linux)
+  * But currently tested only under Windows
+  * Plus there's no Linux-version of [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) yet
+  * And most of samples are written using WPF
 
 
 ## Dependencies
@@ -40,8 +40,8 @@
 
 | Library "component" | Depend on                        | Version in use | Location in source code                 | 
 |---------------------|----------------------------------|----------------|-----------------------------------------|
-| Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.0          | `externals/k4a/windows-desktop/amd64`   | 
-| Record API          | `k4arecord.dll`                  | 1.1.0          | `externals/k4a/windows-desktop/amd64`   | 
+| Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.1          | `externals/k4a/windows-desktop/amd64`   | 
+| Record API          | `k4arecord.dll`                  | 1.1.1          | `externals/k4a/windows-desktop/amd64`   | 
 | Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9            | `externals/k4abt/windows-desktop/amd64` | 
 
 Some important notes:
@@ -62,6 +62,10 @@ It's almost ready to use
 * Documentation comments
 * More unit-tests
 * Nuget package(s)
+* Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
+* Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)
+* Samples for Unity3D
+* Some hosting for documentation
 
 
 ## How to build

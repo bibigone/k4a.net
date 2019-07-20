@@ -1,0 +1,6 @@
+sdk\windows-desktop\amd64\release\bin\depthengine_1_0.dll
+sdk\windows-desktop\amd64\release\bin\k4a.dll
+sdk\windows-desktop\amd64\release\bin\k4arecord.dll
+tools\AzureKinectFirmwareTool.exe
+tools\k4arecorder.exe
+tools\k4aviewer.exe
