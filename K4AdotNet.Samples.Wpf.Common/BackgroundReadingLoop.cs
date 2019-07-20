@@ -4,17 +4,17 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    internal abstract class BackgroundReadLoop : IDisposable
+    public abstract class BackgroundReadingLoop : IDisposable
     {
-        public static BackgroundReadLoop CreateForPlayback(string filePath, bool disableColor, bool disableDepth, bool playAsFastAsPossible)
-            => new PlaybackReadLoop(filePath, disableColor, disableDepth, playAsFastAsPossible);
+        public static BackgroundReadingLoop CreateForPlayback(string filePath, bool disableColor, bool disableDepth, bool doNotPlayFasterThanOriginalFps)
+            => new PlaybackReadingLoop(filePath, disableColor, disableDepth, doNotPlayFasterThanOriginalFps);
 
-        public static BackgroundReadLoop CreateForDevice(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
-            => new DeviceReadLoop(device, depthMode, colorResolution, frameRate);
+        public static BackgroundReadingLoop CreateForDevice(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
+            => new DeviceReadingLoop(device, depthMode, colorResolution, frameRate);
 
-        protected BackgroundReadLoop()
+        protected BackgroundReadingLoop()
         { }
 
         public abstract ColorResolution ColorResolution { get; }
@@ -36,15 +36,15 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         #region Playback
 
-        private sealed class PlaybackReadLoop : BackgroundReadLoop
+        private sealed class PlaybackReadingLoop : BackgroundReadingLoop
         {
-            private readonly bool playAsFastAsPossible;
+            private readonly bool doNotPlayFasterThanOriginalFps;
             private readonly Playback playback;
             private readonly int frameRateHz;
 
-            public PlaybackReadLoop(string filePath, bool disableColor, bool disableDepth, bool playAsFastAsPossible)
+            public PlaybackReadingLoop(string filePath, bool disableColor, bool disableDepth, bool doNotPlayFasterThanOriginalFps)
             {
-                this.playAsFastAsPossible = playAsFastAsPossible;
+                this.doNotPlayFasterThanOriginalFps = doNotPlayFasterThanOriginalFps;
 
                 playback = new Playback(filePath);
                 playback.GetRecordConfiguration(out var config);
@@ -82,7 +82,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
                     while (!playback.IsDisposed)
                     {
-                        while (!playAsFastAsPossible && !playback.IsDisposed)
+                        while (doNotPlayFasterThanOriginalFps && !playback.IsDisposed)
                         {
                             var expectedTime = Microseconds64.FromSeconds((double)frameCounter / frameRateHz);
                             var elapsedTime = (Microseconds64)sw.Elapsed;
@@ -121,11 +121,11 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         #region Device
 
-        private sealed class DeviceReadLoop : BackgroundReadLoop
+        private sealed class DeviceReadingLoop : BackgroundReadingLoop
         {
             private readonly Device device;
 
-            public DeviceReadLoop(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
+            public DeviceReadingLoop(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
             {
                 this.device = device;
                 DepthMode = depthMode;

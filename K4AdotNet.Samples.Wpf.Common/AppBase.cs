@@ -2,15 +2,20 @@
 using System.Linq;
 using System.Windows;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    partial class App : Application, IApp
+    public abstract class AppBase : Application, IApp
     {
+        protected abstract Window CreateMainWindow(StartupEventArgs e);
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            MainWindow = new MainWindow(new MainModel(this));
-            MainWindow.Show();
+            MainWindow = CreateMainWindow(e);
+            if (MainWindow == null)
+                Shutdown();
+            else
+                MainWindow.Show();
         }
 
         public IDisposable IndicateWaiting()
@@ -19,13 +24,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         public void ShowErrorMessage(string message, string title = null)
             => MessageBox.Show(CurrentWindow, message, title ?? "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-        public void ShowWindowForModel(object viewModel)
-        {
-            if (viewModel is ViewerModel viewerModel)
-                new ViewerWindow(viewerModel) { Owner = CurrentWindow }.Show();
-            else
-                throw new NotSupportedException();
-        }
+        public abstract void ShowWindowForModel(object viewModel);
 
         public string BrowseFileToOpen(string filter, string title = null)
         {
@@ -44,7 +43,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             return openFileDialog.FileName;
         }
 
-        private Window CurrentWindow
+        public Window CurrentWindow
             => Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? MainWindow;
 
         private sealed class MouseCursorOverrider : IDisposable

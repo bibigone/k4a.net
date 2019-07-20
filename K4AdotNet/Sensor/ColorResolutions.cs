@@ -24,6 +24,10 @@ namespace K4AdotNet.Sensor
         public static bool IsCompatibleWith(this ColorResolution colorResolution, FrameRate frameRate)
             => !(colorResolution == ColorResolution.R3072p && frameRate == FrameRate.Thirty);
 
+        public static bool IsCompatibleWith(this ColorResolution colorResolution, ImageFormat imageFormat)
+            => imageFormat == ImageFormat.ColorBgra32 || imageFormat == ImageFormat.ColorMjpg
+            || (colorResolution == ColorResolution.R720p && (imageFormat == ImageFormat.ColorNV12 || imageFormat == ImageFormat.ColorYUY2));
+
         /// <summary>Returns image width in pixels for a given resolution.</summary>
         public static int WidthPixels(this ColorResolution resolution)
             => resolution.IsAspectRatio4to3()

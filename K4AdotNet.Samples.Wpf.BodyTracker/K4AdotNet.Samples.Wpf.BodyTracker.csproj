@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{28F1EB11-BDF2-464E-A9C4-92D624F32F42}</ProjectGuid>
+    <ProjectGuid>{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>K4AdotNet.Samples.Wpf.Viewer</RootNamespace>
-    <AssemblyName>K4AdotNet.Samples.Wpf.Viewer</AssemblyName>
+    <RootNamespace>K4AdotNet.Samples.Wpf.BodyTracker</RootNamespace>
+    <AssemblyName>K4AdotNet.Samples.Wpf.BodyTracker</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -25,8 +24,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -50,24 +49,27 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
-    <Compile Include="MainModel.cs" />
-    <Compile Include="ViewerModel.cs" />
-    <Compile Include="ViewerWindow.xaml.cs">
-      <DependentUpon>ViewerWindow.xaml</DependentUpon>
+    <Compile Include="BackgroundTrackingLoop.cs" />
+    <Compile Include="BodyFrameReadyEventArgs.cs" />
+    <Compile Include="SkeletonVisualizer.cs" />
+    <Compile Include="ImageVisualizer.cs" />
+    <Compile Include="TrackerModel.cs" />
+    <Compile Include="TrackerWindow.xaml.cs">
+      <DependentUpon>TrackerWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ImageVisualizer.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="MainModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ViewerWindow.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="TrackerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +78,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\externals\k4abt\windows-desktop\amd64\dnn_model.onnx">
+      <Link>dnn_model.onnx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +95,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\externals\k4abt\windows-desktop\amd64\k4abt.dll">
+      <Link>k4abt.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\externals\k4abt\windows-desktop\amd64\onnxruntime.dll">
+      <Link>onnxruntime.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_1_0.dll">
       <Link>depthengine_1_0.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

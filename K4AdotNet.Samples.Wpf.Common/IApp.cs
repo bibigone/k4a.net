@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Threading;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    internal interface IApp
+    public interface IApp
     {
         Dispatcher Dispatcher { get; }
         void ShowErrorMessage(string message, string title = null);

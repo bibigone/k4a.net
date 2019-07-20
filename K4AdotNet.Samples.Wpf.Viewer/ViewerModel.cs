@@ -1,18 +1,13 @@
 ﻿using K4AdotNet.Sensor;
 using System;
-using System.ComponentModel;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace K4AdotNet.Samples.Wpf.Viewer
 {
-    internal sealed class ViewerModel : INotifyPropertyChanged, IDisposable
+    internal sealed class ViewerModel : ViewModelBase, IDisposable
     {
-        private readonly IApp app;
-        private readonly Dispatcher dispatcher;
-        private readonly BackgroundReadLoop readLoop;
+        private readonly BackgroundReadingLoop readingLoop;
 
         // To transform depth map to color camera plane
         private readonly Transformation transformation;
@@ -31,25 +26,23 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         // For designer
         public ViewerModel()
+            : base()
         {
-            dispatcher = Dispatcher.CurrentDispatcher;
             Title = "Kinect for Azure #123456";
             DepthColumnWidth = IRColumnWidth = ColorColumnWidth = new GridLength(1, GridUnitType.Star);
         }
 
-        public ViewerModel(IApp app, BackgroundReadLoop readLoop)
+        public ViewerModel(IApp app, BackgroundReadingLoop readingLoop)
+            : base(app)
         {
-            this.app = app;
-            dispatcher = app.Dispatcher;
+            this.readingLoop = readingLoop;
+            readingLoop.CaptureReady += ReadingLoop_CaptureReady;
+            readingLoop.Failed += ReadingLoop_Failed;
 
-            this.readLoop = readLoop;
-            readLoop.CaptureReady += ReadLoop_CaptureReady;
-            readLoop.Failed += ReadLoop_Failed;
+            Title = readingLoop.ToString();
 
-            Title = readLoop.ToString();
-
-            var colorRes = readLoop.ColorResolution;
-            var depthMode = readLoop.DepthMode;
+            var colorRes = readingLoop.ColorResolution;
+            var depthMode = readingLoop.DepthMode;
 
             // Image visualizers for color
             if (colorRes != ColorResolution.Off)
@@ -58,7 +51,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
                 if (depthMode.HasDepth())
                 {
-                    readLoop.GetCalibration(out var calibration);
+                    readingLoop.GetCalibration(out var calibration);
                     transformation = calibration.CreateTransformation();
                     depthOverColorImage = new Image(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
                     depthOverColorImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
@@ -94,10 +87,10 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             }
         }
 
-        private void ReadLoop_Failed(object sender, FailedEventArgs e)
+        private void ReadingLoop_Failed(object sender, FailedEventArgs e)
             => app.ShowErrorMessage(e.Exception.Message);
 
-        private void ReadLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
+        private void ReadingLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
         {
             using (var colorImage = e.Capture.ColorImage)
             {
@@ -126,11 +119,11 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         public void Dispose()
         {
-            if (readLoop != null)
+            if (readingLoop != null)
             {
-                readLoop.Failed -= ReadLoop_Failed;
-                readLoop.CaptureReady -= ReadLoop_CaptureReady;
-                readLoop.Dispose();
+                readingLoop.Failed -= ReadingLoop_Failed;
+                readingLoop.CaptureReady -= ReadingLoop_CaptureReady;
+                readingLoop.Dispose();
             }
 
             transformation?.Dispose();
@@ -138,7 +131,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         }
 
         public void Run()
-            => readLoop?.Run();
+            => readingLoop?.Run();
 
         public string Title { get; }
 
@@ -219,27 +212,5 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         public GridLength DepthColumnWidth { get; }
         public GridLength IRColumnWidth { get; }
         public GridLength ColorColumnWidth { get; }
-
-        #region INotifyPropertyChanged
-
-        /// <summary>
-        /// For UI binding.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            if (Thread.CurrentThread != dispatcher.Thread)
-            {
-                // If this method is called from non-UI thread, then redirect it to UI thread
-                dispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(() => RaisePropertyChanged(propertyName)));
-                return;
-            }
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
-
     }
 }

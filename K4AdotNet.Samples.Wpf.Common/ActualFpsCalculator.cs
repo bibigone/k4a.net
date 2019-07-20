@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    internal sealed class ActualFpsCalculator
+    public sealed class ActualFpsCalculator
     {
         /// <summary>
         /// Creates frame rate calculator with specified parameters.
@@ -23,8 +23,8 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             if (periodCountForAveraging <= 0)
                 periodCountForAveraging = 6;
 
-            this.RefreshPerion = refreshPeriod;
-            this.SmoothCoeff = Math.Min(0.99f, Math.Max(0f, smoothCoeff));
+            RefreshPerion = refreshPeriod;
+            SmoothCoeff = Math.Min(0.99f, Math.Max(0f, smoothCoeff));
             buffer = new Tuple<TimeSpan, long>[periodCountForAveraging];
         }
 

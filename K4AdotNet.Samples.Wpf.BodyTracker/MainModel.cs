@@ -1,8 +1,9 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf.BodyTracker
 {
     internal sealed class MainModel : ViewModelBase
     {
@@ -15,28 +16,19 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         #region Playback
 
-        public bool IsPlaybackEnabled => !DisableColor || !DisableDepth;
-
         public bool DisableColor
         {
             get => disableColor;
-            set => SetPropertyValue(ref disableColor, value, nameof(DisableColor), nameof(IsPlaybackEnabled));
+            set => SetPropertyValue(ref disableColor, value, nameof(DisableColor));
         }
-        private bool disableColor;
-
-        public bool DisableDepth
-        {
-            get => disableDepth;
-            set => SetPropertyValue(ref disableDepth, value, nameof(DisableDepth), nameof(IsPlaybackEnabled));
-        }
-        private bool disableDepth;
+        private bool disableColor = true;
 
         public bool DoNotPlayFasterThanOriginalFps
         {
             get => doNotPlayFasterThanOriginalFps;
             set => SetPropertyValue(ref doNotPlayFasterThanOriginalFps, value, nameof(DoNotPlayFasterThanOriginalFps));
         }
-        private bool doNotPlayFasterThanOriginalFps = true;
+        private bool doNotPlayFasterThanOriginalFps;
 
         public void Playback()
         {
@@ -50,9 +42,9 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                     {
                         var readingLoop = BackgroundReadingLoop.CreateForPlayback(filePath,
                             disableColor: DisableColor,
-                            disableDepth: DisableDepth,
+                            disableDepth: false,
                             doNotPlayFasterThanOriginalFps: DoNotPlayFasterThanOriginalFps);
-                        var viewModel = new ViewerModel(app, readingLoop);
+                        var viewModel = new TrackerModel(app, readingLoop);
                         app.ShowWindowForModel(viewModel);
                     }
                 }
@@ -67,7 +59,8 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         #region Kinect device
 
-        public IReadOnlyList<KeyValuePair<DepthMode, string>> DepthModes { get; } = Helpers.AllDepthModes;
+        public IReadOnlyList<KeyValuePair<DepthMode, string>> DepthModes { get; }
+            = Helpers.AllDepthModes.Where(pair => pair.Key.HasDepth()).ToList();
 
         public DepthMode DepthMode
         {
@@ -83,7 +76,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             get => colorResolution;
             set => SetPropertyValue(ref colorResolution, value, nameof(ColorResolution), nameof(IsOpenDeviceEnabled));
         }
-        private ColorResolution colorResolution = ColorResolution.R720p;
+        private ColorResolution colorResolution = ColorResolution.Off;
 
         public IReadOnlyList<KeyValuePair<FrameRate, string>> FrameRates { get; } = Helpers.AllFrameRates;
 
@@ -95,8 +88,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         private FrameRate frameRate = FrameRate.Fifteen;
 
         public bool IsOpenDeviceEnabled
-            => (ColorResolution != ColorResolution.Off || DepthMode != DepthMode.Off)
-            && ColorResolution.IsCompatibleWith(FrameRate)
+            => ColorResolution.IsCompatibleWith(FrameRate)
             && DepthMode.IsCompatibleWith(FrameRate);
 
         public void OpenDevice()
@@ -112,7 +104,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                 using (app.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
-                    var viewModel = new ViewerModel(app, readingLoop);
+                    var viewModel = new TrackerModel(app, readingLoop);
                     app.ShowWindowForModel(viewModel);
                 }
             }

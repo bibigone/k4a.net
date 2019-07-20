@@ -1,9 +1,9 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    internal sealed class CaptureReadyEventArgs : EventArgs
+    public sealed class CaptureReadyEventArgs : EventArgs
     {
         public CaptureReadyEventArgs(Capture capture)
             => Capture = capture;

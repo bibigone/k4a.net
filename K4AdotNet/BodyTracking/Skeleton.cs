@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace K4AdotNet.BodyTracking
@@ -8,9 +10,10 @@ namespace K4AdotNet.BodyTracking
     // {
     //     k4abt_joint_t joints[K4ABT_JOINT_COUNT];
     // } k4abt_skeleton_t;
+    // https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints
     /// <summary>Structure to define joints for skeleton.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct Skeleton
+    public struct Skeleton : IEnumerable<Joint>
     {
         [MarshalAs(UnmanagedType.Struct)]
         public Joint Pelvis;
@@ -167,34 +170,64 @@ namespace K4AdotNet.BodyTracking
             set => this[(JointType)index] = value;
         }
 
-        public Joint[] ToArray()
-            => new[] {
-                Pelvis,
-                SpineNaval,
-                SpineChest,
-                Neck,
-                ClavicleLeft,
-                ShoulderLeft,
-                ElbowLeft,
-                WristLeft,
-                ClavicleRight,
-                ShoulderRight,
-                ElbowRight,
-                WristRight,
-                HipLeft,
-                KneeLeft,
-                AnkleLeft,
-                FootLeft,
-                HipRight,
-                KneeRight,
-                AnkleRight,
-                FootRight,
-                Head,
-                Nose,
-                EyeLeft,
-                EarLeft,
-                EyeRight,
-                EarRight,
-            };
+        public IEnumerator<Joint> GetEnumerator()
+        {
+            yield return Pelvis;
+            yield return SpineNaval;
+            yield return SpineChest;
+            yield return Neck;
+            yield return ClavicleLeft;
+            yield return ShoulderLeft;
+            yield return ElbowLeft;
+            yield return WristLeft;
+            yield return ClavicleRight;
+            yield return ShoulderRight;
+            yield return ElbowRight;
+            yield return WristRight;
+            yield return HipLeft;
+            yield return KneeLeft;
+            yield return AnkleLeft;
+            yield return FootLeft;
+            yield return HipRight;
+            yield return KneeRight;
+            yield return AnkleRight;
+            yield return FootRight;
+            yield return Head;
+            yield return Nose;
+            yield return EyeLeft;
+            yield return EarLeft;
+            yield return EyeRight;
+            yield return EarRight;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            yield return Pelvis;
+            yield return SpineNaval;
+            yield return SpineChest;
+            yield return Neck;
+            yield return ClavicleLeft;
+            yield return ShoulderLeft;
+            yield return ElbowLeft;
+            yield return WristLeft;
+            yield return ClavicleRight;
+            yield return ShoulderRight;
+            yield return ElbowRight;
+            yield return WristRight;
+            yield return HipLeft;
+            yield return KneeLeft;
+            yield return AnkleLeft;
+            yield return FootLeft;
+            yield return HipRight;
+            yield return KneeRight;
+            yield return AnkleRight;
+            yield return FootRight;
+            yield return Head;
+            yield return Nose;
+            yield return EyeLeft;
+            yield return EarLeft;
+            yield return EyeRight;
+            yield return EarRight;
+        }
     }
 }

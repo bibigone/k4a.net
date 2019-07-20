@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace K4AdotNet.Samples.Wpf.Viewer
+namespace K4AdotNet.Samples.Wpf
 {
-    internal sealed class FailedEventArgs : EventArgs
+    public sealed class FailedEventArgs : EventArgs
     {
         public FailedEventArgs(Exception exception)
             => Exception = exception;

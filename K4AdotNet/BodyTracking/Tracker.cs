@@ -5,19 +5,31 @@ namespace K4AdotNet.BodyTracking
 {
     public sealed class Tracker : IDisposablePlus
     {
+        // Current version of Body Tracking SDK does not support creation of multiple instances.
+        // Attempt to create the second one simply crashes the application.
+        private static volatile int instancesCounter;
+
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;
         private volatile int queueSize;
 
         public Tracker(ref Sensor.Calibration calibration)
         {
+            if (Interlocked.Increment(ref instancesCounter) != 1)
+            {
+                Interlocked.Decrement(ref instancesCounter);
+                throw new NotSupportedException("Oops! Current version of Body Tracking SDK does not support creation of multiple body tracker. Sorry!");
+            }
+
             if (NativeApi.TrackerCreate(ref calibration, out var handle) != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
-                throw new BodyTrackingException("Cannot create body tracking infrastructure");
+                throw new BodyTrackingException("Cannot initialize body tracking infrastructure");
+
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
         {
+            Interlocked.Decrement(ref instancesCounter);
             queueSize = 0;
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);
@@ -53,7 +65,10 @@ namespace K4AdotNet.BodyTracking
             if (res == NativeCallResults.WaitResult.Timeout)
                 return false;
             if (res == NativeCallResults.WaitResult.Failed)
+            {
+                handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
                 throw new BodyTrackingException("Cannot add new capture to body tracking pipeline");
+            }
 
             Interlocked.Increment(ref queueSize);
             QueueSizeIncreased?.Invoke(this, EventArgs.Empty);
@@ -76,7 +91,10 @@ namespace K4AdotNet.BodyTracking
                 return false;
             }
             if (res == NativeCallResults.WaitResult.Failed)
+            {
+                handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
                 throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline");
+            }
 
             Interlocked.Decrement(ref queueSize);
             QueueSizeDecreased?.Invoke(this, EventArgs.Empty);
