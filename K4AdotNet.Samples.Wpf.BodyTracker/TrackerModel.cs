@@ -88,12 +88,15 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             {
                 using (var colorImage = capture.ColorImage)
                 {
-                    colorImageVisualizer?.Update(colorImage);
+                    colorImageVisualizer?.Update(colorImage, null);
                 }
 
                 using (var depthImage = capture.DepthImage)
                 {
-                    depthImageVisualizer?.Update(depthImage);
+                    using (var indexMap = e.BodyFrame.BodyIndexMap)
+                    {
+                        depthImageVisualizer?.Update(depthImage, indexMap);
+                    }
                 }
             }
         }
