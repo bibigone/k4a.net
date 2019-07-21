@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="BackgroundTrackingLoop.cs" />
     <Compile Include="BodyFrameReadyEventArgs.cs" />
+    <Compile Include="BodyIndexMapTransformation.cs" />
     <Compile Include="SkeletonVisualizer.cs" />
     <Compile Include="ImageVisualizer.cs" />
     <Compile Include="TrackerModel.cs" />

@@ -88,7 +88,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         }
 
         private void ReadingLoop_Failed(object sender, FailedEventArgs e)
-            => app.ShowErrorMessage(e.Exception.Message);
+            => dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message)));
 
         private void ReadingLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
         {
@@ -105,8 +105,14 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
                 if (depthImage != null && transformation != null && depthOverColorImage != null && depthOverColorImageVisualizer != null)
                 {
-                    transformation.DepthImageToColorCamera(depthImage, depthOverColorImage);
-                    depthOverColorImageVisualizer?.Update(depthOverColorImage);
+                    // Object can be disposed from different thread
+                    // As a result depthOverColorImage may be disposed while we're working with it
+                    // To protect from such scenario, keep reference to it
+                    using (var depthOverColorImageRef = depthOverColorImage.DuplicateReference())
+                    {
+                        transformation.DepthImageToColorCamera(depthImage, depthOverColorImageRef);
+                        depthOverColorImageVisualizer?.Update(depthOverColorImageRef);
+                    }
                 }
             }
 

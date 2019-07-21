@@ -34,7 +34,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             StrideBytes = strideBytes;
 
             innerBuffer = new byte[strideBytes * heightPixels];
-            innerMaskBuffer = new byte[widthPixels * heightPixels];
+            innerBodyIndexBuffer = new byte[widthPixels * heightPixels];
+            ResetInnerBodyIndexBuffer();
             writeableBitmap = new WriteableBitmap(widthPixels, heightPixels, dpi, dpi, PixelFormats.Bgra32, null);
         }
 
@@ -43,6 +44,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         public int WidthPixels { get; }
         public int HeightPixels { get; }
         public int StrideBytes { get; }
+
+        public byte NonBodyAlphaValue
+        {
+            get => nonBodyAlphaValue;
+            set => nonBodyAlphaValue = value;
+        }
 
         /// <summary>
         /// Image with visualized frame. You can use this property in WPF controls/windows.
@@ -54,7 +61,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         /// </summary>
         /// <param name="image">Image received from Kinect Sensor SDK. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> - updated, <see langword="false"/> - not updated (frame is not compatible, or old frame).</returns>
-        public bool Update(Image image, Image mask)
+        public bool Update(Image image, Image bodyIndexMap)
         {
             // Is compatible?
             if (image == null
@@ -67,10 +74,10 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             // 1st step: filling of inner buffer
             FillInnerBuffer(image.Buffer, image.StrideBytes, image.SizeBytes);
 
-            if (mask != null)
-                FillInnerMaskBuffer(mask.Buffer, mask.StrideBytes, mask.SizeBytes);
+            if (bodyIndexMap != null)
+                FillInnerBodyIndexBuffer(bodyIndexMap.Buffer, bodyIndexMap.StrideBytes, bodyIndexMap.SizeBytes);
             else
-                ResetInnerMaskBuffer();
+                ResetInnerBodyIndexBuffer();
 
             // 2nd step: we can update WritableBitmap only from its owner thread (as a rule, UI thread)
             Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(FillWritableBitmap));
@@ -103,15 +110,15 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
         }
 
-        private void FillInnerMaskBuffer(IntPtr srcPtr, int srcStrideBytes, int srcSizeBytes)
+        private void FillInnerBodyIndexBuffer(IntPtr srcPtr, int srcStrideBytes, int srcSizeBytes)
         {
             // This method can be called from some background thread,
             // thus use synchronization
-            lock (innerMaskBuffer)
+            lock (innerBodyIndexBuffer)
             {
-                if (srcStrideBytes == WidthPixels && srcSizeBytes == innerMaskBuffer.Length)
+                if (srcStrideBytes == WidthPixels && srcSizeBytes == innerBodyIndexBuffer.Length)
                 {
-                    Marshal.Copy(srcPtr, innerMaskBuffer, 0, innerMaskBuffer.Length);
+                    Marshal.Copy(srcPtr, innerBodyIndexBuffer, 0, innerBodyIndexBuffer.Length);
                 }
                 else
                 {
@@ -119,7 +126,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                     var dstOffset = 0;
                     for (var y = 0; y < HeightPixels; y++)
                     {
-                        Marshal.Copy(srcPtr, innerMaskBuffer, dstOffset, lineLength);
+                        Marshal.Copy(srcPtr, innerBodyIndexBuffer, dstOffset, lineLength);
                         srcPtr += srcSizeBytes;
                         dstOffset += WidthPixels;
                     }
@@ -127,11 +134,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
         }
 
-        private void ResetInnerMaskBuffer()
+        private void ResetInnerBodyIndexBuffer()
         {
-            lock (innerMaskBuffer)
+            lock (innerBodyIndexBuffer)
             {
-                Array.Clear(innerMaskBuffer, 0, innerMaskBuffer.Length);
+                for (var i = 0; i < innerBodyIndexBuffer.Length; i++)
+                    innerBodyIndexBuffer[i] = BodyTracking.BodyFrame.NotABodyIndexMapPixelValue;
             }
         }
 
@@ -142,14 +150,15 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             {
                 var backBuffer = writeableBitmap.BackBuffer;
                 var backBufferStride = writeableBitmap.BackBufferStride;
+                var nonBodyAlphaValue = this.nonBodyAlphaValue;
 
                 // This method works in UI thread, and uses innerBuffer
                 // that is filled in Update() method from some background thread
                 lock (innerBuffer)
-                lock (innerMaskBuffer)
+                lock (innerBodyIndexBuffer)
                 {
                     // We use parallelism here to speed up
-                    Parallel.For(0, HeightPixels, y => FillWritableBitmapLine(y, backBuffer, backBufferStride));
+                    Parallel.For(0, HeightPixels, y => FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue));
                 }
 
                 // Inform UI infrastructure that we have updated content of image
@@ -161,11 +170,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
         }
 
-        protected abstract void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride);
+        protected abstract void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride, byte nonBodyAlphaValue);
 
         protected readonly byte[] innerBuffer;
-        protected readonly byte[] innerMaskBuffer;
+        protected readonly byte[] innerBodyIndexBuffer;
         protected readonly WriteableBitmap writeableBitmap;
+        protected volatile byte nonBodyAlphaValue = byte.MaxValue;
 
         #region BGRA
 
@@ -175,10 +185,28 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 : base(dispatcher, ImageFormat.ColorBgra32, widthPixels, heightPixels, ImageFormat.ColorBgra32.StrideBytes(widthPixels), dpi)
             { }
 
-            protected override void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride)
+            protected override unsafe void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride, byte nonBodyAlphaValue)
             {
-                var lineLength = Math.Min(backBufferStride, StrideBytes);
-                Marshal.Copy(innerBuffer, y * StrideBytes, backBuffer + backBufferStride * y, lineLength);
+                byte* dstPtr = (byte*)backBuffer + y * backBufferStride;
+                fixed (void* innerBufferPtr = innerBuffer)
+                fixed (void* innerBodyIndexBufferPtr = innerBodyIndexBuffer)
+                {
+                    byte* srcPtr = (byte*)innerBufferPtr + y * StrideBytes;
+                    byte* srcBodyIndexPtr = (byte*)innerBodyIndexBufferPtr + y * WidthPixels;
+                    for (var x = 0; x < WidthPixels; x++)
+                    {
+                        var bodyIndex = *(srcBodyIndexPtr++);
+
+                        *(dstPtr++) = *(srcPtr++);
+                        *(dstPtr++) = *(srcPtr++);
+                        *(dstPtr++) = *(srcPtr++);
+
+                        var alpha = *(srcPtr++);
+                        if (bodyIndex == BodyTracking.BodyFrame.NotABodyIndexMapPixelValue)
+                            alpha = nonBodyAlphaValue;
+                        *(dstPtr++) = alpha;
+                    }
+                }
             }
         }
 
@@ -192,18 +220,18 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 : base(dispatcher, ImageFormat.Depth16, widthPixels, heightPixels, ImageFormat.Depth16.StrideBytes(widthPixels), dpi)
             { }
 
-            protected override unsafe void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride)
+            protected override unsafe void FillWritableBitmapLine(int y, IntPtr backBuffer, int backBufferStride, byte nonBodyAlphaValue)
             {
                 byte* dstPtr = (byte*)backBuffer + y * backBufferStride;
                 fixed (void* innerBufferPtr = innerBuffer)
-                fixed (void* innerMaskBufferPtr = innerMaskBuffer)
+                fixed (void* innerBodyIndexBufferPtr = innerBodyIndexBuffer)
                 {
                     short* srcPtr = (short*)innerBufferPtr + y * WidthPixels;
-                    byte* srcMaskPtr = (byte*)innerMaskBufferPtr + y * WidthPixels;
+                    byte* srcBodyIndexPtr = (byte*)innerBodyIndexBufferPtr + y * WidthPixels;
                     for (var x = 0; x < WidthPixels; x++)
                     {
                         var v = (int)*(srcPtr++);
-                        var mask = *(srcMaskPtr++);
+                        var bodyIndex = *(srcBodyIndexPtr++);
 
                         // Some random heuristic to colorize depth map slightly like height-based colorization of earth maps
                         // (from blue though green to red)
@@ -212,8 +240,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                         *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(350 - v)));
                         *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(550 - v)));
 
-                        // Dim non-body pixels
-                        *(dstPtr++) = mask != BodyTracking.BodyFrame.NotABodyIndexMapPixelValue ? byte.MaxValue : (byte)48;
+                        // Alpha for non-body pixels
+                        *(dstPtr++) = bodyIndex != BodyTracking.BodyFrame.NotABodyIndexMapPixelValue ? byte.MaxValue : nonBodyAlphaValue;
                     }
                 }
             }

@@ -25,9 +25,17 @@
         <Style x:Key="CapturedImage" TargetType="Image">
             <Setter Property="Margin" Value="1"/>
         </Style>
+        <Style x:Key="Slider" TargetType="Slider">
+            <Setter Property="Margin" Value="16,3"/>
+            <Setter Property="TickPlacement" Value="BottomRight"/>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -43,12 +51,34 @@
         <Image Grid.Row="1" Grid.Column="0" Style="{StaticResource CapturedImage}"
                Source="{Binding DepthImageSource, Mode=OneWay}"/>
         <Image Grid.Row="1" Grid.Column="0" Style="{StaticResource CapturedImage}"
-               Source="{Binding SkeletonImageSource, Mode=OneWay}"/>
+               Source="{Binding DepthSkeletonImageSource, Mode=OneWay}"/>
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center">Non-body pixels visibility:</TextBlock>
+            <Slider Style="{StaticResource Slider}"
+                    Minimum="0" Maximum="255"
+                    LargeChange="16" SmallChange="8"
+                    TickFrequency="16"
+                    Value="{Binding DepthNonBodyPixelsAlpha}"/>
+        </StackPanel>
         <!-- COLOR -->
         <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource Header}">
                 C O L O R
         </TextBlock>
         <Image Grid.Row="1" Grid.Column="1" Style="{StaticResource CapturedImage}"
                Source="{Binding ColorImageSource, Mode=OneWay}"/>
+        <Image Grid.Row="1" Grid.Column="1" Style="{StaticResource CapturedImage}"
+               Source="{Binding ColorSkeletonImageSource, Mode=OneWay}"/>
+        <StackPanel Grid.Row="2" Grid.Column="1">
+            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center">Non-body pixels visibility:</TextBlock>
+            <Slider Style="{StaticResource Slider}"
+                    Minimum="0" Maximum="255"
+                    LargeChange="16" SmallChange="8"
+                    TickFrequency="16"
+                    Value="{Binding ColorNonBodyPixelsAlpha}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                   Style="{StaticResource Label}" HorizontalAlignment="Center">
+            Actual FPS: <Run Text="{Binding ActualFps, Mode=OneWay}"/>
+        </TextBlock>
     </Grid>
 </Window>

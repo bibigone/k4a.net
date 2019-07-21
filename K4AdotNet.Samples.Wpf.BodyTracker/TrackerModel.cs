@@ -17,7 +17,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly ImageVisualizer colorImageVisualizer;
         private readonly ImageVisualizer depthImageVisualizer;
         // To visualize skeletons
-        private readonly SkeletonVisualizer skeletonVisualizer;
+        private readonly SkeletonVisualizer depthSkeletonVisualizer;
+        private readonly SkeletonVisualizer colorSkeletonVisualizer;
+        // To transform body index map from depth camera to color camera
+        private readonly BodyIndexMapTransformation bodyIndexMapTransformation;
+
+        private readonly ActualFpsCalculator actualFps = new ActualFpsCalculator();
 
         // For designer
         public TrackerModel()
@@ -42,17 +47,19 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
             Title = readingLoop.ToString();
 
-            // Image visualizers for depth
+            // Image and skeleton visualizers for depth
             var depthMode = readingLoop.DepthMode;
             depthImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels());
+            depthSkeletonVisualizer = new SkeletonVisualizer(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels(), ProjectJointToDepthMap);
 
-            // Image visualizers for color
+            // Image and skeleton visualizers for color
             var colorRes = readingLoop.ColorResolution;
             if (colorRes != ColorResolution.Off)
+            {
                 colorImageVisualizer = ImageVisualizer.CreateForColorBgra(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
-
-            // Skeleton visualization
-            skeletonVisualizer = new SkeletonVisualizer(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels(), ProjectJointToDepthMap);
+                colorSkeletonVisualizer = new SkeletonVisualizer(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels(), ProjectJointToColorImage);
+                bodyIndexMapTransformation = new BodyIndexMapTransformation(ref calibration);
+            }
 
             // Proportions between columns
             if (colorRes != ColorResolution.Off)
@@ -72,30 +79,42 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private Float2? ProjectJointToDepthMap(Joint joint)
             => calibration.Convert3DTo2D(joint.PositionMm, CalibrationGeometry.Depth, CalibrationGeometry.Depth);
 
+        private Float2? ProjectJointToColorImage(Joint joint)
+            => calibration.Convert3DTo2D(joint.PositionMm, CalibrationGeometry.Depth, CalibrationGeometry.Color);
+
         private void BackgroundLoop_Failed(object sender, FailedEventArgs e)
-            => app.ShowErrorMessage(e.Exception.Message);
+            => dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message)));
 
         private void ReadingLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
-        {
-            trackingLoop.Enqueue(e.Capture);
-        }
+            => trackingLoop.Enqueue(e.Capture);
 
         private void TrackingLoop_BodyFrameReady(object sender, BodyFrameReadyEventArgs e)
         {
-            skeletonVisualizer.Update(e.BodyFrame);
+            if (actualFps.RegisterFrame())
+                RaisePropertyChanged(nameof(ActualFps));
+
+            depthSkeletonVisualizer?.Update(e.BodyFrame);
+            colorSkeletonVisualizer?.Update(e.BodyFrame);
 
             using (var capture = e.BodyFrame.Capture)
             {
-                using (var colorImage = capture.ColorImage)
-                {
-                    colorImageVisualizer?.Update(colorImage, null);
-                }
-
                 using (var depthImage = capture.DepthImage)
                 {
                     using (var indexMap = e.BodyFrame.BodyIndexMap)
                     {
                         depthImageVisualizer?.Update(depthImage, indexMap);
+
+                        if (colorImageVisualizer != null)
+                        {
+                            using (var colorImage = capture.ColorImage)
+                            {
+                                using (var transformedBodyIndexMap = bodyIndexMapTransformation.ToColor(depthImage, indexMap, e.BodyFrame.BodyCount))
+                                {
+                                    colorImageVisualizer.Update(colorImage, transformedBodyIndexMap);
+                                }
+                            }
+                        }
+
                     }
                 }
             }
@@ -116,6 +135,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 trackingLoop.BodyFrameReady -= TrackingLoop_BodyFrameReady;
                 trackingLoop.Dispose();
             }
+
+            bodyIndexMapTransformation?.Dispose();
         }
 
         public void Run()
@@ -126,7 +147,42 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         public BitmapSource ColorImageSource => colorImageVisualizer?.ImageSource;
         public BitmapSource DepthImageSource => depthImageVisualizer?.ImageSource;
 
-        public ImageSource SkeletonImageSource => skeletonVisualizer?.ImageSource;
+        public ImageSource DepthSkeletonImageSource => depthSkeletonVisualizer?.ImageSource;
+        public ImageSource ColorSkeletonImageSource => colorSkeletonVisualizer?.ImageSource;
+
+        public byte DepthNonBodyPixelsAlpha
+        {
+            get => depthImageVisualizer?.NonBodyAlphaValue ?? byte.MaxValue;
+            set
+            {
+                if (value != DepthNonBodyPixelsAlpha && depthImageVisualizer != null)
+                {
+                    depthImageVisualizer.NonBodyAlphaValue = value;
+                    RaisePropertyChanged(nameof(DepthNonBodyPixelsAlpha));
+                }
+            }
+        }
+
+        public byte ColorNonBodyPixelsAlpha
+        {
+            get => colorImageVisualizer?.NonBodyAlphaValue ?? byte.MaxValue;
+            set
+            {
+                if (value != ColorNonBodyPixelsAlpha && colorImageVisualizer != null)
+                {
+                    colorImageVisualizer.NonBodyAlphaValue = value;
+                    RaisePropertyChanged(nameof(ColorNonBodyPixelsAlpha));
+                }
+            }
+        }
+
+        public string ActualFps => FormatFps(actualFps);
+
+        private static string FormatFps(ActualFpsCalculator fps)
+        {
+            var value = fps.FramesPerSecond;
+            return value > float.Epsilon ? value.ToString("0.0") : string.Empty;
+        }
 
         public GridLength DepthColumnWidth { get; }
         public GridLength ColorColumnWidth { get; }

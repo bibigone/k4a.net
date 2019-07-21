@@ -1,6 +1,7 @@
 ﻿using K4AdotNet.BodyTracking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -29,7 +30,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             ImageSource = new DrawingImage(drawingGroup);
 
             // Default visualization settings
-            JointCircleRadius = widthPixels / 90;
+            JointCircleRadius = heightPixels / 70;
             JointBorder = new Pen(Brushes.Black, JointCircleRadius / 4);
             BonePen = new Pen(Brushes.White, JointCircleRadius * 2 / 3);
             JointFill = Brushes.LightGray;
@@ -121,11 +122,17 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         // Draws joint as circle
         private void DrawJoints(DrawingContext dc, Skeleton skeleton)
         {
-            foreach (var joint in skeleton)
+            foreach (var jointType in JointTypes.All)
             {
-                var point2D = ProjectJointToImage(joint);
+                var point2D = ProjectJointToImage(skeleton[jointType]);
                 if (point2D.HasValue)
-                    dc.DrawEllipse(JointFill, JointBorder, point2D.Value, JointCircleRadius, JointCircleRadius);
+                {
+                    var radius = JointCircleRadius;
+                    // smaller radius for face features (eyes, ears, nose)
+                    if (!bones.Any(b => b.ParentJointType == jointType) && !bones.Any(b => b.EndJointType == jointType))
+                        radius /= 2;
+                    dc.DrawEllipse(JointFill, JointBorder, point2D.Value, radius, radius);
+                }
             }
         }
 

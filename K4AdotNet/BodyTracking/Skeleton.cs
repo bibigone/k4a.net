@@ -170,64 +170,24 @@ namespace K4AdotNet.BodyTracking
             set => this[(JointType)index] = value;
         }
 
+        public Joint[] ToArray()
+        {
+            var res = new Joint[JointTypes.All.Count];
+            for (var i = 0; i < res.Length; i++)
+                res[i] = this[i];
+            return res;
+        }
+
         public IEnumerator<Joint> GetEnumerator()
         {
-            yield return Pelvis;
-            yield return SpineNaval;
-            yield return SpineChest;
-            yield return Neck;
-            yield return ClavicleLeft;
-            yield return ShoulderLeft;
-            yield return ElbowLeft;
-            yield return WristLeft;
-            yield return ClavicleRight;
-            yield return ShoulderRight;
-            yield return ElbowRight;
-            yield return WristRight;
-            yield return HipLeft;
-            yield return KneeLeft;
-            yield return AnkleLeft;
-            yield return FootLeft;
-            yield return HipRight;
-            yield return KneeRight;
-            yield return AnkleRight;
-            yield return FootRight;
-            yield return Head;
-            yield return Nose;
-            yield return EyeLeft;
-            yield return EarLeft;
-            yield return EyeRight;
-            yield return EarRight;
+            foreach (var jointType in JointTypes.All)
+                yield return this[jointType];
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            yield return Pelvis;
-            yield return SpineNaval;
-            yield return SpineChest;
-            yield return Neck;
-            yield return ClavicleLeft;
-            yield return ShoulderLeft;
-            yield return ElbowLeft;
-            yield return WristLeft;
-            yield return ClavicleRight;
-            yield return ShoulderRight;
-            yield return ElbowRight;
-            yield return WristRight;
-            yield return HipLeft;
-            yield return KneeLeft;
-            yield return AnkleLeft;
-            yield return FootLeft;
-            yield return HipRight;
-            yield return KneeRight;
-            yield return AnkleRight;
-            yield return FootRight;
-            yield return Head;
-            yield return Nose;
-            yield return EyeLeft;
-            yield return EarLeft;
-            yield return EyeRight;
-            yield return EarRight;
+            foreach (var jointType in JointTypes.All)
+                yield return this[jointType];
         }
     }
 }
