@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -33,11 +33,11 @@
 
   <ItemGroup>
     <None Include="..\externals\k4a\windows-desktop\amd64\depthengine_1_0.dll" Link="native\depthengine_1_0.dll"
-          Pack="True" PackagePath="\runtimes\win-x64\native\" />
+          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
     <None Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="native\k4a.dll"
-          Pack="True" PackagePath="\runtimes\win-x64\native\" />
+          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
     <None Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="native\k4arecord.dll"
-          Pack="True" PackagePath="\runtimes\win-x64\native\" />
+          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
   </ItemGroup>
 
 </Project>
