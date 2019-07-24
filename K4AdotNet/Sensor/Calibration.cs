@@ -46,6 +46,60 @@ namespace K4AdotNet.Sensor
         public void SetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor, CalibrationExtrinsics extrinsics)
             => Extrinsics[(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
 
+        #region Dummy calibration for test and stub needs
+
+        public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
+        {
+            calibration = default(Calibration);
+
+            // depth camera
+            calibration.DepthMode = depthMode;
+            depthMode.GetNominalFov(out var hFovDegrees, out var vFovDegrees);
+            InitDummyCameraCalibration(ref calibration.DepthCameraCalibration,
+                depthMode.WidthPixels(), depthMode.HeightPixels(),
+                hFovDegrees, vFovDegrees);
+
+            // color camera
+            calibration.ColorResolution = colorResolution;
+            colorResolution.GetNominalFov(out hFovDegrees, out vFovDegrees);
+            InitDummyCameraCalibration(ref calibration.ColorCameraCalibration,
+                colorResolution.WidthPixels(), colorResolution.HeightPixels(),
+                hFovDegrees, vFovDegrees);
+
+            // extrinsics
+            calibration.Extrinsics = new CalibrationExtrinsics[(int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count];
+            for (var i = 0; i < calibration.Extrinsics.Length; i++)
+                InitDummyExtrinsics(ref calibration.Extrinsics[i]);
+        }
+
+        private static void InitDummyCameraCalibration(ref CameraCalibration cameraCalibration, int widthPixels, int heightPixels,
+            float hFovDegrees, float vFovDegrees)
+        {
+            if (widthPixels <= 0 || heightPixels <= 0)
+                return;
+
+            cameraCalibration.ResolutionWidth = widthPixels;
+            cameraCalibration.ResolutionHeight = heightPixels;
+            cameraCalibration.MetricRadius = 1.7f;
+
+            cameraCalibration.Intrinsics.Model = CalibrationModel.BrownConrady;
+            cameraCalibration.Intrinsics.ParameterCount = 14;
+            cameraCalibration.Intrinsics.Parameters.Cx = widthPixels / 2f;
+            cameraCalibration.Intrinsics.Parameters.Cy = heightPixels / 2f;
+            cameraCalibration.Intrinsics.Parameters.Fx = SizeAndFovToFocus(widthPixels, hFovDegrees);
+            cameraCalibration.Intrinsics.Parameters.Fy = SizeAndFovToFocus(heightPixels, vFovDegrees);
+
+            InitDummyExtrinsics(ref cameraCalibration.Extrinsics);
+        }
+
+        private static float SizeAndFovToFocus(int sizePixels, float fovDegrees)
+            => sizePixels / (float)(2 * Math.Tan(fovDegrees * Math.PI / 360));
+
+        private static void InitDummyExtrinsics(ref CalibrationExtrinsics extrinsics)
+            => extrinsics.Rotation.M11 = extrinsics.Rotation.M22 = extrinsics.Rotation.M33 = 1f;
+
+        #endregion
+
         #region Wrappers around native API (inspired by struct calibration from k4a.hpp)
 
         public static void CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)

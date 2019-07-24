@@ -57,10 +57,26 @@ namespace K4AdotNet
             }
         }
 
+        public static readonly string BodyTrackingSdkInstallationGuideUrl = "https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup";
+
         public static bool CheckPrerequisitesForBodyTracking(out string message)
         {
-            const string SEE_FOR_DETAILS = " See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup for details.";
+            if (!CheckOSForBodyTracking(out message))
+                return false;
 
+            var cudaBinPath = CheckCudaForBodyTracking(out message);
+            if (string.IsNullOrEmpty(cudaBinPath))
+                return false;
+
+            if (!CheckCudnnForBodyTracking(cudaBinPath, out message))
+                return false;
+
+            message = null;
+            return true;
+        }
+
+        private static bool CheckOSForBodyTracking(out string message)
+        {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
                 message = "Current version of Body Tracking supports only Windows.";
@@ -73,19 +89,31 @@ namespace K4AdotNet
                 return false;
             }
 
-            var cudaPath = Environment.GetEnvironmentVariable("CUDA_PATH_V10_0");
+            message = null;
+            return true;
+        }
+
+        private static string CheckCudaForBodyTracking(out string message)
+        {
+            const string CUDA_VERSION = "10.0";
+            const string CUDA_PATH_VARIABLE_NAME = "CUDA_PATH";
+            const string CUDA_10_0_PATH_VARIABLE_NAME = "CUDA_PATH_V10_0";
+            const string PATH_VARIABLE_NAME = "Path";
+            const string CUDA_RUNTIME_DLL = "cudart64_100.dll";
+
+            var cudaPath = Environment.GetEnvironmentVariable(CUDA_10_0_PATH_VARIABLE_NAME);
             if (string.IsNullOrWhiteSpace(cudaPath))
-                cudaPath = Environment.GetEnvironmentVariable("CUDA_PATH");
+                cudaPath = Environment.GetEnvironmentVariable(CUDA_PATH_VARIABLE_NAME);
             if (string.IsNullOrWhiteSpace(cudaPath)
                 || cudaPath.IndexOfAny(Path.GetInvalidPathChars()) >= 0
                 || !Directory.Exists(cudaPath))
             {
-                message = "CUDA 10.0 must be installed." + SEE_FOR_DETAILS;
-                return false;
+                message = $"CUDA {CUDA_VERSION} must be installed.";
+                return null;
             }
             var cudaDir = new DirectoryInfo(cudaPath);
 
-            var pathVariable = Environment.GetEnvironmentVariable("Path") ?? string.Empty;
+            var pathVariable = Environment.GetEnvironmentVariable(PATH_VARIABLE_NAME) ?? string.Empty;
             var pathVariableItems = pathVariable.Split(';');
             string cudaBinPath = null;
             var wasButWrongVersion = false;
@@ -94,13 +122,13 @@ namespace K4AdotNet
                 if (!string.IsNullOrWhiteSpace(item) && item.IndexOfAny(Path.GetInvalidPathChars()) < 0)
                 {
                     var itemDir = new DirectoryInfo(item);
-                    if (IsSubdirOf(itemDir, cudaDir) && itemDir.Exists)
+                    if (Helpers.IsSubdirOf(itemDir, cudaDir) && itemDir.Exists)
                     {
-                        var cudaRuntimeDllPath = Path.Combine(itemDir.FullName, "cudart64_100.dll");
+                        var cudaRuntimeDllPath = Path.Combine(itemDir.FullName, CUDA_RUNTIME_DLL);
                         if (File.Exists(cudaRuntimeDllPath))
                         {
                             var ver = FileVersionInfo.GetVersionInfo(cudaRuntimeDllPath);
-                            if (ver != null && ver.FileDescription != null && ver.FileDescription.Contains("Version 10.0."))
+                            if (ver != null && ver.FileDescription != null && ver.FileDescription.Contains($"Version {CUDA_VERSION}."))
                             {
                                 cudaBinPath = itemDir.FullName;
                                 break;
@@ -117,28 +145,28 @@ namespace K4AdotNet
             if (string.IsNullOrEmpty(cudaBinPath))
             {
                 message = wasButWrongVersion
-                    ? "Version 10.0 of CUDA is required. Different version found. Please install CUDA 10.0." + SEE_FOR_DETAILS
-                    : "CUDA 10.0 is not installed or environment variable 'Path' does not contain binary directory of CUDA 10.0." + SEE_FOR_DETAILS;
-                return false;
+                    ? $"Version {CUDA_VERSION} of CUDA is required. Different version found. Please install CUDA {CUDA_VERSION}."
+                    : $"CUDA {CUDA_VERSION} is not installed or environment variable {PATH_VARIABLE_NAME} does not contain binary directory of CUDA {CUDA_VERSION}.";
+                return null;
             }
 
-            var cudnnPath = Path.Combine(cudaBinPath, "cudnn64_7.dll");
+            message = null;
+            return cudaBinPath;
+        }
+
+        private static bool CheckCudnnForBodyTracking(string cudaBinPath, out string message)
+        {
+            const string CUDNN_DLL = "cudnn64_7.dll";
+
+            var cudnnPath = Path.Combine(cudaBinPath, CUDNN_DLL);
             if (!File.Exists(cudnnPath))
             {
-                message = $"cudnn64_7.dll library is not found in CUDA binary directory {cudaBinPath}." + SEE_FOR_DETAILS;
+                message = $"{CUDNN_DLL} library is not found in CUDA binary directory \"{cudaBinPath}\".";
                 return false;
             }
 
             message = null;
             return true;
-        }
-
-        private static bool IsSubdirOf(DirectoryInfo subdir, DirectoryInfo parentDir)
-        {
-            for (; subdir != null; subdir = subdir.Parent)
-                if (subdir.FullName.Equals(parentDir.FullName, StringComparison.InvariantCultureIgnoreCase))
-                    return true;
-            return false;
         }
     }
 }
