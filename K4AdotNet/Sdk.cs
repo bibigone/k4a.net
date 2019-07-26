@@ -1,4 +1,5 @@
-﻿using System;
+﻿using K4AdotNet.Sensor;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -15,6 +16,12 @@ namespace K4AdotNet
 
         /// <summary>Name of Kinect for Azure Body Tracking SDK DLL.</summary>
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
+
+        public const string ONNX_RUNTIME_DLL_NAME = "onnxruntime";
+
+        public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model.onnx";
+
+        #region Logging
 
         /// <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
         /// <param name="level">Level of logging.</param>
@@ -57,29 +64,39 @@ namespace K4AdotNet
             }
         }
 
+        #endregion
+
+        #region Body tracking SDK availability and initialization
+
         public static readonly string BodyTrackingSdkInstallationGuideUrl = "https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup";
 
-        public static bool CheckPrerequisitesForBodyTracking(out string message)
+        public static bool IsBodyTrackingRuntimeAvailable(out string message)
         {
-            if (!CheckOSForBodyTracking(out message))
+            if (!IsOSCompatibleWithBodyTracking(out message))
                 return false;
 
-            var cudaBinPath = CheckCudaForBodyTracking(out message);
+            var cudaBinPath = GetCudaPathForBodyTracking(out message);
             if (string.IsNullOrEmpty(cudaBinPath))
                 return false;
 
-            if (!CheckCudnnForBodyTracking(cudaBinPath, out message))
+            if (!IsCudnnAvailableForBodyTracking(cudaBinPath, out message))
+                return false;
+
+            var bodyTrackingRuntimePath = GetBodyTrackingRuntimePath(out message);
+            if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
                 return false;
 
             message = null;
             return true;
         }
 
-        private static bool CheckOSForBodyTracking(out string message)
+        private static bool IsOSCompatibleWithBodyTracking(out string message)
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT
+                || Environment.OSVersion.Version < new Version(6, 2)
+                || !Environment.Is64BitOperatingSystem)
             {
-                message = "Current version of Body Tracking supports only Windows.";
+                message = "Current version of Body Tracking supports only 64-bit Windows 8.1/10.";
                 return false;
             }
 
@@ -93,12 +110,13 @@ namespace K4AdotNet
             return true;
         }
 
-        private static string CheckCudaForBodyTracking(out string message)
+        private static string GetCudaPathForBodyTracking(out string message)
         {
             const string CUDA_VERSION = "10.0";
             const string CUDA_PATH_VARIABLE_NAME = "CUDA_PATH";
             const string CUDA_10_0_PATH_VARIABLE_NAME = "CUDA_PATH_V10_0";
             const string PATH_VARIABLE_NAME = "Path";
+            const char PATH_ITEMS_SEPARATOR = ';';
             const string CUDA_RUNTIME_DLL = "cudart64_100.dll";
 
             var cudaPath = Environment.GetEnvironmentVariable(CUDA_10_0_PATH_VARIABLE_NAME);
@@ -114,7 +132,7 @@ namespace K4AdotNet
             var cudaDir = new DirectoryInfo(cudaPath);
 
             var pathVariable = Environment.GetEnvironmentVariable(PATH_VARIABLE_NAME) ?? string.Empty;
-            var pathVariableItems = pathVariable.Split(';');
+            var pathVariableItems = pathVariable.Split(PATH_ITEMS_SEPARATOR);
             string cudaBinPath = null;
             var wasButWrongVersion = false;
             foreach (var item in pathVariableItems)
@@ -146,7 +164,7 @@ namespace K4AdotNet
             {
                 message = wasButWrongVersion
                     ? $"Version {CUDA_VERSION} of CUDA is required. Different version found. Please install CUDA {CUDA_VERSION}."
-                    : $"CUDA {CUDA_VERSION} is not installed or environment variable {PATH_VARIABLE_NAME} does not contain binary directory of CUDA {CUDA_VERSION}.";
+                    : $"CUDA {CUDA_VERSION} is not installed or environment variable {PATH_VARIABLE_NAME} does not contain path to binary directory of CUDA {CUDA_VERSION}.";
                 return null;
             }
 
@@ -154,19 +172,136 @@ namespace K4AdotNet
             return cudaBinPath;
         }
 
-        private static bool CheckCudnnForBodyTracking(string cudaBinPath, out string message)
+        private static bool IsCudnnAvailableForBodyTracking(string cudaBinPath, out string message)
         {
             const string CUDNN_DLL = "cudnn64_7.dll";
 
             var cudnnPath = Path.Combine(cudaBinPath, CUDNN_DLL);
             if (!File.Exists(cudnnPath))
             {
-                message = $"{CUDNN_DLL} library is not found in CUDA binary directory \"{cudaBinPath}\".";
+                message = $"cuDNN v7.5.x for CUDA 10.0 is not installed: {CUDNN_DLL} library is not found in CUDA binary directory \"{cudaBinPath}\".";
                 return false;
             }
 
             message = null;
             return true;
         }
+
+        public static string GetBodyTrackingRuntimePath(out string message)
+        {
+            const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\sdk\windows-desktop\amd64\release\bin";
+
+            message = null;
+
+            // Try current directory
+            var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
+            if (ProbePathForBodyTrackingRuntime(currentDir))
+                return currentDir;
+
+            // Try base directory of current app domain
+            var baseDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
+            if (!baseDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (ProbePathForBodyTrackingRuntime(baseDir))
+                    return baseDir;
+            }
+
+            // Try location of this assembly
+            var asm = Assembly.GetExecutingAssembly();
+            var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase).LocalPath));
+            if (!asmDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase)
+                && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (ProbePathForBodyTrackingRuntime(asmDir))
+                    return asmDir;
+            }
+
+            // Try standard location of installed Body Tracking SDK
+            var sdkBinDir = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), BODY_TRACKING_SDK_BIN_PATH));
+            if (ProbePathForBodyTrackingRuntime(sdkBinDir))
+                return sdkBinDir;
+
+            message = "Cannot find Body Tracking runtime (neither in application directory, nor in Body Tracking SDK directory).";
+            return null;
+        }
+
+        private static bool ProbePathForBodyTrackingRuntime(string path)
+        {
+            const string DLL_EXTENSION = ".dll";
+
+            if (!Directory.Exists(path))
+                return false;
+
+            var k4abt = Path.Combine(path, BODY_TRACKING_DLL_NAME + DLL_EXTENSION);
+            if (!File.Exists(k4abt))
+                return false;
+
+            var onnxruntime = Path.Combine(path, ONNX_RUNTIME_DLL_NAME + DLL_EXTENSION);
+            if (!File.Exists(onnxruntime))
+                return false;
+
+            var dnnmodel = Path.Combine(path, BODY_TRACKING_DNN_MODEL_FILE_NAME);
+            if (!File.Exists(dnnmodel))
+                return false;
+
+            return true;
+        }
+
+        public static bool TryInitializeBodyTrackingRuntime(out string message)
+        {
+            Calibration.CreateDummy(DepthMode.NarrowView2x2Binned, ColorResolution.Off, out var calibration);
+            if (!TryInitializeBodyTrackingRuntimeIfNeeded(ref calibration, out var trackerHandle, out message))
+            {
+                return false;
+            }
+
+            trackerHandle.Dispose();
+            message = null;
+            return true;
+        }
+
+        internal static bool TryInitializeBodyTrackingRuntimeIfNeeded(ref Calibration calibration, out NativeHandles.TrackerHandle trackerHandle, out string message)
+        {
+            if (!isBodyTrackingRuntimeInitialized)
+            {
+                lock (bodyTrackingRuntimeInitializationSync)
+                {
+                    if (!isBodyTrackingRuntimeInitialized)
+                    {
+                        var runtimePath = GetBodyTrackingRuntimePath(out message);
+                        if (string.IsNullOrEmpty(runtimePath))
+                        {
+                            trackerHandle = null;
+                            return false;
+                        }
+
+                        using (new CurrentDirectoryOverrider(runtimePath))
+                        {
+                            if (BodyTracking.NativeApi.TrackerCreate(ref calibration, out trackerHandle) != NativeCallResults.Result.Succeeded
+                                || trackerHandle == null || trackerHandle.IsInvalid)
+                            {
+                                if (IsBodyTrackingRuntimeAvailable(out message))
+                                    message = "Cannot initialize body tracking runtime. See logs for details.";
+                                return false;
+                            }
+                        }
+
+                        message = null;
+                        isBodyTrackingRuntimeInitialized = true;
+                        return true;
+                    }
+                }
+            }
+
+            // Already initialized
+            message = null;
+            trackerHandle = null;
+            return true;
+        }
+
+        private static volatile bool isBodyTrackingRuntimeInitialized;
+        private static readonly object bodyTrackingRuntimeInitializationSync = new object();
+
+        #endregion
     }
 }

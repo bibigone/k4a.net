@@ -81,6 +81,5 @@ namespace K4AdotNet
                     return true;
             return false;
         }
-
     }
 }

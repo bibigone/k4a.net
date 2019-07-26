@@ -11,12 +11,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         protected override Window CreateMainWindow(StartupEventArgs e)
         {
-            if (!Sdk.CheckPrerequisitesForBodyTracking(out var message))
-            {
-                MessageBox.Show(message, "Incompatible Environment");
+            if (new BodyTrackingInitializationDialog().ShowDialog() != true)
                 return null;
-            }
-
             return new MainWindow(new MainModel(this));
         }
 

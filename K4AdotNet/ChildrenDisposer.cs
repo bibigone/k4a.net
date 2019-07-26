@@ -5,7 +5,7 @@ namespace K4AdotNet
 {
     internal sealed class ChildrenDisposer : IDisposable
     {
-        private readonly List<IDisposablePlus> trackedChildren = new List<IDisposablePlus>();
+        private readonly LinkedList<IDisposablePlus> trackedChildren = new LinkedList<IDisposablePlus>();
 
         public void Dispose()
         {
@@ -31,7 +31,7 @@ namespace K4AdotNet
 
             lock (trackedChildren)
             {
-                trackedChildren.Add(child);
+                trackedChildren.AddLast(child);
             }
 
             child.Disposed += OnChildObjectDisposed;
