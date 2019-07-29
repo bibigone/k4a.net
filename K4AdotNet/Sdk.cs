@@ -250,7 +250,7 @@ namespace K4AdotNet
         public static bool TryInitializeBodyTrackingRuntime(out string message)
         {
             Calibration.CreateDummy(DepthMode.NarrowView2x2Binned, ColorResolution.Off, out var calibration);
-            if (!TryInitializeBodyTrackingRuntimeIfNeeded(ref calibration, out var trackerHandle, out message))
+            if (!TryCreateTrackerHandle(ref calibration, out var trackerHandle, out message))
             {
                 return false;
             }
@@ -260,46 +260,41 @@ namespace K4AdotNet
             return true;
         }
 
-        internal static bool TryInitializeBodyTrackingRuntimeIfNeeded(ref Calibration calibration, out NativeHandles.TrackerHandle trackerHandle, out string message)
+        internal static bool TryCreateTrackerHandle(ref Calibration calibration, out NativeHandles.TrackerHandle trackerHandle, out string message)
         {
-            if (!isBodyTrackingRuntimeInitialized)
+            string runtimePath;
+
+            lock (bodyTrackingRuntimeInitializationSync)
             {
-                lock (bodyTrackingRuntimeInitializationSync)
+                if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
                 {
-                    if (!isBodyTrackingRuntimeInitialized)
+                    bodyTrackingRuntimePath = GetBodyTrackingRuntimePath(out message);
+                    if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
                     {
-                        var runtimePath = GetBodyTrackingRuntimePath(out message);
-                        if (string.IsNullOrEmpty(runtimePath))
-                        {
-                            trackerHandle = null;
-                            return false;
-                        }
-
-                        using (new CurrentDirectoryOverrider(runtimePath))
-                        {
-                            if (BodyTracking.NativeApi.TrackerCreate(ref calibration, out trackerHandle) != NativeCallResults.Result.Succeeded
-                                || trackerHandle == null || trackerHandle.IsInvalid)
-                            {
-                                if (IsBodyTrackingRuntimeAvailable(out message))
-                                    message = "Cannot initialize body tracking runtime. See logs for details.";
-                                return false;
-                            }
-                        }
-
-                        message = null;
-                        isBodyTrackingRuntimeInitialized = true;
-                        return true;
+                        trackerHandle = null;
+                        return false;
                     }
+                }
+
+                runtimePath = bodyTrackingRuntimePath;
+            }
+
+            using (new CurrentDirectoryOverrider(runtimePath))
+            {
+                if (BodyTracking.NativeApi.TrackerCreate(ref calibration, out trackerHandle) != NativeCallResults.Result.Succeeded
+                    || trackerHandle == null || trackerHandle.IsInvalid)
+                {
+                    if (IsBodyTrackingRuntimeAvailable(out message))
+                        message = "Cannot initialize body tracking runtime. See logs for details.";
+                    return false;
                 }
             }
 
-            // Already initialized
             message = null;
-            trackerHandle = null;
             return true;
         }
 
-        private static volatile bool isBodyTrackingRuntimeInitialized;
+        private static string bodyTrackingRuntimePath;
         private static readonly object bodyTrackingRuntimeInitializationSync = new object();
 
         #endregion

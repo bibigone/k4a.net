@@ -23,24 +23,10 @@ namespace K4AdotNet.BodyTracking
             try
             {
                 if (incrementedInstanceCounter != 1)
-                {
                     throw new NotSupportedException("Oops! Current version of Body Tracking runtime does not support creation of multiple body trackers. Sorry!");
-                }
 
-                // First call => try to initialize
-                if (!Sdk.TryInitializeBodyTrackingRuntimeIfNeeded(ref calibration, out var handle, out var message))
-                {
+                if (!Sdk.TryCreateTrackerHandle(ref calibration, out var handle, out var message))
                     throw new BodyTrackingException(message);
-                }
-
-                if (handle == null)
-                {
-                    // Not first call => just try to create instance of body tracker
-                    if (NativeApi.TrackerCreate(ref calibration, out handle) != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
-                    {
-                        throw new BodyTrackingException("Cannot create body tracker. Calibration data can be invalid.");
-                    }
-                }
 
                 this.handle = handle;
                 this.handle.Disposed += Handle_Disposed;
