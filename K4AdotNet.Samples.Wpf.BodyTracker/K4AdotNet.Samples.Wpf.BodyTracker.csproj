@@ -52,12 +52,19 @@
     <Compile Include="BackgroundTrackingLoop.cs" />
     <Compile Include="BodyFrameReadyEventArgs.cs" />
     <Compile Include="BodyIndexMapTransformation.cs" />
+    <Compile Include="BodyTrackingInitializationDialog.xaml.cs">
+      <DependentUpon>BodyTrackingInitializationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SkeletonVisualizer.cs" />
     <Compile Include="ImageVisualizer.cs" />
     <Compile Include="TrackerModel.cs" />
     <Compile Include="TrackerWindow.xaml.cs">
       <DependentUpon>TrackerWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="BodyTrackingInitializationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

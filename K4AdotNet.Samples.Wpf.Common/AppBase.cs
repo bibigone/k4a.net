@@ -11,11 +11,18 @@ namespace K4AdotNet.Samples.Wpf
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            MainWindow = CreateMainWindow(e);
-            if (MainWindow == null)
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var mainWindow = CreateMainWindow(e);
+            if (mainWindow == null)
+            {
                 Shutdown();
+            }
             else
-                MainWindow.Show();
+            {
+                ShutdownMode = ShutdownMode.OnMainWindowClose;
+                MainWindow = mainWindow;
+                mainWindow.Show();
+            }
         }
 
         public IDisposable IndicateWaiting()

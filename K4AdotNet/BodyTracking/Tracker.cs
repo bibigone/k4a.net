@@ -1,4 +1,5 @@
-﻿using System;
+﻿using K4AdotNet.Sensor;
+using System;
 using System.Threading;
 
 namespace K4AdotNet.BodyTracking
@@ -7,24 +8,34 @@ namespace K4AdotNet.BodyTracking
     {
         // Current version of Body Tracking SDK does not support creation of multiple instances.
         // Attempt to create the second one simply crashes the application.
+        // See https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/519
         private static volatile int instancesCounter;
 
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;
         private volatile int queueSize;
 
-        public Tracker(ref Sensor.Calibration calibration)
+        public Tracker(ref Calibration calibration)
         {
-            if (Interlocked.Increment(ref instancesCounter) != 1)
+            if (!calibration.DepthMode.HasDepth())
+                throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
+
+            var incrementedInstanceCounter = Interlocked.Increment(ref instancesCounter);
+            try
+            {
+                if (incrementedInstanceCounter != 1)
+                    throw new NotSupportedException("Oops! Current version of Body Tracking runtime does not support creation of multiple body trackers. Sorry!");
+
+                if (!Sdk.TryCreateTrackerHandle(ref calibration, out var handle, out var message))
+                    throw new BodyTrackingException(message);
+
+                this.handle = handle;
+                this.handle.Disposed += Handle_Disposed;
+            }
+            catch
             {
                 Interlocked.Decrement(ref instancesCounter);
-                throw new NotSupportedException("Oops! Current version of Body Tracking SDK does not support creation of multiple body tracker. Sorry!");
+                throw;
             }
-
-            if (NativeApi.TrackerCreate(ref calibration, out var handle) != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
-                throw new BodyTrackingException("Cannot initialize body tracking infrastructure");
-
-            this.handle = handle;
-            this.handle.Disposed += Handle_Disposed;
         }
 
         private void Handle_Disposed(object sender, EventArgs e)

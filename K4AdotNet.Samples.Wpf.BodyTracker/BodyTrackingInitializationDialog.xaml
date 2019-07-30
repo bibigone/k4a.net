@@ -1,0 +1,36 @@
+﻿<Window x:Class="K4AdotNet.Samples.Wpf.BodyTracker.BodyTrackingInitializationDialog"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen"
+        Title="Body Tracking Runtime Initialization"
+        SizeToContent="WidthAndHeight"
+        Background="{x:Static SystemColors.InactiveBorderBrush}">
+    <StackPanel Orientation="Vertical">
+        <ProgressBar x:Name="progressBar" x:FieldModifier="private"
+                     Height="2" IsIndeterminate="True"/>
+        <TextBlock x:Name="waitTextBlock" x:FieldModifier="private"
+                   Margin="10" Width="400" Height="120"
+                   TextAlignment="Center" TextWrapping="Wrap">
+            Initializing body tracking runtime...
+            <LineBreak/><LineBreak/>
+             Please wait for a few seconds
+        </TextBlock>
+        <TextBlock x:Name="errorTextBlock" x:FieldModifier="private"
+                   Margin="10" Width="400" Height="120"
+                   TextAlignment="Center" TextWrapping="Wrap"
+                   Visibility="Collapsed">
+            <Run x:Name="messageRun" x:FieldModifier="private"/>
+            <LineBreak/><LineBreak/>
+            For details visit <Hyperlink NavigateUri="." RequestNavigate="SetupHyperlink_RequestNavigate">Set up Azure Kinect body tracking</Hyperlink>.
+        </TextBlock>
+        <Button x:Name="closeButton" x:FieldModifier="private"
+                Margin="10" Padding="4"
+                IsCancel="True" IsDefault="True"
+                Content="Cancel"/>
+    </StackPanel>
+</Window>

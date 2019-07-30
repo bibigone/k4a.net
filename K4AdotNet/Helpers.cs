@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace K4AdotNet
@@ -71,6 +72,14 @@ namespace K4AdotNet
                 throw new NotSupportedException("Non-ASCII characters in file paths are not supported in Windows version of library");
             var encoding = isAsciiCompatible ? Encoding.ASCII : Encoding.UTF8;
             return StringToBytes(path, encoding);
+        }
+
+        public static bool IsSubdirOf(DirectoryInfo subdir, DirectoryInfo parentDir)
+        {
+            for (; subdir != null; subdir = subdir.Parent)
+                if (subdir.FullName.Equals(parentDir.FullName, StringComparison.InvariantCultureIgnoreCase))
+                    return true;
+            return false;
         }
     }
 }

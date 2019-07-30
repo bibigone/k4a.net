@@ -9,6 +9,7 @@
         Title="K4AdotNet Sample - Viewer"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}">
     <Window.Resources>
         <Style x:Key="Option" TargetType="CheckBox">
