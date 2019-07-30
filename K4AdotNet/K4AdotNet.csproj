@@ -28,16 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="native\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\externals\k4a\windows-desktop\amd64\depthengine_1_0.dll" Link="native\depthengine_1_0.dll"
-          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
-    <None Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="native\k4a.dll"
-          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
-    <None Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="native\k4arecord.dll"
-          Pack="True" PackagePath="\runtimes\win\native\;\runtimes\win-x64\native\" />
+    <None Include="..\externals\k4a\windows-desktop\amd64\*.dll" Pack="True" PackagePath="\build\">
+      <Link>package\%(FileName)%(Extension)</Link>
+    </None>
+    <None Include="package\k4adotnet.targets" Pack="True" PackagePath="\build\"/>
   </ItemGroup>
 
 </Project>
