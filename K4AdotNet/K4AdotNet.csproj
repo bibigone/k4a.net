@@ -27,6 +27,12 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\externals\k4a\windows-desktop\amd64\*.dll" Pack="True" PackagePath="\build\">
       <Link>package\%(FileName)%(Extension)</Link>
