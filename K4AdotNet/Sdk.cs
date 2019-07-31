@@ -279,6 +279,13 @@ namespace K4AdotNet
                 runtimePath = bodyTrackingRuntimePath;
             }
 
+            // Force loading of k4a.dll,
+            // because k4abt.dll depends on it
+            NativeHandles.NativeApi.CaptureRelease(IntPtr.Zero);
+
+            // We have to change current directory,
+            // because Body Tracking runtime will try to load ONNX file from current directory
+            // (Adding to Path environment variable doesn't work.)
             using (new CurrentDirectoryOverrider(runtimePath))
             {
                 if (BodyTracking.NativeApi.TrackerCreate(ref calibration, out trackerHandle) != NativeCallResults.Result.Succeeded

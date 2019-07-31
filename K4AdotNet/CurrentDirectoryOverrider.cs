@@ -17,13 +17,13 @@ namespace K4AdotNet
 
             path = Path.GetFullPath(path);
             Monitor.Enter(syncRoot);
-            currentDirBak = Environment.CurrentDirectory;
-            Environment.CurrentDirectory = path;
+            currentDirBak = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(path);
         }
 
         public void Dispose()
         {
-            Environment.CurrentDirectory = currentDirBak;
+            Directory.SetCurrentDirectory(currentDirBak);
             Monitor.Exit(syncRoot);
         }
     }
