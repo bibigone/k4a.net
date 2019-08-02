@@ -50,6 +50,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="App.cs" />
     <Compile Include="MainModel.cs" />
     <Compile Include="ViewerModel.cs" />

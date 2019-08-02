@@ -1115,7 +1115,7 @@
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode">
             <summary>Capture mode for the depth camera.</summary>
             <remarks>
-            To check compatiblity of <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode"/> with <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.CameraFps"/>
+            To check compatibility of <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode"/> with <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.CameraFps"/>
             use <see cref="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)"/>.
             </remarks>
             <seealso cref="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)"/>

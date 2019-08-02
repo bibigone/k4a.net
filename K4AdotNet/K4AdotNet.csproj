@@ -1,18 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\Product.props.in" />
+
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    <Version>0.2.0</Version>
-    <Authors>bibigone</Authors>
-    <Company />
-    <Product>K4A.Net</Product>
-    <Copyright>Copyright (c) 2019</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/bibigone/k4a.net/blob/master/README.md</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/bibigone/k4a.net</RepositoryUrl>
-    <PackageTags>Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking</PackageTags>
     <Platforms>AnyCPU</Platforms>
-    <Description>Three-in-one managed .NET library to work with Azure Kinect devices. It includes sensor API, recording and play back API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later.</Description>
+    <Description>Three-in-one managed .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later.</Description>
+    <PackageTags>Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 

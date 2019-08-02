@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\Product.props.in" />
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platforms>AnyCPU</Platforms>
+    <Description>Core .NET sample console application to measure speed of Body Tracking.</Description>
   </PropertyGroup>
 
   <ItemGroup>

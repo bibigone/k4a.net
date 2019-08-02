@@ -49,6 +49,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="BackgroundTrackingLoop.cs" />
     <Compile Include="BodyFrameReadyEventArgs.cs" />
     <Compile Include="BodyIndexMapTransformation.cs" />

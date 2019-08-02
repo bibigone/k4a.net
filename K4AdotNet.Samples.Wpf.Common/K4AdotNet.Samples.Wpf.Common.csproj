@@ -43,6 +43,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="ActualFpsCalculator.cs" />
     <Compile Include="AppBase.cs" />
     <Compile Include="BackgroundReadingLoop.cs" />
