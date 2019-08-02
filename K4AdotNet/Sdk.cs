@@ -11,6 +11,8 @@ namespace K4AdotNet
         /// <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
         public const string SENSOR_DLL_NAME = "k4a";
 
+        public const string DEPTHENGINE_DLL_NAME = "depthengine_1_0";
+
         /// <summary>Name of record DLL in Kinect for Azure Sensor SDK.</summary>
         public const string RECORD_DLL_NAME = "k4arecord";
 

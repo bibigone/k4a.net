@@ -73,6 +73,10 @@ namespace K4AdotNet.Sensor
             this.handle.Disposed += Handle_Disposed;
         }
 
+        public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels)
+            where T : struct
+            => CreateFromArray(buffer, format, widthPixels, heightPixels, format.StrideBytes(widthPixels));
+
         public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
             where T: struct
         {
@@ -270,6 +274,7 @@ namespace K4AdotNet.Sensor
         private static void ReleaseUnmanagedBuffer(IntPtr buffer, IntPtr context)
             => Marshal.FreeHGlobal(buffer);
 
+        // This field is required to keep callback in memory
         private static readonly NativeApi.MemoryDestroyCallback pinnedArrayReleaseCallback
             = new NativeApi.MemoryDestroyCallback(ReleasePinnedArray);
 

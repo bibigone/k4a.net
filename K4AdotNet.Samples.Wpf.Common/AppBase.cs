@@ -1,16 +1,34 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 
 namespace K4AdotNet.Samples.Wpf
 {
     public abstract class AppBase : Application, IApp
     {
+        protected AppBase()
+        {
+            SetDefaultCulture();
+        }
+
+        protected static void SetDefaultCulture()
+        {
+            // Set default culture to en-US because UI is in English
+            // and it is also a default culture for formatting values in bindings.
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/dd94f1f8-4213-49c3-903f-780b901a30d0/data-binding-ignores-local-culture-settings?forum=wpf
+            var defaultCulture = CultureInfo.GetCultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = defaultCulture;
+            CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+        }
+
         protected abstract Window CreateMainWindow(StartupEventArgs e);
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var mainWindow = CreateMainWindow(e);
             if (mainWindow == null)

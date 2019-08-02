@@ -1088,37 +1088,62 @@
         </member>
         <member name="T:K4AdotNet.Sensor.DeviceConfiguration">
             <summary>Configuration parameters for an Azure Kinect device.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.ColorFormat">
             <summary>Image format to capture with the color camera.</summary>
-            <remarks>
-            The color camera does not natively produce BGRA32 images.
+            <remarks><para>
+            The color camera does not natively produce <c>BGRA32</c> images.
             Setting <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/> value will result in higher CPU utilization.
-            </remarks>
+            </para><para>
+            Use only <see cref="T:K4AdotNet.Sensor.ImageFormat"/>s that is applicable for color images.
+            To check it you can call <see cref="M:K4AdotNet.Sensor.ImageFormats.IsColor(K4AdotNet.Sensor.ImageFormat)"/>.
+            </para></remarks>
+            <seealso cref="M:K4AdotNet.Sensor.ImageFormats.IsColor(K4AdotNet.Sensor.ImageFormat)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.ColorResolution">
             <summary>Image resolution to capture with the color camera.</summary>
+            <remarks>
+            Not all combinations of <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.ColorFormat"/>, <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.ColorResolution"/>
+            and <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode"/> are supported. To check compatibility use
+            <see cref="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.FrameRate)"/>
+            and <see cref="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.ImageFormat)"/>.
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.FrameRate)"/>
+            <seealso cref="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.ImageFormat)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode">
             <summary>Capture mode for the depth camera.</summary>
+            <remarks>
+            To check compatiblity of <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.DepthMode"/> with <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.CameraFps"/>
+            use <see cref="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)"/>.
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.CameraFps">
             <summary>Desired frame rate for the color and depth camera.</summary>
+            <remarks>
+            <see cref="F:K4AdotNet.Sensor.FrameRate.Thirty"/> cannot be used with <see cref="F:K4AdotNet.Sensor.ColorResolution.R3072p"/>
+            and <see cref="F:K4AdotNet.Sensor.DepthMode.WideViewUnbinned"/>. Use <see cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.ColorResolution)"/>
+            and <see cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.DepthMode)"/> to check compatibility.
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.ColorResolution)"/>
+            <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.DepthMode)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.SynchronizedImagesOnly">
             <summary>Only produce capture objects if they contain synchronized color and depth images.</summary>
-            <remarks>
+            <remarks><para>
             This setting controls the behavior in which images are dropped when images are produced faster than they can be
             read, or if there are errors in reading images from the device.
-            
+            </para><para>
             If set to <see langword="true"/>, capture objects will only be produced with both color and depth images.
             If set to <see langword="false"/>, capture objects may be produced only a single image when the corresponding image is dropped.
-            
+            </para><para>
             Setting this to <see langword="false"/> ensures that the caller receives all of the images received from the camera, regardless of
             whether the corresponding images expected in the capture are available.
-            
+            </para><para>
             If either the color or depth camera are disabled, this setting has no effect.
-            </remarks>
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.DepthDelayOffColor">
             <summary>Desired delay between the capture of the color image and the capture of the depth image.</summary>
@@ -1132,20 +1157,32 @@
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.SubordinateDelayOffMaster">
             <summary>The external synchronization timing.</summary>
-            <remarks>
+            <remarks><para>
             If this camera is a subordinate, this sets the capture delay between the color camera capture and the external
             input pulse. A setting of zero indicates that the master and subordinate color images should be aligned.
-            
+            </para><para>
             This setting does not effect the 'Sync out' connection.
-            
+            </para><para>
             This value must be positive and range from zero to one capture period.
-            
+            </para><para>
             If this is not a subordinate, then this value is ignored.
-            </remarks>
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.DisableStreamingIndicator">
             <summary>Streaming indicator automatically turns on when the color or depth camera's are in use.</summary>
             <remarks>This setting disables that behavior and keeps the LED in an off state.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceConfiguration.IsValid(System.String@)">
+            <summary>
+            Checks that this configuration is OK (all parameters have correct and compatible values).
+            </summary>
+            <param name="message">
+            What's wrong with configuration or <see langword="null"/> if configuration is valid.
+            </param>
+            <returns>
+            <see langword="true"/> if configuration is valid and can be used in <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/>.
+            <see langword="false"/> if configuration has some invalid or incompatible parameters.
+            </returns>
         </member>
         <member name="F:K4AdotNet.Sensor.DeviceConfiguration.DisableAll">
             <summary>Initial configuration setting for disabling all sensors.</summary>

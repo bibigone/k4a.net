@@ -56,7 +56,22 @@ namespace K4AdotNet.Sensor
         }
 
         public void StartCameras(DeviceConfiguration config)
-            => CheckResult(NativeApi.DeviceStartCameras(handle.ValueNotDisposed, ref config), nameof(config));
+        {
+            if (!config.IsValid(out var message))
+                throw new ArgumentException(message, nameof(config));
+
+            var res = NativeApi.DeviceStartCameras(handle.ValueNotDisposed, ref config);
+
+            if (res != NativeCallResults.Result.Succeeded)
+            {
+                handle.CheckNotDisposed();
+                if (!IsConnected)
+                    throw new DeviceConnectionLostException();
+                throw new ArgumentException(
+                    $"Cannot start cameras with specified configuration (or {Sdk.DEPTHENGINE_DLL_NAME} library cannot be found).",
+                    nameof(config));
+            }
+        }
 
         public void StopCameras()
             => NativeApi.DeviceStopCameras(handle.Value);
