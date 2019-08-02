@@ -10,6 +10,7 @@
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
+        Icon="K4AdotNet.ico"
         d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}">
     <Window.Resources>
         <Style x:Key="Option" TargetType="CheckBox">
