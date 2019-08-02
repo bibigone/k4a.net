@@ -36,6 +36,7 @@
   * But currently tested only under Windows
   * Plus there's no Linux-version of [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) yet
   * And most of samples are written using WPF
+* Available as NuGet package: https://www.nuget.org/packages/K4AdotNet
 
 
 ## Dependencies
@@ -63,25 +64,27 @@ Some important notes:
 * Also, you can optionally call `bool Sdk.TryInitializeBodyTrackingRuntime(out string message)` method on start of your application to initialize Body Tracking runtime (it can take a few seconds)
 
 
-## Current status
+## Versions
 
-It's almost ready to use
+* [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects.
 
 
 ## Roadmap
 
-* Nuget package(s)
 * Documentation comments
 * More unit-tests
 * More samples (Recording, 3D view, Box-man, IMU...)
 * Samples for Unity3D
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)
-* Some hosting for documentation
+* Some hosting for HTML documentation ([DocFX](https://dotnet.github.io/docfx/) + [github.io](https://pages.github.com/)?)
 
 
 ## How to build
 
 * Open `K4AdotNet.sln` in Visual Studio 2017 or Visual Studio 2019
 * Build solution (`Ctrl+Shift+B`)
-* After that you can run and explore samples
+* After that you can run and explore samples:
+  * `K4AdotNet.Samples.BodyTrackingSpeedTest` &mdash; Core .NET sample console application to measure speed of Body Tracking.
+  * `K4AdotNet.Samples.Wpf.Viewer` &mdash; WPF sample application to demonstrate usage of Sensor API and Record API.
+  * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; WPF sample application to demonstrate usage of Body Tracking API.
