@@ -1,4 +1,6 @@
-# K4A.Net (K4AdotNet) &nbsp;&nbsp;&nbsp; ![Logo](https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png)
+# K4A.Net (K4AdotNet)
+
+<img align="right" width="64" height="64" src="https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png">
 
 **K4A.Net** &mdash; *Three-in-one* managed .NET library to work with [Azure Kinect](https://azure.microsoft.com/en-us/services/kinect-dk/) devices (also known as Kinect for Azure, K4A, Kinect v4). It consists of the following "components":
 1. `Sensor API` &mdash; access to depth camera, RGB camera, accelerometer and gyroscope, plus device-calibration data and synchronization control
