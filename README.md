@@ -1,4 +1,4 @@
-# K4A.Net (K4AdotNet)
+# K4A.Net (K4AdotNet) &nbsp;&nbsp;&nbsp; ![Logo](https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png)
 
 **K4A.Net** &mdash; *Three-in-one* managed .NET library to work with [Azure Kinect](https://azure.microsoft.com/en-us/services/kinect-dk/) devices (also known as Kinect for Azure, K4A, Kinect v4). It consists of the following "components":
 1. `Sensor API` &mdash; access to depth camera, RGB camera, accelerometer and gyroscope, plus device-calibration data and synchronization control
@@ -43,11 +43,11 @@
 
 **K4AdotNet** depends on the following native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download):
 
-| Library "component" | Depend on                        | Version in use | Location in source code                 |
-|---------------------|----------------------------------|----------------|-----------------------------------------|
-| Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.1          | `externals/k4a/windows-desktop/amd64`   |
-| Record API          | `k4arecord.dll`                  | 1.1.1          | `externals/k4a/windows-desktop/amd64`   |
-| Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9            |                                         |
+| Library "component" | Depends on                       | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
+|---------------------|----------------------------------|----------------|---------------------------------------|--------------------------
+| Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                  | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
+| Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9            |                                       | no
 
 Some important notes:
 * `depthengine_1_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
@@ -66,7 +66,10 @@ Some important notes:
 
 ## Versions
 
-* [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects.
+* [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects
+  * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.5.0
+  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.5.0)
+  * Tested with Azure Kinect Body Tracking SDK 0.9.0 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
 
 
 ## Roadmap
