@@ -12,6 +12,8 @@
     //      K4A_IMAGE_FORMAT_CUSTOM,
     // } k4a_image_format_t;
     /// <summary>Image format type.</summary>
+    /// <remarks>Helpful extension methods for this enumeration type can be found in <see cref="ImageFormats"/>.</remarks>
+    /// <seealso cref="ImageFormats"/>
     public enum ImageFormat
     {
         /// <summary>

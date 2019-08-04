@@ -1282,6 +1282,250 @@
         <member name="F:K4AdotNet.Sensor.HardwareVersion.FirmwareSignature">
             <summary>Signature type of the firmware.</summary>
         </member>
+        <member name="T:K4AdotNet.Sensor.Image">
+            <summary>An Azure Kinect image referencing its buffer and metadata.</summary>
+            <remarks><para>
+            Is used for color images, IR images, depth maps, body index maps.
+            </para><para>
+            This class is designed to be thread-safe.
+            </para></remarks>
+            <seealso cref="T:K4AdotNet.Sensor.ImageFormat"/>
+            <threadsafety static="true" instance="true"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
+            <summary>Creates new image with specified format and size in pixels.</summary>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <remarks>
+            This version of constructor can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+            and cannot be used for other formats. For details see <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.
+            For other formats use <see cref="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)"/> or <see cref="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.Int32)"/>.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
+            <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
+            <remarks>
+            Don't use this method to create image with unknown/unspecified stride (like MJPEG).
+            For such formats, size of image in bytes must be specified to create image: <see cref="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.Int32)"/>.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>
+            <param name="sizeBytes">Size of image buffer in size. Non negative. Cannot be less than size calculated from image parameters.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+            or <paramref name="sizeBytes"/> is less than zero or <paramref name="sizeBytes"/> is less than size calculated from <paramref name="heightPixels"/> and <paramref name="strideBytes"/>.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
+            <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+            and cannot be used for other formats. For details see <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.
+            For other formats use <see cref="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)"/>.
+            </para><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="buffer"/> array is too small for specified image parameters.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+            </exception>
+            <seealso cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
+            <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>
+            <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+            or <paramref name="buffer"/> array is too small for specified image parameters.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.Dispose">
+            <summary>
+            Call this method to free unmanaged resources associated with current instance.
+            </summary>
+            <remarks><para>
+            Under the hood, reference counter is decremented on this call. When the references reach zero the unmanaged resources are destroyed.
+            (Multiple objects of <see cref="T:K4AdotNet.Sensor.Image"/> can reference one and the same image. For details see <see cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/>.)
+            </para><para>
+            Can be called multiple times but event <see cref="E:K4AdotNet.Sensor.Image.Disposed"/> will be raised only once.
+            </para></remarks>
+            <seealso cref="E:K4AdotNet.Sensor.Image.Disposed"/>
+            <seealso cref="P:K4AdotNet.Sensor.Image.IsDisposed"/>
+            <seealso cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Sensor.Image.Disposed">
+            <summary>Raises on object disposing.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.DuplicateReference">
+            <summary>Creates new reference to the same unmanaged image object.</summary>
+            <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
+            <remarks>It helps to manage underlying object lifetime and to access image data from different threads and different components of application.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.Buffer">
+            <summary>Get the image buffer.</summary>
+            <remarks>Use this buffer to access the raw image data.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.SizeBytes">
+            <summary>Get the image buffer size in bytes.</summary>
+            <remarks>Use this function to know what the size of the image buffer is returned by <see cref="P:K4AdotNet.Sensor.Image.Buffer"/>.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.Format">
+            <summary>Get the format of the image.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.WidthPixels">
+            <summary>Get the image width in pixels.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.HeightPixels">
+            <summary>Get the image height in pixels.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.StrideBytes">
+            <summary>Get the image stride in bytes (the number of bytes per horizontal line of the image).</summary>
+            <remarks>Can be zero for compressed formats with unknown stride like MJPEG.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.Timestamp">
+            <summary>Get and set the image timestamp.</summary>
+            <remarks><para>
+            Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
+            They may be used for relative comparison, but their absolute value has no defined meaning.
+            </para><para>
+            <see cref="T:K4AdotNet.Microseconds64"/> supports implicit conversion to/from <see cref="T:System.TimeSpan"/>.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.Exposure">
+            <summary>Get and set the image exposure time. This is only supported on color image formats.</summary>
+            <remarks>
+            <see cref="T:K4AdotNet.Microseconds64"/> supports implicit conversion to/from <see cref="T:System.TimeSpan"/>.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.WhiteBalance">
+            <summary>Get and set the image white balance in degrees Kelvin. This is only supported on color image formats.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.IsoSpeed">
+            <summary>Get and set the image ISO speed. This is only supported on color image formats.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CopyTo(System.Byte[])">
+            <summary>Copies image data from <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for image data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CopyTo(System.Int16[])">
+            <summary>Copies image data from <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for image data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CopyTo(System.Single[])">
+            <summary>Copies image data from <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for image data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CopyTo(System.Int32[])">
+            <summary>Copies image data from <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for image data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.FillFrom(System.Byte[])">
+            <summary>Fills data in image buffer from specified managed array.</summary>
+            <param name="src">Array with raw image data. Cannot be <see langword="null"/>. Must have appropriate length (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="src"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="src"/> array does not match size of image buffer.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.FillFrom(System.Int16[])">
+            <summary>Fills data in image buffer from specified managed array.</summary>
+            <param name="src">Array with raw image data. Cannot be <see langword="null"/>. Must have appropriate length (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="src"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="src"/> array does not match size of image buffer.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.FillFrom(System.Single[])">
+            <summary>Fills data in image buffer from specified managed array.</summary>
+            <param name="src">Array with raw image data. Cannot be <see langword="null"/>. Must have appropriate length (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="src"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="src"/> array does not match size of image buffer.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.FillFrom(System.Int32[])">
+            <summary>Fills data in image buffer from specified managed array.</summary>
+            <param name="src">Array with raw image data. Cannot be <see langword="null"/>. Must have appropriate length (see <see cref="P:K4AdotNet.Sensor.Image.SizeBytes"/>).</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="src"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="src"/> array does not match size of image buffer.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
         <member name="T:K4AdotNet.Sensor.ImageFormat">
             <summary>Image format type.</summary>
         </member>
@@ -1356,6 +1600,41 @@
             <remarks>
             See the originator of the custom formatted image for information on how to interpret the data.
             </remarks>
+        </member>
+        <member name="T:K4AdotNet.Sensor.ImageFormats">
+            <summary>Extensions to <see cref="T:K4AdotNet.Sensor.ImageFormat"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.ImageFormat"/> enumeration.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sensor.ImageFormats.All">
+            <summary>All usable <see cref="T:K4AdotNet.Sensor.ImageFormat"/>s. May be helpful for UI, tests, etc.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.IsColor(K4AdotNet.Sensor.ImageFormat)">
+            <summary>Is this format usable for color images?</summary>
+            <param name="imageFormat">Image format to be tested.</param>
+            <returns><see langword="true"/> if image format is suitable for color images, <see langword="false"/> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.IsDepth(K4AdotNet.Sensor.ImageFormat)">
+            <summary>Is this format a depth map?</summary>
+            <param name="imageFormat">Image format to be tested.</param>
+            <returns><see langword="true"/> if image format is a depth map, <see langword="false"/> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.HasKnownBytesPerPixel(K4AdotNet.Sensor.ImageFormat)">
+            <summary>Does this image format have known (predefined) bytes per pixel?</summary>
+            <param name="imageFormat">Image format to be tested.</param>
+            <returns><see langword="true"/> if bytes-per-pixel is known for specified <paramref name="imageFormat"/>, <see langword="false"/> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.BytesPerPixel(K4AdotNet.Sensor.ImageFormat)">
+            <summary>How many bytes are used for one pixel?</summary>
+            <param name="imageFormat">Image format.</param>
+            <returns>How many bytes are used for one pixel.</returns>
+            <exception cref="T:System.ArgumentException">Bytes-per-pixel is unknown/undefined for specified <paramref name="imageFormat"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)">
+            <summary>Calculates default image stride from image <paramref name="widthPixels"/> for specified <paramref name="imageFormat"/>.</summary>
+            <param name="imageFormat">Format of image. Not all formats have predefined formula for stride based on image width. Moreover, some formats do not have stride at all.</param>
+            <param name="widthPixels">Width of image in pixels. Non-negative.</param>
+            <returns>Default value for image stride (the number of bytes per horizontal line of the image).</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="widthPixels"/> cannot be less than zero.</exception>
+            <exception cref="T:System.ArgumentException">Cannot determine image stride in bytes from <paramref name="widthPixels"/> for specified <paramref name="imageFormat"/>.</exception>
         </member>
         <member name="T:K4AdotNet.Sensor.ImuSample">
             <summary>IMU sample.</summary>
@@ -1616,7 +1895,7 @@
             <returns>
             Returns the ISO speed of the image. <c>0</c> indicates the ISO speed was not available or an error occurred.
             </returns>
-            <remarks>This function is only valid for color captures, and not for depth  or IR captures.</remarks>
+            <remarks>This function is only valid for color captures, and not for depth or IR captures.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
             <summary>Set the timestamp, in microseconds, of the image.</summary>

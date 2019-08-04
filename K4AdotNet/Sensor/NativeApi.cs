@@ -330,7 +330,7 @@ namespace K4AdotNet.Sensor
         /// <returns>
         /// Returns the ISO speed of the image. <c>0</c> indicates the ISO speed was not available or an error occurred.
         /// </returns>
-        /// <remarks>This function is only valid for color captures, and not for depth  or IR captures.</remarks>
+        /// <remarks>This function is only valid for color captures, and not for depth or IR captures.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_iso_speed", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint ImageGetIsoSpeed(NativeHandles.ImageHandle imageHandle);
 

@@ -246,5 +246,65 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
         }
 
         #endregion
+
+        #region Testing of CopyTo and FillFrom
+
+        [TestMethod]
+        public void TestCopyToAndFillFromForByteArray()
+        {
+            using (var image = new Image(ImageFormat.ColorBgra32, 1, 1))
+            {
+                var src = new byte[] { 127, 63, 255, 0 };
+                image.FillFrom(src);
+                var dst = new byte[4];
+                image.CopyTo(dst);
+                for (var i = 0; i < dst.Length; i++)
+                    Assert.AreEqual(src[i], dst[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestCopyToAndFillFromForShortArray()
+        {
+            using (var image = new Image(ImageFormat.Depth16, 2, 2))
+            {
+                var src = new short[] { -1234, 0, short.MinValue, short.MaxValue };
+                image.FillFrom(src);
+                var dst = new short[4];
+                image.CopyTo(dst);
+                for (var i = 0; i < dst.Length; i++)
+                    Assert.AreEqual(src[i], dst[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestCopyToAndFillFromForIntArray()
+        {
+            using (var image = new Image(ImageFormat.Custom, 2, 2, 2 * sizeof(int)))
+            {
+                var src = new int[] { -1234, 0, int.MinValue, int.MaxValue };
+                image.FillFrom(src);
+                var dst = new int[4];
+                image.CopyTo(dst);
+                for (var i = 0; i < dst.Length; i++)
+                    Assert.AreEqual(src[i], dst[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestCopyToAndFillFromForFloatArray()
+        {
+            using (var image = new Image(ImageFormat.Custom, 2, 2, 2 * sizeof(float)))
+            {
+                var src = new float[] { -1234.56f, 0f, float.MinValue, float.MaxValue };
+                image.FillFrom(src);
+                var dst = new float[4];
+                image.CopyTo(dst);
+                for (var i = 0; i < dst.Length; i++)
+                    Assert.AreEqual(src[i], dst[i]);
+            }
+        }
+
+        #endregion
     }
 }
