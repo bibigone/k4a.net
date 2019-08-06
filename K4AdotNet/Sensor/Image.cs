@@ -12,7 +12,8 @@ namespace K4AdotNet.Sensor
     /// </para></remarks>
     /// <seealso cref="ImageFormat"/>
     /// <threadsafety static="true" instance="true"/>
-    public sealed class Image : IDisposablePlus, IReferenceDuplicatable<Image>
+    public sealed class Image
+        : IDisposablePlus, IReferenceDuplicatable<Image>, IEquatable<Image>
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.ImageHandle> handle;     // This class is an wrapper around this handle
 
@@ -231,7 +232,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
-        /// <summary>Raises on object disposing.</summary>
+        /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
         public event EventHandler Disposed;
 
@@ -464,6 +465,49 @@ namespace K4AdotNet.Sensor
         /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.ImageHandle.Zero"/>.</returns>
         internal static NativeHandles.ImageHandle ToHandle(Image image)
             => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
+
+        #region Equatable
+
+        /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if both images reference to one and the same unmanaged object.</returns>
+        public bool Equals(Image image)
+            => !(image is null) && image.handle.Equals(handle);
+
+        /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="Image"/> and they both reference to one and the same unmanaged object.</returns>
+        public override bool Equals(object obj)
+            => obj is Image && Equals((Image)obj);
+
+        /// <summary>Uses underlying handle as hash code.</summary>
+        /// <returns>Hash code. Consistent with overridden equality.</returns>
+        /// <seealso cref="Equals(Image)"/>
+        public override int GetHashCode()
+            => handle.GetHashCode();
+
+        /// <summary>To be consistent with <see cref="Equals(Image)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Image)"/>
+        public static bool operator ==(Image left, Image right)
+            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+
+        /// <summary>To be consistent with <see cref="Equals(Image)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Image)"/>
+        public static bool operator !=(Image left, Image right)
+            => !(left == right);
+
+        /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+        /// <returns><c>{HandleTypeName}#{Address}</c></returns>
+        public override string ToString()
+            => handle.ToString();
+
+        #endregion
 
         #region Memory management
 

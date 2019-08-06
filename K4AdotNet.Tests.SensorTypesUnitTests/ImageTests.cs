@@ -210,6 +210,10 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             var image = CreateImageFromArray(out var weakReferenceToArray);
             var refImage = image.DuplicateReference();
 
+            Assert.AreEqual(image, refImage);
+            Assert.IsTrue(image == refImage);
+            Assert.IsFalse(image != refImage);
+
             Assert.AreEqual(image.Buffer, refImage.Buffer);
             Assert.AreEqual(image.SizeBytes, refImage.SizeBytes);
             Assert.AreEqual(image.WidthPixels, refImage.WidthPixels);

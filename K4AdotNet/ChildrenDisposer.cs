@@ -43,11 +43,21 @@ namespace K4AdotNet
         {
             if (!(sender is IDisposablePlus child))
                 throw new ArgumentNullException(nameof(sender));
+
             lock (trackedChildren)
             {
                 child.Disposed -= OnChildObjectDisposed;
-                trackedChildren.Remove(child);
+                for (var node = trackedChildren.First; node != null; node = node.Next)
+                {
+                    if (ReferenceEquals(node.Value, child))
+                    {
+                        trackedChildren.Remove(node);
+                        return;
+                    }
+                }
             }
+
+            System.Diagnostics.Trace.TraceWarning($"Cannot find child {child} in list of tracked children.");
         }
     }
 }

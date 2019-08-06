@@ -4,6 +4,39 @@
         <name>K4AdotNet</name>
     </assembly>
     <members>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)">
+            <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="bodyFrame">Another body frame to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if both body frames reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.Equals(System.Object)">
+            <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> and they both reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.GetHashCode">
+            <summary>Uses underlying handle as hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.op_Equality(K4AdotNet.BodyTracking.BodyFrame,K4AdotNet.BodyTracking.BodyFrame)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.op_Inequality(K4AdotNet.BodyTracking.BodyFrame,K4AdotNet.BodyTracking.BodyFrame)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.ToString">
+            <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+            <returns><c>{HandleTypeName}#{Address}</c></returns>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.BodyId.Invalid">
             <summary>The invalid body id value.</summary>
         </member>
@@ -239,6 +272,40 @@
         <member name="T:K4AdotNet.Float3x3">
             <summary>Placeholder for 3x3 matrix data.</summary>
         </member>
+        <member name="T:K4AdotNet.IDisposablePlus">
+            <summary>
+            <see cref="T:System.IDisposable"/> interface with property <see cref="P:K4AdotNet.IDisposablePlus.IsDisposed"/> and event <see cref="E:K4AdotNet.IDisposablePlus.Disposed"/>.
+            </summary>
+        </member>
+        <member name="P:K4AdotNet.IDisposablePlus.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        </member>
+        <member name="E:K4AdotNet.IDisposablePlus.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+        </member>
+        <member name="T:K4AdotNet.IReferenceDuplicatable`1">
+            <summary>
+            Interface for objects which reference unmanaged object and support reference counting.
+            </summary>
+            <typeparam name="T">Type implemented this interface.</typeparam>
+        </member>
+        <member name="M:K4AdotNet.IReferenceDuplicatable`1.DuplicateReference">
+            <summary>
+            Creates new managed object that references exactly the same unmanaged object as original one.
+            </summary>
+            <returns>
+            New managed object that references exactly to the same unmanaged object as original one. Not <see langword="null"/>.
+            </returns>
+            <remarks><para>
+            Under the hood, references counter is incremented during call to this method.
+            </para><para>
+            To release reference, that is decrement reference counter call <see cref="M:System.IDisposable.Dispose"/> method of object.
+            </para><para>
+            It helps to manage underlying object lifetime and to access image data from different threads and different components of application.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+            <seealso cref="M:System.IDisposable.Dispose"/>
+        </member>
         <member name="T:K4AdotNet.NativeCallResults.BufferResult">
             <summary>Result code returned by Azure Kinect APIs.</summary>
         </member>
@@ -319,7 +386,110 @@
             <summary>Instances always own handles they store.</summary>
         </member>
         <member name="P:K4AdotNet.NativeHandles.HandleBase.IsInvalid">
-            <summary>Invalid handle is <c>IntPtr.Zero</c>.</summary>
+            <summary>Invalid handle is <see cref="F:System.IntPtr.Zero"/>.</summary>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.ToString">
+            <summary>Convenient (for debugging needs, first of all) string representation of object.</summary>
+            <returns><c>{TypeName}#{Address}</c></returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.GetHashCode">
+            <summary>Uses underlying value of handle as hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)">
+            <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.Equals(System.Object)">
+            <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is <see cref="T:K4AdotNet.NativeHandles.HandleBase"/> and they both reference to one and the same object.</returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.op_Equality(K4AdotNet.NativeHandles.HandleBase,K4AdotNet.NativeHandles.HandleBase)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleBase.op_Inequality(K4AdotNet.NativeHandles.HandleBase,K4AdotNet.NativeHandles.HandleBase)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
+        </member>
+        <member name="T:K4AdotNet.NativeHandles.HandleWrapper`1">
+            <summary>
+            Helper wrapper around <see cref="T:K4AdotNet.NativeHandles.HandleBase"/> objects.
+            Implements <see cref="T:K4AdotNet.IDisposablePlus"/> interface, which is really helpful for public classes.
+            </summary>
+            <typeparam name="T">Type of handle.</typeparam>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.Value">
+            <summary>Direct access to the underlying handle object.</summary>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.ValueNotDisposed">
+            <summary>Like <see cref="P:K4AdotNet.NativeHandles.HandleWrapper`1.Value"/> but checks that object is not disposed in addition.</summary>
+            <exception cref="T:System.ObjectDisposedException">If object is disposed.</exception>
+            <seealso cref="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Dispose">
+            <summary>
+            Disposes underlying handle
+            plus raises <see cref="E:K4AdotNet.NativeHandles.HandleWrapper`1.Disposed"/> event if it is first call of this method for object.
+            </summary>
+            <seealso cref="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed">
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.NativeHandles.HandleWrapper`1.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.CheckNotDisposed">
+            <summary>Checks that object is not disposed.</summary>
+            <exception cref="T:System.ObjectDisposedException">If object is disposed.</exception>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.op_Implicit(`0)~K4AdotNet.NativeHandles.HandleWrapper{`0}">
+            <summary>Implicit conversion from handle to wrapper for usability.</summary>
+            <param name="handle">Handle to be wrapped.</param>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.ToString">
+            <summary>String representation exactly as handle object has.</summary>
+            <returns><see cref="M:K4AdotNet.NativeHandles.HandleBase.ToString"/></returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.GetHashCode">
+            <summary>Delegates hash code calculation to <see cref="M:K4AdotNet.NativeHandles.HandleBase.GetHashCode"/> implementation.</summary>
+            <returns>Hash code consistent with <see cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})">
+            <summary>Delegates comparison to <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
+            <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(System.Object)">
+            <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is <see cref="T:K4AdotNet.NativeHandles.HandleWrapper`1"/> and they both reference to one and the same object.</returns>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.op_Equality(K4AdotNet.NativeHandles.HandleWrapper{`0},K4AdotNet.NativeHandles.HandleWrapper{`0})">
+            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.op_Inequality(K4AdotNet.NativeHandles.HandleWrapper{`0},K4AdotNet.NativeHandles.HandleWrapper{`0})">
+            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.ImageHandle">
             <summary>Handle to an Azure Kinect image.</summary>
@@ -946,6 +1116,9 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Capture.#ctor">
             <summary>Creates an empty capture object.</summary>
+            <exception cref="T:System.InvalidOperationException">
+            Sensor DK fails to create empty capture object for some reason. For details see logs.
+            </exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Capture.Dispose">
             <summary>
@@ -966,7 +1139,7 @@
             <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Sensor.Capture.Disposed">
-            <summary>Raises on object disposing.</summary>
+            <summary>Raised on object disposing (only once).</summary>
             <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
         </member>
         <member name="M:K4AdotNet.Sensor.Capture.DuplicateReference">
@@ -1060,6 +1233,39 @@
             <summary>Extracts handle from <paramref name="capture"/>.</summary>
             <param name="capture">Managed object. Can be <see langword="null"/>.</param>
             <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.CaptureHandle.Zero"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)">
+            <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="capture">Another captures to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if both captures reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.Equals(System.Object)">
+            <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="T:K4AdotNet.Sensor.Capture"/> and they both reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.GetHashCode">
+            <summary>Uses underlying handle as hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.op_Equality(K4AdotNet.Sensor.Capture,K4AdotNet.Sensor.Capture)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.op_Inequality(K4AdotNet.Sensor.Capture,K4AdotNet.Sensor.Capture)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.ToString">
+            <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+            <returns><c>{HandleTypeName}#{Address}</c></returns>
         </member>
         <member name="T:K4AdotNet.Sensor.ColorControlCommand">
             <summary>Color sensor control commands.</summary>
@@ -1544,7 +1750,7 @@
             <seealso cref="M:K4AdotNet.Sensor.Image.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Sensor.Image.Disposed">
-            <summary>Raises on object disposing.</summary>
+            <summary>Raised on object disposing (only once).</summary>
             <seealso cref="M:K4AdotNet.Sensor.Image.Dispose"/>
         </member>
         <member name="M:K4AdotNet.Sensor.Image.DuplicateReference">
@@ -1670,6 +1876,39 @@
             <summary>Extracts handle from <paramref name="image"/>.</summary>
             <param name="image">Managed object. Can be <see langword="null"/>.</param>
             <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)">
+            <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if both images reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.Equals(System.Object)">
+            <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
+            <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="T:K4AdotNet.Sensor.Image"/> and they both reference to one and the same unmanaged object.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.GetHashCode">
+            <summary>Uses underlying handle as hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.op_Equality(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.op_Inequality(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.ToString">
+            <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+            <returns><c>{HandleTypeName}#{Address}</c></returns>
         </member>
         <member name="T:K4AdotNet.Sensor.ImageFormat">
             <summary>Image format type.</summary>

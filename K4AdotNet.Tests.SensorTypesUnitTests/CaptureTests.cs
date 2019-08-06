@@ -63,7 +63,7 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
                     using (var retImage = capture.ColorImage)
                     {
                         Assert.IsNotNull(retImage);
-                        Assert.AreEqual(image.Buffer, retImage.Buffer);
+                        Assert.AreEqual(image, retImage);
                     }
 
                     imageBuffer = image.Buffer;
@@ -96,7 +96,7 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
                     using (var retImage = capture.DepthImage)
                     {
                         Assert.IsNotNull(retImage);
-                        Assert.AreEqual(image.Buffer, retImage.Buffer);
+                        Assert.AreEqual(image, retImage);
                     }
 
                     imageBuffer = image.Buffer;
@@ -129,7 +129,7 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
                     using (var retImage = capture.IRImage)
                     {
                         Assert.IsNotNull(retImage);
-                        Assert.AreEqual(image.Buffer, retImage.Buffer);
+                        Assert.AreEqual(image, retImage);
                     }
 
                     imageBuffer = image.Buffer;
@@ -168,6 +168,10 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             var capture = new Capture();
             var refCapture = capture.DuplicateReference();
 
+            Assert.AreEqual(capture, refCapture);
+            Assert.IsTrue(capture == refCapture);
+            Assert.IsFalse(capture != refCapture);
+
             // Check that when we change property of source capture,
             // then property of refCapture is also synchronously changed
             capture.TemperatureC = testTemperatureC;
@@ -182,7 +186,9 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             {
                 capture.DepthImage = depthMap;
                 using (var retDepthMap = refCapture.DepthImage)
-                    Assert.AreEqual(depthMap.Buffer, retDepthMap.Buffer);
+                {
+                    Assert.AreEqual(depthMap, retDepthMap);
+                }
             }
 
             // Dispose source capture
@@ -214,20 +220,34 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             // Getting images
             var colorImage1 = capture.ColorImage;
             var colorImage2 = capture.ColorImage;   // multiple times
+            var colorImage3 = capture.ColorImage;   // and one more
             var depthImage = capture.DepthImage;
             var irImage = capture.IRImage;
 
             // All returned images are alive
             Assert.IsFalse(colorImage1.IsDisposed);
             Assert.IsFalse(colorImage2.IsDisposed);
+            Assert.IsFalse(colorImage3.IsDisposed);
             Assert.IsFalse(depthImage.IsDisposed);
             Assert.IsFalse(irImage.IsDisposed);
 
+            // Explicit dispose colorImage2
+            colorImage2.Dispose();
+
+            // All returned images are alive except colorImage2
+            Assert.IsFalse(colorImage1.IsDisposed);
+            Assert.IsTrue(colorImage2.IsDisposed);
+            Assert.IsFalse(colorImage3.IsDisposed);
+            Assert.IsFalse(depthImage.IsDisposed);
+            Assert.IsFalse(irImage.IsDisposed);
+
+            // Dispose capture
             capture.Dispose();
 
             // All returned images - disposed
             Assert.IsTrue(colorImage1.IsDisposed);
             Assert.IsTrue(colorImage2.IsDisposed);
+            Assert.IsTrue(colorImage3.IsDisposed);
             Assert.IsTrue(depthImage.IsDisposed);
             Assert.IsTrue(irImage.IsDisposed);
 
@@ -236,6 +256,7 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
 
             Assert.IsTrue(colorImage1.IsDisposed);
             Assert.IsTrue(colorImage2.IsDisposed);
+            Assert.IsTrue(colorImage3.IsDisposed);
             Assert.IsTrue(depthImage.IsDisposed);
             Assert.IsTrue(irImage.IsDisposed);
         }

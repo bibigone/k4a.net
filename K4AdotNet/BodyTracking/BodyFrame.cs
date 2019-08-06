@@ -2,7 +2,8 @@
 
 namespace K4AdotNet.BodyTracking
 {
-    public sealed class BodyFrame : IDisposablePlus, IReferenceDuplicatable<BodyFrame>
+    public sealed class BodyFrame
+        : IDisposablePlus, IReferenceDuplicatable<BodyFrame>, IEquatable<BodyFrame>
     {
         private readonly ChildrenDisposer children = new ChildrenDisposer();
         private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;
@@ -59,5 +60,48 @@ namespace K4AdotNet.BodyTracking
 
         internal static BodyFrame Create(NativeHandles.BodyFrameHandle bodyFrameHandle)
             => bodyFrameHandle != null && !bodyFrameHandle.IsInvalid ? new BodyFrame(bodyFrameHandle) : null;
+
+        #region Equatable
+
+        /// <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="bodyFrame">Another body frame to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if both body frames reference to one and the same unmanaged object.</returns>
+        public bool Equals(BodyFrame bodyFrame)
+            => !(bodyFrame is null) && bodyFrame.handle.Equals(handle);
+
+        /// <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="BodyFrame"/> and they both reference to one and the same unmanaged object.</returns>
+        public override bool Equals(object obj)
+            => obj is BodyFrame && Equals((BodyFrame)obj);
+
+        /// <summary>Uses underlying handle as hash code.</summary>
+        /// <returns>Hash code. Consistent with overridden equality.</returns>
+        /// <seealso cref="Equals(BodyFrame)"/>
+        public override int GetHashCode()
+            => handle.GetHashCode();
+
+        /// <summary>To be consistent with <see cref="Equals(BodyFrame)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(BodyFrame)"/>
+        public static bool operator ==(BodyFrame left, BodyFrame right)
+            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+
+        /// <summary>To be consistent with <see cref="Equals(BodyFrame)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(BodyFrame)"/>
+        public static bool operator !=(BodyFrame left, BodyFrame right)
+            => !(left == right);
+
+        /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+        /// <returns><c>{HandleTypeName}#{Address}</c></returns>
+        public override string ToString()
+            => handle.ToString();
+
+        #endregion
     }
 }

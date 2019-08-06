@@ -20,7 +20,8 @@ namespace K4AdotNet.Sensor
     /// <seealso cref="Device.GetCapture"/>
     /// <seealso cref="Device.TryGetCapture(out Capture, Timeout)"/>
     /// <threadsafety static="true" instance="true"/>
-    public sealed class Capture : IDisposablePlus, IReferenceDuplicatable<Capture>
+    public sealed class Capture
+        : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
     {
         private readonly ChildrenDisposer children = new ChildrenDisposer();                // to track returned Image objects
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
@@ -75,7 +76,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
-        /// <summary>Raises on object disposing.</summary>
+        /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
         public event EventHandler Disposed;
 
@@ -188,5 +189,48 @@ namespace K4AdotNet.Sensor
         /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.CaptureHandle.Zero"/>.</returns>
         internal static NativeHandles.CaptureHandle ToHandle(Capture capture)
             => capture?.handle?.ValueNotDisposed ?? NativeHandles.CaptureHandle.Zero;
+
+        #region Equatable
+
+        /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="capture">Another captures to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if both captures reference to one and the same unmanaged object.</returns>
+        public bool Equals(Capture capture)
+            => !(capture is null) && capture.handle.Equals(handle);
+
+        /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
+        /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="Capture"/> and they both reference to one and the same unmanaged object.</returns>
+        public override bool Equals(object obj)
+            => obj is Capture && Equals((Capture)obj);
+
+        /// <summary>Uses underlying handle as hash code.</summary>
+        /// <returns>Hash code. Consistent with overridden equality.</returns>
+        /// <seealso cref="Equals(Capture)"/>
+        public override int GetHashCode()
+            => handle.GetHashCode();
+
+        /// <summary>To be consistent with <see cref="Equals(Capture)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Capture)"/>
+        public static bool operator ==(Capture left, Capture right)
+            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+
+        /// <summary>To be consistent with <see cref="Equals(Capture)"/>.</summary>
+        /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+        /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Capture)"/>
+        public static bool operator !=(Capture left, Capture right)
+            => !(left == right);
+
+        /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
+        /// <returns><c>{HandleTypeName}#{Address}</c></returns>
+        public override string ToString()
+            => handle.ToString();
+
+        #endregion
     }
 }
