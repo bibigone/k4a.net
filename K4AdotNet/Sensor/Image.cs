@@ -14,7 +14,7 @@ namespace K4AdotNet.Sensor
     /// <threadsafety static="true" instance="true"/>
     public sealed class Image : IDisposablePlus, IReferenceDuplicatable<Image>
     {
-        private readonly NativeHandles.HandleWrapper<NativeHandles.ImageHandle> handle;
+        private readonly NativeHandles.HandleWrapper<NativeHandles.ImageHandle> handle;     // This class is an wrapper around this handle
 
         private Image(NativeHandles.ImageHandle handle)
         {
@@ -459,19 +459,22 @@ namespace K4AdotNet.Sensor
             Marshal.Copy(src, 0, Buffer, src.Length);
         }
 
+        /// <summary>Extracts handle from <paramref name="image"/>.</summary>
+        /// <param name="image">Managed object. Can be <see langword="null"/>.</param>
+        /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.ImageHandle.Zero"/>.</returns>
         internal static NativeHandles.ImageHandle ToHandle(Image image)
             => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
 
         #region Memory management
 
-        // This field is required to keep callback in memory
+        // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
             = new NativeApi.MemoryDestroyCallback(ReleaseUnmanagedBuffer);
 
         private static void ReleaseUnmanagedBuffer(IntPtr buffer, IntPtr context)
             => Marshal.FreeHGlobal(buffer);
 
-        // This field is required to keep callback in memory
+        // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback pinnedArrayReleaseCallback
             = new NativeApi.MemoryDestroyCallback(ReleasePinnedArray);
 

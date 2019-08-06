@@ -29,6 +29,7 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorBgra32);
 
         [TestMethod]
+        [Ignore("There is a bug in Sensor DK: https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587")]
         public void TestColorNV12ImageCreation()
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorNV12);
 

@@ -925,6 +925,142 @@
         <member name="F:K4AdotNet.Sensor.CameraCalibration.MetricRadius">
             <summary>Max FOV of the camera.</summary>
         </member>
+        <member name="T:K4AdotNet.Sensor.Capture">
+            <summary>A capture represents a set of images that were captured by a Azure Kinect device at approximately the same time.</summary>
+            <remarks><para>
+            A capture may have a color, IR, and depth image.A capture may have up to one image of each type.
+            A capture may have no image for a given type as well.
+            </para><para>
+            Captures also store a temperature value which represents the temperature of the device at the time of the capture.
+            </para><para>
+            While all the images associated with the capture were collected at approximately the same time, each image has an
+            individual timestamp which may differ from each other. If the device was configured to capture depth and color images
+            separated by a delay, <see cref="M:K4AdotNet.Sensor.Device.GetCapture"/> and <see cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/> will return
+            a capture containing both image types separated by the configured delay.
+            </para><para>
+            This class is designed to be thread-safe.
+            </para></remarks>
+            <seealso cref="M:K4AdotNet.Sensor.Device.GetCapture"/>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/>
+            <threadsafety static="true" instance="true"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.#ctor">
+            <summary>Creates an empty capture object.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.Dispose">
+            <summary>
+            Call this method to free unmanaged resources associated with current instance.
+            </summary>
+            <remarks><para>
+            Under the hood, reference counter is decremented on this call. When the references reach zero the unmanaged resources are destroyed.
+            (Multiple objects of <see cref="T:K4AdotNet.Sensor.Capture"/> can reference one and the same capture. For details see <see cref="M:K4AdotNet.Sensor.Capture.DuplicateReference"/>.)
+            </para><para>
+            Can be called multiple times but event <see cref="E:K4AdotNet.Sensor.Capture.Disposed"/> will be raised only once.
+            </para></remarks>
+            <seealso cref="E:K4AdotNet.Sensor.Capture.Disposed"/>
+            <seealso cref="P:K4AdotNet.Sensor.Capture.IsDisposed"/>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.DuplicateReference"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Capture.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Sensor.Capture.Disposed">
+            <summary>Raises on object disposing.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.DuplicateReference">
+            <summary>Creates new reference to the same unmanaged capture object.</summary>
+            <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
+            <remarks>It helps to manage underlying object lifetime and to access capture from different threads and different components of application.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Capture.ColorImage">
+            <summary>Get and set the color image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have color data.</summary>
+            <remarks><para>
+            It is highly recommended to call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/> for returned image explicitly:
+            <code>
+            using (var colorImage = capture.ColorImage)
+            {
+                if (colorImage != null)
+                {
+                    // working with color image
+                }
+            }
+            </code>
+            But <see cref="T:K4AdotNet.Sensor.Capture"/> object automatically tracks all <see cref="T:K4AdotNet.Sensor.Image"/> objects it returned. And will call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+            for all of them if client code didn't it.
+            </para><para>
+            For this reason, if you want to keep returned <see cref="T:K4AdotNet.Sensor.Image"/> for longer life time than life time of <see cref="T:K4AdotNet.Sensor.Capture"/> object,
+            use <see cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/> method.
+            </para><para>
+            The capture will add a reference on any <see cref="T:K4AdotNet.Sensor.Image"/> that is added to it with this setter.
+            If an existing image is being replaced, the previous image will have the reference released.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Capture.DepthImage">
+            <summary>Get and set the depth map associated with the given capture. Can be <see langword="null"/> if the capture doesn't have depth data.</summary>
+            <remarks><para>
+            It is highly recommended to call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/> for returned image explicitly:
+            <code>
+            using (var depthImage = capture.DepthImage)
+            {
+                if (depthImage != null)
+                {
+                    // working with depth image
+                }
+            }
+            </code>
+            But <see cref="T:K4AdotNet.Sensor.Capture"/> object automatically tracks all <see cref="T:K4AdotNet.Sensor.Image"/> objects it returned. And will call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+            for all of them if client code didn't it.
+            </para><para>
+            For this reason, if you want to keep returned <see cref="T:K4AdotNet.Sensor.Image"/> for longer life time than life time of <see cref="T:K4AdotNet.Sensor.Capture"/> object,
+            use <see cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/> method.
+            </para><para>
+            The capture will add a reference on any <see cref="T:K4AdotNet.Sensor.Image"/> that is added to it with this setter.
+            If an existing image is being replaced, the previous image will have the reference released.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Capture.IRImage">
+            <summary>Get and set the IR (infrared) image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have IR data.</summary>
+            <remarks><para>
+            It is highly recommended to call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/> for returned image explicitly:
+            <code>
+            using (var irImage = capture.IRImage)
+            {
+                if (irImage != null)
+                {
+                    // working with IR image
+                }
+            }
+            </code>
+            But <see cref="T:K4AdotNet.Sensor.Capture"/> object automatically tracks all <see cref="T:K4AdotNet.Sensor.Image"/> objects it returned. And will call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+            for all of them if client code didn't it.
+            </para><para>
+            For this reason, if you want to keep returned <see cref="T:K4AdotNet.Sensor.Image"/> for longer life time than life time of <see cref="T:K4AdotNet.Sensor.Capture"/> object,
+            use <see cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/> method.
+            </para><para>
+            The capture will add a reference on any <see cref="T:K4AdotNet.Sensor.Image"/> that is added to it with this setter.
+            If an existing image is being replaced, the previous image will have the reference released.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Capture.TemperatureC">
+            <summary>Get and set the temperature associated with the capture, in Celsius.</summary>
+            <remarks>
+            This function returns the temperature of the device at the time of the capture in Celsius. If
+            the temperature is unavailable, the function will return <see cref="F:System.Single.NaN"/>.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Capture.ToHandle(K4AdotNet.Sensor.Capture)">
+            <summary>Extracts handle from <paramref name="capture"/>.</summary>
+            <param name="capture">Managed object. Can be <see langword="null"/>.</param>
+            <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.CaptureHandle.Zero"/>.</returns>
+        </member>
         <member name="T:K4AdotNet.Sensor.ColorControlCommand">
             <summary>Color sensor control commands.</summary>
             <remarks>
@@ -1529,6 +1665,11 @@
             <exception cref="T:System.ArgumentNullException"><paramref name="src"/> cannot be <see langword="null"/>.</exception>
             <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="src"/> array does not match size of image buffer.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.ToHandle(K4AdotNet.Sensor.Image)">
+            <summary>Extracts handle from <paramref name="image"/>.</summary>
+            <param name="image">Managed object. Can be <see langword="null"/>.</param>
+            <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/>.</returns>
         </member>
         <member name="T:K4AdotNet.Sensor.ImageFormat">
             <summary>Image format type.</summary>
