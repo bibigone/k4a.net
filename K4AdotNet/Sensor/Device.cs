@@ -8,10 +8,11 @@ namespace K4AdotNet.Sensor
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.DeviceHandle> handle;
 
-        private Device(NativeHandles.DeviceHandle handle, string serialNumber, HardwareVersion version)
+        private Device(NativeHandles.DeviceHandle handle, int deviceIndex, string serialNumber, HardwareVersion version)
         {
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
+            DeviceIndex = deviceIndex;
             SerialNumber = serialNumber;
             Version = version;
         }
@@ -28,6 +29,8 @@ namespace K4AdotNet.Sensor
         public bool IsDisposed => handle.IsDisposed;
 
         public event EventHandler Disposed;
+
+        public int DeviceIndex { get; }
 
         public string SerialNumber { get; }
 
@@ -160,7 +163,7 @@ namespace K4AdotNet.Sensor
         {
             handle.CheckNotDisposed();
             if (!IsConnected)
-                throw new DeviceConnectionLostException();
+                throw new DeviceConnectionLostException(DeviceIndex);
             if (argNames != null && argNames.Length > 0)
                 throw new ArgumentException("Invalid value of one of the following arguments: " + string.Join(", ", argNames));
             throw new InvalidOperationException();
@@ -190,7 +193,7 @@ namespace K4AdotNet.Sensor
                 return false;
             }
 
-            device = new Device(deviceHandle, serialNumber, version);
+            device = new Device(deviceHandle, index, serialNumber, version);
             return true;
         }
 
@@ -199,9 +202,13 @@ namespace K4AdotNet.Sensor
             if (!TryOpen(out var device, index))
             {
                 if (index >= InstalledCount)
-                    throw new ArgumentOutOfRangeException(nameof(index));
-                throw new DeviceConnectionLostException();
+                {
+                    throw new DeviceNotFoundException(index);
+                }
+
+                throw new DeviceOccupiedException(index);
             }
+
             return device;
         }
 

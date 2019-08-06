@@ -75,12 +75,36 @@ namespace K4AdotNet.Sensor
                 case ImageFormat.ColorBgra32:
                     return 4 * widthPixels;
                 case ImageFormat.ColorNV12:
-                    return widthPixels % 2 == 0
-                        ? 3 * widthPixels / 2
-                        : 3 * (widthPixels + 1) / 2;
+                    return widthPixels;
                 default:
                     throw new ArgumentException($"Cannot determine image stride in bytes from width in pixels for {imageFormat} format.", nameof(imageFormat));
             }
+        }
+
+        /// <summary>Calculate image data size in bytes.</summary>
+        /// <param name="imageFormat">Image format. Any format can be used if <paramref name="strideBytes"/> is not null.</param>
+        /// <param name="strideBytes">Image stride in bytes. Must be positive number. Cannot be zero.</param>
+        /// <param name="heightPixels">Image height in pixel. Non-negative.</param>
+        /// <returns>Calculated image data size in bytes.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="strideBytes"/> or <paramref name="strideBytes"/> is negative.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// If image has unknown stride that is <paramref name="strideBytes"/> equals zero.
+        /// </exception>
+        public static int ImageSizeBytes(this ImageFormat imageFormat, int strideBytes, int heightPixels)
+        {
+            if (strideBytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (strideBytes == 0)
+                throw new ArgumentException($"Cannot calculate image size in bytes when stride is unknown.", nameof(strideBytes));
+            if (heightPixels < 0)
+                throw new ArgumentOutOfRangeException(nameof(heightPixels));
+            var res = strideBytes * heightPixels;
+            // special case for NV12
+            if (imageFormat == ImageFormat.ColorNV12)
+                res = 3 * res / 2;
+            return res;
         }
     }
 }

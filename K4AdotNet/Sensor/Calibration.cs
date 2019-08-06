@@ -84,8 +84,8 @@ namespace K4AdotNet.Sensor
 
             cameraCalibration.Intrinsics.Model = CalibrationModel.BrownConrady;
             cameraCalibration.Intrinsics.ParameterCount = 14;
-            cameraCalibration.Intrinsics.Parameters.Cx = widthPixels / 2f;
-            cameraCalibration.Intrinsics.Parameters.Cy = heightPixels / 2f;
+            cameraCalibration.Intrinsics.Parameters.Cx = (widthPixels - 1f) / 2f;
+            cameraCalibration.Intrinsics.Parameters.Cy = (heightPixels - 1f) / 2f;
             cameraCalibration.Intrinsics.Parameters.Fx = SizeAndFovToFocus(widthPixels, hFovDegrees);
             cameraCalibration.Intrinsics.Parameters.Fy = SizeAndFovToFocus(heightPixels, vFovDegrees);
 

@@ -93,14 +93,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public void OpenDevice()
         {
-            if (!Device.TryOpen(out var device))
-            {
-                app.ShowErrorMessage("Kinect device not found. Make sure that Kinect device is connected and has power supply.", "Not Connected");
-                return;
-            }
+            Device device = null;
 
             try
             {
+                device = Device.Open();
+
                 using (app.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
@@ -110,7 +108,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
             catch (Exception exc)
             {
-                device.Dispose();
+                device?.Dispose();
                 app.ShowErrorMessage(exc.Message, "Device Failed");
             }
         }

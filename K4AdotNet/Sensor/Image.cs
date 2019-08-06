@@ -60,6 +60,10 @@ namespace K4AdotNet.Sensor
         /// <exception cref="InvalidOperationException">
         /// <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
         /// </exception>
+        /// <exception cref="NotSupportedException">
+        /// If <paramref name="format"/> equals to <see cref="ImageFormat.ColorNV12"/>.
+        /// For details see https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587.
+        /// </exception>
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
         {
             if (widthPixels <= 0)
@@ -72,6 +76,13 @@ namespace K4AdotNet.Sensor
                 throw new InvalidOperationException("Zero stride is used for formats with complex structure like MJPEG. In this case size of image in bytes must be specified to create image.");
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
+
+            if (format == ImageFormat.ColorNV12)
+            {
+                // Because of bug in Sensor DK
+                // See https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587
+                throw new NotSupportedException($"Please, specify size of image data in bytes for {format} format. This is because of issue #587 in Sensor DK.");
+            }
 
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
@@ -107,7 +118,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             if (sizeBytes <= 0)
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
-            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && sizeBytes < strideBytes * heightPixels)
+            if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
 
             var buffer = Marshal.AllocHGlobal(sizeBytes);
@@ -180,7 +191,7 @@ namespace K4AdotNet.Sensor
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             var sizeBytes = buffer.Length * Marshal.SizeOf<T>();
-            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && sizeBytes < strideBytes * heightPixels)
+            if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))
                 throw new ArgumentOutOfRangeException(nameof(buffer) + "." + nameof(buffer.Length));
 
             var bufferPin = GCHandle.Alloc(buffer, GCHandleType.Pinned);

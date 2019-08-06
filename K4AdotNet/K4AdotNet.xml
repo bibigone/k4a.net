@@ -1326,6 +1326,10 @@
             <exception cref="T:System.InvalidOperationException">
             <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
             </exception>
+            <exception cref="T:System.NotSupportedException">
+            If <paramref name="format"/> equals to <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorNV12"/>.
+            For details see https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587.
+            </exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
@@ -1528,6 +1532,8 @@
         </member>
         <member name="T:K4AdotNet.Sensor.ImageFormat">
             <summary>Image format type.</summary>
+            <remarks>Helpful extension methods for this enumeration type can be found in <see cref="T:K4AdotNet.Sensor.ImageFormats"/>.</remarks>
+            <seealso cref="T:K4AdotNet.Sensor.ImageFormats"/>
         </member>
         <member name="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg">
             <summary>
@@ -1603,6 +1609,7 @@
         </member>
         <member name="T:K4AdotNet.Sensor.ImageFormats">
             <summary>Extensions to <see cref="T:K4AdotNet.Sensor.ImageFormat"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.ImageFormat"/> enumeration.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.ImageFormat"/>
         </member>
         <member name="F:K4AdotNet.Sensor.ImageFormats.All">
             <summary>All usable <see cref="T:K4AdotNet.Sensor.ImageFormat"/>s. May be helpful for UI, tests, etc.</summary>
@@ -1635,6 +1642,19 @@
             <returns>Default value for image stride (the number of bytes per horizontal line of the image).</returns>
             <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="widthPixels"/> cannot be less than zero.</exception>
             <exception cref="T:System.ArgumentException">Cannot determine image stride in bytes from <paramref name="widthPixels"/> for specified <paramref name="imageFormat"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ImageFormats.ImageSizeBytes(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
+            <summary>Calculate image data size in bytes.</summary>
+            <param name="imageFormat">Image format. Any format can be used if <paramref name="strideBytes"/> is not null.</param>
+            <param name="strideBytes">Image stride in bytes. Must be positive number. Cannot be zero.</param>
+            <param name="heightPixels">Image height in pixel. Non-negative.</param>
+            <returns>Calculated image data size in bytes.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="strideBytes"/> or <paramref name="strideBytes"/> is negative.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            If image has unknown stride that is <paramref name="strideBytes"/> equals zero.
+            </exception>
         </member>
         <member name="T:K4AdotNet.Sensor.ImuSample">
             <summary>IMU sample.</summary>

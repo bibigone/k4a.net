@@ -306,5 +306,60 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
         }
 
         #endregion
+
+        #region Test image size calculations
+
+        [TestMethod]
+        [Ignore("There is a bug in Sensor DK: https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587")]
+        public void TestImageSizeCalculationNV12()
+        {
+            using (var image = new Image(ImageFormat.ColorNV12, 1280, 720))
+            {
+                Assert.AreEqual(image.StrideBytes, ImageFormat.ColorNV12.StrideBytes(1280));
+                Assert.AreEqual(image.SizeBytes, ImageFormat.ColorNV12.ImageSizeBytes(image.StrideBytes, 720));
+            }
+        }
+
+        [TestMethod]
+        public void TestImageSizeCalculationYUY2()
+        {
+            using (var image = new Image(ImageFormat.ColorYUY2, 1280, 720))
+            {
+                Assert.AreEqual(image.StrideBytes, ImageFormat.ColorYUY2.StrideBytes(1280));
+                Assert.AreEqual(image.SizeBytes, ImageFormat.ColorYUY2.ImageSizeBytes(image.StrideBytes, 720));
+            }
+        }
+
+        [TestMethod]
+        public void TestImageSizeCalculationDepth()
+        {
+            using (var image = new Image(ImageFormat.Depth16, 1280, 720))
+            {
+                Assert.AreEqual(image.StrideBytes, ImageFormat.Depth16.StrideBytes(1280));
+                Assert.AreEqual(image.SizeBytes, ImageFormat.Depth16.ImageSizeBytes(image.StrideBytes, 720));
+            }
+        }
+
+        [TestMethod]
+        public void TestImageSizeCalculationIR16()
+        {
+            using (var image = new Image(ImageFormat.IR16, 1280, 720))
+            {
+                Assert.AreEqual(image.StrideBytes, ImageFormat.IR16.StrideBytes(1280));
+                Assert.AreEqual(image.SizeBytes, ImageFormat.IR16.ImageSizeBytes(image.StrideBytes, 720));
+            }
+        }
+
+        [TestMethod]
+        public void TestImageSizeCalculationCustom()
+        {
+            var bytesPerPixel = 4;
+            using (var image = new Image(ImageFormat.Custom, 1280, 720, 1280 * bytesPerPixel))
+            {
+                Assert.AreEqual(image.SizeBytes, ImageFormat.Custom.ImageSizeBytes(image.StrideBytes, 720));
+            }
+        }
+
+        #endregion
     }
 }
