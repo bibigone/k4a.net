@@ -8,6 +8,7 @@ namespace K4AdotNet.Sensor
     //    float rotation[9];
     //    float translation[3];
     // } k4a_calibration_extrinsics_t;
+    //
     /// <summary>Extrinsic calibration defines the physical relationship between two separate sensors inside Kinect for Azure device.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CalibrationExtrinsics

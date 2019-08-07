@@ -1083,6 +1083,7 @@
         </member>
         <member name="T:K4AdotNet.Sensor.Calibration">
             <summary>Information about device calibration in particular depth mode and color resolution.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.Transformation"/>
         </member>
         <member name="F:K4AdotNet.Sensor.Calibration.DepthCameraCalibration">
             <summary>Depth camera calibration.</summary>
@@ -1106,6 +1107,144 @@
         <member name="F:K4AdotNet.Sensor.Calibration.ColorResolution">
             <summary>Color camera resolution for which calibration was obtained.</summary>
         </member>
+        <member name="P:K4AdotNet.Sensor.Calibration.IsValid">
+            <summary>Does this calibration data look as valid?</summary>
+            <remarks>
+            WARNING! This property performs only some basic and simple checks.
+            If it returns <see langword="true"/>, calibration data can still be meaningless/incorrect.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.GetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Helper method to get mutual extrinsics parameters for a given couple of sensors in Azure Kinect device.</summary>
+            <param name="sourceSensor">Source coordinate system for transformation.</param>
+            <param name="targetSensor">Destination coordinate system for transformation.</param>
+            <returns>Extracted parameters of transformation from <paramref name="sourceSensor"/> to <paramref name="targetSensor"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Calibration.SetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationExtrinsics)"/>
+            <seealso cref="F:K4AdotNet.Sensor.Calibration.Extrinsics"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.SetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationExtrinsics)">
+            <summary>Helper method to set mutual extrinsics parameters for a given couple of sensors in Azure Kinect device.</summary>
+            <param name="sourceSensor">Source coordinate system for transformation.</param>
+            <param name="targetSensor">Destination coordinate system for transformation.</param>
+            <param name="extrinsics">Parameters of source-to-destination transformation to be set.</param>
+            <seealso cref="M:K4AdotNet.Sensor.Calibration.GetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/>
+            <seealso cref="F:K4AdotNet.Sensor.Calibration.Extrinsics"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.CreateDummy(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
+            <summary>
+            Creates dummy (no distortions, ideal pin-hole geometry, all sensors are aligned) but valid calibration data.
+            This can be useful for testing and subbing needs.
+            </summary>
+            <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.</param>
+            <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.</param>
+            <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.CreateFromRaw(System.Byte[],K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
+            <summary>Gets the camera calibration for a device from a raw calibration blob.</summary>
+            <param name="rawCalibration">Raw calibration blob obtained from a device or recording. The raw calibration must be <c>0</c>-terminated. Cannot be <see langword="null"/>.</param>
+            <param name="depthMode">Mode in which depth camera is operated.</param>
+            <param name="colorResolution">Resolution in which color camera is operated.</param>
+            <param name="calibration">Result: calibration data.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="rawCalibration"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rawCalibration"/> must be 0-terminated.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.Convert2DTo2D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Transform a 2D pixel coordinate with an associated depth value of the source camera into a 2D pixel coordinate of the target camera.</summary>
+            <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
+            <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+            <param name="sourceCamera">The current camera.</param>
+            <param name="targetCamera">The target camera.</param>
+            <returns>
+            The 2D pixel in <paramref name="targetCamera"/> coordinates
+            or <see langword="null"/> if <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the <paramref name="targetCamera"/> coordinate system.
+            </returns>
+            <remarks><para>
+            This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
+            <see cref="M:K4AdotNet.Sensor.Calibration.Convert2DTo3D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+            <see cref="M:K4AdotNet.Sensor.Calibration.Convert3DTo2D(K4AdotNet.Float3,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
+            </para><para>
+            If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately returns value of
+            <paramref name="sourcePoint2D"/> parameter and doesn't compute any transformations.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="sourceCamera"/> is not a camera or <paramref name="targetCamera"/> is not a camera.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            Cannot perform transformation. Most likely, calibration data is invalid.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.Convert2DTo3D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>
+            Transform a 2D pixel coordinate with an associated depth value of the source camera
+            into a 3D point of the target coordinate system.
+            </summary>
+            <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
+            <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+            <param name="sourceCamera">The current camera.</param>
+            <param name="targetCameraOrSensor">The target camera or IMU sensor.</param>
+            <returns>
+            3D coordinates of the input pixel in the coordinate system of <paramref name="targetCameraOrSensor"/> in millimeters
+            or <see langword="null"/> if the results are outside of the range of valid calibration.
+            </returns>
+            <remarks>
+            This function applies the intrinsic calibration of <paramref name="sourceCamera"/> to compute the 3D ray from the focal point of the
+            camera through pixel <paramref name="sourcePoint2D"/>.The 3D point on this ray is then found using <paramref name="sourceDepthMm"/>. If
+            <paramref name="targetCameraOrSensor"/> is different from <paramref name="sourceCamera"/>, the 3D point is transformed to <paramref name="targetCameraOrSensor"/> using
+            <see cref="M:K4AdotNet.Sensor.Calibration.Convert3DTo3D(K4AdotNet.Float3,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/>.
+            In practice, <paramref name="sourceCamera"/> and <paramref name="targetCameraOrSensor"/> will often be identical. In this
+            case, no 3D to 3D transformation is applied.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="sourceCamera"/> is not a camera.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            Cannot perform transformation. Most likely, calibration data is invalid.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.Convert3DTo2D(K4AdotNet.Float3,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Transform a 3D point of a source coordinate system into a 2D pixel coordinate of the target camera.</summary>
+            <param name="sourcePoint3DMm">The 3D coordinates in millimeters representing a point in <paramref name="sourceCameraOrSensor"/>.</param>
+            <param name="sourceCameraOrSensor">The current camera or IMU sensor.</param>
+            <param name="targetCamera">The target camera.</param>
+            <returns>
+            The 2D pixel in <paramref name="targetCamera"/> coordinates
+            or <see langword="null"/> if the results are outside of the range of valid calibration.
+            </returns>
+            <remarks>
+            If <paramref name="targetCamera"/> is different from <paramref name="sourceCameraOrSensor"/>, <paramref name="sourcePoint3DMm"/> is transformed
+            to <paramref name="targetCamera"/> using <see cref="M:K4AdotNet.Sensor.Calibration.Convert3DTo3D(K4AdotNet.Float3,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/>.
+            In practice, <paramref name="sourceCameraOrSensor"/> and <paramref name="targetCamera"/> will often be identical.
+            In this case, no 3D to 3D transformation is applied. The 3D point in the coordinate system of <paramref name="targetCamera"/> is then
+            projected onto the image plane using the intrinsic calibration of <paramref name="targetCamera"/>.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="targetCamera"/> is not a camera.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            Cannot perform transformation. Most likely, calibration data is invalid.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.Convert3DTo3D(K4AdotNet.Float3,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Transform a 3D point of a source coordinate system into a 3D point of the target coordinate system.</summary>
+            <param name="sourcePoint3DMm">The 3D coordinates in millimeters representing a point in <paramref name="sourceCameraOrSensor"/>.</param>
+            <param name="sourceCameraOrSensor">The current coordinate system of camera or IMU sensor.</param>
+            <param name="targetCameraOrSensor">The target coordinate system of camera or IMU sensor.</param>
+            <returns>The new 3D coordinates of the input point in the coordinate space <paramref name="targetCameraOrSensor"/> in millimeters.</returns>
+            <remarks>
+            This function is used to transform 3D points between depth and color camera coordinate systems. The function uses the
+            extrinsic camera calibration. It computes the output via multiplication with a precomputed matrix encoding a 3D
+            rotation and a 3D translation. If <paramref name="sourceCameraOrSensor"/> and <paramref name="targetCameraOrSensor"/> are the same, then result will
+            be identical to <paramref name="sourcePoint3DMm"/>.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">
+            Cannot perform transformation. Most likely, calibration data is invalid.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.CreateTransformation">
+            <summary>Helper method to create <see cref="T:K4AdotNet.Sensor.Transformation"/> object from this calibration data. For details see <see cref="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)"/>.</summary>
+            <returns>Created transformation object. Not <see langword="null"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)"/>.
+        </member>
         <member name="T:K4AdotNet.Sensor.CalibrationExtrinsics">
             <summary>Extrinsic calibration defines the physical relationship between two separate sensors inside Kinect for Azure device.</summary>
         </member>
@@ -1115,8 +1254,33 @@
         <member name="F:K4AdotNet.Sensor.CalibrationExtrinsics.Translation">
             <summary>Translation vector.</summary>
         </member>
+        <member name="T:K4AdotNet.Sensor.CalibrationGeometries">
+            <summary>Extensions to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.CalibrationGeometries"/>
+        </member>
+        <member name="F:K4AdotNet.Sensor.CalibrationGeometries.All">
+            <summary>All usable <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/>s. May be helpful for UI, tests, etc.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.CalibrationGeometries.IsCamera(K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Is it camera?</summary>
+            <param name="geometry">Element to be tested.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="geometry"/> is an color or depth camera,
+            <see langword="false"/> - otherwise.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.CalibrationGeometries.IsImuPart(K4AdotNet.Sensor.CalibrationGeometry)">
+            <summary>Is it part of IMU sensor (gyro or accelerometer)?</summary>
+            <param name="geometry">Element to be tested.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="geometry"/> is an part of IMU sensor (gyro or accel),
+            <see langword="false"/> - otherwise.
+            </returns>
+        </member>
         <member name="T:K4AdotNet.Sensor.CalibrationGeometry">
             <summary>Kinect for Azure device consists of different sensors each of them has their own coordinate system and calibration extrinsics.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.CalibrationExtrinsics"/>
+            <seealso cref="F:K4AdotNet.Sensor.Calibration.Extrinsics"/>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationGeometry.Unknown">
             <summary>Calibration type is unknown.</summary>
@@ -1185,16 +1349,32 @@
         <member name="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.NotUsed">
             <summary>Not used in current version. Corresponding index in array: 14.</summary>
         </member>
+        <member name="M:K4AdotNet.Sensor.CalibrationIntrinsicParameters.#ctor(System.Single[])">
+            <summary>Creates intrinsics parameters from an array representation.</summary>
+            <param name="values">Array of length <see cref="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ParameterCount"/>. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="values"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Wrong length of <paramref name="values"/> array.</exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ToArray">
             <summary>Array representation of intrinsic model parameters.</summary>
+            <returns>Array representation. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="P:K4AdotNet.Sensor.CalibrationIntrinsicParameters.Item(System.Int32)">
+            <summary>Accessing to intrinsics parameter by index.</summary>
+            <param name="index">Index of parameter. From <c>0</c> to <see cref="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ParameterCount"/> excluding.</param>
+            <returns>Value of appropriate parameter.</returns>
+            <exception cref="T:System.IndexOutOfRangeException">Index is less than <c>0</c> or is greater or equal to <see cref="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ParameterCount"/>.</exception>
+        </member>
+        <member name="F:K4AdotNet.Sensor.CalibrationIntrinsicParameters.ParameterCount">
+            <summary>Count of all parameters. Only part of parameters can be used in different models.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.CalibrationIntrinsics">
             <summary>Camera sensor intrinsic calibration data.</summary>
-            <remarks>
+            <remarks><para>
             Intrinsic calibration represents the internal optical properties of the camera.
-            
+            </para><para>
             Azure Kinect devices are calibrated with Brown Conrady which is compatible with OpenCV.
-            </remarks>
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationIntrinsics.Model">
             <summary>Type of calibration model used.</summary>

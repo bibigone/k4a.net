@@ -9,6 +9,7 @@
     //     K4A_CALIBRATION_LENS_DISTORTION_MODEL_RATIONAL_6KT,
     //     K4A_CALIBRATION_LENS_DISTORTION_MODEL_BROWN_CONRADY,
     // } k4a_calibration_model_type_t;
+    //
     /// <summary>The model used to interpret the calibration parameters.</summary>
     public enum CalibrationModel
     {

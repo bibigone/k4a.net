@@ -7,17 +7,25 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         private volatile bool processing;
         private int processedFrameCount;
         private int frameWithBodyCount;
+        private readonly Thread backgroundThread;
 
         public EnqueueInBackgroundProcessor(ProcessingParameters processingParameters)
             : base(processingParameters)
         {
             processing = true;
-            new Thread(EnqueueLoop) { IsBackground = true }.Start();
+            backgroundThread = new Thread(EnqueueLoop) { IsBackground = true };
+            backgroundThread.Start();
         }
 
         public override void Dispose()
         {
-            processing = false;
+            if (processing)
+            {
+                processing = false;
+                if (backgroundThread.ThreadState != ThreadState.Unstarted)
+                    backgroundThread.Join();
+            }
+
             base.Dispose();
         }
 

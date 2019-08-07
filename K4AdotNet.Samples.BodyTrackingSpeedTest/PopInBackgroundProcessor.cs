@@ -7,17 +7,25 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
         private volatile bool processing;
         private volatile int processedFrameCount;
         private volatile int frameWithBodyCount;
+        private readonly Thread backgroundThread;
 
         public PopInBackgroundProcessor(ProcessingParameters processingParameters)
             : base(processingParameters)
         {
             processing = true;
-            new Thread(ProcessingLoop) { IsBackground = true }.Start();
+            backgroundThread = new Thread(ProcessingLoop) { IsBackground = true };
+            backgroundThread.Start();
         }
 
         public override void Dispose()
         {
-            processing = false;
+            if (processing)
+            {
+                processing = false;
+                if (backgroundThread.ThreadState != ThreadState.Unstarted)
+                    backgroundThread.Join();
+            }
+
             base.Dispose();
         }
 

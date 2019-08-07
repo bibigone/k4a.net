@@ -26,6 +26,7 @@ namespace K4AdotNet.Sensor
     //     } param;
     //     float v[15];
     // } k4a_calibration_intrinsic_parameters_t;
+    //
     /// <summary>Intrinsic calibration represents the internal optical properties of the camera.</summary>
     /// <remarks>Azure Kinect devices are calibrated with Brown Conrady which is compatible with OpenCV.</remarks>
     [StructLayout(LayoutKind.Sequential)]
@@ -76,11 +77,15 @@ namespace K4AdotNet.Sensor
         /// <summary>Not used in current version. Corresponding index in array: 14.</summary>
         public float NotUsed;
 
+        /// <summary>Creates intrinsics parameters from an array representation.</summary>
+        /// <param name="values">Array of length <see cref="ParameterCount"/>. Not <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="values"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Wrong length of <paramref name="values"/> array.</exception>
         public CalibrationIntrinsicParameters(float[] values)
         {
             if (values is null)
                 throw new ArgumentNullException(nameof(values));
-            if (values.Length != 15)
+            if (values.Length != ParameterCount)
                 throw new ArgumentOutOfRangeException(nameof(values) + "." + nameof(values.Length));
 
             Cx = values[0];
@@ -101,9 +106,14 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Array representation of intrinsic model parameters.</summary>
+        /// <returns>Array representation. Not <see langword="null"/>.</returns>
         public float[] ToArray()
             => new[] { Cx, Cy, Fx, Fy, K1, K2, K3, K4, K5, K6, Codx, Cody, P2, P1, NotUsed };
 
+        /// <summary>Accessing to intrinsics parameter by index.</summary>
+        /// <param name="index">Index of parameter. From <c>0</c> to <see cref="ParameterCount"/> excluding.</param>
+        /// <returns>Value of appropriate parameter.</returns>
+        /// <exception cref="IndexOutOfRangeException">Index is less than <c>0</c> or is greater or equal to <see cref="ParameterCount"/>.</exception>
         public float this[int index]
         {
             get
@@ -125,7 +135,7 @@ namespace K4AdotNet.Sensor
                     case 12: return P2;
                     case 13: return P1;
                     case 14: return NotUsed;
-                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                    default: throw new IndexOutOfRangeException(nameof(index));
             }
         }
 
@@ -148,9 +158,12 @@ namespace K4AdotNet.Sensor
                     case 12: P2 = value; break;
                     case 13: P1 = value; break;
                     case 14: NotUsed = value; break;
-                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                    default: throw new IndexOutOfRangeException(nameof(index));
                 }
             }
         }
+
+        /// <summary>Count of all parameters. Only part of parameters can be used in different models.</summary>
+        public const int ParameterCount = 15;
     }
 }

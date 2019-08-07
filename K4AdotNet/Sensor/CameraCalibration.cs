@@ -11,6 +11,7 @@ namespace K4AdotNet.Sensor
     //     int resolution_height;
     //     float metric_radius;
     // } k4a_calibration_camera_t;
+    //
     /// <summary>Camera calibration contains intrinsic and extrinsic calibration information for depth/color camera.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CameraCalibration
