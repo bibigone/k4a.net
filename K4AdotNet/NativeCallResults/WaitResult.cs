@@ -7,6 +7,7 @@
     //     K4A_WAIT_RESULT_FAILED,
     //     K4A_WAIT_RESULT_TIMEOUT,
     // } k4a_wait_result_t;
+    //
     /// <summary>Result code returned by Azure Kinect APIs.</summary>
     internal enum WaitResult
     {

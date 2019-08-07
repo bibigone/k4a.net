@@ -4,20 +4,52 @@ using System.Threading;
 
 namespace K4AdotNet.BodyTracking
 {
+    /// <summary>Body tracker. The main class in Body Tracking component.</summary>
+    /// <remarks><para>
+    /// Processing is organized as pipeline with queues.
+    /// Use <see cref="TryEnqueueCapture(Capture, Timeout)"/> to add new capture to processing pipeline.
+    /// Use <see cref="TryPopResult(out BodyFrame, Timeout)"/> to extract processed capture and body data from pipeline.
+    /// </para><para>
+    /// This class is designed to be thread-safe.
+    /// </para></remarks>
+    /// <seealso cref="BodyFrame"/>
+    /// <threadsafety static="true" instance="true"/>
     public sealed class Tracker : IDisposablePlus
     {
-        // Current version of Body Tracking SDK does not support creation of multiple instances.
-        // Attempt to create the second one simply crashes the application.
-        // See https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/519
+        // Current version of Body Tracking runtime does not support creation of multiple instances.
         private static volatile int instancesCounter;
 
-        private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;
-        private volatile int queueSize;
+        private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;   // this class is an wrapper around this handle
+        private volatile int queueSize;                                                     // captures in queue
 
+        /// <summary>Creates a body tracker.</summary>
+        /// <param name="calibration">The sensor calibration that will be used for capture processing.</param>
+        /// <remarks><para>
+        /// Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
+        /// It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
+        /// For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>.
+        /// </para><para>
+        /// Also, Body Tracking runtime must be available in one of the following locations:
+        /// directory with executable file,
+        /// directory with <c>K4AdotNet</c> assembly,
+        /// installation directory of Body Tracking SDK under <c>Program Files</c>.
+        /// </para></remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Invalid value of <paramref name="calibration"/>: <see cref="Calibration.DepthMode"/> cannot be <see cref="DepthMode.Off"/> and <see cref="DepthMode.PassiveIR"/>.
+        /// Because depth data is required for body tracking.
+        /// </exception>
+        /// <exception cref="NotSupportedException">
+        /// Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
+        /// previous tracker you created, the constructor call will fail with this exception.
+        /// </exception>
+        /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
+        /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>
         public Tracker(ref Calibration calibration)
         {
             if (!calibration.DepthMode.HasDepth())
                 throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
+
+            DepthMode = calibration.DepthMode;
 
             var incrementedInstanceCounter = Interlocked.Increment(ref instancesCounter);
             try
@@ -46,39 +78,106 @@ namespace K4AdotNet.BodyTracking
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Call this method to free unmanaged resources associated with current instance.
+        /// </summary>
+        /// <seealso cref="Disposed"/>
+        /// <seealso cref="IsDisposed"/>
         public void Dispose()
             => handle.Dispose();
 
+        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
+        /// <summary>Raised on object disposing (only once).</summary>
+        /// <seealso cref="Dispose"/>
         public event EventHandler Disposed;
 
+        /// <summary>Shutdown the tracker so that no further capture can be added to the input queue.</summary>
+        /// <remarks><para>
+        /// Once the tracker is shutdown, <see cref="TryEnqueueCapture(Capture, Timeout)"/> method will always immediately return failure.
+        /// </para><para>
+        /// If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="TryPopResult(out BodyFrame, Timeout)"/> can
+        /// still return successfully. Once the tracker queue is empty, the <see cref="TryPopResult(out BodyFrame, Timeout)"/> call will always immediately
+        /// return failure.
+        /// </para></remarks>
         public void Shutdown()
         {
             NativeApi.TrackerShutdown(handle.Value);
             queueSize = 0;
         }
 
+        /// <summary>Depth mode for which this tracker was created.</summary>
+        public DepthMode DepthMode { get; }
+
+        /// <summary>How many captures are there in the processing pipeline?</summary>
+        /// <seealso cref="MaxQueueSize"/>
+        /// <seealso cref="IsQueueFull"/>
         public int QueueSize => queueSize;
 
+        /// <summary>Is processing pipeline full?</summary>
+        /// <seealso cref="QueueSize"/>
+        /// <seealso cref="MaxQueueSize"/>
+        /// <seealso cref="TryEnqueueCapture(Capture, Timeout)"/>
         public bool IsQueueFull => queueSize >= MaxQueueSize;
 
+        /// <summary>Raised on increasing of <see cref="QueueSize"/>.</summary>
         public event EventHandler QueueSizeIncreased;
 
+        /// <summary>Raised on decreasing of <see cref="QueueSize"/>.</summary>
         public event EventHandler QueueSizeDecreased;
 
-        public bool TryEnqueueCapture(Sensor.Capture capture, Timeout timeout = default(Timeout))
+        /// <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
+        /// <param name="capture">It should contain the depth data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+        /// <param name="timeout">
+        /// Specifies the time the function should block waiting to add the sensor capture to the tracker process queue.
+        /// Default value is <see cref="Timeout.NoWait"/>, which means checking of the status without blocking.
+        /// Passing <see cref="Timeout.Infinite"/> will block indefinitely until the capture is added to the process queue.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> - if a sensor capture is successfully added to the processing queue.
+        /// <see langword="false"/> - if the queue is still full (see <see cref="IsQueueFull"/> property) before the <paramref name="timeout"/> elapses.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="DepthMode"/>.</exception>
+        /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+        /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
+        public bool TryEnqueueCapture(Capture capture, Timeout timeout = default(Timeout))
         {
             if (capture == null)
                 throw new ArgumentNullException(nameof(capture));
 
-            var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture), timeout);
+            var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Capture.ToHandle(capture), timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
                 return false;
             if (res == NativeCallResults.WaitResult.Failed)
             {
                 handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
-                throw new BodyTrackingException("Cannot add new capture to body tracking pipeline");
+
+                using (var depthImage = capture.DepthImage)
+                {
+                    if (depthImage == null)
+                    {
+                        throw new ArgumentException(
+                            "Capture should contain the depth data.",
+                            nameof(capture));
+                    }
+                    if (depthImage.Format != ImageFormat.Depth16)
+                    {
+                        throw new ArgumentException(
+                            $"Invalid format of depth data in capture: expected {ImageFormat.Depth16} but was {depthImage.Format}.",
+                            nameof(capture));
+                    }
+                    if (depthImage.WidthPixels != DepthMode.WidthPixels() || depthImage.HeightPixels != DepthMode.HeightPixels())
+                    {
+                        throw new ArgumentException(
+                            $"Invalid resolution of depth data in capture: expected {DepthMode.WidthPixels()}x{DepthMode.HeightPixels()} pixels but was {depthImage.WidthPixels}x{depthImage.HeightPixels} pixels.",
+                            nameof(capture));
+                    }
+                }
+
+                throw new BodyTrackingException("Cannot add new capture to body tracking pipeline. See logs for details.");
             }
 
             Interlocked.Increment(ref queueSize);
@@ -87,12 +186,32 @@ namespace K4AdotNet.BodyTracking
             return true;
         }
 
-        public void EnqueueCapture(Sensor.Capture capture)
+        /// <summary>Equivalent to call of <see cref="TryEnqueueCapture(Capture, Timeout)"/> with infinite timeout: <see cref="Timeout.Infinite"/>.</summary>
+        /// <param name="capture">It should contain the depth data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="DepthMode"/>.</exception>
+        /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+        /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
+        public void EnqueueCapture(Capture capture)
         {
             var res = TryEnqueueCapture(capture, Timeout.Infinite);
             System.Diagnostics.Debug.Assert(res);
         }
 
+        /// <summary>Gets the next available body frame.</summary>
+        /// <param name="bodyFrame">If successful this contains object with body data, otherwise - <see langword="null"/>.</param>
+        /// <param name="timeout">
+        /// Specifies the time the function should block waiting for the body frame.
+        /// Default value is <see cref="Timeout.NoWait"/>, which means checking of the status without blocking.
+        /// Passing <see cref="Timeout.Infinite"/> will block indefinitely until the body frame becomes available.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> - if a body frame is returned,
+        /// <see langword="false"/> - if a body frame is not available before the timeout elapses.
+        /// </returns>
+        /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+        /// <exception cref="BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
+        /// <seealso cref="PopResult"/>
         public bool TryPopResult(out BodyFrame bodyFrame, Timeout timeout = default(Timeout))
         {
             var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
@@ -104,7 +223,7 @@ namespace K4AdotNet.BodyTracking
             if (res == NativeCallResults.WaitResult.Failed)
             {
                 handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
-                throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline");
+                throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline. See logs for details.");
             }
 
             Interlocked.Decrement(ref queueSize);
@@ -114,6 +233,11 @@ namespace K4AdotNet.BodyTracking
             return bodyFrame != null;
         }
 
+        /// <summary>Equivalent to call of <see cref="TryPopResult(out BodyFrame, Timeout)"/> with infinite timeout: <see cref="Timeout.Infinite"/>.</summary>
+        /// <returns>Enqueued body frame. Not <see langword="null"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+        /// <exception cref="BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
+        /// <seealso cref="TryPopResult(out BodyFrame, Timeout)"/>
         public BodyFrame PopResult()
         {
             var res = TryPopResult(out var bodyFrame, Timeout.Infinite);
@@ -121,6 +245,8 @@ namespace K4AdotNet.BodyTracking
             return bodyFrame;
         }
 
+        /// <summary>Max amount of captures that can be simultaneously in processing pipeline.</summary>
+        /// <seealso cref="IsQueueFull"/>
         public static readonly int MaxQueueSize = NativeApi.MAX_TRACKING_QUEUE_SIZE;
     }
 }

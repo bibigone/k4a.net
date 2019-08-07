@@ -184,6 +184,139 @@
         <member name="T:K4AdotNet.BodyTracking.Skeleton">
             <summary>Structure to define joints for skeleton.</summary>
         </member>
+        <member name="T:K4AdotNet.BodyTracking.Tracker">
+            <summary>Body tracker. The main class in Body Tracking component.</summary>
+            <remarks><para>
+            Processing is organized as pipeline with queues.
+            Use <see cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/> to add new capture to processing pipeline.
+            Use <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> to extract processed capture and body data from pipeline.
+            </para><para>
+            This class is designed to be thread-safe.
+            </para></remarks>
+            <seealso cref="T:K4AdotNet.BodyTracking.BodyFrame"/>
+            <threadsafety static="true" instance="true"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@)">
+            <summary>Creates a body tracker.</summary>
+            <param name="calibration">The sensor calibration that will be used for capture processing.</param>
+            <remarks><para>
+            Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
+            It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
+            For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>.
+            </para><para>
+            Also, Body Tracking runtime must be available in one of the following locations:
+            directory with executable file,
+            directory with <c>K4AdotNet</c> assembly,
+            installation directory of Body Tracking SDK under <c>Program Files</c>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            Invalid value of <paramref name="calibration"/>: <see cref="F:K4AdotNet.Sensor.Calibration.DepthMode"/> cannot be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/> and <see cref="F:K4AdotNet.Sensor.DepthMode.PassiveIR"/>.
+            Because depth data is required for body tracking.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
+            previous tracker you created, the constructor call will fail with this exception.
+            </exception>
+            <seealso cref="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)"/>
+            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.Dispose">
+            <summary>
+            Call this method to free unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.BodyTracking.Tracker.Disposed"/>
+            <seealso cref="P:K4AdotNet.BodyTracking.Tracker.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Tracker.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.BodyTracking.Tracker.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.Shutdown">
+            <summary>Shutdown the tracker so that no further capture can be added to the input queue.</summary>
+            <remarks><para>
+            Once the tracker is shutdown, <see cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/> method will always immediately return failure.
+            </para><para>
+            If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> can
+            still return successfully. Once the tracker queue is empty, the <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> call will always immediately
+            return failure.
+            </para></remarks>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Tracker.DepthMode">
+            <summary>Depth mode for which this tracker was created.</summary>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Tracker.QueueSize">
+            <summary>How many captures are there in the processing pipeline?</summary>
+            <seealso cref="F:K4AdotNet.BodyTracking.Tracker.MaxQueueSize"/>
+            <seealso cref="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull">
+            <summary>Is processing pipeline full?</summary>
+            <seealso cref="P:K4AdotNet.BodyTracking.Tracker.QueueSize"/>
+            <seealso cref="F:K4AdotNet.BodyTracking.Tracker.MaxQueueSize"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/>
+        </member>
+        <member name="E:K4AdotNet.BodyTracking.Tracker.QueueSizeIncreased">
+            <summary>Raised on increasing of <see cref="P:K4AdotNet.BodyTracking.Tracker.QueueSize"/>.</summary>
+        </member>
+        <member name="E:K4AdotNet.BodyTracking.Tracker.QueueSizeDecreased">
+            <summary>Raised on decreasing of <see cref="P:K4AdotNet.BodyTracking.Tracker.QueueSize"/>.</summary>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)">
+            <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
+            <param name="capture">It should contain the depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+            <param name="timeout">
+            Specifies the time the function should block waiting to add the sensor capture to the tracker process queue.
+            Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means checking of the status without blocking.
+            Passing <see cref="F:K4AdotNet.Timeout.Infinite"/> will block indefinitely until the capture is added to the process queue.
+            </param>
+            <returns>
+            <see langword="true"/> - if a sensor capture is successfully added to the processing queue.
+            <see langword="false"/> - if the queue is still full (see <see cref="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull"/> property) before the <paramref name="timeout"/> elapses.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+            <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.EnqueueCapture(K4AdotNet.Sensor.Capture)">
+            <summary>Equivalent to call of <see cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
+            <param name="capture">It should contain the depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+            <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)">
+            <summary>Gets the next available body frame.</summary>
+            <param name="bodyFrame">If successful this contains object with body data, otherwise - <see langword="null"/>.</param>
+            <param name="timeout">
+            Specifies the time the function should block waiting for the body frame.
+            Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means checking of the status without blocking.
+            Passing <see cref="F:K4AdotNet.Timeout.Infinite"/> will block indefinitely until the body frame becomes available.
+            </param>
+            <returns>
+            <see langword="true"/> - if a body frame is returned,
+            <see langword="false"/> - if a body frame is not available before the timeout elapses.
+            </returns>
+            <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+            <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.PopResult"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Tracker.PopResult">
+            <summary>Equivalent to call of <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
+            <returns>Enqueued body frame. Not <see langword="null"/>.</returns>
+            <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
+            <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Tracker.MaxQueueSize">
+            <summary>Max amount of captures that can be simultaneously in processing pipeline.</summary>
+            <seealso cref="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull"/>
+        </member>
         <member name="T:K4AdotNet.Float2">
             <summary>Two dimensional floating point vector.</summary>
         </member>
@@ -274,7 +407,7 @@
         </member>
         <member name="T:K4AdotNet.IDisposablePlus">
             <summary>
-            <see cref="T:System.IDisposable"/> interface with property <see cref="P:K4AdotNet.IDisposablePlus.IsDisposed"/> and event <see cref="E:K4AdotNet.IDisposablePlus.Disposed"/>.
+            <see cref="T:System.IDisposable"/> interface with additions: property <see cref="P:K4AdotNet.IDisposablePlus.IsDisposed"/> and event <see cref="E:K4AdotNet.IDisposablePlus.Disposed"/>.
             </summary>
         </member>
         <member name="P:K4AdotNet.IDisposablePlus.IsDisposed">
@@ -285,7 +418,7 @@
         </member>
         <member name="T:K4AdotNet.IReferenceDuplicatable`1">
             <summary>
-            Interface for objects which reference unmanaged object and support reference counting.
+            Interface for objects which reference unmanaged objects and support reference counting.
             </summary>
             <typeparam name="T">Type implemented this interface.</typeparam>
         </member>
@@ -301,7 +434,7 @@
             </para><para>
             To release reference, that is decrement reference counter call <see cref="M:System.IDisposable.Dispose"/> method of object.
             </para><para>
-            It helps to manage underlying object lifetime and to access image data from different threads and different components of application.
+            It helps to manage underlying object lifetime and to access object data from different threads and different components of application.
             </para></remarks>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
             <seealso cref="M:System.IDisposable.Dispose"/>
@@ -428,6 +561,12 @@
             </summary>
             <typeparam name="T">Type of handle.</typeparam>
         </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.#ctor(`0)">
+            <summary>Creates <see cref="T:K4AdotNet.IDisposablePlus"/>-wrapper around specified handle.</summary>
+            <param name="handle">Handle to be wrapped. Not <see langword="null"/>. And must be valid and not closed.</param>
+            <exception cref="T:System.ArgumentNullException">If <paramref name="handle"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">If <paramref name="handle"/> is invalid or closed.</exception>
+        </member>
         <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.Value">
             <summary>Direct access to the underlying handle object.</summary>
         </member>
@@ -501,7 +640,7 @@
         </member>
         <member name="T:K4AdotNet.NativeHandles.NativeApi">
             <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record.h</c>, <c>playback.h</c> and <c>k4abt.h</c> header files.</summary>
-            <remarks>These functions are required for implementation of Handle classes.</remarks>
+            <remarks>These functions are required for implementation of <c>XxxHandle</c> classes.</remarks>
         </member>
         <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(System.IntPtr)">
             <summary>Add a reference to a capture.</summary>
@@ -932,9 +1071,15 @@
             Use <see langword="null"/> or empty string to completely disable logging to a file.
             </param>
         </member>
-        <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel)">
+        <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
             <summary>Current version of Body Tracking SDK can log data only to the console.</summary>
             <param name="level">Level of logging.</param>
+            <param name="logToStdout">Log messages to STDOUT?</param>
+            <param name="logToFile">
+            Log all messages to the path and file specified.
+            Must end in '.log' to be considered a valid entry.
+            Use <see langword="null"/> or empty string to completely disable logging to a file.
+            </param>
         </member>
         <member name="T:K4AdotNet.Sensor.Calibration">
             <summary>Information about device calibration in particular depth mode and color resolution.</summary>
@@ -949,10 +1094,11 @@
             <summary>Extrinsic transformation parameters.</summary>
             <remarks>
             The extrinsic parameters allow 3D coordinate conversions between depth camera, color camera, the IMU's gyroscope
-            and accelerometer.To transform from a source to a target 3D coordinate system, use the parameters stored
+            and accelerometer. To transform from a source to a target 3D coordinate system, use the parameters stored
             under <c>Extrinsics[source * (int)CalibrationSensor.Count + target]</c>.
             </remarks>
             <seealso cref="M:K4AdotNet.Sensor.Calibration.GetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/>
+            <seealso cref="M:K4AdotNet.Sensor.Calibration.SetExtrinsics(K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationExtrinsics)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.Calibration.DepthMode">
             <summary>Depth camera mode for which calibration was obtained.</summary>

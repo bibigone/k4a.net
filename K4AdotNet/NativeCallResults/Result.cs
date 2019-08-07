@@ -6,6 +6,7 @@
     //     K4A_RESULT_SUCCEEDED = 0,
     //     K4A_RESULT_FAILED,
     // } k4a_result_t;
+    //
     /// <summary>Result code returned by Azure Kinect APIs.</summary>
     internal enum Result
     {

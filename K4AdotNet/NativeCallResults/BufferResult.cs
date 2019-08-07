@@ -7,6 +7,7 @@
     //     K4A_BUFFER_RESULT_FAILED,
     //     K4A_BUFFER_RESULT_TOO_SMALL,
     // } k4a_buffer_result_t;
+    //
     /// <summary>Result code returned by Azure Kinect APIs.</summary>
     internal enum BufferResult
     {

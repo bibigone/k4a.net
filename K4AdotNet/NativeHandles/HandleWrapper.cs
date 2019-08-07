@@ -13,6 +13,10 @@ namespace K4AdotNet.NativeHandles
     {
         private volatile int disposeCounter;        // to raise Disposed event only on the first call of Dispose()
 
+        /// <summary>Creates <see cref="IDisposablePlus"/>-wrapper around specified handle.</summary>
+        /// <param name="handle">Handle to be wrapped. Not <see langword="null"/>. And must be valid and not closed.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="handle"/> is null.</exception>
+        /// <exception cref="ArgumentException">If <paramref name="handle"/> is invalid or closed.</exception>
         public HandleWrapper(T handle)
         {
             if (handle == null)

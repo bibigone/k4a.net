@@ -7,8 +7,18 @@
 
 #include <k4abttypes.h>
 
-#ifndef K4ABT_EXPORT
-#define K4ABT_EXPORT __declspec(dllexport)
+#ifdef K4ABT_STATIC_DEFINE
+#  define K4ABT_EXPORT
+#else
+#ifdef _WIN32
+#  ifndef K4ABT_EXPORT
+#    define K4ABT_EXPORT __declspec(dllexport)
+#  endif
+#else
+#  ifndef K4ABT_EXPORT
+#    define K4ABT_EXPORT __attribute__((visibility("default")))
+#  endif
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -42,6 +52,10 @@ extern "C" {
  *
  * \remarks
  * When done with body tracking, close the handle with k4abt_tracker_destroy().
+ *
+ * \remarks
+ * Only one tracker is allowed to exist at the same time in each process. If you call this API without destroying the 
+ * previous tracker you created, the API call will fail.
  */
  K4ABT_EXPORT k4a_result_t k4abt_tracker_create(const k4a_calibration_t* sensor_calibration,
                                                 k4abt_tracker_t* tracker_handle);

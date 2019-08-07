@@ -49,7 +49,7 @@
 |---------------------|----------------------------------|----------------|---------------------------------------|--------------------------
 | Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
 | Record API          | `k4arecord.dll`                  | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9            |                                       | no
+| Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9.1          |                                       | no
 
 Some important notes:
 * `depthengine_1_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
@@ -71,14 +71,14 @@ Some important notes:
 * [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects
   * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.5.0
   * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.5.0)
-  * Tested with Azure Kinect Body Tracking SDK 0.9.0 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
+  * Tested with Azure Kinect Body Tracking SDK 0.9.0 and 0.9.1 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
 
 
 ## Roadmap
 
 * Documentation comments
 * More unit-tests
-* More samples (Recording, 3D view, Box-man, IMU...)
+* More samples (Green screen, Recording, 3D view, Box-man, IMU...)
 * Samples for Unity3D
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)

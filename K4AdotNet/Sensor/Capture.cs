@@ -3,6 +3,7 @@
 namespace K4AdotNet.Sensor
 {
     // Inspired by <c>capture</c> class from <c>k4a.hpp</c>
+    //
     /// <summary>A capture represents a set of images that were captured by a Azure Kinect device at approximately the same time.</summary>
     /// <remarks><para>
     /// A capture may have a color, IR, and depth image.A capture may have up to one image of each type.

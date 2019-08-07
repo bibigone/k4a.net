@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace K4AdotNet.NativeHandles
 {
     /// <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record.h</c>, <c>playback.h</c> and <c>k4abt.h</c> header files.</summary>
-    /// <remarks>These functions are required for implementation of Handle classes.</remarks>
+    /// <remarks>These functions are required for implementation of <c>XxxHandle</c> classes.</remarks>
     internal static class NativeApi
     {
         #region k4a.h

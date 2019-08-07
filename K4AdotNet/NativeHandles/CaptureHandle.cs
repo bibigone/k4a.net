@@ -2,6 +2,7 @@
 {
     // Defined in k4atypes.h:
     // K4A_DECLARE_HANDLE(k4a_capture_t);
+    //
     /// <summary>Handle to an Azure Kinect capture.</summary>
     /// <remarks>
     /// Empty captures are created with <c>k4a_capture_create()</c>.

@@ -7,6 +7,7 @@
     //     K4A_BUFFER_RESULT_FAILED,
     //     K4A_STREAM_RESULT_EOF,
     // } k4a_stream_result_t;
+    //
     /// <summary>Return codes returned by Azure Kinect playback API.</summary>
     internal enum StreamResult
     {

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 namespace K4AdotNet.Sensor
 {
     // Inspired by <c>image</c> class from <c>k4a.hpp</c>
+    //
     /// <summary>An Azure Kinect image referencing its buffer and metadata.</summary>
     /// <remarks><para>
     /// Is used for color images, IR images, depth maps, body index maps.
