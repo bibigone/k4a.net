@@ -7,7 +7,7 @@ namespace K4AdotNet
     /// </summary>
     internal interface IDisposablePlus : IDisposable
     {
-        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         bool IsDisposed { get; }
 
         /// <summary>Raised on object disposing (only once).</summary>

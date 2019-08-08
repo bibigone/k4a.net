@@ -6,6 +6,7 @@
     //     K4A_FIRMWARE_BUILD_RELEASE,
     //     K4A_FIRMWARE_BUILD_DEBUG
     // } k4a_firmware_build_t;
+    //
     /// <summary>Firmware build type.</summary>
     public enum FirmwareBuild
     {

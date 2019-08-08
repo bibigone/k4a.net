@@ -12,6 +12,7 @@ namespace K4AdotNet.Sensor
     //     k4a_firmware_build_t firmware_build;
     //     k4a_firmware_signature_t firmware_signature;
     // } k4a_hardware_version_t;
+    //
     /// <summary>Structure to define hardware version.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct HardwareVersion
@@ -37,6 +38,5 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Signature type of the firmware.</summary>
         public FirmwareSignature FirmwareSignature;
-
     }
 }

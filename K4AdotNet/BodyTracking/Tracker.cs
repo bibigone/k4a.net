@@ -199,7 +199,10 @@ namespace K4AdotNet.BodyTracking
         }
 
         /// <summary>Gets the next available body frame.</summary>
-        /// <param name="bodyFrame">If successful this contains object with body data, otherwise - <see langword="null"/>.</param>
+        /// <param name="bodyFrame">
+        /// If successful this contains object with body data (don't forget to free this object by calling <see cref="BodyFrame.Dispose"/>),
+        /// otherwise - <see langword="null"/>.
+        /// </param>
         /// <param name="timeout">
         /// Specifies the time the function should block waiting for the body frame.
         /// Default value is <see cref="Timeout.NoWait"/>, which means checking of the status without blocking.
@@ -234,7 +237,7 @@ namespace K4AdotNet.BodyTracking
         }
 
         /// <summary>Equivalent to call of <see cref="TryPopResult(out BodyFrame, Timeout)"/> with infinite timeout: <see cref="Timeout.Infinite"/>.</summary>
-        /// <returns>Enqueued body frame. Not <see langword="null"/>.</returns>
+        /// <returns>Enqueued body frame. Not <see langword="null"/>. Don't forget to call <see cref="BodyFrame.Dispose"/> for returned object after usage.</returns>
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
         /// <seealso cref="TryPopResult(out BodyFrame, Timeout)"/>

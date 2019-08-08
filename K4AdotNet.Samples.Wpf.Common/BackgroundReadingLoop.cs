@@ -14,21 +14,37 @@ namespace K4AdotNet.Samples.Wpf
         public static BackgroundReadingLoop CreateForDevice(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
             => new DeviceReadingLoop(device, depthMode, colorResolution, frameRate);
 
+        protected readonly Thread backgroundThread;
+        protected volatile bool isRunning;
+
         protected BackgroundReadingLoop()
-        { }
+            => backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
 
         public abstract ColorResolution ColorResolution { get; }
 
         public abstract DepthMode DepthMode { get; }
 
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+            if (isRunning)
+            {
+                isRunning = false;
+                if (backgroundThread.ThreadState != System.Threading.ThreadState.Unstarted)
+                    backgroundThread.Join();
+            }
+        }
 
         public abstract void GetCalibration(out Calibration calibration);
 
         protected abstract void BackgroundLoop();
 
         public void Run()
-            => new Thread(BackgroundLoop) { IsBackground = true }.Start();
+        {
+            if (isRunning)
+                throw new InvalidOperationException();
+            isRunning = true;
+            backgroundThread.Start();
+        }
 
         public event EventHandler<CaptureReadyEventArgs> CaptureReady;
 
@@ -60,7 +76,10 @@ namespace K4AdotNet.Samples.Wpf
             }
 
             public override void Dispose()
-                => playback.Dispose();
+            {
+                base.Dispose();
+                playback.Dispose();
+            }
 
             public override ColorResolution ColorResolution { get; }
 
@@ -80,9 +99,9 @@ namespace K4AdotNet.Samples.Wpf
                     var sw = Stopwatch.StartNew();
                     var frameCounter = 0L;
 
-                    while (!playback.IsDisposed)
+                    while (isRunning)
                     {
-                        while (doNotPlayFasterThanOriginalFps && !playback.IsDisposed)
+                        while (doNotPlayFasterThanOriginalFps && isRunning)
                         {
                             var expectedTime = Microseconds64.FromSeconds((double)frameCounter / frameRateHz);
                             var elapsedTime = (Microseconds64)sw.Elapsed;
@@ -108,8 +127,6 @@ namespace K4AdotNet.Samples.Wpf
                         }
                     }
                 }
-                catch (ObjectDisposedException)
-                { }
                 catch (Exception exc)
                 {
                     Failed?.Invoke(this, new FailedEventArgs(exc));
@@ -134,7 +151,10 @@ namespace K4AdotNet.Samples.Wpf
             }
 
             public override void Dispose()
-                => device.Dispose();
+            {
+                base.Dispose();
+                device.Dispose();
+            }
 
             public override ColorResolution ColorResolution { get; }
 
@@ -161,7 +181,7 @@ namespace K4AdotNet.Samples.Wpf
                         WiredSyncMode = WiredSyncMode.Standalone,
                     });
 
-                    while (!device.IsDisposed)
+                    while (isRunning)
                     {
                         var res = device.TryGetCapture(out var capture);
                         if (res)
@@ -173,12 +193,12 @@ namespace K4AdotNet.Samples.Wpf
                         }
                         else
                         {
+                            if (!device.IsConnected)
+                                throw new DeviceConnectionLostException(device.DeviceIndex);
                             Thread.Sleep(1);
                         }
                     }
                 }
-                catch (ObjectDisposedException)
-                { }
                 catch (Exception exc)
                 {
                     Failed?.Invoke(this, new FailedEventArgs(exc));

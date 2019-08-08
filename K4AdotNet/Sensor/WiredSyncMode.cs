@@ -7,6 +7,7 @@
     //     K4A_WIRED_SYNC_MODE_MASTER,
     //     K4A_WIRED_SYNC_MODE_SUBORDINATE
     // } k4a_wired_sync_mode_t;
+    //
     /// <summary>Synchronization mode when connecting two or more devices together.</summary>
     public enum WiredSyncMode
     {

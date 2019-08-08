@@ -7,6 +7,7 @@
     //     K4A_FRAMES_PER_SECOND_15,
     //     K4A_FRAMES_PER_SECOND_30,
     // } k4a_fps_t;
+    //
     /// <summary>Color and depth sensor frame rate.</summary>
     /// <remarks>
     /// This enumeration is used to select the desired frame rate to operate the cameras. The actual

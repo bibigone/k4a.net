@@ -7,6 +7,7 @@
     //     K4A_FIRMWARE_SIGNATURE_TEST,
     //     K4A_FIRMWARE_SIGNATURE_UNSIGNED
     // } k4a_firmware_signature_t;
+    //
     /// <summary>Firmware signature type.</summary>
     public enum FirmwareSignature
     {

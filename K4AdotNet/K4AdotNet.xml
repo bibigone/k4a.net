@@ -292,7 +292,10 @@
         </member>
         <member name="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)">
             <summary>Gets the next available body frame.</summary>
-            <param name="bodyFrame">If successful this contains object with body data, otherwise - <see langword="null"/>.</param>
+            <param name="bodyFrame">
+            If successful this contains object with body data (don't forget to free this object by calling <see cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/>),
+            otherwise - <see langword="null"/>.
+            </param>
             <param name="timeout">
             Specifies the time the function should block waiting for the body frame.
             Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means checking of the status without blocking.
@@ -308,7 +311,7 @@
         </member>
         <member name="M:K4AdotNet.BodyTracking.Tracker.PopResult">
             <summary>Equivalent to call of <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
-            <returns>Enqueued body frame. Not <see langword="null"/>.</returns>
+            <returns>Enqueued body frame. Not <see langword="null"/>. Don't forget to call <see cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/> for returned object after usage.</returns>
             <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
             <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
             <seealso cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/>
@@ -411,7 +414,7 @@
             </summary>
         </member>
         <member name="P:K4AdotNet.IDisposablePlus.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
         </member>
         <member name="E:K4AdotNet.IDisposablePlus.Disposed">
             <summary>Raised on object disposing (only once).</summary>
@@ -1719,7 +1722,7 @@
         </member>
         <member name="F:K4AdotNet.Sensor.ColorResolutions.All">
             <summary>
-            All usable <see cref="T:K4AdotNet.Sensor.ColorResolution"/>s including <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.
+            All possible <see cref="T:K4AdotNet.Sensor.ColorResolution"/>s including <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.
             May be helpful for UI, tests, etc.
             </summary>
         </member>
@@ -1829,7 +1832,7 @@
         </member>
         <member name="F:K4AdotNet.Sensor.DepthModes.All">
             <summary>
-            All <see cref="T:K4AdotNet.Sensor.DepthModes"/>s including <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.
+            All possible <see cref="T:K4AdotNet.Sensor.DepthModes"/>s including <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.
             May be helpful for UI, tests, etc.
             </summary>
         </member>
@@ -1888,6 +1891,9 @@
             <see langword="true"/> - pixels are binned,
             <see langword="false"/> - no binning is used.
             </returns>
+            <remarks>
+            Binned modes reduce the captured camera resolution by combining adjacent sensor pixels into a bin.
+            </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.GetOperatingRange(K4AdotNet.Sensor.DepthMode,System.Int32@,System.Int32@)">
             <summary>
@@ -1910,6 +1916,306 @@
             For details see:
             https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
             </remarks>
+        </member>
+        <member name="T:K4AdotNet.Sensor.Device">
+            <summary>Azure Kinect device. The main class in Sensor part of API.</summary>
+            <remarks><para>
+            To open device use <see cref="M:K4AdotNet.Sensor.Device.TryOpen(K4AdotNet.Sensor.Device@,System.Int32)"/> or <see cref="M:K4AdotNet.Sensor.Device.Open(System.Int32)"/> method,
+            to start cameras streaming call <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/>,
+            to stop - call <see cref="M:K4AdotNet.Sensor.Device.StopCameras"/>.
+            <see cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/> and <see cref="M:K4AdotNet.Sensor.Device.GetCapture"/> methods
+            are used to read next capture (frame with data) from device.
+            Don't forget to close device and release all unmanaged resources by calling <see cref="M:K4AdotNet.Sensor.Device.Dispose"/> method.
+            </para><para>
+            This class is designed to be thread-safe.
+            </para></remarks>
+            <seealso cref="T:K4AdotNet.Sensor.Capture"/>
+            <seealso cref="T:K4AdotNet.Sensor.ImuSample"/>
+            <threadsafety static="true" instance="true"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.Dispose">
+            <summary>
+            Call this method to close device and free all unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.Sensor.Device.Disposed"/>
+            <seealso cref="P:K4AdotNet.Sensor.Device.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Sensor.Device.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.DeviceIndex">
+            <summary>Zero-based index of this device.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Open(System.Int32)"/>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryOpen(K4AdotNet.Sensor.Device@,System.Int32)"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.SerialNumber">
+            <summary>Azure Kinect device serial number. Not <see langword="null"/>.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.Version">
+            <summary>Version numbers of the device's subsystems.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.IsConnected">
+            <summary>Is this device still connected?</summary>
+            <seealso cref="T:K4AdotNet.Sensor.DeviceConnectionLostException"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.IsSyncInConnected">
+            <summary>Gets the device jack status for the synchronization in connectors.</summary>
+            <remarks>
+            If <see cref="P:K4AdotNet.Sensor.Device.IsSyncInConnected"/> is <see langword="true"/> then
+            <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="F:K4AdotNet.Sensor.WiredSyncMode.Standalone"/> or <see cref="F:K4AdotNet.Sensor.WiredSyncMode.Subordinate"/>.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.IsSyncOutConnected">
+            <summary>Gets the device jack status for the synchronization out connectors.</summary>
+            <remarks>
+            If <see cref="P:K4AdotNet.Sensor.Device.IsSyncOutConnected"/> is <see langword="true"/> then
+            <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="F:K4AdotNet.Sensor.WiredSyncMode.Standalone"/> or <see cref="F:K4AdotNet.Sensor.WiredSyncMode.Master"/>.
+            If <see cref="P:K4AdotNet.Sensor.Device.IsSyncInConnected"/> is also <see langword="true"/> then
+            <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="F:K4AdotNet.Sensor.WiredSyncMode.Subordinate"/> (in this case 'Sync Out' is driven for the
+            next device in the chain).
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)">
+            <summary>Starts color and depth camera capture.</summary>
+            <param name="config">The configuration we want to run the device in. This can be initialized with <see cref="F:K4AdotNet.Sensor.DeviceConfiguration.DisableAll"/>.</param>
+            <remarks><para>
+            Individual sensors configured to run will now start to stream captured data.
+            </para><para>
+            It is not valid to call this method a second time on the same device until <see cref="M:K4AdotNet.Sensor.Device.StopCameras"/> has been called.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:System.ArgumentException">Configuration in <paramref name="config"/> is not valid. For details see <see cref="M:K4AdotNet.Sensor.DeviceConfiguration.IsValid(System.String@)"/>.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Cameras streaming is already running, or something wrong with <paramref name="config"/>, or <see cref="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be found.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.StopCameras"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.StopCameras">
+            <summary>Stops the color and depth camera capture.</summary>
+            <remarks><para>
+            The streaming of individual sensors stops as a result of this call. Once called, <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/>
+            may be called again to resume sensor streaming.
+            </para><para>
+            This function may be called while another thread is blocking in <see cref="M:K4AdotNet.Sensor.Device.GetCapture"/> or <see cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/>.
+            Calling this function while another thread is in that function will result in that function failing with exception.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.StartImu">
+            <summary>Starts the IMU sample stream.</summary>
+            <remarks><para>
+            Call this API to start streaming IMU data. It is not valid to call this function a second time on the same
+            device until <see cref="M:K4AdotNet.Sensor.Device.StopImu"/> has been called.
+            </para><para>
+            This function is dependent on the state of the cameras. The color or depth camera must be started before the IMU.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">IMU streaming is already running or cameras streaming is not running.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.StopImu"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.StopImu">
+            <summary>Stops the IMU capture.</summary>
+            <remarks><para>
+            The streaming of the IMU stops as a result of this call. Once called, <see cref="M:K4AdotNet.Sensor.Device.StartImu"/> may
+            be called again to resume sensor streaming, so long as the cameras are running.
+            </para><para>
+            This function may be called while another thread is blocking in <see cref="M:K4AdotNet.Sensor.Device.GetImuSample"/> or <see cref="M:K4AdotNet.Sensor.Device.TryGetImuSample(K4AdotNet.Sensor.ImuSample@,K4AdotNet.Timeout)"/>.
+            Calling this function while another thread is in that function will result in that function failing with exception.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.StartImu"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)">
+            <summary>Reads a sensor capture.</summary>
+            <param name="capture">
+            If successful this contains object with capture data read from device (don't forget to free this object by calling <see cref="M:K4AdotNet.Sensor.Capture.Dispose"/>),
+            otherwise - <see langword="null"/>.
+            </param>
+            <param name="timeout">
+            Specifies the time the function should block waiting for the capture.
+            Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means that the function will return without blocking.
+            Passing <see cref="F:K4AdotNet.Timeout.Infinite"/> will block indefinitely until data is available, the
+            device is disconnected, or another error occurs.
+            </param>
+            <returns>
+            <see langword="true"/> - if a capture is returned,
+            <see langword="false"/> - if a capture is not available before the timeout elapses.
+            </returns>
+            <remarks>
+            This function needs to be called while the device is in a running state;
+            after <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/> is called and before <see cref="M:K4AdotNet.Sensor.Device.StopCameras"/> is called.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Camera streaming is not running or has been stopped during this call.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetCapture">
+            <summary>Equivalent to call of <see cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
+            <returns>Capture object read from device. Not <see langword="null"/>. Don't forget call <see cref="M:K4AdotNet.Sensor.Capture.Dispose"/> for returned object after usage.</returns>
+            <remarks>
+            This function needs to be called while the device is in a running state;
+            after <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/> is called and before <see cref="M:K4AdotNet.Sensor.Device.StopCameras"/> is called.
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryGetCapture(K4AdotNet.Sensor.Capture@,K4AdotNet.Timeout)"/>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Camera streaming is not running or has been stopped during this call.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.TryGetImuSample(K4AdotNet.Sensor.ImuSample@,K4AdotNet.Timeout)">
+            <summary>Reads an IMU sample.</summary>
+            <param name="imuSample">Information about IMU sample if method returned <see langword="true"/>.</param>
+            <param name="timeout">
+            Specifies the time the function should block waiting for the capture.
+            Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means that the function will return without blocking.
+            Passing <see cref="F:K4AdotNet.Timeout.Infinite"/> will block indefinitely until data is available, the
+            device is disconnected, or another error occurs.
+            </param>
+            <returns>
+            <see langword="true"/> - if a sample is returned,
+            <see langword="false"/> - if a sample is not available before the timeout elapses.
+            </returns>
+            <remarks>
+            This function needs to be called while the device is in a running state;
+            after <see cref="M:K4AdotNet.Sensor.Device.StartImu"/> is called and before <see cref="M:K4AdotNet.Sensor.Device.StopImu"/> is called.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">IMU streaming is not running or has been stopped during this call.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetImuSample">
+            <summary>Equivalent to call of <see cref="M:K4AdotNet.Sensor.Device.TryGetImuSample(K4AdotNet.Sensor.ImuSample@,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
+            <returns>Information about IMU sample.</returns>
+            <remarks>
+            This function needs to be called while the device is in a running state;
+            after <see cref="M:K4AdotNet.Sensor.Device.StartImu"/> is called and before <see cref="M:K4AdotNet.Sensor.Device.StopImu"/> is called.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">IMU streaming is not running or has been stopped during this call.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryGetImuSample(K4AdotNet.Sensor.ImuSample@,K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.TrySetColorControl(K4AdotNet.Sensor.ColorControlCommand,K4AdotNet.Sensor.ColorControlMode,System.Int32)">
+            <summary>Set the Azure Kinect color sensor control value.</summary>
+            <param name="command">Color sensor control command.</param>
+            <param name="mode">Color sensor control mode to set. This mode represents whether the command is in automatic or manual mode.</param>
+            <param name="value">
+            Value to set the color sensor's control to. The value is only valid if <paramref name="mode"/>
+            is set to <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/>, and is otherwise ignored.
+            </param>
+            <returns><see langword="true"/> if the value was successfully set, <see langword="false"/> -  otherwise.</returns>
+            <remarks><para>
+            Each control command may be set to manual or automatic. See the definition of <see cref="T:K4AdotNet.Sensor.ColorControlCommand"/> on how
+            to interpret the <paramref name="value"/> for each command.
+            </para><para>
+            Some control commands are only supported in manual mode. When a command is in automatic mode, the <paramref name="value"/> for that
+            command is not valid.
+            </para><para>
+            Control values set on a device are reset only when the device is power cycled. The device will retain the settings
+            even if the device is disposed or the application is restarted.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetColorControl(K4AdotNet.Sensor.ColorControlCommand,K4AdotNet.Sensor.ColorControlMode@,System.Int32@)">
+            <summary>Gets the Azure Kinect color sensor control value.</summary>
+            <param name="command">Color sensor control command.</param>
+            <param name="mode">This mode represents whether the command is in automatic or manual mode.</param>
+            <param name="value">This value is always written, but is only valid when the <paramref name="mode"/> returned is <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/> for the current <paramref name="command"/>.</param>
+            <remarks><para>
+            Each control command may be set to manual or automatic. See the definition of <see cref="T:K4AdotNet.Sensor.ColorControlCommand"/> on
+            how to interpret the <paramref name="value"/> for each command.
+            </para><para>
+            Some control commands are only supported in manual mode. When a command is in automatic mode, the <paramref name="value"/> for
+            that command is not valid.
+            </para><para>
+            Control values set on a device are reset only when the device is power cycled. The device will retain the
+            settings even if the device is disposed or the application is restarted.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Not supported <paramref name="command"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetColorControlCapabilities(K4AdotNet.Sensor.ColorControlCommand,System.Boolean@,System.Int32@,System.Int32@,System.Int32@,System.Int32@,K4AdotNet.Sensor.ColorControlMode@)">
+            <summary>Gets the Azure Kinect color sensor control capabilities.</summary>
+            <param name="command">Color sensor control command.</param>
+            <param name="supportsAuto">Output: whether the color sensor's control support auto mode or not. <see langword="true"/> if it supports auto mode, otherwise <see langword="false"/>.</param>
+            <param name="minValue">Output: the color sensor's control minimum value of <paramref name="command"/>.</param>
+            <param name="maxValue">Output: the color sensor's control maximum value of <paramref name="command"/>.</param>
+            <param name="valueStep">Output: the color sensor's control step value of <paramref name="command"/>.</param>
+            <param name="defaultValue">Output: the color sensor's control default value of <paramref name="command"/>.</param>
+            <param name="defaultMode">Output: the color sensor's control default mode of <paramref name="command"/>.</param>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Not supported <paramref name="command"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetRawCalibration">
+            <summary>Gets the raw calibration blob for the entire Azure Kinect device.</summary>
+            <returns>Raw calibration data terminated by <c>0</c> value. Not <see langword="null"/>.</returns>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Cannot read calibration data for some unexpected reason. See logs for details.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.GetCalibration(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.GetCalibration(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
+            <summary>Gets the camera calibration for the entire Azure Kinect device.</summary>
+            <param name="depthMode">Mode in which depth camera is operated.</param>
+            <param name="colorResolution">Resolution in which color camera is operated.</param>
+            <param name="calibration">Output: calibration data.</param>
+            <remarks><para>
+            The <paramref name="calibration"/> represents the data needed to transform between the camera views and may be
+            different for each operating <paramref name="depthMode"/> and <paramref name="colorResolution"/> the device is configured to operate in.
+            </para><para>
+            The <paramref name="calibration"/> output is used as input to all calibration and transformation functions.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
+            <exception cref="T:System.InvalidOperationException">Cannot read calibration data for some unexpected reason. See logs for details.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.GetCalibration(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.ToString">
+            <summary>Convenient string representation of object.</summary>
+            <returns><c>Azure Kinect #{SerialNumber}</c></returns>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Device.InstalledCount">
+            <summary>Gets the number of connected devices.</summary>
+            <remarks>Some devices can be occupied by other processes by they are counted here as connected.</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sensor.Device.DefaultDeviceIndex">
+            <summary>Index for default device (the first connected device). Use it when you're working with single device solutions.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.TryOpen(K4AdotNet.Sensor.Device@,System.Int32)">
+            <summary>Tries to open an Azure Kinect device.</summary>
+            <param name="device">Opened device on success, or <see langword="null"/> in case of failure.</param>
+            <param name="index">Zero-based index of device to be opened. By default - <see cref="F:K4AdotNet.Sensor.Device.DefaultDeviceIndex"/>.</param>
+            <returns>
+            <see langword="true"/> if device has been successfully opened,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Open(System.Int32)"/>
+            <seealso cref="P:K4AdotNet.Sensor.Device.InstalledCount"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Device.Open(System.Int32)">
+            <summary>Opens an Azure Kinect device. Like <see cref="M:K4AdotNet.Sensor.Device.TryOpen(K4AdotNet.Sensor.Device@,System.Int32)"/> but raises exception in case of failure.</summary>
+            <param name="index">Zero-based index of device to be opened. By default - <see cref="F:K4AdotNet.Sensor.Device.DefaultDeviceIndex"/>.</param>
+            <returns>Opened device. Not <see langword="null"/>. Don't forget to call <see cref="M:K4AdotNet.Sensor.Device.Dispose"/> method for this object after usage.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceNotFoundException">Device with <paramref name="index"/> index is not found. Most likely it is not connected or hasn't power supply.</exception>
+            <exception cref="T:K4AdotNet.Sensor.DeviceOccupiedException">This Kinect device is occupied by another process, or it is already opened in current process, or it has not enough power supply.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryOpen(K4AdotNet.Sensor.Device@,System.Int32)"/>
+            <seealso cref="P:K4AdotNet.Sensor.Device.InstalledCount"/>
         </member>
         <member name="T:K4AdotNet.Sensor.DeviceConfiguration">
             <summary>Configuration parameters for an Azure Kinect device.</summary>
@@ -2013,6 +2319,85 @@
             <summary>Initial configuration setting for disabling all sensors.</summary>
             <remarks>Use this setting to initialize a <see cref="T:K4AdotNet.Sensor.DeviceConfiguration"/> to a disabled state.</remarks>
         </member>
+        <member name="T:K4AdotNet.Sensor.DeviceConnectionLostException">
+            <summary>Exception: connection lost with Azure Kinect device.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.Device"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceConnectionLostException.#ctor(System.Int32)">
+            <summary>Creates exception for device with specified index.</summary>
+            <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="P:K4AdotNet.Sensor.DeviceException.DeviceIndex"/> property.</param>
+            <seealso cref="P:K4AdotNet.Sensor.Device.DeviceIndex"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceConnectionLostException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="T:K4AdotNet.Sensor.DeviceException">
+            <summary>Base class for all device-related exceptions.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.Device"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.DeviceException.DeviceIndex">
+            <summary>Zero-based index of device.</summary>
+            <seealso cref="P:K4AdotNet.Sensor.Device.DeviceIndex"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.#ctor">
+            <summary>Creates exception with some default message.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.#ctor(System.String)">
+            <summary>Creates exception with specified message.</summary>
+            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property..</param>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.#ctor(System.String,System.Exception)">
+            <summary>Creates exception with specified message and inner exception.</summary>
+            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property..</param>
+            <param name="innerException">Inner exception. Can be reached then via <see cref="P:System.Exception.InnerException"/> property.</param>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>For serialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceException.FormatDeviceIndex(System.Int32)">
+            <summary>Helper method for inheritors. Formats device index to optional device number.</summary>
+            <param name="deviceIndex">Zero-based index of device.</param>
+            <returns>
+            Empty string if <paramref name="deviceIndex"/> is equal to <see cref="F:K4AdotNet.Sensor.Device.DefaultDeviceIndex"/>,
+            <c># {deviceIndex+1}</c> otherwise.</returns>
+        </member>
+        <member name="T:K4AdotNet.Sensor.DeviceNotFoundException">
+            <summary>Exception: Azure Kinect device not found.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Open(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceNotFoundException.#ctor(System.Int32)">
+            <summary>Creates exception for device with specified index.</summary>
+            <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="P:K4AdotNet.Sensor.DeviceException.DeviceIndex"/> property.</param>
+            <seealso cref="P:K4AdotNet.Sensor.Device.DeviceIndex"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceNotFoundException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="T:K4AdotNet.Sensor.DeviceOccupiedException">
+            <summary>Exception: device is occupied or device has insufficient power supply.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.Open(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceOccupiedException.#ctor(System.Int32)">
+            <summary>Creates exception for device with specified index.</summary>
+            <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="P:K4AdotNet.Sensor.DeviceException.DeviceIndex"/> property.</param>
+            <seealso cref="P:K4AdotNet.Sensor.Device.DeviceIndex"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DeviceOccupiedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
         <member name="T:K4AdotNet.Sensor.FirmwareBuild">
             <summary>Firmware build type.</summary>
         </member>
@@ -2035,9 +2420,8 @@
             <summary>Unsigned firmware.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.FirmwareVersion">
-            <summary>
-            Version information about sensor firmware.
-            </summary>
+            <summary>Version information about sensor firmware.</summary>
+            <remarks>Can be smoothly converted to/from <see cref="T:System.Version"/> object for convenience.</remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.FirmwareVersion.Major">
             <summary>Major version; represents a breaking change.</summary>
@@ -2054,10 +2438,195 @@
             <param name="minor">Value for field <see cref="F:K4AdotNet.Sensor.FirmwareVersion.Minor"/>.</param>
             <param name="revision">Value for field <see cref="F:K4AdotNet.Sensor.FirmwareVersion.Revision"/>.</param>
         </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.#ctor(System.Version)">
+            <summary>Creates version from <see cref="T:System.Version"/> object.</summary>
+            <param name="version">Version. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="version"/> cannot be <see langword="null"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.ToVersion">
+            <summary>Explicitly converts to standard <see cref="T:System.Version"/> object.</summary>
+            <returns>Corresponding <see cref="T:System.Version"/> object. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Implicit(K4AdotNet.Sensor.FirmwareVersion)~System.Version">
+            <summary>Implicit conversion to <see cref="T:System.Version"/>.</summary>
+            <param name="version">Firmware version to be converted to <see cref="T:System.Version"/>.</param>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.ToVersion"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Implicit(System.Version)~K4AdotNet.Sensor.FirmwareVersion">
+            <summary>Implicit conversion from <see cref="T:System.Version"/>.</summary>
+            <param name="version">Version to be converted to <see cref="T:K4AdotNet.Sensor.FirmwareVersion"/>. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="version"/> cannot be <see langword="null"/>.</exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)">
-            <summary>Per-component comparison of versions.</summary>
+            <summary>Per-component comparison of versions. Implementation of <see cref="T:System.IEquatable`1"/>.</summary>
             <param name="other">Version to be compared with this one.</param>
-            <returns><c>true</c> - versions are the same, <c>false</c> - versions are differ from each other.</returns>
+            <returns><c>true</c> - versions are the same, <c>false</c> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)">
+            <summary>Per-component comparison of versions. Implementation of <see cref="T:System.IEquatable`1"/>.</summary>
+            <param name="other">Version to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns><c>true</c> - versions are the same, <c>false</c> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Object)">
+            <summary>Per-component comparison of versions.</summary>
+            <param name="obj">Object to be compared with this one.</param>
+            <returns><c>true</c> - <paramref name="obj"/> is not <see langword="null"/> and it is version and versions are equal, <c>false</c> - otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Equality(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Inequality(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Equality(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Inequality(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Equality(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Inequality(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.CompareTo(K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison. Implementation of <see cref="T:System.IComparable`1"/>.</summary>
+            <param name="other">Other version to be compared with this one.</param>
+            <returns>
+            <c>1</c> - <paramref name="other"/> is less than this one,
+            <c>0</c> - <paramref name="other"/> equals this one,
+            <c>-1</c> - <paramref name="other"/> is greater than this one.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.CompareTo(System.Version)">
+            <summary>Versions comparison. Implementation of <see cref="T:System.IComparable`1"/>.</summary>
+            <param name="other">Other version to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns>
+            <c>1</c> - <paramref name="other"/> is less than this one or is <see langword="null"/>,
+            <c>0</c> - <paramref name="other"/> equals this one,
+            <c>-1</c> - <paramref name="other"/> is less than this one.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.CompareTo(System.Object)">
+            <summary>Versions comparison. Implementation of <see cref="T:System.IComparable`1"/>.</summary>
+            <param name="obj">Other version to be compared with this one. Can be <see langword="null"/>.</param>
+            <returns>
+            <c>1</c> - <paramref name="obj"/> is greater than this one or is <see langword="null"/>,
+            <c>0</c> - <paramref name="obj"/> equals this one,
+            <c>-1</c> - <paramref name="obj"/> is less than this one.
+            </returns>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> cannot be cast to version type.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThan(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThanOrEqual(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or is equal to <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThan(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThanOrEqual(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or is equal to <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThan(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThanOrEqual(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or is equal to <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThan(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/> or <paramref name="right"/> is <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThanOrEqual(K4AdotNet.Sensor.FirmwareVersion,System.Version)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or is equal to <paramref name="right"/> or <paramref name="right"/> is <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThan(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>..</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/> or <paramref name="left"/> is <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThanOrEqual(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>..</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or is equal to <paramref name="right"/> or <paramref name="left"/> is <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThan(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>..</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_GreaterThanOrEqual(System.Version,K4AdotNet.Sensor.FirmwareVersion)">
+            <summary>Versions comparison.</summary>
+            <param name="left">Left part of operator. Can be <see langword="null"/>..</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or is equal to <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of version formatted using the specified format and provider.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{Major}.{Minor}.{Revision}</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FirmwareVersion.ToString">
+            <summary>String representation of version.</summary>
+            <returns><c>{Major}.{Minor}.{Revision}</c></returns>
         </member>
         <member name="T:K4AdotNet.Sensor.FrameRate">
             <summary>Color and depth sensor frame rate.</summary>

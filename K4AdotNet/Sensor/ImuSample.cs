@@ -11,6 +11,7 @@ namespace K4AdotNet.Sensor
     //     k4a_float3_t gyro_sample;
     //     uint64_t gyro_timestamp_usec;
     // } k4a_imu_sample_t;
+    //
     /// <summary>IMU sample.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct ImuSample

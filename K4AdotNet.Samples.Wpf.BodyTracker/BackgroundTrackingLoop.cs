@@ -8,15 +8,28 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
     internal sealed class BackgroundTrackingLoop : IDisposable
     {
         private readonly Tracker tracker;
+        private readonly Thread backgroundThread;
+        private volatile bool isRunning;
 
         public BackgroundTrackingLoop(ref Calibration calibration)
         {
             tracker = new Tracker(ref calibration);
-            new Thread(BackgroundLoop) { IsBackground = true }.Start();
+            isRunning = true;
+            backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
+            backgroundThread.Start();
         }
 
         public void Dispose()
-            => tracker.Dispose();
+        {
+            if (isRunning)
+            {
+                isRunning = false;
+                if (backgroundThread.ThreadState != ThreadState.Unstarted)
+                    backgroundThread.Join();
+            }
+
+            tracker.Dispose();
+        }
 
         public event EventHandler<BodyFrameReadyEventArgs> BodyFrameReady;
 
@@ -29,7 +42,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             try
             {
-                while (!tracker.IsDisposed)
+                while (isRunning)
                 {
                     if (tracker.TryPopResult(out var bodyFrame))
                     {
@@ -44,8 +57,6 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                     }
                 }
             }
-            catch (ObjectDisposedException)
-            { }
             catch (Exception exc)
             {
                 Failed?.Invoke(this, new FailedEventArgs(exc));

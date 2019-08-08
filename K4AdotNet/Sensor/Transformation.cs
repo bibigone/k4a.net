@@ -3,6 +3,7 @@
 namespace K4AdotNet.Sensor
 {
     // Inspired by <c>transformation</c> class from <c>k4a.hpp</c>
+    //
     public sealed class Transformation : IDisposablePlus
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.TransformationHandle> handle;
