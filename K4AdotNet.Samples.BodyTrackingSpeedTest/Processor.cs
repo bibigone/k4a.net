@@ -65,7 +65,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
                 return true;
             var timestamp = GetTimestamp(capture);
             return timestamp.HasValue
-                && !processingParameters.IsTimeInStartEndInterval(timestamp.Value);
+                && processingParameters.IsTimeInStartEndInterval(timestamp.Value);
         }
 
         private static Microseconds64? GetTimestamp(Sensor.Capture capture)

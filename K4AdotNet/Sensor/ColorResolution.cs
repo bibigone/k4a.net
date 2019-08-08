@@ -11,7 +11,12 @@
     //     K4A_COLOR_RESOLUTION_2160P,
     //     K4A_COLOR_RESOLUTION_3072P,
     // } k4a_color_resolution_t;
+    //
     /// <summary>Color sensor resolutions.</summary>
+    /// <remarks>
+    /// Use extension methods from <see cref="ColorResolutions"/> class
+    /// for additional details on the field of view, supported frame rates and image formats.
+    /// </remarks>
     /// <seealso cref="ColorResolutions"/>
     public enum ColorResolution
     {

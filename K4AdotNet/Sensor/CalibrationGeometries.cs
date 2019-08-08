@@ -3,10 +3,14 @@
 namespace K4AdotNet.Sensor
 {
     /// <summary>Extensions to <see cref="CalibrationGeometry"/> enumeration. Adds some metadata to <see cref="CalibrationGeometry"/> enumeration.</summary>
-    /// <seealso cref="CalibrationGeometries"/>
+    /// <seealso cref="CalibrationGeometry"/>
     public static class CalibrationGeometries
     {
-        /// <summary>All usable <see cref="CalibrationGeometry"/>s. May be helpful for UI, tests, etc.</summary>
+        /// <summary>
+        /// All usable <see cref="CalibrationGeometry"/>s
+        /// (<see cref="CalibrationGeometry.Unknown"/> and <see cref="CalibrationGeometry.Count"/> are not in this list).
+        /// May be helpful for UI, tests, etc.
+        /// </summary>
         public static readonly IReadOnlyList<CalibrationGeometry> All = new[]
         {
             CalibrationGeometry.Depth,

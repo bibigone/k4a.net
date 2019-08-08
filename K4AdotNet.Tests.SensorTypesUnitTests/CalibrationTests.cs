@@ -6,6 +6,44 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
     [TestClass]
     public class CalibrationTests
     {
+        #region Creation from raw calibration data
+
+        [TestMethod]
+        public void TestCreationFromRaw()
+        {
+            var rawCalibration = ReadRawCalibrationFromResources();
+
+            foreach (var depthMode in DepthModes.All)
+            {
+                foreach (var colorResolution in ColorResolutions.All)
+                {
+                    if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
+                        continue;
+
+                    Calibration.CreateFromRaw(rawCalibration, depthMode, colorResolution, out var calibration);
+
+                    Assert.IsTrue(calibration.IsValid);
+
+                    Assert.AreEqual(depthMode, calibration.DepthMode);
+                    Assert.AreEqual(colorResolution, calibration.ColorResolution);
+                }
+            }
+        }
+
+        private byte[] ReadRawCalibrationFromResources()
+        {
+            var assembly = GetType().Assembly;
+            using (var stream = assembly.GetManifestResourceStream("K4AdotNet.Tests.SensorTypesUnitTests.raw_calibration.bin"))
+            {
+                var rawCalibration = new byte[stream.Length];
+                var len = stream.Read(rawCalibration, 0, rawCalibration.Length);
+                System.Diagnostics.Debug.Assert(len == rawCalibration.Length);
+                return rawCalibration;
+            }
+        }
+
+        #endregion
+
         #region Dummy calibration
 
         [TestMethod]
@@ -25,12 +63,6 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
 
             Assert.AreEqual(depthMode, calibration.DepthMode);
             Assert.AreEqual(colorResolution, calibration.ColorResolution);
-
-            Assert.AreEqual(depthMode.WidthPixels(), calibration.DepthCameraCalibration.ResolutionWidth);
-            Assert.AreEqual(depthMode.HeightPixels(), calibration.DepthCameraCalibration.ResolutionHeight);
-
-            Assert.AreEqual(colorResolution.WidthPixels(), calibration.ColorCameraCalibration.ResolutionWidth);
-            Assert.AreEqual(colorResolution.HeightPixels(), calibration.ColorCameraCalibration.ResolutionHeight);
         }
 
         #endregion

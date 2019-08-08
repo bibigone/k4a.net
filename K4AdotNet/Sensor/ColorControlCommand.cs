@@ -16,6 +16,7 @@ namespace K4AdotNet.Sensor
     //      K4A_COLOR_CONTROL_GAIN,
     //      K4A_COLOR_CONTROL_POWERLINE_FREQUENCY
     // } k4a_color_control_command_t;
+    //
     /// <summary>Color sensor control commands.</summary>
     /// <remarks>
     /// Control values set on a device are reset only when the device is power cycled. The device will retain the settings

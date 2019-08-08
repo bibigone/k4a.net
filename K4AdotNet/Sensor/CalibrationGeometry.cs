@@ -12,6 +12,7 @@
     // } k4a_calibration_type_t;
     //
     /// <summary>Kinect for Azure device consists of different sensors each of them has their own coordinate system and calibration extrinsics.</summary>
+    /// <seealso cref="CalibrationGeometries"/>
     /// <seealso cref="CalibrationExtrinsics"/>
     /// <seealso cref="Calibration.Extrinsics"/>
     public enum CalibrationGeometry

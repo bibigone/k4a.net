@@ -91,8 +91,12 @@ namespace K4AdotNet.Sensor
         /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
         /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
         {
+            if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
+                throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
+
             calibration = default(Calibration);
 
             // depth camera
@@ -155,12 +159,15 @@ namespace K4AdotNet.Sensor
         /// <param name="calibration">Result: calibration data.</param>
         /// <exception cref="ArgumentNullException"><paramref name="rawCalibration"/> cannot be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="rawCalibration"/> must be 0-terminated.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         public static void CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
         {
             if (rawCalibration == null)
                 throw new ArgumentNullException(nameof(rawCalibration));
-            if (rawCalibration.Length < 1 || rawCalibration[rawCalibration.Length - 1] != 0)
+            if (rawCalibration.IndexOf(0) < 0)
                 throw new ArgumentException($"{nameof(rawCalibration)} must be 0-terminated.", nameof(rawCalibration));
+            if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
+                throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
             var res = NativeApi.CalibrationGetFromRaw(rawCalibration, Helpers.Int32ToUIntPtr(rawCalibration.Length), depthMode, colorResolution, out calibration);
             if (res == NativeCallResults.Result.Failed)
                 throw new InvalidOperationException("Cannot create calibration from parameters specified.");

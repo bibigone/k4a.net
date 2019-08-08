@@ -15,6 +15,7 @@ namespace K4AdotNet.Sensor
     //      uint32_t subordinate_delay_off_master_usec;
     //      bool disable_streaming_indicator;
     // } k4a_device_configuration_t;
+    //
     /// <summary>Configuration parameters for an Azure Kinect device.</summary>
     /// <seealso cref="Device.StartCameras(DeviceConfiguration)"/>
     [StructLayout(LayoutKind.Sequential)]

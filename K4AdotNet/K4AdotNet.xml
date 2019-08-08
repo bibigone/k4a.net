@@ -1138,6 +1138,7 @@
             <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.</param>
             <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.</param>
             <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Calibration.CreateFromRaw(System.Byte[],K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
             <summary>Gets the camera calibration for a device from a raw calibration blob.</summary>
@@ -1147,6 +1148,7 @@
             <param name="calibration">Result: calibration data.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="rawCalibration"/> cannot be <see langword="null"/>.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="rawCalibration"/> must be 0-terminated.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Calibration.Convert2DTo2D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)">
             <summary>Transform a 2D pixel coordinate with an associated depth value of the source camera into a 2D pixel coordinate of the target camera.</summary>
@@ -1256,10 +1258,14 @@
         </member>
         <member name="T:K4AdotNet.Sensor.CalibrationGeometries">
             <summary>Extensions to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration.</summary>
-            <seealso cref="T:K4AdotNet.Sensor.CalibrationGeometries"/>
+            <seealso cref="T:K4AdotNet.Sensor.CalibrationGeometry"/>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationGeometries.All">
-            <summary>All usable <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/>s. May be helpful for UI, tests, etc.</summary>
+            <summary>
+            All usable <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/>s
+            (<see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Unknown"/> and <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Count"/> are not in this list).
+            May be helpful for UI, tests, etc.
+            </summary>
         </member>
         <member name="M:K4AdotNet.Sensor.CalibrationGeometries.IsCamera(K4AdotNet.Sensor.CalibrationGeometry)">
             <summary>Is it camera?</summary>
@@ -1279,6 +1285,7 @@
         </member>
         <member name="T:K4AdotNet.Sensor.CalibrationGeometry">
             <summary>Kinect for Azure device consists of different sensors each of them has their own coordinate system and calibration extrinsics.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.CalibrationGeometries"/>
             <seealso cref="T:K4AdotNet.Sensor.CalibrationExtrinsics"/>
             <seealso cref="F:K4AdotNet.Sensor.Calibration.Extrinsics"/>
         </member>
@@ -1679,6 +1686,10 @@
         </member>
         <member name="T:K4AdotNet.Sensor.ColorResolution">
             <summary>Color sensor resolutions.</summary>
+            <remarks>
+            Use extension methods from <see cref="T:K4AdotNet.Sensor.ColorResolutions"/> class
+            for additional details on the field of view, supported frame rates and image formats.
+            </remarks>
             <seealso cref="T:K4AdotNet.Sensor.ColorResolutions"/>
         </member>
         <member name="F:K4AdotNet.Sensor.ColorResolution.Off">
@@ -1703,22 +1714,95 @@
             <summary>4096x3072 4:3</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.ColorResolutions">
-            <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.ColorResolution"/> enumeration.</summary>
+            <summary>Extensions to <see cref="T:K4AdotNet.Sensor.ColorResolution"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.ColorResolution"/> enumeration.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.ColorResolution"/>
+        </member>
+        <member name="F:K4AdotNet.Sensor.ColorResolutions.All">
+            <summary>
+            All usable <see cref="T:K4AdotNet.Sensor.ColorResolution"/>s including <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.
+            May be helpful for UI, tests, etc.
+            </summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.FrameRate)">
+            <summary>Checks that resolution is compatible with a given framerate.</summary>
+            <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="frameRate"/>.</param>
+            <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="colorResolution"/>.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="colorResolution"/> can be used in combination with <paramref name="frameRate"/>,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.ColorResolution)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.ImageFormat)">
+            <summary>Checks that resolution is compatible with a given image format.</summary>
+            <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="imageFormat"/>.</param>
+            <param name="imageFormat">Image format to be tested on compatibility with <paramref name="colorResolution"/>.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="colorResolution"/> can be used for images of <paramref name="imageFormat"/> format,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+            <seealso cref="T:K4AdotNet.Sensor.ImageFormat"/>
         </member>
         <member name="M:K4AdotNet.Sensor.ColorResolutions.WidthPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image width in pixels for a given resolution.</summary>
+            <param name="resolution">Color resolution (element of enumeration).</param>
+            <returns>Width in pixels.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.ColorResolutions.HeightPixels(K4AdotNet.Sensor.ColorResolution)">
             <summary>Returns image height in pixels for a given resolution.</summary>
+            <param name="resolution">Color resolution (element of enumeration)</param>
+            <returns>Height in pixels.</returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.GetNominalFov(K4AdotNet.Sensor.ColorResolution,System.Single@,System.Single@)">
+            <summary>Gets nominal (without taking into account distortions) field-of-view (FOV) for a given color resolution.</summary>
+            <param name="resolution">Color resolution.</param>
+            <param name="horizontalDegrees">Output: nominal horizontal field-of-view (FOV) in degrees.</param>
+            <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.IsAspectRatio4to3(K4AdotNet.Sensor.ColorResolution)">
+            <summary>Aspect ratio of a given resolution: is it 4:3?</summary>
+            <param name="resolution">Element of enumeration.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="resolution"/> has 4:3 aspect ratio,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.ColorResolutions.IsAspectRatio16to9(K4AdotNet.Sensor.ColorResolution)">
+            <summary>Aspect ratio of a given resolution: is it 16:9?</summary>
+            <param name="resolution">Element of enumeration.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="resolution"/> has 16:9 aspect ratio,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
         </member>
         <member name="T:K4AdotNet.Sensor.DepthMode">
             <summary>Depth sensor capture modes.</summary>
-            <remarks>
-            See the hardware specification for additional details on the field of view, and supported frame rates
-            for each mode.
-            
+            <remarks><para>
+            Use extension methods from <see cref="T:K4AdotNet.Sensor.DepthModes"/> class
+            for additional details on the field of view, and supported frame rates for each mode.
+            </para><para>
             Binned modes reduce the captured camera resolution by combining adjacent sensor pixels into a bin.
-            </remarks>
+            </para></remarks>
             <seealso cref="T:K4AdotNet.Sensor.DepthModes"/>
         </member>
         <member name="F:K4AdotNet.Sensor.DepthMode.Off">
@@ -1740,19 +1824,92 @@
             <summary>Passive IR only, captured at 1024x1024.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.DepthModes">
-            <summary>Helper extension methods for <see cref="T:K4AdotNet.Sensor.DepthMode"/> enumeration.</summary>
+            <summary>Extensions to <see cref="T:K4AdotNet.Sensor.DepthMode"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.DepthMode"/> enumeration.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.DepthMode"/>
+        </member>
+        <member name="F:K4AdotNet.Sensor.DepthModes.All">
+            <summary>
+            All <see cref="T:K4AdotNet.Sensor.DepthModes"/>s including <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.
+            May be helpful for UI, tests, etc.
+            </summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DepthModes.HasDepth(K4AdotNet.Sensor.DepthMode)">
+            <summary>Is there depth stream in a given depth mode?</summary>
+            <param name="depthMode">Depth mode under test.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="depthMode"/> actually generates depth data,
+            <see langword="false"/> if <paramref name="depthMode"/> is <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/> or <see cref="F:K4AdotNet.Sensor.DepthMode.PassiveIR"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DepthModes.HasPassiveIR(K4AdotNet.Sensor.DepthMode)">
+            <summary>Is there IR stream in a given depth mode?</summary>
+            <param name="depthMode">Depth mode under test.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="depthMode"/> actually generates IR data,
+            <see langword="false"/> if <paramref name="depthMode"/> is <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)">
+            <summary>Checks that depth mode is compatible with a given framerate.</summary>
+            <param name="depthMode">Depth mode to be tested on compatibility with <paramref name="frameRate"/>.</param>
+            <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="depthMode"/>.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="depthMode"/> can be used in combination with <paramref name="frameRate"/>,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.DepthMode)"/>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.WidthPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images width in pixels for a given depth mode.</summary>
+            <param name="depthMode">Element of enumeration.</param>
+            <returns>Width in pixels.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.HeightPixels(K4AdotNet.Sensor.DepthMode)">
             <summary>Returns depth and IR images height in pixels for a given depth mode.</summary>
+            <param name="depthMode">Element of enumeration.</param>
+            <returns>Height in pixels.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.IsWideView(K4AdotNet.Sensor.DepthMode)">
             <summary>Is depth mode has wide field of view?</summary>
+            <param name="depthMode">Depth mode (element of enumeration).</param>
+            <returns>
+            <see langword="true"/> - wide field-of-view,
+            <see langword="false"/> - narrow field-of-view.
+            </returns>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.IsBinned(K4AdotNet.Sensor.DepthMode)">
             <summary>Does depth mode use binning for smoothing/filtering?</summary>
+            <param name="depthMode">Depth mode (element of enumeration).</param>
+            <returns>
+            <see langword="true"/> - pixels are binned,
+            <see langword="false"/> - no binning is used.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DepthModes.GetOperatingRange(K4AdotNet.Sensor.DepthMode,System.Int32@,System.Int32@)">
+            <summary>
+            Gets operation range (minimal and maximum distance visible on depth map) for a given depth mode.
+            </summary>
+            <param name="depthMode">Depth mode.</param>
+            <param name="minDistanceMm">Minimum visible on depth map distance in millimeters.</param>
+            <param name="maxDistanceMm">Maximum visible on depth map distance in millimeters.</param>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.DepthModes.GetNominalFov(K4AdotNet.Sensor.DepthMode,System.Single@,System.Single@)">
+            <summary>Gets nominal (without taking into account distortions) field-of-view (FOV) for a given depth mode.</summary>
+            <param name="depthMode">Depth mode.</param>
+            <param name="horizontalDegrees">Output: nominal horizontal field-of-view (FOV) in degrees.</param>
+            <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            </remarks>
         </member>
         <member name="T:K4AdotNet.Sensor.DeviceConfiguration">
             <summary>Configuration parameters for an Azure Kinect device.</summary>

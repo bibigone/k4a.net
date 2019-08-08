@@ -4,6 +4,7 @@ using System.Text;
 namespace K4AdotNet.Sensor
 {
     // Inspired by <c>device</c> class from <c>k4a.hpp</c>
+    //
     public sealed class Device : IDisposablePlus
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.DeviceHandle> handle;

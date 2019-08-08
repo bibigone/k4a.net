@@ -81,5 +81,13 @@ namespace K4AdotNet
                     return true;
             return false;
         }
+
+        public static int IndexOf(this byte[] array, byte value)
+        {
+            for (var i = 0; i < array.Length; i++)
+                if (array[i] == value)
+                    return i;
+            return -1;
+        }
     }
 }

@@ -9,9 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="raw_calibration.bin" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="raw_calibration.bin" />
   </ItemGroup>
 
   <ItemGroup>

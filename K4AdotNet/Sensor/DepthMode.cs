@@ -10,13 +10,14 @@
     //      K4A_DEPTH_MODE_WFOV_UNBINNED,
     //      K4A_DEPTH_MODE_PASSIVE_IR,
     // } k4a_depth_mode_t;
+    //
     /// <summary>Depth sensor capture modes.</summary>
-    /// <remarks>
-    /// See the hardware specification for additional details on the field of view, and supported frame rates
-    /// for each mode.
-    /// 
+    /// <remarks><para>
+    /// Use extension methods from <see cref="DepthModes"/> class
+    /// for additional details on the field of view, and supported frame rates for each mode.
+    /// </para><para>
     /// Binned modes reduce the captured camera resolution by combining adjacent sensor pixels into a bin.
-    /// </remarks>
+    /// </para></remarks>
     /// <seealso cref="DepthModes"/>
     public enum DepthMode
     {
