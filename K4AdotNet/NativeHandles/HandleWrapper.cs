@@ -5,7 +5,7 @@ namespace K4AdotNet.NativeHandles
 {
     /// <summary>
     /// Helper wrapper around <see cref="HandleBase"/> objects.
-    /// Implements <see cref="IDisposablePlus"/> interface, which is really helpful for public classes.
+    /// Implements <see cref="IDisposablePlus"/> interface, which is really helpful in implementation of public classes.
     /// </summary>
     /// <typeparam name="T">Type of handle.</typeparam>
     internal sealed class HandleWrapper<T> : IDisposablePlus, IEquatable<HandleWrapper<T>>

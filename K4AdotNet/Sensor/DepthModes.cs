@@ -47,7 +47,7 @@ namespace K4AdotNet.Sensor
         public static bool HasPassiveIR(this DepthMode depthMode)
             => depthMode > DepthMode.Off && depthMode <= DepthMode.PassiveIR;
 
-        /// <summary>Checks that depth mode is compatible with a given framerate.</summary>
+        /// <summary>Checks that depth mode is compatible with a given frame rate.</summary>
         /// <param name="depthMode">Depth mode to be tested on compatibility with <paramref name="frameRate"/>.</param>
         /// <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="depthMode"/>.</param>
         /// <returns>
@@ -56,7 +56,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
         /// </remarks>
         /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, DepthMode)"/>
         public static bool IsCompatibleWith(this DepthMode depthMode, FrameRate frameRate)
@@ -103,7 +103,7 @@ namespace K4AdotNet.Sensor
         /// <param name="maxDistanceMm">Maximum visible on depth map distance in millimeters.</param>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
         /// </remarks>
         public static void GetOperatingRange(this DepthMode depthMode, out int minDistanceMm, out int maxDistanceMm)
         {
@@ -117,7 +117,7 @@ namespace K4AdotNet.Sensor
         /// <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
         /// </remarks>
         public static void GetNominalFov(this DepthMode depthMode, out float horizontalDegrees, out float verticalDegrees)
         {

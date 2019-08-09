@@ -560,7 +560,7 @@
         <member name="T:K4AdotNet.NativeHandles.HandleWrapper`1">
             <summary>
             Helper wrapper around <see cref="T:K4AdotNet.NativeHandles.HandleBase"/> objects.
-            Implements <see cref="T:K4AdotNet.IDisposablePlus"/> interface, which is really helpful for public classes.
+            Implements <see cref="T:K4AdotNet.IDisposablePlus"/> interface, which is really helpful in implementation of public classes.
             </summary>
             <typeparam name="T">Type of handle.</typeparam>
         </member>
@@ -1620,15 +1620,16 @@
             <summary>Exposure time setting.</summary>
             <remarks>
             May be set to <see cref="F:K4AdotNet.Sensor.ColorControlMode.Auto"/> or <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/>.
-            Exposure time is measured in microseconds.
+            Exposure time is measured in microseconds. For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#rgb-camera-exposure-time-values
             </remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.ColorControlCommand.AutoExposurePriority">
-            <summary>Exposure or Framerate priority setting.</summary>
+            <summary>Exposure or Frame rate priority setting.</summary>
             <remarks>
             May only be set to <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/>.
-            Value of <c>0</c> means framerate priority. Value of <c>1</c> means exposure priority.
-            Using exposure priority may impact the framerate of both the color and depth cameras.
+            Value of <c>0</c> means frame rate priority. Value of <c>1</c> means exposure priority.
+            Using exposure priority may impact the frame rate of both the color and depth cameras.
             Deprecated starting in 1.1.0. Please discontinue usage, firmware does not support this.
             </remarks>
         </member>
@@ -1733,7 +1734,7 @@
             </summary>
         </member>
         <member name="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.FrameRate)">
-            <summary>Checks that resolution is compatible with a given framerate.</summary>
+            <summary>Checks that resolution is compatible with a given frame rate.</summary>
             <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="frameRate"/>.</param>
             <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="colorResolution"/>.</param>
             <returns>
@@ -1742,7 +1743,7 @@
             </returns>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
             </remarks>
             <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.ColorResolution)"/>
         </member>
@@ -1756,7 +1757,7 @@
             </returns>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
             </remarks>
             <seealso cref="T:K4AdotNet.Sensor.ImageFormat"/>
         </member>
@@ -1777,7 +1778,7 @@
             <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
             </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.ColorResolutions.IsAspectRatio4to3(K4AdotNet.Sensor.ColorResolution)">
@@ -1789,7 +1790,7 @@
             </returns>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
             </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.ColorResolutions.IsAspectRatio16to9(K4AdotNet.Sensor.ColorResolution)">
@@ -1801,7 +1802,7 @@
             </returns>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
             </remarks>
         </member>
         <member name="T:K4AdotNet.Sensor.DepthMode">
@@ -1859,7 +1860,7 @@
             </returns>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)">
-            <summary>Checks that depth mode is compatible with a given framerate.</summary>
+            <summary>Checks that depth mode is compatible with a given frame rate.</summary>
             <param name="depthMode">Depth mode to be tested on compatibility with <paramref name="frameRate"/>.</param>
             <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="depthMode"/>.</param>
             <returns>
@@ -1868,7 +1869,7 @@
             </returns>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
             </remarks>
             <seealso cref="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.DepthMode)"/>
         </member>
@@ -1910,7 +1911,7 @@
             <param name="maxDistanceMm">Maximum visible on depth map distance in millimeters.</param>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
             </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.DepthModes.GetNominalFov(K4AdotNet.Sensor.DepthMode,System.Single@,System.Single@)">
@@ -1920,7 +1921,7 @@
             <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
             <remarks>
             For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
             </remarks>
         </member>
         <member name="T:K4AdotNet.Sensor.Device">
@@ -2636,11 +2637,13 @@
         </member>
         <member name="T:K4AdotNet.Sensor.FrameRate">
             <summary>Color and depth sensor frame rate.</summary>
-            <remarks>
+            <remarks><para>
             This enumeration is used to select the desired frame rate to operate the cameras. The actual
             frame rate may vary slightly due to dropped data, synchronization variation between devices,
             clock accuracy, or if the camera exposure priority mode causes reduced frame rate.
-            </remarks>
+            </para><para>
+            Use extension methods from <see cref="T:K4AdotNet.Sensor.FrameRates"/> class for additional details.
+            </para></remarks>
             <seealso cref="T:K4AdotNet.Sensor.FrameRates"/>
         </member>
         <member name="F:K4AdotNet.Sensor.FrameRate.Five">
@@ -2653,13 +2656,57 @@
             <summary>Thirty (30) frames per second.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.FrameRates">
-            <summary>Helper extension and static methods for <see cref="T:K4AdotNet.Sensor.FrameRate"/> enumeration.</summary>
+            <summary>Extensions to <see cref="T:K4AdotNet.Sensor.FrameRate"/> enumeration. Adds some metadata and capabilities to <see cref="T:K4AdotNet.Sensor.FrameRate"/> enumeration.</summary>
+            <seealso cref="T:K4AdotNet.Sensor.FrameRate"/>
+        </member>
+        <member name="F:K4AdotNet.Sensor.FrameRates.All">
+            <summary>
+            All possible <see cref="T:K4AdotNet.Sensor.FrameRate"/>s.
+            May be helpful for UI, tests, etc.
+            </summary>
         </member>
         <member name="M:K4AdotNet.Sensor.FrameRates.ToNumberHz(K4AdotNet.Sensor.FrameRate)">
-            <summary>Convert enumeration value to appropriate number of frames per second (Hz).</summary>
+            <summary>Converts enumeration value to appropriate number of frames per second (Hz).</summary>
+            <param name="frameRate">Enumeration element to be converted to Hz number.</param>
+            <returns>Appropriate nominal number of frames per second (Hz).</returns>
+            <remarks>
+            The actual frame rate of camera may vary slightly due to dropped data, synchronization variation between devices, clock accuracy.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">Unknown value of <paramref name="frameRate"/>.</exception>
         </member>
         <member name="M:K4AdotNet.Sensor.FrameRates.FromNumberHz(System.Int32)">
-            <summary>Constructs enumeration value from appropriate number of frames per second (Hz).</summary>
+            <summary>Creates enumeration value from appropriate number of frames per second (Hz).</summary>
+            <param name="frameRateHz">Frame rate as number in Hz.</param>
+            <returns>Appropriate enumeration element.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Value of <paramref name="frameRateHz"/> is not supported.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.DepthMode)">
+            <summary>Checks compatibility of a given frame rate with particular depth mode.</summary>
+            <param name="frameRate">Frame rate under test.</param>
+            <param name="depthMode">Depth mode to be checked for compatibility with <paramref name="frameRate"/>.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="depthMode"/> can be used in combination with <paramref name="frameRate"/>,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#depth-camera-supported-operating-modes
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.DepthModes.IsCompatibleWith(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.FrameRate)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.FrameRates.IsCompatibleWith(K4AdotNet.Sensor.FrameRate,K4AdotNet.Sensor.ColorResolution)">
+            <summary>Checks compatibility of a given frame rate with particular resolution of color camera.</summary>
+            <param name="frameRate">Frame rate under test.</param>
+            <param name="colorResolution">Color camera resolution to be checked for compatibility with <paramref name="frameRate"/>.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="colorResolution"/> can be used in combination with <paramref name="frameRate"/>,
+            <see langword="false"/> - otherwise.
+            </returns>
+            <remarks>
+            For details see:
+            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
+            </remarks>
+            <seealso cref="M:K4AdotNet.Sensor.ColorResolutions.IsCompatibleWith(K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.FrameRate)"/>
         </member>
         <member name="T:K4AdotNet.Sensor.HardwareVersion">
             <summary>Structure to define hardware version.</summary>
@@ -3095,7 +3142,9 @@
             </exception>
         </member>
         <member name="T:K4AdotNet.Sensor.ImuSample">
-            <summary>IMU sample.</summary>
+            <summary>Inertial measurement unit (IMU) sample. That is, data from accelerometer and gyro sensors.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Device.GetImuSample"/>
+            <seealso cref="M:K4AdotNet.Sensor.Device.TryGetImuSample(K4AdotNet.Sensor.ImuSample@,K4AdotNet.Timeout)"/>
         </member>
         <member name="F:K4AdotNet.Sensor.ImuSample.Temperature">
             <summary>Temperature reading of this sample (Celsius).</summary>
@@ -3784,6 +3833,108 @@
             <paramref name="xyzImage"/> should be created by the caller using <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
             or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/>.
             </remarks>
+        </member>
+        <member name="T:K4AdotNet.Sensor.Transformation">
+            <summary>
+            Azure Kinect transformation functionality.
+            Can be used to transform images and depth maps between cameras and to reproject depth map to 3D space.
+            It uses <see cref="T:K4AdotNet.Sensor.Calibration"/> data for transformations.
+            </summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)">
+            <summary>
+            Creates transformation object for a give calibration data.
+            </summary>
+            <param name="calibration">Camera calibration data.</param>
+            <remarks><para>
+            Each transformation instance requires some pre-computed resources to be allocated,
+            which are retained until the call of <see cref="M:K4AdotNet.Sensor.Transformation.Dispose"/> method.
+            </para><para>
+            <see cref="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME"/> library is required for this functionality.
+            </para></remarks>
+            <exception cref="T:System.InvalidOperationException">Something wrong with calibration data or <see cref="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be loaded.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.Dispose">
+            <summary>
+            Call this method to free all unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.Sensor.Transformation.Disposed"/>
+            <seealso cref="P:K4AdotNet.Sensor.Transformation.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Sensor.Transformation.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.DepthMode">
+            <summary>Depth mode for which this transformation was created.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.ColorResolution">
+            <summary>Resolution of color camera for which this transformation was created.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
+            <summary>Transforms the depth map into the geometry of the color camera.</summary>
+            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
+            <remarks>
+            This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
+            The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
+            camera's coordinate space.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="depthImage"/> is <see langword="null"/> or <paramref name="transformedDepthImage"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="depthImage"/> or <paramref name="transformedDepthImage"/> has invalid format or resolution.</exception>
+            <exception cref="T:System.InvalidOperationException">Failed to transform specified depth image to color camera.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.ColorImageToDepthCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
+            <summary>Transforms a color image into the geometry of the depth camera.</summary>
+            <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
+            <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <remarks><para>
+            This produces a color image for which each pixel matches the corresponding pixel coordinates of the depth camera.
+            </para><para>
+            <paramref name="depthImage"/> and <paramref name="colorImage"/> need to represent the same moment in time. The depth data will be applied to the
+            color image to properly warp the color data to the perspective of the depth camera.
+            </para><para>
+            <paramref name="depthImage"/> must be of type <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>. <paramref name="colorImage"/> must be of format
+            <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>.
+            </para><para>
+            <paramref name="transformedColorImage"/> image must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="depthImage"/> is <see langword="null"/> or <paramref name="colorImage"/> is <see langword="null"/> or <paramref name="transformedColorImage"/> is null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="depthImage"/> or <paramref name="colorImage"/> or <paramref name="transformedColorImage"/> has invalid format or resolution.</exception>
+            <exception cref="T:System.InvalidOperationException">Failed to transform specified color image to depth camera.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToPointCloud(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.Image)">
+            <summary>Transforms the depth image into 3 planar images representing X, Y and Z-coordinates of corresponding 3D points.</summary>
+            <param name="depthImage">Input depth image to be transformed to point cloud. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
+            <param name="camera">Geometry in which depth map was computed (<see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Depth"/> or <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Color"/>).</param>
+            <param name="xyzImage">Output XYZ image for point cloud data. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
+            <remarks><para>
+            <paramref name="depthImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>.
+            </para><para>
+            The <paramref name="camera"/> parameter tells the function what the perspective of the <paramref name="depthImage"/> is.
+            If the <paramref name="depthImage"/> was captured directly from the depth camera, the value should be <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Depth"/>.
+            If the <paramref name="depthImage"/> is the result of a transformation into the color camera's coordinate space using
+            <see cref="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)"/>, the value should be <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Color"/>.
+            </para><para>
+            The format of <paramref name="xyzImage"/> must be <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>. The width and height of <paramref name="xyzImage"/> must match the
+            width and height of <paramref name="depthImage"/>. <paramref name="xyzImage"/> must have a stride in bytes of at least 6 times its width in pixels.
+            </para><para>
+            Each pixel of the <paramref name="xyzImage"/> consists of three <see cref="T:System.Int16"/> values, totaling 6 bytes. The three <see cref="T:System.Int16"/> values are the
+            X, Y, and Z values of the point.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="camera"/> is not a camera.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="depthImage"/> is <see langword="null"/> or <paramref name="xyzImage"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="depthImage"/> or <paramref name="xyzImage"/> has invalid format or resolution.</exception>
+            <exception cref="T:System.InvalidOperationException">Failed to transform specified depth image to point cloud.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
         <member name="T:K4AdotNet.Sensor.WiredSyncMode">
             <summary>Synchronization mode when connecting two or more devices together.</summary>

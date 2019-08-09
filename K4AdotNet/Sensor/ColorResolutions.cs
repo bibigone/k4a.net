@@ -26,7 +26,7 @@ namespace K4AdotNet.Sensor
             ColorResolution.R3072p,
         };
 
-        /// <summary>Checks that resolution is compatible with a given framerate.</summary>
+        /// <summary>Checks that resolution is compatible with a given frame rate.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="frameRate"/>.</param>
         /// <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="colorResolution"/>.</param>
         /// <returns>
@@ -35,7 +35,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution)"/>
         public static bool IsCompatibleWith(this ColorResolution colorResolution, FrameRate frameRate)
@@ -50,7 +50,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         /// <seealso cref="ImageFormat"/>
         public static bool IsCompatibleWith(this ColorResolution colorResolution, ImageFormat imageFormat)
@@ -77,7 +77,7 @@ namespace K4AdotNet.Sensor
         /// <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         public static void GetNominalFov(this ColorResolution resolution, out float horizontalDegrees, out float verticalDegrees)
         {
@@ -106,7 +106,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         public static bool IsAspectRatio4to3(this ColorResolution resolution)
             => resolution == ColorResolution.R1536p || resolution == ColorResolution.R3072p;
@@ -119,7 +119,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         public static bool IsAspectRatio16to9(this ColorResolution resolution)
             => resolution == ColorResolution.R720p || resolution == ColorResolution.R1080p

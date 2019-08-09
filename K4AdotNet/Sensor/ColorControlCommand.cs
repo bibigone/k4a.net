@@ -27,15 +27,16 @@ namespace K4AdotNet.Sensor
         /// <summary>Exposure time setting.</summary>
         /// <remarks>
         /// May be set to <see cref="ColorControlMode.Auto"/> or <see cref="ColorControlMode.Manual"/>.
-        /// Exposure time is measured in microseconds.
+        /// Exposure time is measured in microseconds. For details see:
+        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#rgb-camera-exposure-time-values
         /// </remarks>
         ExposureTimeAbsolute = 0,
 
-        /// <summary>Exposure or Framerate priority setting.</summary>
+        /// <summary>Exposure or Frame rate priority setting.</summary>
         /// <remarks>
         /// May only be set to <see cref="ColorControlMode.Manual"/>.
-        /// Value of <c>0</c> means framerate priority. Value of <c>1</c> means exposure priority.
-        /// Using exposure priority may impact the framerate of both the color and depth cameras.
+        /// Value of <c>0</c> means frame rate priority. Value of <c>1</c> means exposure priority.
+        /// Using exposure priority may impact the frame rate of both the color and depth cameras.
         /// Deprecated starting in 1.1.0. Please discontinue usage, firmware does not support this.
         /// </remarks>
         [Obsolete]

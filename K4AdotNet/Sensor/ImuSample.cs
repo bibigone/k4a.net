@@ -12,7 +12,9 @@ namespace K4AdotNet.Sensor
     //     uint64_t gyro_timestamp_usec;
     // } k4a_imu_sample_t;
     //
-    /// <summary>IMU sample.</summary>
+    /// <summary>Inertial measurement unit (IMU) sample. That is, data from accelerometer and gyro sensors.</summary>
+    /// <seealso cref="Device.GetImuSample"/>
+    /// <seealso cref="Device.TryGetImuSample(out ImuSample, Timeout)"/>
     [StructLayout(LayoutKind.Sequential)]
     public struct ImuSample
     {

@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
+[assembly: CLSCompliant(isCompliant: true)]
+
 namespace K4AdotNet
 {
     public static class Sdk

@@ -9,11 +9,13 @@
     // } k4a_fps_t;
     //
     /// <summary>Color and depth sensor frame rate.</summary>
-    /// <remarks>
+    /// <remarks><para>
     /// This enumeration is used to select the desired frame rate to operate the cameras. The actual
     /// frame rate may vary slightly due to dropped data, synchronization variation between devices,
     /// clock accuracy, or if the camera exposure priority mode causes reduced frame rate.
-    /// </remarks>
+    /// </para><para>
+    /// Use extension methods from <see cref="FrameRates"/> class for additional details.
+    /// </para></remarks>
     /// <seealso cref="FrameRates"/>
     public enum FrameRate
     {

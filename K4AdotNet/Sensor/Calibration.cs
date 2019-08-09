@@ -51,6 +51,7 @@ namespace K4AdotNet.Sensor
         public bool IsValid
             => Extrinsics != null
             && Extrinsics.Length == (int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count
+            && (DepthMode != DepthMode.Off || ColorResolution != ColorResolution.Off)
             && ColorCameraCalibration.ResolutionWidth == ColorResolution.WidthPixels()
             && ColorCameraCalibration.ResolutionHeight == ColorResolution.HeightPixels()
             && DepthCameraCalibration.ResolutionWidth == DepthMode.WidthPixels()
