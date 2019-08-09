@@ -16,7 +16,9 @@ namespace K4AdotNet.Record
     //      int32_t depth_delay_off_color_usec;
     //      k4a_wired_sync_mode_t wired_sync_mode;
     //      uint32_t subordinate_delay_off_master_usec;
+    //      uint32_t start_timestamp_offset_usec;
     // } k4a_record_configuration_t;
+    //
     /// <summary>Structure containing the device configuration used to record.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct RecordConfiguration
@@ -34,22 +36,25 @@ namespace K4AdotNet.Record
         public Sensor.FrameRate CameraFps;
 
         /// <summary><see langword="true"/> if the recording contains Color camera frames.</summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool ColorTrackEnabled;
 
         /// <summary><see langword="true"/> if the recording contains Depth camera frames.</summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool DepthTrackEnabled;
 
         /// <summary><see langword="true"/> if the recording contains IR camera frames.</summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool IRTrackEnabled;
 
         /// <summary><see langword="true"/> if the recording contains IMU sample data.</summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool ImuTrackEnabled;
 
         /// <summary>
         /// The delay between color and depth images in the recording.
         /// A negative delay means depth images are first, and a positive delay means color images are first.
         /// </summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds32 DepthDelayOffColor;
 
         /// <summary>External synchronization mode.</summary>
@@ -59,7 +64,12 @@ namespace K4AdotNet.Record
         /// The timestamp offset of the start of the recording. All recorded time stamps are offset by this value such that
         /// the recording starts at timestamp <see cref="Microseconds32.Zero"/>. This value can be used to synchronize time stamps between two recording files.
         /// </summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds32 SubordinateDelayOffMaster;
+
+        /// <summary>
+        /// The timestamp offset of the start of the recording. All recorded timestamps are offset by this value such that
+        /// the recording starts at timestamp <see cref="Microseconds32.Zero"/>. This value can be used to synchronize timestamps between two recording files.
+        /// </summary>
+        public Microseconds32 StartTimeOffset;
     }
 }

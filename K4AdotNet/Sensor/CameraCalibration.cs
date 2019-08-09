@@ -17,11 +17,9 @@ namespace K4AdotNet.Sensor
     public struct CameraCalibration
 {
         /// <summary>Extrinsic calibration data.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public CalibrationExtrinsics Extrinsics;
 
         /// <summary>Intrinsic calibration data.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public CalibrationIntrinsics Intrinsics;
 
         /// <summary>Resolution width of the camera.</summary>

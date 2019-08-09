@@ -19,11 +19,9 @@ namespace K4AdotNet.Sensor
     public partial struct Calibration
     {
         /// <summary>Depth camera calibration.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public CameraCalibration DepthCameraCalibration;
 
         /// <summary>Color camera calibration.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public CameraCalibration ColorCameraCalibration;
 
         /// <summary>Extrinsic transformation parameters.</summary>

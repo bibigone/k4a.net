@@ -26,7 +26,6 @@ namespace K4AdotNet.Sensor
         public int ParameterCount;
 
         /// <summary>Calibration parameters.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public CalibrationIntrinsicParameters Parameters;
     }
 }

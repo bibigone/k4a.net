@@ -1055,6 +1055,12 @@
             the recording starts at timestamp <see cref="F:K4AdotNet.Microseconds32.Zero"/>. This value can be used to synchronize time stamps between two recording files.
             </summary>
         </member>
+        <member name="F:K4AdotNet.Record.RecordConfiguration.StartTimeOffset">
+            <summary>
+            The timestamp offset of the start of the recording. All recorded timestamps are offset by this value such that
+            the recording starts at timestamp <see cref="F:K4AdotNet.Microseconds32.Zero"/>. This value can be used to synchronize timestamps between two recording files.
+            </summary>
+        </member>
         <member name="F:K4AdotNet.Sdk.SENSOR_DLL_NAME">
             <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
         </member>

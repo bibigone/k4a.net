@@ -18,19 +18,15 @@ namespace K4AdotNet.Sensor
     public struct HardwareVersion
     {
         /// <summary>Color camera firmware version.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public FirmwareVersion ColorCameraFirmwareVersion;
 
         /// <summary>Depth camera firmware version.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public FirmwareVersion DepthCamereFirmwareVersion;
 
         /// <summary>Audio device firmware version.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public FirmwareVersion AudioDeviceFirmwareVersion;
 
         /// <summary>Depth sensor firmware version.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public FirmwareVersion DepthSensorFirmwareVersion;
 
         /// <summary>Build type reported by the firmware.</summary>

@@ -74,6 +74,7 @@ namespace K4AdotNet.Sensor
         /// </para><para>
         /// If either the color or depth camera are disabled, this setting has no effect.
         /// </para></remarks>
+        [MarshalAs(UnmanagedType.I1)]
         public bool SynchronizedImagesOnly;
 
         /// <summary>Desired delay between the capture of the color image and the capture of the depth image.</summary>
@@ -81,7 +82,6 @@ namespace K4AdotNet.Sensor
         /// A negative value indicates that the depth image should be captured before the color image.
         /// Any value between negative and positive one capture period is valid.
         /// </remarks>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds32 DepthDelayOffColor;
 
         /// <summary>The external synchronization mode.</summary>
@@ -98,11 +98,11 @@ namespace K4AdotNet.Sensor
         /// </para><para>
         /// If this is not a subordinate, then this value is ignored.
         /// </para></remarks>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds32 SubordinateDelayOffMaster;
 
         /// <summary>Streaming indicator automatically turns on when the color or depth camera's are in use.</summary>
         /// <remarks>This setting disables that behavior and keeps the LED in an off state.</remarks>
+        [MarshalAs(UnmanagedType.I1)]
         public bool DisableStreamingIndicator;
 
         /// <summary>

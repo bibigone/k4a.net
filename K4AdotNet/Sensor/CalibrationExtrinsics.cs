@@ -14,11 +14,9 @@ namespace K4AdotNet.Sensor
     public struct CalibrationExtrinsics
     {
         /// <summary>Rotation matrix.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Float3x3 Rotation;
 
         /// <summary>Translation vector.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Float3 Translation;
     }
 }

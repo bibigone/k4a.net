@@ -17,11 +17,9 @@ namespace K4AdotNet.BodyTracking
     public struct Joint
     {
         /// <summary>The position of the joint specified in millimeters.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Float3 PositionMm;
 
         /// <summary>The orientation of the joint specified in normalized quaternion.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Quaternion Orientation;
     }
 }

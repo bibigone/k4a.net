@@ -20,19 +20,15 @@ namespace K4AdotNet.Sensor
         public float Temperature;
 
         /// <summary>Accelerometer sample in meters per second squared.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Float3 AccelerometerSample;
 
         /// <summary>Time stamp of the accelerometer.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds64 AccelerometerTimestamp;
 
         /// <summary>Gyro sample in radians per second.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Float3 GyroSample;
 
         /// <summary>Time stamp of the gyroscope in microseconds.</summary>
-        [MarshalAs(UnmanagedType.Struct)]
         public Microseconds64 GyroTimestamp;
     }
 }

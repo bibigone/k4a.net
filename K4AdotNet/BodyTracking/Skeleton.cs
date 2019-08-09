@@ -15,82 +15,56 @@ namespace K4AdotNet.BodyTracking
     [StructLayout(LayoutKind.Sequential)]
     public struct Skeleton : IEnumerable<Joint>
     {
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint Pelvis;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint SpineNaval;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint SpineChest;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint Neck;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ClavicleLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ShoulderLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ElbowLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint WristLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ClavicleRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ShoulderRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint ElbowRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint WristRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint HipLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint KneeLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint AnkleLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint FootLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint HipRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint KneeRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint AnkleRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint FootRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint Head;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint Nose;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint EyeLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint EarLeft;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint EyeRight;
 
-        [MarshalAs(UnmanagedType.Struct)]
         public Joint EarRight;
 
         public Joint this[JointType index]
