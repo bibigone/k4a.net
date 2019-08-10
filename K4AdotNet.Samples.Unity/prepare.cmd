@@ -4,4 +4,5 @@ rem You may run it again anytime to update binaries with changes made to K4AdotN
 
 msbuild ..\K4AdotNet -p:Configuration=Debug
 xcopy ..\K4AdotNet\bin\Debug\netstandard2.0\* Assets\Plugins\K4AdotNet\ /A /Y
+xcopy ..\externals\k4a\windows-desktop\amd64\*.dll .\ /A /Y
 xcopy ..\externals\k4a\windows-desktop\amd64\*.dll Assets\Plugins\K4AdotNet\ /A /Y
