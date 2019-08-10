@@ -1,4 +1,6 @@
 ﻿using K4AdotNet.BodyTracking;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,30 +16,22 @@ namespace K4AdotNet.Samples.Unity
 
         private void Awake()
         {
-            IsInitialized = Sdk.TryInitializeBodyTrackingRuntime(out var _);
-            if (IsInitialized)
-            {
-                _joints = typeof(JointType).GetEnumValues().Cast<JointType>()
-                    .ToDictionary(
-                        jt => jt,
-                        jt =>
-                        {
-                            var joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                            joint.transform.parent = transform;
-                            joint.transform.localScale = 0.1f * Vector3.one;
-                            joint.name = jt.ToString();
-                            joint.SetActive(false);
-                            return joint;
-                        });
-                SetJointScale(0.05f, JointType.EyeLeft, JointType.EyeRight, JointType.Nose, JointType.EarLeft, JointType.EarRight);
-                SetJointColor(Color.cyan, JointType.EyeLeft, JointType.EyeRight);
-                SetJointColor(Color.magenta, JointType.Nose);
-                SetJointColor(Color.yellow, JointType.EarLeft, JointType.EarRight);
-            }
-            else
-            {
-                Debug.Log("Cannot initialize body tracking");
-            }
+            _joints = typeof(JointType).GetEnumValues().Cast<JointType>()
+                .ToDictionary(
+                    jt => jt,
+                    jt =>
+                    {
+                        var joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        joint.transform.parent = transform;
+                        joint.transform.localScale = 0.1f * Vector3.one;
+                        joint.name = jt.ToString();
+                        joint.SetActive(false);
+                        return joint;
+                    });
+            SetJointScale(0.05f, JointType.EyeLeft, JointType.EyeRight, JointType.Nose, JointType.EarLeft, JointType.EarRight);
+            SetJointColor(Color.cyan, JointType.EyeLeft, JointType.EyeRight);
+            SetJointColor(Color.magenta, JointType.Nose);
+            SetJointColor(Color.yellow, JointType.EarLeft, JointType.EarRight);
         }
 
         private void SetJointScale(float scale, params JointType[] jointTypes)
@@ -54,10 +48,34 @@ namespace K4AdotNet.Samples.Unity
 
         private void Start()
         {
+            StartCoroutine(DelayedInitialize());
+        }
+
+        private IEnumerator DelayedInitialize()
+        {
+            var attempt = 1;
+            do
+            {
+                yield return new WaitForSeconds(2);
+
+                try
+                {
+                    IsInitialized = Sdk.TryInitializeBodyTrackingRuntime(out var _);
+                    if (!IsInitialized)
+                    {
+                        Debug.Log("Cannot initialize body tracking");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Exception on {nameof(Sdk.TryInitializeBodyTrackingRuntime)}\r\n{ex}");
+                }
+            } while (!IsInitialized && ++attempt <= 3);
+
             if (IsInitialized)
             {
                 var captureManager = FindObjectOfType<CaptureManager>();
-                if (captureManager.IsInitialized)
+                if (captureManager?.IsInitialized == true)
                 {
                     var calibration = captureManager.Calibration;
                     _tracker = new Tracker(ref calibration);
