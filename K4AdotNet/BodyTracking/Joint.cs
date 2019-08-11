@@ -8,6 +8,7 @@ namespace K4AdotNet.BodyTracking
     //     k4a_float3_t position;    /**< The position of the joint specified in millimeters*/
     //     k4a_quaternion_t orientation; /**< The orientation of the joint specified in normalized quaternion*/
     // } k4abt_joint_t;
+    //
     /// <summary>Structure to define a single joint.</summary>
     /// <remarks>
     /// The position and orientation together defines the coordinate system for the given joint.

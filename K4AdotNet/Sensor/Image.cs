@@ -7,12 +7,9 @@ namespace K4AdotNet.Sensor
     //
     /// <summary>An Azure Kinect image referencing its buffer and metadata.</summary>
     /// <remarks><para>
-    /// Is used for color images, IR images, depth maps, body index maps.
-    /// </para><para>
-    /// This class is designed to be thread-safe.
+    /// Is used for color images, IR images, depth maps, body index maps, 3D point clouds.
     /// </para></remarks>
     /// <seealso cref="ImageFormat"/>
-    /// <threadsafety static="true" instance="true"/>
     public sealed class Image
         : IDisposablePlus, IReferenceDuplicatable<Image>, IEquatable<Image>
     {

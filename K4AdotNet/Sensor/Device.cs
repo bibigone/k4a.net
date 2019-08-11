@@ -13,12 +13,9 @@ namespace K4AdotNet.Sensor
     /// <see cref="TryGetCapture(out Capture, Timeout)"/> and <see cref="GetCapture"/> methods
     /// are used to read next capture (frame with data) from device.
     /// Don't forget to close device and release all unmanaged resources by calling <see cref="Dispose"/> method.
-    /// </para><para>
-    /// This class is designed to be thread-safe.
     /// </para></remarks>
     /// <seealso cref="Capture"/>
     /// <seealso cref="ImuSample"/>
-    /// <threadsafety static="true" instance="true"/>
     public sealed class Device : IDisposablePlus
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.DeviceHandle> handle;    // This class is an wrapper around this native handle
@@ -347,7 +344,7 @@ namespace K4AdotNet.Sensor
                 "Not supported command: " + command);
 
         /// <summary>Gets the raw calibration blob for the entire Azure Kinect device.</summary>
-        /// <returns>Raw calibration data terminated by <c>0</c> value. Not <see langword="null"/>.</returns>
+        /// <returns>Raw calibration data terminated by <c>0</c> byte. Not <see langword="null"/>.</returns>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Cannot read calibration data for some unexpected reason. See logs for details.</exception>

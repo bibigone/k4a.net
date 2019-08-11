@@ -2,11 +2,12 @@
 
 namespace K4AdotNet.BodyTracking
 {
+    /// <summary>Azure Kinect body tracking frame.</summary>
     public sealed class BodyFrame
         : IDisposablePlus, IReferenceDuplicatable<BodyFrame>, IEquatable<BodyFrame>
     {
-        private readonly ChildrenDisposer children = new ChildrenDisposer();
-        private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;
+        private readonly ChildrenDisposer children = new ChildrenDisposer();                    // to track returned Image objects
+        private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;     // this class is an wrapper around this handle
 
         private BodyFrame(NativeHandles.BodyFrameHandle handle)
         {
@@ -20,29 +21,101 @@ namespace K4AdotNet.BodyTracking
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Call this method to free unmanaged resources associated with current instance.
+        /// </summary>
+        /// <remarks><para>
+        /// Under the hood, reference counter is decremented on this call. When the references reach zero the unmanaged resources are destroyed.
+        /// (Multiple objects of <see cref="BodyFrame"/> can reference one and the same body frame. For details see <see cref="DuplicateReference"/>.)
+        /// </para><para>
+        /// Can be called multiple times but event <see cref="Disposed"/> will be raised only once.
+        /// </para></remarks>
+        /// <seealso cref="Disposed"/>
+        /// <seealso cref="IsDisposed"/>
+        /// <seealso cref="DuplicateReference"/>
         public void Dispose()
         {
             children.Dispose();
             handle.Dispose();
         }
 
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
+        /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
+        /// <summary>Raised on object disposing (only once).</summary>
+        /// <seealso cref="Dispose"/>
         public event EventHandler Disposed;
 
+        /// <summary>Creates new reference to the same unmanaged body frame object.</summary>
+        /// <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
+        /// <remarks>It helps to manage underlying object lifetime and to access capture from different threads and different components of application.</remarks>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        /// <seealso cref="Dispose"/>
         public BodyFrame DuplicateReference()
             => new BodyFrame(handle.ValueNotDisposed.DuplicateReference());
 
+        /// <summary>Gets the body frame timestamp.</summary>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Microseconds64 Timestamp => NativeApi.FrameGetTimestamp(handle.ValueNotDisposed);
 
+        /// <summary>Gets the number of detected bodies.</summary>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public int BodyCount => Helpers.UIntPtrToInt32(NativeApi.FrameGetNumBodies(handle.ValueNotDisposed));
 
+        /// <summary>Get the original capture that was used to calculate this body frame.</summary>
+        /// <remarks><para>
+        /// Called when the user has received a body frame handle and wants to access the data contained in it.
+        /// </para><para>
+        /// It is highly recommended to call <see cref="Sensor.Capture.Dispose"/> for returned capture explicitly:
+        /// <code>
+        /// using (var capture = bodyFrame.Capture)
+        /// {
+        ///     // working with capture
+        /// }
+        /// </code>
+        /// But <see cref="BodyFrame"/> object automatically tracks all <see cref="Sensor.Capture"/> objects it returned. And will call <see cref="Sensor.Capture.Dispose"/>
+        /// for all of them if client code didn't it.
+        /// </para><para>
+        /// For this reason, if you want to keep returned <see cref="Sensor.Capture"/> for longer life time than life time of <see cref="BodyFrame"/> object,
+        /// use <see cref="Sensor.Capture.DuplicateReference"/> method.
+        /// </para></remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Sensor.Capture Capture => children.Register(Sensor.Capture.Create(NativeApi.FrameGetCapture(handle.ValueNotDisposed)));
 
+        /// <summary>Non-a-body value on index body map.</summary>
+        /// <seealso cref="BodyIndexMap"/>
         public const byte NotABodyIndexMapPixelValue = byte.MaxValue;
 
+        /// <summary>Gets the body index map: image in custom format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="NotABodyIndexMapPixelValue"/> for background pixels.</summary>
+        /// <remarks><para>
+        /// Body Index map is the body instance segmentation map. Each pixel maps to the corresponding pixel in the
+        /// depth image or the IR image. The value for each pixel is byte and represents which body the pixel belongs to. It can be either
+        /// background (value <see cref="NotABodyIndexMapPixelValue"/>) or the zero-based index of a detected body.
+        /// </para><para>
+        /// It is highly recommended to call <see cref="Sensor.Image.Dispose"/> for returned image explicitly:
+        /// <code>
+        /// using (var bodyIndexMap = bodyFrame.BodyIndexMap)
+        /// {
+        ///     // working with body index map
+        /// }
+        /// </code>
+        /// But <see cref="BodyFrame"/> object automatically tracks all <see cref="Sensor.Image"/> objects it returned. And will call <see cref="Sensor.Image.Dispose"/>
+        /// for all of them if client code didn't it.
+        /// </para><para>
+        /// For this reason, if you want to keep returned <see cref="Sensor.Image"/> for longer life time than life time of <see cref="BodyFrame"/> object,
+        /// use <see cref="Sensor.Image.DuplicateReference"/> method.
+        /// </para></remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Sensor.Image BodyIndexMap => children.Register(Sensor.Image.Create(NativeApi.FrameGetBodyIndexMap(handle.ValueNotDisposed)));
 
+        /// <summary>Gets the joint information for a particular person index.</summary>
+        /// <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="BodyCount"/>.</param>
+        /// <param name="skeleton">Output: this contains the body skeleton information.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="bodyIndex"/> is less than zero or greater than or equal to <see cref="BodyCount"/>.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        /// <seealso cref="Skeleton"/>
+        /// <seealso cref="JointType"/>
         public void GetBodySkeleton(int bodyIndex, out Skeleton skeleton)
         {
             if (bodyIndex < 0 || bodyIndex >= BodyCount)
@@ -51,6 +124,11 @@ namespace K4AdotNet.BodyTracking
                 throw new BodyTrackingException($"Cannot extract skeletal data for body with index {bodyIndex}");
         }
 
+        /// <summary>Gets the body id for a particular person index.</summary>
+        /// <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="BodyCount"/>.</param>
+        /// <returns>Returns the body id. In case of failures will return <see cref="BodyId.Invalid"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="bodyIndex"/> is less than zero or greater than or equal to <see cref="BodyCount"/>.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public BodyId GetBodyId(int bodyIndex)
         {
             if (bodyIndex < 0 || bodyIndex >= BodyCount)

@@ -12,8 +12,9 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="DeviceException.DeviceIndex"/> property.</param>
         /// <seealso cref="Device.DeviceIndex"/>
         public DeviceOccupiedException(int deviceIndex)
-            : base("Cannot open Azure Kinect device" + FormatDeviceIndex(deviceIndex) +". Possibly, it is occupied by another software or has insufficient power supply.")
-            => DeviceIndex = deviceIndex;
+            : base("Cannot open Azure Kinect device" + FormatDeviceIndex(deviceIndex) + ". Possibly, it is occupied by another software or has insufficient power supply.",
+                  deviceIndex)
+        { }
 
         /// <summary>Constructor for deserialization needs.</summary>
         /// <param name="info">Serialization info.</param>

@@ -10,30 +10,19 @@ namespace K4AdotNet.Sensor
     {
         /// <summary>Zero-based index of device.</summary>
         /// <seealso cref="Device.DeviceIndex"/>
-        public int DeviceIndex { get; set; }
-
-        /// <summary>Creates exception with some default message.</summary>
-        public DeviceException() : base("Kinect device error.")
-        { }
+        public int DeviceIndex { get; }
 
         /// <summary>Creates exception with specified message.</summary>
         /// <param name="message">Message for exception. Can be reached then via <see cref="Exception.Message"/> property..</param>
-        public DeviceException(string message) : base(message)
-        { }
-
-        /// <summary>Creates exception with specified message and inner exception.</summary>
-        /// <param name="message">Message for exception. Can be reached then via <see cref="Exception.Message"/> property..</param>
-        /// <param name="innerException">Inner exception. Can be reached then via <see cref="Exception.InnerException"/> property.</param>
-        public DeviceException(string message, Exception innerException) : base(message, innerException)
-        { }
+        /// <param name="deviceIndex">Zero-based index of device.</param>
+        public DeviceException(string message, int deviceIndex) : base(message)
+            => DeviceIndex = deviceIndex;
 
         /// <summary>Constructor for deserialization needs.</summary>
         /// <param name="info">Serialization info.</param>
         /// <param name="context">Streaming context.</param>
         protected DeviceException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            DeviceIndex = info.GetInt32(nameof(DeviceIndex));
-        }
+            => DeviceIndex = info.GetInt32(nameof(DeviceIndex));
 
         /// <summary>For serialization needs.</summary>
         /// <param name="info">Serialization info.</param>
@@ -48,7 +37,7 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceIndex">Zero-based index of device.</param>
         /// <returns>
         /// Empty string if <paramref name="deviceIndex"/> is equal to <see cref="Device.DefaultDeviceIndex"/>,
-        /// <c># {deviceIndex+1}</c> otherwise.</returns>
+        /// <c> #{deviceIndex+1}</c> otherwise.</returns>
         protected static string FormatDeviceIndex(int deviceIndex)
             => deviceIndex == Device.DefaultDeviceIndex ? string.Empty : $" #{deviceIndex + 1}";
     }

@@ -9,11 +9,8 @@ namespace K4AdotNet.BodyTracking
     /// Processing is organized as pipeline with queues.
     /// Use <see cref="TryEnqueueCapture(Capture, Timeout)"/> to add new capture to processing pipeline.
     /// Use <see cref="TryPopResult(out BodyFrame, Timeout)"/> to extract processed capture and body data from pipeline.
-    /// </para><para>
-    /// This class is designed to be thread-safe.
     /// </para></remarks>
     /// <seealso cref="BodyFrame"/>
-    /// <threadsafety static="true" instance="true"/>
     public sealed class Tracker : IDisposablePlus
     {
         // Current version of Body Tracking runtime does not support creation of multiple instances.

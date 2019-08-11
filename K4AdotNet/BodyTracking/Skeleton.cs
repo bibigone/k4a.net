@@ -10,63 +10,103 @@ namespace K4AdotNet.BodyTracking
     // {
     //     k4abt_joint_t joints[K4ABT_JOINT_COUNT];
     // } k4abt_skeleton_t;
-    // https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints
+    //
     /// <summary>Structure to define joints for skeleton.</summary>
+    /// <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
+    /// <seealso cref="JointType"/>
+    /// <seealso cref="JointTypes"/>
     [StructLayout(LayoutKind.Sequential)]
     public struct Skeleton : IEnumerable<Joint>
     {
+        #region Fields
+
+        /// <summary>Pelvis joint.</summary>
         public Joint Pelvis;
 
+        /// <summary>Naval spine joint.</summary>
         public Joint SpineNaval;
 
+        /// <summary>Chest spine joint.</summary>
         public Joint SpineChest;
 
+        /// <summary>Neck joint.</summary>
         public Joint Neck;
 
+        /// <summary>Left clavicle joint.</summary>
         public Joint ClavicleLeft;
 
+        /// <summary>Left shoulder joint.</summary>
         public Joint ShoulderLeft;
 
+        /// <summary>Left elbow joint.</summary>
         public Joint ElbowLeft;
 
+        /// <summary>Left wrist joint.</summary>
         public Joint WristLeft;
 
+        /// <summary>Right clavicle joint.</summary>
         public Joint ClavicleRight;
 
+        /// <summary>Right shoulder joint.</summary>
         public Joint ShoulderRight;
 
+        /// <summary>Right elbow joint.</summary>
         public Joint ElbowRight;
 
+        /// <summary>Right wrist joint.</summary>
         public Joint WristRight;
 
+        /// <summary>Left hip joint.</summary>
         public Joint HipLeft;
 
+        /// <summary>Left knee joint.</summary>
         public Joint KneeLeft;
 
+        /// <summary>Left ankle joint.</summary>
         public Joint AnkleLeft;
 
+        /// <summary>Left foot joint.</summary>
         public Joint FootLeft;
 
+        /// <summary>Right hip joint.</summary>
         public Joint HipRight;
 
+        /// <summary>Right knee joint.</summary>
         public Joint KneeRight;
 
+        /// <summary>Right ankle joint.</summary>
         public Joint AnkleRight;
 
+        /// <summary>Right fool joint.</summary>
         public Joint FootRight;
 
+        /// <summary>Head joint.</summary>
         public Joint Head;
 
+        /// <summary>Nose.</summary>
         public Joint Nose;
 
+        /// <summary>Left eye.</summary>
         public Joint EyeLeft;
 
+        /// <summary>Left ear.</summary>
         public Joint EarLeft;
 
+        /// <summary>Right eye.</summary>
         public Joint EyeRight;
 
+        /// <summary>Right ear.</summary>
         public Joint EarRight;
 
+        #endregion
+
+        #region Index access
+
+        /// <summary>Access to joint by index of type <see cref="JointType"/>.</summary>
+        /// <param name="index">Index of joint.</param>
+        /// <returns>Joint information.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Unknown value of <paramref name="index"/>.</exception>
+        /// <seealso cref="JointTypes.All"/>
         public Joint this[JointType index]
         {
             get
@@ -138,12 +178,18 @@ namespace K4AdotNet.BodyTracking
             }
         }
 
+        /// <summary>Access to joint by integer index.</summary>
+        /// <param name="index">Index of joint.</param>
+        /// <returns>Joint information.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Invalid value of <paramref name="index"/>.</exception>
         public Joint this[int index]
         {
             get => this[(JointType)index];
             set => this[(JointType)index] = value;
         }
 
+        /// <summary>Converts structure to array representation.</summary>
+        /// <returns>Array representation of skeletal data. Not <see langword="null"/>.</returns>
         public Joint[] ToArray()
         {
             var res = new Joint[JointTypes.All.Count];
@@ -152,16 +198,26 @@ namespace K4AdotNet.BodyTracking
             return res;
         }
 
+        #endregion
+
+        #region IEnumerable
+
+        /// <summary>Implementation of <see cref="IEnumerable{Joint}"/>.</summary>
+        /// <returns>Enumerator for all joints. Not <see langword="null"/>.</returns>
         public IEnumerator<Joint> GetEnumerator()
         {
             foreach (var jointType in JointTypes.All)
                 yield return this[jointType];
         }
 
+        /// <summary>Implementation of <see cref="IEnumerable"/>.</summary>
+        /// <returns>Enumerator for all joints. Not <see langword="null"/>.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             foreach (var jointType in JointTypes.All)
                 yield return this[jointType];
         }
+
+        #endregion
     }
 }

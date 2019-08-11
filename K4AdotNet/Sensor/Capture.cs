@@ -15,12 +15,9 @@ namespace K4AdotNet.Sensor
     /// individual timestamp which may differ from each other. If the device was configured to capture depth and color images
     /// separated by a delay, <see cref="Device.GetCapture"/> and <see cref="Device.TryGetCapture(out Capture, Timeout)"/> will return
     /// a capture containing both image types separated by the configured delay.
-    /// </para><para>
-    /// This class is designed to be thread-safe.
     /// </para></remarks>
     /// <seealso cref="Device.GetCapture"/>
     /// <seealso cref="Device.TryGetCapture(out Capture, Timeout)"/>
-    /// <threadsafety static="true" instance="true"/>
     public sealed class Capture
         : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
     {
@@ -73,7 +70,7 @@ namespace K4AdotNet.Sensor
             handle.Dispose();
         }
 
-        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 

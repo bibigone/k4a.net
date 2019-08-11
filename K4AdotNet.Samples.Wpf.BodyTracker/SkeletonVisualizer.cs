@@ -100,14 +100,17 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         // Draws bone as line (stick) between two joints
         private void DrawBones(DrawingContext dc, Skeleton skeleton)
         {
-            foreach (var bone in bones)
+            foreach (var jointType in JointTypes.All)
             {
-                var parentJoint = skeleton[bone.ParentJointType];
-                var endJoint = skeleton[bone.EndJointType];
-                var parentPoint2D = ProjectJointToImage(parentJoint);
-                var endPoint2D = ProjectJointToImage(endJoint);
-                if (parentPoint2D.HasValue && endPoint2D.HasValue)
-                    dc.DrawLine(BonePen, parentPoint2D.Value, endPoint2D.Value);
+                if (!jointType.IsRoot() && !jointType.IsFaceFeature())
+                {
+                    var parentJoint = skeleton[jointType.GetParent()];
+                    var endJoint = skeleton[jointType];
+                    var parentPoint2D = ProjectJointToImage(parentJoint);
+                    var endPoint2D = ProjectJointToImage(endJoint);
+                    if (parentPoint2D.HasValue && endPoint2D.HasValue)
+                        dc.DrawLine(BonePen, parentPoint2D.Value, endPoint2D.Value);
+                }
             }
         }
 
@@ -129,7 +132,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 {
                     var radius = JointCircleRadius;
                     // smaller radius for face features (eyes, ears, nose)
-                    if (!bones.Any(b => b.ParentJointType == jointType) && !bones.Any(b => b.EndJointType == jointType))
+                    if (jointType.IsFaceFeature())
                         radius /= 2;
                     dc.DrawEllipse(JointFill, JointBorder, point2D.Value, radius, radius);
                 }
@@ -144,57 +147,5 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly DrawingGroup drawingGroup;
         private Skeleton[] skeletons = new Skeleton[0];
         private readonly object skeletonsSync = new object();
-
-        #region Bones structure
-
-        /// <summary>
-        /// Bone is connector of two joints
-        /// </summary>
-        private struct Bone
-        {
-            public JointType ParentJointType;
-            public JointType EndJointType;
-
-            public Bone(JointType parentJointType, JointType endJointType)
-            {
-                ParentJointType = parentJointType;
-                EndJointType = endJointType;
-            }
-        }
-
-        /// <summary>
-        /// Skeleton structure = list of bones = list of joint connectors
-        /// </summary>
-        private static readonly IReadOnlyList<Bone> bones = new Bone[]
-        {
-            // spine, neck, and head
-            new Bone(JointType.Pelvis, JointType.SpineNaval),
-            new Bone(JointType.SpineNaval, JointType.SpineChest),
-            new Bone(JointType.SpineChest, JointType.Neck),
-            new Bone(JointType.Neck, JointType.Head),
-            // left shoulder and arm
-            new Bone(JointType.SpineChest, JointType.ClavicleLeft),
-            new Bone(JointType.ClavicleLeft, JointType.ShoulderLeft),
-            new Bone(JointType.ShoulderLeft, JointType.ElbowLeft),
-            new Bone(JointType.ElbowLeft, JointType.WristLeft),
-            // right shoulder and arm
-            new Bone(JointType.SpineChest, JointType.ClavicleRight),
-            new Bone(JointType.ClavicleRight, JointType.ShoulderRight),
-            new Bone(JointType.ShoulderRight, JointType.ElbowRight),
-            new Bone(JointType.ElbowRight, JointType.WristRight),
-            // left leg
-            new Bone(JointType.Pelvis, JointType.HipLeft),
-            new Bone(JointType.HipLeft, JointType.KneeLeft),
-            new Bone(JointType.KneeLeft, JointType.AnkleLeft),
-            new Bone(JointType.AnkleLeft, JointType.FootLeft),
-            // right leg
-            new Bone(JointType.Pelvis, JointType.HipRight),
-            new Bone(JointType.HipRight, JointType.KneeRight),
-            new Bone(JointType.KneeRight, JointType.AnkleRight),
-            new Bone(JointType.AnkleRight, JointType.FootRight),
-        };
-
-        #endregion
-
     }
 }
