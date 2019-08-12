@@ -8,13 +8,14 @@ namespace K4AdotNet
     // {
     //     struct _xyz
     //     {
-    //         float x; /**< X component of a vector. */
-    //         float y; /**< Y component of a vector. */
-    //         float z; /**< Z component of a vector. */
-    //     } xyz;       /**< X, Y, Z representation of a vector. */
-    //     float v[3];  /**< Array representation of a vector. */
+    //         float x;
+    //         float y;
+    //         float z;
+    //     } xyz;
+    //     float v[3];
     // } k4a_float3_t;
-    /// <summary>X, Y, Z representation of a vector.</summary>
+    //
+    /// <summary>Three dimensional floating point vector.</summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct Float3 : IEquatable<Float3>, IFormattable
     {
@@ -38,6 +39,10 @@ namespace K4AdotNet
             Z = z;
         }
 
+        /// <summary>Creates vector structure from array representation.</summary>
+        /// <param name="xyz">Array representation of vector. Not <see langword="null"/>. Two elements.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="xyz"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Wrong length of <paramref name="xyz"/> array.</exception>
         public Float3(float[] xyz)
         {
             if (xyz is null)
@@ -49,12 +54,15 @@ namespace K4AdotNet
             Z = xyz[2];
         }
 
+        /// <summary>Converts vector structure to array representation.</summary>
+        /// <returns>Array representation of vector. Not <see langword="null"/>.</returns>
         public float[] ToArray()
             => new[] { X, Y, Z };
 
         /// <summary>Indexed access to vector components.</summary>
-        /// <param name="index">Index of component: <c>X</c> - <c>0</c>, <c>Y</c> - <c>1</c>, <c>Z</c> - <c>2</c>.</param>
+        /// <param name="index">Index of component: <see cref="X"/> - <c>0</c>, <see cref="Y"/> - <c>1</c>, <see cref="Z"/> - <c>2</c>.</param>
         /// <returns>Value of appropriate component.</returns>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         public float this[int index]
         {
             get
@@ -64,7 +72,7 @@ namespace K4AdotNet
                     case 0: return X;
                     case 1: return Y;
                     case 2: return Z;
-                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                    default: throw new IndexOutOfRangeException();
                 }
             }
 
@@ -75,17 +83,21 @@ namespace K4AdotNet
                     case 0: X = value; break;
                     case 1: Y = value; break;
                     case 2: Z = value; break;
-                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                    default: throw new IndexOutOfRangeException();
                 }
             }
         }
 
         /// <summary>Per-component comparison.</summary>
         /// <param name="other">Other vector to be compared to this one.</param>
-        /// <returns><c>true</c> if all components are equal.</returns>
+        /// <returns><see langword="true"/> if all components of <paramref name="other"/> are equal to appropriate components of this vector.</returns>
         public bool Equals(Float3 other)
             => X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 
+        /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Float3)"/>.</summary>
+        /// <param name="obj">Object to be compared with this vector.</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="Float3"/> and is equal to this one.</returns>
+        /// <seealso cref="Equals(Float3)"/>
         public override bool Equals(object obj)
         {
             if (obj is null || !(obj is Float3))
@@ -93,12 +105,24 @@ namespace K4AdotNet
             return Equals((Float3)obj);
         }
 
+        /// <summary>To be consistent with <see cref="Equals(Float3)"/>.</summary>
+        /// <param name="left">Left part of operator.</param>
+        /// <param name="right">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Float3)"/>
         public static bool operator ==(Float3 left, Float3 right)
             => left.Equals(right);
 
+        /// <summary>To be consistent with <see cref="Equals(Float3)"/>.</summary>
+        /// <param name="left">Left part of operator.</param>
+        /// <param name="right">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+        /// <seealso cref="Equals(Float3)"/>
         public static bool operator !=(Float3 left, Float3 right)
             => !left.Equals(right);
 
+        /// <summary>Calculates hash code.</summary>
+        /// <returns>Hash code. Consistent with overridden equality.</returns>
         public override int GetHashCode()
             => X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
 
@@ -109,6 +133,8 @@ namespace K4AdotNet
         public string ToString(string format, IFormatProvider formatProvider)
             => $"[{X.ToString(format, formatProvider)} {Y.ToString(format, formatProvider)} {Z.ToString(format, formatProvider)}]";
 
+        /// <summary>Formats vector as <c>[X Y Z]</c> string.</summary>
+        /// <returns><c>[X Y Z]</c>.</returns>
         public override string ToString()
             => $"[{X} {Y} {Z}]";
 

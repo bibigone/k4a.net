@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace K4AdotNet
 {
+    // Helps to track disposable objects which some class creates and controls.
+    // Implementation is thread safe.
     internal sealed class ChildrenDisposer : IDisposable
     {
         private readonly LinkedList<IDisposablePlus> trackedChildren = new LinkedList<IDisposablePlus>();

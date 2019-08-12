@@ -39,6 +39,9 @@ namespace K4AdotNet.BodyTracking
         /// Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
         /// previous tracker you created, the constructor call will fail with this exception.
         /// </exception>
+        /// <exception cref="BodyTrackingException">
+        /// Unable to find/initialize Body Tracking runtime.
+        /// </exception>
         /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>
         public Tracker(ref Calibration calibration)

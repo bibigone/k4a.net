@@ -4,6 +4,108 @@
         <name>K4AdotNet</name>
     </assembly>
     <members>
+        <member name="T:K4AdotNet.BodyTracking.BodyFrame">
+            <summary>Azure Kinect body tracking frame.</summary>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.Dispose">
+            <summary>
+            Call this method to free unmanaged resources associated with current instance.
+            </summary>
+            <remarks><para>
+            Under the hood, reference counter is decremented on this call. When the references reach zero the unmanaged resources are destroyed.
+            (Multiple objects of <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> can reference one and the same body frame. For details see <see cref="M:K4AdotNet.BodyTracking.BodyFrame.DuplicateReference"/>.)
+            </para><para>
+            Can be called multiple times but event <see cref="E:K4AdotNet.BodyTracking.BodyFrame.Disposed"/> will be raised only once.
+            </para></remarks>
+            <seealso cref="E:K4AdotNet.BodyTracking.BodyFrame.Disposed"/>
+            <seealso cref="P:K4AdotNet.BodyTracking.BodyFrame.IsDisposed"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.DuplicateReference"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.IsDisposed">
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.BodyTracking.BodyFrame.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.DuplicateReference">
+            <summary>Creates new reference to the same unmanaged body frame object.</summary>
+            <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
+            <remarks>It helps to manage underlying object lifetime and to access capture from different threads and different components of application.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.Timestamp">
+            <summary>Gets the body frame timestamp.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount">
+            <summary>Gets the number of detected bodies.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.Capture">
+            <summary>Get the original capture that was used to calculate this body frame.</summary>
+            <remarks><para>
+            Called when the user has received a body frame handle and wants to access the data contained in it.
+            </para><para>
+            It is highly recommended to call <see cref="M:K4AdotNet.Sensor.Capture.Dispose"/> for returned capture explicitly:
+            <code>
+            using (var capture = bodyFrame.Capture)
+            {
+                // working with capture
+            }
+            </code>
+            But <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> object automatically tracks all <see cref="T:K4AdotNet.Sensor.Capture"/> objects it returned. And will call <see cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
+            for all of them if client code didn't it.
+            </para><para>
+            For this reason, if you want to keep returned <see cref="T:K4AdotNet.Sensor.Capture"/> for longer life time than life time of <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> object,
+            use <see cref="M:K4AdotNet.Sensor.Capture.DuplicateReference"/> method.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.BodyFrame.NotABodyIndexMapPixelValue">
+            <summary>Non-a-body value on index body map.</summary>
+            <seealso cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyIndexMap"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.BodyIndexMap">
+            <summary>Gets the body index map: image in custom format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="F:K4AdotNet.BodyTracking.BodyFrame.NotABodyIndexMapPixelValue"/> for background pixels.</summary>
+            <remarks><para>
+            Body Index map is the body instance segmentation map. Each pixel maps to the corresponding pixel in the
+            depth image or the IR image. The value for each pixel is byte and represents which body the pixel belongs to. It can be either
+            background (value <see cref="F:K4AdotNet.BodyTracking.BodyFrame.NotABodyIndexMapPixelValue"/>) or the zero-based index of a detected body.
+            </para><para>
+            It is highly recommended to call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/> for returned image explicitly:
+            <code>
+            using (var bodyIndexMap = bodyFrame.BodyIndexMap)
+            {
+                // working with body index map
+            }
+            </code>
+            But <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> object automatically tracks all <see cref="T:K4AdotNet.Sensor.Image"/> objects it returned. And will call <see cref="M:K4AdotNet.Sensor.Image.Dispose"/>
+            for all of them if client code didn't it.
+            </para><para>
+            For this reason, if you want to keep returned <see cref="T:K4AdotNet.Sensor.Image"/> for longer life time than life time of <see cref="T:K4AdotNet.BodyTracking.BodyFrame"/> object,
+            use <see cref="M:K4AdotNet.Sensor.Image.DuplicateReference"/> method.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.GetBodySkeleton(System.Int32,K4AdotNet.BodyTracking.Skeleton@)">
+            <summary>Gets the joint information for a particular person index.</summary>
+            <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount"/>.</param>
+            <param name="skeleton">Output: this contains the body skeleton information.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="bodyIndex"/> is less than zero or greater than or equal to <see cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+            <seealso cref="T:K4AdotNet.BodyTracking.Skeleton"/>
+            <seealso cref="T:K4AdotNet.BodyTracking.JointType"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyFrame.GetBodyId(System.Int32)">
+            <summary>Gets the body id for a particular person index.</summary>
+            <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount"/>.</param>
+            <returns>Returns the body id. In case of failures will return <see cref="F:K4AdotNet.BodyTracking.BodyId.Invalid"/>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="bodyIndex"/> is less than zero or greater than or equal to <see cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
         <member name="M:K4AdotNet.BodyTracking.BodyFrame.Equals(K4AdotNet.BodyTracking.BodyFrame)">
             <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
             <param name="bodyFrame">Another body frame to be compared with this one. Can be <see langword="null"/>.</param>
@@ -37,8 +139,124 @@
             <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
             <returns><c>{HandleTypeName}#{Address}</c></returns>
         </member>
+        <member name="T:K4AdotNet.BodyTracking.BodyId">
+            <summary>Tracked body ID.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int32"/> type.
+            And <see cref="T:K4AdotNet.BodyTracking.BodyId"/> value can be smoothly converted to/from <see cref="T:System.Int32"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.BodyId.Value">
+            <summary>Value of ID. Should be of <see cref="T:System.UInt32"/> type but for CLS-compatibility it is declared is <see cref="T:System.Int32"/>.</summary>
+            <remarks><para>
+            There is special value:
+            -1 (that is <see cref="F:System.UInt32.MaxValue"/>) - invalid body ID (see <see cref="F:K4AdotNet.BodyTracking.BodyId.Invalid"/>).
+            </para><para>
+            This structure is an wrapper around this value.
+            </para></remarks>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.#ctor(System.Int32)">
+            <summary>Creates instance from integer value.</summary>
+            <param name="value">Body ID.</param>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyId.IsValid">
+            <summary>Is this ID valid?</summary>
+            <seealso cref="F:K4AdotNet.BodyTracking.BodyId.Invalid"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)"/>.</summary>
+            <param name="obj">Object to be compared with this instance.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="T:K4AdotNet.BodyTracking.BodyId"/> and result is equal to this one.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Equality(K4AdotNet.BodyTracking.BodyId,K4AdotNet.BodyTracking.BodyId)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Inequality(K4AdotNet.BodyTracking.BodyId,K4AdotNet.BodyTracking.BodyId)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(K4AdotNet.BodyTracking.BodyId)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Equality(K4AdotNet.BodyTracking.BodyId,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Inequality(K4AdotNet.BodyTracking.BodyId,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Equality(System.Int32,K4AdotNet.BodyTracking.BodyId)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Inequality(System.Int32,K4AdotNet.BodyTracking.BodyId)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.BodyTracking.BodyId.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of current instance.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{value}</c> or <c>INVALID</c> string.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.ToString">
+            <summary>String representation of current instance.</summary>
+            <returns><c>{value}</c> or <c>INVALID</c> string.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Implicit(K4AdotNet.BodyTracking.BodyId)~System.Int32">
+            <summary>Implicit conversion to <see cref="T:System.Int32"/>.</summary>
+            <param name="id">Value to be converted to <see cref="T:System.Int32"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyId.op_Implicit(System.Int32)~K4AdotNet.BodyTracking.BodyId">
+            <summary>Implicit conversion from <see cref="T:System.Int32"/>.</summary>
+            <param name="id">Value to be converted to <see cref="T:K4AdotNet.BodyTracking.BodyId"/>.</param>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.BodyId.Invalid">
             <summary>The invalid body id value.</summary>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.BodyTrackingException">
+            <summary>Class for all body tracking related exceptions.</summary>
+            <seealso cref="T:K4AdotNet.BodyTracking.Tracker"/>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyTrackingException.#ctor(System.String)">
+            <summary>Creates exception with specified message.</summary>
+            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property.</param>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.BodyTrackingException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
         </member>
         <member name="T:K4AdotNet.BodyTracking.Joint">
             <summary>Structure to define a single joint.</summary>
@@ -58,6 +276,139 @@
             <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
             <seealso cref="T:K4AdotNet.BodyTracking.JointTypes"/>
             <seealso cref="T:K4AdotNet.BodyTracking.Skeleton"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.Pelvis">
+            <summary>Pelvis joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.SpineNaval">
+            <summary>Naval spine joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.SpineChest">
+            <summary>Chest spine joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.Neck">
+            <summary>Neck joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ClavicleLeft">
+            <summary>Left clavicle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ShoulderLeft">
+            <summary>Left shoulder joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ElbowLeft">
+            <summary>Left elbow joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.WristLeft">
+            <summary>Left wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ClavicleRight">
+            <summary>Right clavicle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ShoulderRight">
+            <summary>Right shoulder joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ElbowRight">
+            <summary>Right elbow joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.WristRight">
+            <summary>Right wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HipLeft">
+            <summary>Left hip joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.KneeLeft">
+            <summary>Left knee joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.AnkleLeft">
+            <summary>Left ankle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.FootLeft">
+            <summary>Left foot joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HipRight">
+            <summary>Right hip joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.KneeRight">
+            <summary>Right knee joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.AnkleRight">
+            <summary>Right ankle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.FootRight">
+            <summary>Right fool joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.Head">
+            <summary>Head joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.Nose">
+            <summary>Nose.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.EyeLeft">
+            <summary>Left eye.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.EarLeft">
+            <summary>Left ear.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.EyeRight">
+            <summary>Right eye.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.EarRight">
+            <summary>Right ear.</summary>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.JointTypes">
+            <summary>Extensions to <see cref="T:K4AdotNet.BodyTracking.JointType"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.BodyTracking.JointType"/> enumeration.</summary>
+            <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
+            <seealso cref="T:K4AdotNet.BodyTracking.JointType"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointTypes.All">
+            <summary>All possible <see cref="T:K4AdotNet.BodyTracking.JointType"/>s. May be helpful for UI, tests, etc.</summary>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.IsRoot(K4AdotNet.BodyTracking.JointType)">
+            <summary>Is it root joint in skeleton structure?</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="jointType"/> is root joint in skeletal hierarchy,
+            <see langword="false"/> for all other joints.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.IsFaceFeature(K4AdotNet.BodyTracking.JointType)">
+            <summary>Is it face feature?</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="jointType"/> is actually face feature (nose, eye, ear) rather than actual joint of human skeleton,
+            <see langword="false"/> for all other joints.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.IsLeft(K4AdotNet.BodyTracking.JointType)">
+            <summary>Is it left side joint?</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="jointType"/> belongs to the left part of body,
+            <see langword="false"/> - otherwise (right or center part of body).
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.IsRight(K4AdotNet.BodyTracking.JointType)">
+            <summary>Is it right side joint?</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>
+            <see langword="true"/> if <paramref name="jointType"/> belongs to the right part of body,
+            <see langword="false"/> - otherwise (left or center part of body).
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.GetParent(K4AdotNet.BodyTracking.JointType)">
+            <summary>Gets parent joint for a given one.</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>
+            Parent joint of <paramref name="jointType"/> in skeletal hierarchy
+            or value of <paramref name="jointType"/> if it is root joint (see <see cref="M:K4AdotNet.BodyTracking.JointTypes.IsRoot(K4AdotNet.BodyTracking.JointType)"/>).
+            </returns>
+            <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">Unknown joint.</exception>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.JointTypes.Mirror(K4AdotNet.BodyTracking.JointType)">
+            <summary>Mirrors left joint to appropriate right one and vice versa. Doesn't change central joints like joints of spine, neck, head.</summary>
+            <param name="jointType">Joint type asked about.</param>
+            <returns>Mirrored joint type.</returns>
         </member>
         <member name="T:K4AdotNet.BodyTracking.NativeApi">
             <summary>DLL imports for most of native functions from <c>k4abt.h</c> header file.</summary>
@@ -188,6 +539,110 @@
             <summary>Structure to define joints for skeleton.</summary>
             <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
             <seealso cref="T:K4AdotNet.BodyTracking.JointType"/>
+            <seealso cref="T:K4AdotNet.BodyTracking.JointTypes"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.Pelvis">
+            <summary>Pelvis joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.SpineNaval">
+            <summary>Naval spine joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.SpineChest">
+            <summary>Chest spine joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.Neck">
+            <summary>Neck joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ClavicleLeft">
+            <summary>Left clavicle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ShoulderLeft">
+            <summary>Left shoulder joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ElbowLeft">
+            <summary>Left elbow joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.WristLeft">
+            <summary>Left wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ClavicleRight">
+            <summary>Right clavicle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ShoulderRight">
+            <summary>Right shoulder joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ElbowRight">
+            <summary>Right elbow joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.WristRight">
+            <summary>Right wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HipLeft">
+            <summary>Left hip joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.KneeLeft">
+            <summary>Left knee joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.AnkleLeft">
+            <summary>Left ankle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.FootLeft">
+            <summary>Left foot joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HipRight">
+            <summary>Right hip joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.KneeRight">
+            <summary>Right knee joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.AnkleRight">
+            <summary>Right ankle joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.FootRight">
+            <summary>Right fool joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.Head">
+            <summary>Head joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.Nose">
+            <summary>Nose.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.EyeLeft">
+            <summary>Left eye.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.EarLeft">
+            <summary>Left ear.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.EyeRight">
+            <summary>Right eye.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.EarRight">
+            <summary>Right ear.</summary>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Skeleton.Item(K4AdotNet.BodyTracking.JointType)">
+            <summary>Access to joint by index of type <see cref="T:K4AdotNet.BodyTracking.JointType"/>.</summary>
+            <param name="index">Index of joint.</param>
+            <returns>Joint information.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Unknown value of <paramref name="index"/>.</exception>
+            <seealso cref="F:K4AdotNet.BodyTracking.JointTypes.All"/>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Skeleton.Item(System.Int32)">
+            <summary>Access to joint by integer index.</summary>
+            <param name="index">Index of joint.</param>
+            <returns>Joint information.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Invalid value of <paramref name="index"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Skeleton.ToArray">
+            <summary>Converts structure to array representation.</summary>
+            <returns>Array representation of skeletal data. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Skeleton.GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</summary>
+            <returns>Enumerator for all joints. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.Skeleton.System#Collections#IEnumerable#GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.IEnumerable"/>.</summary>
+            <returns>Enumerator for all joints. Not <see langword="null"/>.</returns>
         </member>
         <member name="T:K4AdotNet.BodyTracking.Tracker">
             <summary>Body tracker. The main class in Body Tracking component.</summary>
@@ -218,6 +673,9 @@
             <exception cref="T:System.NotSupportedException">
             Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
             previous tracker you created, the constructor call will fail with this exception.
+            </exception>
+            <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">
+            Unable to find/initialize Body Tracking runtime.
             </exception>
             <seealso cref="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)"/>
             <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>
@@ -336,21 +794,60 @@
             <param name="x">X component</param>
             <param name="y">Y component</param>
         </member>
+        <member name="M:K4AdotNet.Float2.#ctor(System.Single[])">
+            <summary>Creates vector structure from array representation.</summary>
+            <param name="xy">Array representation of vector. Not <see langword="null"/>. Two elements.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="xy"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Wrong length of <paramref name="xy"/> array.</exception>
+        </member>
+        <member name="M:K4AdotNet.Float2.ToArray">
+            <summary>Converts vector structure to array representation.</summary>
+            <returns>Array representation of vector. Not <see langword="null"/>.</returns>
+        </member>
         <member name="P:K4AdotNet.Float2.Item(System.Int32)">
             <summary>Indexed access to vector components.</summary>
-            <param name="index">Index of component: <c>X</c> - <c>0</c>, <c>Y</c> - <c>1</c>.</param>
+            <param name="index">Index of component: <see cref="F:K4AdotNet.Float2.X"/> - <c>0</c>, <see cref="F:K4AdotNet.Float2.Y"/> - <c>1</c>.</param>
             <returns>Value of appropriate component.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         </member>
         <member name="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)">
             <summary>Per-component comparison.</summary>
             <param name="other">Other vector to be compared to this one.</param>
-            <returns><c>true</c> if all components are equal.</returns>
+            <returns><see langword="true"/> if all components are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float2.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>.</summary>
+            <param name="obj">Object to be compared with this vector.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="T:K4AdotNet.Float2"/> and is equal to this one.</returns>
+            <seealso cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>
+        </member>
+        <member name="M:K4AdotNet.Float2.op_Equality(K4AdotNet.Float2,K4AdotNet.Float2)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>
+        </member>
+        <member name="M:K4AdotNet.Float2.op_Inequality(K4AdotNet.Float2,K4AdotNet.Float2)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float2.Equals(K4AdotNet.Float2)"/>
+        </member>
+        <member name="M:K4AdotNet.Float2.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
         </member>
         <member name="M:K4AdotNet.Float2.ToString(System.String,System.IFormatProvider)">
             <summary>Formats vector as <c>[X Y]</c> string.</summary>
             <param name="format">Format string for each individual component in string representation.</param>
             <param name="formatProvider">Culture for formatting numbers to strings.</param>
             <returns>String representation of vector in a given Culture.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float2.ToString">
+            <summary>Formats vector as <c>[X Y]</c> string.</summary>
+            <returns><c>[X Y]</c>.</returns>
         </member>
         <member name="F:K4AdotNet.Float2.Zero">
             <summary>Zero vector.</summary>
@@ -362,7 +859,7 @@
             <summary>Unit vector in +Y direction.</summary>
         </member>
         <member name="T:K4AdotNet.Float3">
-            <summary>X, Y, Z representation of a vector.</summary>
+            <summary>Three dimensional floating point vector.</summary>
         </member>
         <member name="F:K4AdotNet.Float3.X">
             <summary>X component of a vector. Corresponds to <c>0</c> index in array representation.</summary>
@@ -379,21 +876,60 @@
             <param name="y">Y component</param>
             <param name="z">Z component</param>
         </member>
+        <member name="M:K4AdotNet.Float3.#ctor(System.Single[])">
+            <summary>Creates vector structure from array representation.</summary>
+            <param name="xyz">Array representation of vector. Not <see langword="null"/>. Two elements.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="xyz"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Wrong length of <paramref name="xyz"/> array.</exception>
+        </member>
+        <member name="M:K4AdotNet.Float3.ToArray">
+            <summary>Converts vector structure to array representation.</summary>
+            <returns>Array representation of vector. Not <see langword="null"/>.</returns>
+        </member>
         <member name="P:K4AdotNet.Float3.Item(System.Int32)">
             <summary>Indexed access to vector components.</summary>
-            <param name="index">Index of component: <c>X</c> - <c>0</c>, <c>Y</c> - <c>1</c>, <c>Z</c> - <c>2</c>.</param>
+            <param name="index">Index of component: <see cref="F:K4AdotNet.Float3.X"/> - <c>0</c>, <see cref="F:K4AdotNet.Float3.Y"/> - <c>1</c>, <see cref="F:K4AdotNet.Float3.Z"/> - <c>2</c>.</param>
             <returns>Value of appropriate component.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         </member>
         <member name="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)">
             <summary>Per-component comparison.</summary>
             <param name="other">Other vector to be compared to this one.</param>
-            <returns><c>true</c> if all components are equal.</returns>
+            <returns><see langword="true"/> if all components of <paramref name="other"/> are equal to appropriate components of this vector.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float3.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>.</summary>
+            <param name="obj">Object to be compared with this vector.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="T:K4AdotNet.Float3"/> and is equal to this one.</returns>
+            <seealso cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3.op_Equality(K4AdotNet.Float3,K4AdotNet.Float3)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3.op_Inequality(K4AdotNet.Float3,K4AdotNet.Float3)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float3.Equals(K4AdotNet.Float3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
         </member>
         <member name="M:K4AdotNet.Float3.ToString(System.String,System.IFormatProvider)">
             <summary>Formats vector as <c>[X Y Z]</c> string.</summary>
             <param name="format">Format string for each individual component in string representation.</param>
             <param name="formatProvider">Culture for formatting numbers to strings.</param>
             <returns>String representation of vector in a given Culture.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float3.ToString">
+            <summary>Formats vector as <c>[X Y Z]</c> string.</summary>
+            <returns><c>[X Y Z]</c>.</returns>
         </member>
         <member name="F:K4AdotNet.Float3.Zero">
             <summary>Zero vector.</summary>
@@ -409,6 +945,116 @@
         </member>
         <member name="T:K4AdotNet.Float3x3">
             <summary>Placeholder for 3x3 matrix data.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M11">
+            <summary>First row, first column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M12">
+            <summary>First row, second column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M13">
+            <summary>First row, third column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M21">
+            <summary>Second row, first column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M22">
+            <summary>Second row, second column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M23">
+            <summary>Second row, third column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M31">
+            <summary>Third row, first column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M32">
+            <summary>Third row, second column.</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.M33">
+            <summary>Third row, third column.</summary>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.#ctor(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>Creates matrix initialized by specified values.</summary>
+            <param name="m11">Value for <see cref="F:K4AdotNet.Float3x3.M11"/> (first row, first column).</param>
+            <param name="m12">Value for <see cref="F:K4AdotNet.Float3x3.M12"/> (first row, second column).</param>
+            <param name="m13">Value for <see cref="F:K4AdotNet.Float3x3.M13"/> (first row, third column).</param>
+            <param name="m21">Value for <see cref="F:K4AdotNet.Float3x3.M21"/> (second row, first column).</param>
+            <param name="m22">Value for <see cref="F:K4AdotNet.Float3x3.M22"/> (second row, second column).</param>
+            <param name="m23">Value for <see cref="F:K4AdotNet.Float3x3.M23"/> (second row, third column).</param>
+            <param name="m31">Value for <see cref="F:K4AdotNet.Float3x3.M31"/> (third row, first column).</param>
+            <param name="m32">Value for <see cref="F:K4AdotNet.Float3x3.M32"/> (third row, second column).</param>
+            <param name="m33">Value for <see cref="F:K4AdotNet.Float3x3.M33"/> (third row, thirst column).</param>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.#ctor(System.Single[])">
+            <summary>Creates matrix from array representation.</summary>
+            <param name="values">Array representation of matrix. Not <see langword="null"/>. 9 elements.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="values"/> equals to <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Wrong length of <paramref name="values"/> array.</exception>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.ToArray">
+            <summary>Converts matrix structure to array representation.</summary>
+            <returns>Array representation of matrix. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="P:K4AdotNet.Float3x3.Item(System.Int32)">
+            <summary>One dimensional indexed access to matrix components.</summary>
+            <param name="index">Index of matrix component.</param>
+            <returns>Matrix element.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
+        </member>
+        <member name="P:K4AdotNet.Float3x3.Item(System.Int32,System.Int32)">
+            <summary>Two dimensional indexed access to matrix components.</summary>
+            <param name="rowIndex">Zero-based row index.</param>
+            <param name="columnIndex">Zero-based row index.</param>
+            <returns>Matrix element.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="rowIndex"/> or <paramref name="columnIndex"/> has invalid value.</exception>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)">
+            <summary>Per-elements comparison.</summary>
+            <param name="other">Another matrix to be compared with this one.</param>
+            <returns><see langword="true"/> if all elements of <paramref name="other"/> are equal to appropriate elements of this matrix.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>.</summary>
+            <param name="obj">Object to be compared with this matrix.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="T:K4AdotNet.Float3x3"/> and is equal to this one.</returns>
+            <seealso cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.op_Equality(K4AdotNet.Float3x3,K4AdotNet.Float3x3)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.op_Inequality(K4AdotNet.Float3x3,K4AdotNet.Float3x3)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Float3x3.Equals(K4AdotNet.Float3x3)"/>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.ToString(System.String,System.IFormatProvider)">
+            <summary>Formats matrix in convenient manner.</summary>
+            <param name="format">Format string for each individual component in string representation.</param>
+            <param name="formatProvider">Culture for formatting numbers to strings.</param>
+            <returns>String representation of matrix in a given Culture.</returns>
+        </member>
+        <member name="M:K4AdotNet.Float3x3.ToString">
+            <summary>Formats matrix in convenient manner.</summary>
+            <returns>String representation of matrix .</returns>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.Zero">
+            <summary>Zero matrix (all elements are 0).</summary>
+        </member>
+        <member name="F:K4AdotNet.Float3x3.Identity">
+            <summary>Identity matrix (diagonal elements are 1, other are 0).</summary>
+        </member>
+        <member name="T:K4AdotNet.Helpers">
+            <summary>Internal helper methods.</summary>
         </member>
         <member name="T:K4AdotNet.IDisposablePlus">
             <summary>
@@ -443,6 +1089,677 @@
             </para></remarks>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
             <seealso cref="M:System.IDisposable.Dispose"/>
+        </member>
+        <member name="T:K4AdotNet.Microseconds32">
+            <summary>32-bit time value in microseconds. Used for timestamps and delays.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int32"/> type.
+            And <see cref="T:K4AdotNet.Microseconds32"/> value can be smoothly converted to/from <see cref="T:System.Int32"/> and <see cref="T:System.TimeSpan"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Microseconds32.ValueUsec">
+            <summary>Value in microseconds.</summary>
+            <remarks>This structure is an wrapper around this value.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.#ctor(System.Int32)">
+            <summary>Creates instance from integer value in microseconds.</summary>
+            <param name="valueUsec">Value in microseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.#ctor(System.TimeSpan)">
+            <summary>Creates instance from <see cref="T:System.TimeSpan"/> value.</summary>
+            <param name="value">This value will be converted from <see cref="P:System.TimeSpan.Ticks"/> to microseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.ToTimeSpan">
+            <summary>Converts to <see cref="T:System.TimeSpan"/>.</summary>
+            <returns><see cref="T:System.TimeSpan"/> representation of this value.</returns>
+        </member>
+        <member name="P:K4AdotNet.Microseconds32.TotalSeconds">
+            <summary>The total number of seconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Microseconds32.TotalMilliseconds">
+            <summary>The total number of milliseconds represented by this instance.</summary>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)">
+            <summary>Equality with another value specified as <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.Equals(System.Int32)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int32.CompareTo(System.Int32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)">
+            <summary>Two values comparison.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int32.CompareTo(System.Int32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int32.CompareTo(System.Int32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.CompareTo(System.Object)">
+            <summary>Can compare current instance with <see cref="T:K4AdotNet.Microseconds32"/>, <see cref="T:System.TimeSpan"/> and <see cref="T:System.IConvertible"/> value.</summary>
+            <param name="obj">Value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int32.CompareTo(System.Int32)"/>.
+            </returns>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of current instance.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{value} usec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="obj">Object to be compared with this instance.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="T:K4AdotNet.Microseconds32"/> and result is equal to this one.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.ToString">
+            <summary>String representation of current instance.</summary>
+            <returns><c>{value} usec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Equality(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Inequality(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThan(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThan(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThanOrEqual(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThanOrEqual(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(K4AdotNet.Microseconds32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Equality(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Inequality(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThan(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThan(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThanOrEqual(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThanOrEqual(K4AdotNet.Microseconds32,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Equality(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Inequality(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThan(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThan(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThanOrEqual(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThanOrEqual(System.TimeSpan,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Equality(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Inequality(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThan(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThan(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThanOrEqual(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThanOrEqual(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Equality(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Inequality(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThan(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThan(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_LessThanOrEqual(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_GreaterThanOrEqual(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Implicit(K4AdotNet.Microseconds32)~System.TimeSpan">
+            <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
+            <seealso cref="M:K4AdotNet.Microseconds32.ToTimeSpan"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Implicit(System.TimeSpan)~K4AdotNet.Microseconds32">
+            <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:K4AdotNet.Microseconds32"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Implicit(K4AdotNet.Microseconds32)~System.Int32">
+            <summary>Implicit conversion to <see cref="T:System.Int32"/> value in microseconds.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.Int32"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Implicit(System.Int32)~K4AdotNet.Microseconds32">
+            <summary>Implicit conversion from <see cref="T:System.Int32"/>.</summary>
+            <param name="valueUsec">Value in microseconds to be converted to <see cref="T:K4AdotNet.Microseconds32"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.FromSeconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Microseconds32"/> from seconds.</summary>
+            <param name="valueSec">Value in seconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.FromMilliseconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Microseconds32"/> from milliseconds.</summary>
+            <param name="valueMs">Value in milliseconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="F:K4AdotNet.Microseconds32.Zero">
+            <summary>Zero value.</summary>
+        </member>
+        <member name="T:K4AdotNet.Microseconds64">
+            <summary>64-bit time value in microseconds. Used for timestamps and delays.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int64"/> type.
+            And <see cref="T:K4AdotNet.Microseconds64"/> value can be smoothly converted to/from <see cref="T:System.Int64"/> and <see cref="T:System.TimeSpan"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Microseconds64.ValueUsec">
+            <summary>Value in microseconds.</summary>
+            <remarks>This structure is an wrapper around this value.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.#ctor(System.Int64)">
+            <summary>Creates instance from 64-bit integer value in microseconds.</summary>
+            <param name="valueUsec">Value in microseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.#ctor(System.TimeSpan)">
+            <summary>Creates instance from <see cref="T:System.TimeSpan"/> value.</summary>
+            <param name="value">This value will be converted from <see cref="P:System.TimeSpan.Ticks"/> to microseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.ToTimeSpan">
+            <summary>Converts to <see cref="T:System.TimeSpan"/>.</summary>
+            <returns><see cref="T:System.TimeSpan"/> representation of this value.</returns>
+        </member>
+        <member name="P:K4AdotNet.Microseconds64.TotalSeconds">
+            <summary>The total number of seconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Microseconds64.TotalMilliseconds">
+            <summary>The total number of milliseconds represented by this instance.</summary>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)">
+            <summary>Equality exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)">
+            <summary>Equality with another value specified as <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.Equals(System.Int64)">
+            <summary>Equality exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)">
+            <summary>Two values comparison.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.CompareTo(System.Object)">
+            <summary>Can compare current instance with <see cref="T:K4AdotNet.Microseconds64"/>, <see cref="T:System.TimeSpan"/> and <see cref="T:System.IConvertible"/> value.</summary>
+            <param name="obj">Value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of current instance.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{value} usec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="obj">Object to be compared with this instance.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="T:K4AdotNet.Microseconds64"/> and result is equal to this one.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.ToString">
+            <summary>String representation of current instance.</summary>
+            <returns><c>{value} usec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Equality(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Inequality(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThan(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThan(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThanOrEqual(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThanOrEqual(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Equality(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Inequality(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThan(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThan(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThanOrEqual(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThanOrEqual(K4AdotNet.Microseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Equality(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Inequality(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThan(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThan(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThanOrEqual(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThanOrEqual(System.TimeSpan,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Equality(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Inequality(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThan(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThan(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThanOrEqual(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThanOrEqual(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightUsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightUsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Equality(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Inequality(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThan(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThan(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_LessThanOrEqual(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_GreaterThanOrEqual(System.Int64,K4AdotNet.Microseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftUsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Implicit(K4AdotNet.Microseconds64)~System.TimeSpan">
+            <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Implicit(System.TimeSpan)~K4AdotNet.Microseconds64">
+            <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:K4AdotNet.Microseconds64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Implicit(K4AdotNet.Microseconds64)~System.Int64">
+            <summary>Implicit conversion to <see cref="T:System.Int64"/> value in microseconds.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.Int64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Implicit(System.Int64)~K4AdotNet.Microseconds64">
+            <summary>Implicit conversion from <see cref="T:System.Int64"/>.</summary>
+            <param name="valueUsec">Value in microseconds to be converted to <see cref="T:K4AdotNet.Microseconds64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.FromSeconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Microseconds64"/> from seconds.</summary>
+            <param name="valueSec">Value in seconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.FromMilliseconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Microseconds64"/> from milliseconds.</summary>
+            <param name="valueMs">Value in milliseconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="F:K4AdotNet.Microseconds64.Zero">
+            <summary>Zero value.</summary>
         </member>
         <member name="T:K4AdotNet.NativeCallResults.BufferResult">
             <summary>Result code returned by Azure Kinect APIs.</summary>
@@ -720,19 +2037,92 @@
             <remarks>Handles are created with <c>k4a_transformation_create()</c>.</remarks>
         </member>
         <member name="T:K4AdotNet.Quaternion">
-            <summary>WXYZ representation of quaternion.</summary>
+            <summary>WXYZ representation of quaternion. Quaternions are used to represent rotations in 3D.</summary>
         </member>
         <member name="F:K4AdotNet.Quaternion.W">
-            <summary>W component of a vector. Corresponds to <c>0</c> index in array representation.</summary>
+            <summary>W component of a quaternion. Corresponds to <c>0</c> index in array representation.</summary>
         </member>
         <member name="F:K4AdotNet.Quaternion.X">
-            <summary>X component of a vector. Corresponds to <c>1</c> index in array representation.</summary>
+            <summary>X component of a quaternion. Corresponds to <c>1</c> index in array representation.</summary>
         </member>
         <member name="F:K4AdotNet.Quaternion.Y">
-            <summary>Y component of a vector. Corresponds to <c>2</c> index in array representation.</summary>
+            <summary>Y component of a quaternion. Corresponds to <c>2</c> index in array representation.</summary>
         </member>
         <member name="F:K4AdotNet.Quaternion.Z">
-            <summary>Z component of a vector. Corresponds to <c>3</c> index in array representation.</summary>
+            <summary>Z component of a quaternion. Corresponds to <c>3</c> index in array representation.</summary>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.#ctor(System.Single,System.Single,System.Single,System.Single)">
+            <summary>Creates quaternion with specified components.</summary>
+            <param name="w">Value for <see cref="F:K4AdotNet.Quaternion.W"/> component of quaternion.</param>
+            <param name="x">Value for <see cref="F:K4AdotNet.Quaternion.X"/> component of quaternion.</param>
+            <param name="y">Value for <see cref="F:K4AdotNet.Quaternion.Y"/> component of quaternion.</param>
+            <param name="z">Value for <see cref="F:K4AdotNet.Quaternion.Z"/> component of quaternion.</param>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.#ctor(System.Single,K4AdotNet.Float3)">
+            <summary>Creates quaternion with specified components.</summary>
+            <param name="w">Value for <see cref="F:K4AdotNet.Quaternion.W"/> component of quaternion.</param>
+            <param name="v">Value for <see cref="F:K4AdotNet.Quaternion.X"/>, <see cref="F:K4AdotNet.Quaternion.Y"/> and <see cref="F:K4AdotNet.Quaternion.Z"/> components of quaternion.</param>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.#ctor(System.Single[])">
+            <summary>Creates quaternion from array representation.</summary>
+            <param name="wxyz">Values for quaternion components in W, X, Y, Z order. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="wxyz"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Wrong length of <paramref name="wxyz"/> array.</exception>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.ToArray">
+            <summary>Converts quaternion to array representation.</summary>
+            <returns>Array representation of quaternion. Not <see langword="null"/>.</returns>
+        </member>
+        <member name="P:K4AdotNet.Quaternion.Item(System.Int32)">
+            <summary>Indexed access to quaternion components.</summary>
+            <param name="index">Index of component: <see cref="F:K4AdotNet.Quaternion.W"/> - <c>0</c>, <see cref="F:K4AdotNet.Quaternion.X"/> - <c>1</c>, <see cref="F:K4AdotNet.Quaternion.Y"/> - <c>2</c>, <see cref="F:K4AdotNet.Quaternion.Z"/> - <c>3</c>.</param>
+            <returns>Value of appropriate component.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)">
+            <summary>Per-component comparison.</summary>
+            <param name="other">Other quaternion to be compared to this one.</param>
+            <returns><see langword="true"/> if all components of <paramref name="other"/> are equal to appropriate components of this quaternion.</returns>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>.</summary>
+            <param name="obj">Object to be compared with this quaternion.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="T:K4AdotNet.Quaternion"/> and is equal to this one.</returns>
+            <seealso cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.op_Equality(K4AdotNet.Quaternion,K4AdotNet.Quaternion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.op_Inequality(K4AdotNet.Quaternion,K4AdotNet.Quaternion)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Quaternion.Equals(K4AdotNet.Quaternion)"/>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.ToString(System.String,System.IFormatProvider)">
+            <summary>Formats quaternion as <c>[W X Y Z]</c> string.</summary>
+            <param name="format">Format string for each individual component in string representation.</param>
+            <param name="formatProvider">Culture for formatting numbers to strings.</param>
+            <returns>String representation of quaternion in a given Culture.</returns>
+        </member>
+        <member name="M:K4AdotNet.Quaternion.ToString">
+            <summary>Formats quaternion as <c>[W X Y Z]</c> string.</summary>
+            <returns><c>[W X Y Z]</c>.</returns>
+        </member>
+        <member name="F:K4AdotNet.Quaternion.Zero">
+            <summary>Zero quaternion (all components are 0).</summary>
+        </member>
+        <member name="F:K4AdotNet.Quaternion.Identity">
+            <summary>Identity quaternion (represents zero rotation in 3D).</summary>
         </member>
         <member name="T:K4AdotNet.Record.NativeApi">
             <summary>DLL imports for most of native functions from <c>record.h</c> and <c>playback.h</c> header files.</summary>
@@ -1250,6 +2640,10 @@
             <summary>File system path to recording.</summary>
             <seealso cref="P:K4AdotNet.Record.Playback.FilePath"/>
         </member>
+        <member name="M:K4AdotNet.Record.PlaybackException.#ctor(System.String)">
+            <summary>Creates exception with default message.</summary>
+            <param name="filePath">File system path to recording.</param>
+        </member>
         <member name="M:K4AdotNet.Record.PlaybackException.#ctor(System.String,System.String)">
             <summary>Creates exception with specified message.</summary>
             <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property.</param>
@@ -1257,6 +2651,11 @@
         </member>
         <member name="M:K4AdotNet.Record.PlaybackException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>Constructor for deserialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>For serialization needs.</summary>
             <param name="info">Serialization info.</param>
             <param name="context">Streaming context.</param>
         </member>
@@ -1317,35 +2716,160 @@
             the recording starts at timestamp <see cref="F:K4AdotNet.Microseconds32.Zero"/>. This value can be used to synchronize timestamps between two recording files.
             </summary>
         </member>
+        <member name="T:K4AdotNet.Record.Recorder">
+            <summary>Kinect for Azure recording opened for writing.</summary>
+            <seealso cref="T:K4AdotNet.Record.Playback"/>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.#ctor(System.String,K4AdotNet.Sensor.Device,K4AdotNet.Sensor.DeviceConfiguration)">
+            <summary>
+            Opens a new recording file for writing.
+            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
+            </summary>
+            <param name="filePath">File system path for the new recording. Not <see langword="null"/>, not empty.</param>
+            <param name="device">The Azure Kinect device that is being recorded. The device is used to store device calibration and serial
+            number information. May be <see langword="null"/> if recording user-generated data.</param>
+            <param name="config">The configuration the Azure Kinect device was started with. Must be valid: see <see cref="M:K4AdotNet.Sensor.DeviceConfiguration.IsValid(System.String@)"/>.</param>
+            <remarks><para>
+            Streaming does not need to be started on the device at the time this function is called, but when it is started
+            it should be started with the same configuration provided in <paramref name="config"/>.
+            </para><para>
+            Subsequent calls to <see cref="M:K4AdotNet.Record.Recorder.WriteCapture(K4AdotNet.Sensor.Capture)"/> will need to have images in the resolution and format defined
+            in <paramref name="config"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.Dispose">
+            <summary>
+            Call this method to flush all data to disk, close file and free all unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.Record.Recorder.Disposed"/>
+            <seealso cref="P:K4AdotNet.Record.Recorder.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.Record.Recorder.IsDisposed">
+            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Record.Recorder.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Record.Recorder.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.Record.Recorder.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Record.Recorder.FilePath">
+            <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.AddTag(System.String,System.String)">
+            <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
+            <param name="name">The name of the tag to write. Not <see langword="null"/>, not empty. Can contain only ASCII characters.</param>
+            <param name="value">The string value to store in the tag. Not <see langword="null"/>. UTF-8 encoding is used to store.</param>
+            <remarks>
+            Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
+            recording location.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name"/> is <see langword="null"/> or empty, or <paramref name="value"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> contains non-ASCII characters.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Record.Playback.TryGetTag(System.String,System.String@)"/>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.AddImuTrack">
+            <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
+            <exception cref="T:System.InvalidOperationException"><see cref="M:K4AdotNet.Record.Recorder.AddImuTrack"/> must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.WriteHeader">
+            <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.WriteCapture(K4AdotNet.Sensor.Capture)">
+            <summary>
+            Writes a camera capture to file.
+            Captures must be written in increasing order of timestamp, and the file's header must already be written.
+            </summary>
+            <remarks>
+            This method will write all images in the capture to the corresponding tracks in the recording file.
+            If any of the images fail to write, other images will still be written before throwing an exception.
+            </remarks>
+            <param name="capture">Capture to write to file. Not <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> is <see langword="null"/>.</exception>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.WriteImuSample(K4AdotNet.Sensor.ImuSample)">
+            <summary>Writes an IMU sample to file.</summary>
+            <param name="imuSample">A structure containing the IMU sample data and time stamps.</param>
+            <remarks>
+            Samples must be written in increasing order of timestamp, and the file's header must already be written.
+            When writing IMU samples at the same time as captures, the samples should be within 1 second of the most recently
+            written capture.
+            </remarks>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.Flush">
+            <summary>Flushes all pending recording data to disk.</summary>
+            <remarks><para>
+            This method ensures that all data passed to the recording API prior to calling flush is written to disk.
+            If continuing to write recording data, care must be taken to ensure no new time stamps are added from before the flush.
+            <para></para>
+            If an error occurs, best effort is made to flush as much data to disk as possible, but the integrity of the file is
+            not guaranteed.
+            </para></remarks>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
         <member name="T:K4AdotNet.Record.RecordingException">
             <summary>Class for all recording-related exceptions.</summary>
             <seealso cref="T:K4AdotNet.Record.Playback"/>
         </member>
-        <member name="M:K4AdotNet.Record.RecordingException.#ctor">
-            <summary>Creates exception with no error message.</summary>
+        <member name="P:K4AdotNet.Record.RecordingException.FilePath">
+            <summary>File system path to recording.</summary>
+            <seealso cref="P:K4AdotNet.Record.Playback.FilePath"/>
         </member>
         <member name="M:K4AdotNet.Record.RecordingException.#ctor(System.String)">
-            <summary>Creates exception with specified message.</summary>
-            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property..</param>
+            <summary>Creates exception with default message.</summary>
+            <param name="filePath">File system path to recording.</param>
         </member>
-        <member name="M:K4AdotNet.Record.RecordingException.#ctor(System.String,System.Exception)">
-            <summary>Creates exception with specified message and inner exception.</summary>
-            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property..</param>
-            <param name="innerException">Inner exception. Can be reached then via <see cref="P:System.Exception.InnerException"/> property.</param>
+        <member name="M:K4AdotNet.Record.RecordingException.#ctor(System.String,System.String)">
+            <summary>Creates exception with specified message.</summary>
+            <param name="message">Message for exception. Can be reached then via <see cref="P:System.Exception.Message"/> property.</param>
+            <param name="filePath">File system path to recording.</param>
         </member>
         <member name="M:K4AdotNet.Record.RecordingException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>Constructor for deserialization needs.</summary>
             <param name="info">Serialization info.</param>
             <param name="context">Streaming context.</param>
         </member>
+        <member name="M:K4AdotNet.Record.RecordingException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>For serialization needs.</summary>
+            <param name="info">Serialization info.</param>
+            <param name="context">Streaming context.</param>
+        </member>
+        <member name="T:K4AdotNet.Sdk">
+            <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
+        </member>
         <member name="F:K4AdotNet.Sdk.SENSOR_DLL_NAME">
-            <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
+            <summary>Name of main library (DLL) from Azure Kinect Sensor SDK.</summary>
+            <remarks>This library is required for the most of API including Record and Body Tracking parts.</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME">
+            <summary>Name of depth engine library (DLL) from Azure Kinect Sensor SDK.</summary>
+            <remarks>This library is required for <see cref="M:K4AdotNet.Sensor.Device.StartCameras(K4AdotNet.Sensor.DeviceConfiguration)"/> and <see cref="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)"/>.</remarks>
         </member>
         <member name="F:K4AdotNet.Sdk.RECORD_DLL_NAME">
-            <summary>Name of record DLL in Kinect for Azure Sensor SDK.</summary>
+            <summary>Name of record library (DLL) from Azure Kinect Sensor SDK.</summary>
+            <remarks>This library is required for Record part of API (see <c>K4AdotNet.Record</c> namespace).</remarks>
         </member>
         <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME">
-            <summary>Name of Kinect for Azure Body Tracking SDK DLL.</summary>
+            <summary>Name of body tracking library (DLL) from Azure Kinect Body Tracking SDK.</summary>
+            <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sdk.ONNX_RUNTIME_DLL_NAME">
+            <summary>Name of ONNX runtime library (DLL) which is used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
+            <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DNN_MODEL_FILE_NAME">
+            <summary>Name of ONNX file with model of neural network used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
+            <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         </member>
         <member name="M:K4AdotNet.Sdk.ConfigureLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
             <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
@@ -1356,6 +2880,7 @@
             Must end in '.log' to be considered a valid entry.
             Use <see langword="null"/> or empty string to completely disable logging to a file.
             </param>
+            <remarks>Call this method before any usage of Sensor and Record APIs.</remarks>
         </member>
         <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
             <summary>Current version of Body Tracking SDK can log data only to the console.</summary>
@@ -1366,6 +2891,52 @@
             Must end in '.log' to be considered a valid entry.
             Use <see langword="null"/> or empty string to completely disable logging to a file.
             </param>
+            <remarks>Call this method before any usage of Body Tracking API.</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sdk.BodyTrackingSdkInstallationGuideUrl">
+            <summary>URL to step-by-step instruction "How to set up Body Tracking SDK". Helpful for UI and user messages.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)">
+            <summary>Checks that Body Tracking runtime is available.</summary>
+            <param name="message">
+            Detailed information about troubles with Body Tracking runtime if method returns <see langword="false"/>,
+            or <see langword="null"/> if method returns <see langword="true"/>.
+            </param>
+            <returns>
+            <see langword="true"/> if Body Tracking runtime is available and can be used, in this case <paramref name="message"/> is <see langword="null"/>,
+            <see langword="false"/> if Body Tracking runtime is not available for some reason, in this case <paramref name="message"/> contains user-friendly description of this reason.
+            </returns>
+            <remarks><para>
+            This method tries to find Body Tracking runtime in one of the following locations:
+            directory with executable file,
+            directory with <c>K4AdotNet</c> assembly,
+            installation directory of Body Tracking SDK under <c>Program Files</c>.
+            </para></remarks>
+            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>
+        </member>
+        <member name="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)">
+            <summary>Call this method to initialization of Body Tracking runtime.</summary>
+            <param name="message">
+            If Body Tracking runtime was initialized successfully, this parameter is <see langword="null"/>,
+            otherwise it contains user-friendly description of failure reason.
+            </param>
+            <returns>
+            <see langword="true"/> - if Body Tracking runtime was initialized successfully (in this case <paramref name="message"/> is <see langword="null"/>),
+            <see langword="false"/> - otherwise and in this case <paramref name="message"/> contains user-friendly description of failure.
+            </returns>
+            <remarks><para>
+            It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
+            For this reason, it is recommended to initialize Body Tracking runtime in advance and show some progress window for user.
+            But this initialization is optional. If it wasn't called explicitly, it will be called implicitly during first construction of
+            <see cref="T:K4AdotNet.BodyTracking.Tracker"/> object.
+            </para><para>
+            This method tries to find Body Tracking runtime in one of the following locations:
+            directory with executable file,
+            directory with <c>K4AdotNet</c> assembly,
+            installation directory of Body Tracking SDK under <c>Program Files</c>.
+            </para></remarks>
+            <seealso cref="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@)"/>
         </member>
         <member name="T:K4AdotNet.Sensor.Calibration">
             <summary>Information about device calibration in particular depth mode and color resolution.</summary>
@@ -1751,7 +3322,7 @@
             <seealso cref="M:K4AdotNet.Sensor.Capture.DuplicateReference"/>
         </member>
         <member name="P:K4AdotNet.Sensor.Capture.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.Sensor.Capture.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Sensor.Capture.Disposed">
@@ -2692,7 +4263,7 @@
         </member>
         <member name="T:K4AdotNet.Sensor.FirmwareVersion">
             <summary>Version information about sensor firmware.</summary>
-            <remarks>Can be smoothly converted to/from <see cref="T:System.Version"/> object for convenience.</remarks>
+            <remarks>Can be smoothly converted to/from <see cref="T:System.Version"/> object for convenience of usage in your code.</remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.FirmwareVersion.Major">
             <summary>Major version; represents a breaking change.</summary>
@@ -2736,12 +4307,12 @@
         <member name="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Version)">
             <summary>Per-component comparison of versions. Implementation of <see cref="T:System.IEquatable`1"/>.</summary>
             <param name="other">Version to be compared with this one. Can be <see langword="null"/>.</param>
-            <returns><c>true</c> - versions are the same, <c>false</c> - otherwise.</returns>
+            <returns><see langword="true"/> if versions are the same, <see langword="false"/> - otherwise.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.FirmwareVersion.Equals(System.Object)">
             <summary>Per-component comparison of versions.</summary>
             <param name="obj">Object to be compared with this one.</param>
-            <returns><c>true</c> - <paramref name="obj"/> is not <see langword="null"/> and it is version and versions are equal, <c>false</c> - otherwise.</returns>
+            <returns><see langword="true"/> - if <paramref name="obj"/> is not <see langword="null"/> and it is version and versions are equal, <see langword="false"/> - otherwise.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_Equality(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
             <summary>To be consistent with <see cref="M:K4AdotNet.Sensor.FirmwareVersion.Equals(K4AdotNet.Sensor.FirmwareVersion)"/>.</summary>
@@ -2815,7 +4386,7 @@
             <c>0</c> - <paramref name="obj"/> equals this one,
             <c>-1</c> - <paramref name="obj"/> is less than this one.
             </returns>
-            <exception cref="T:System.ArgumentException"><paramref name="obj"/> cannot be cast to version type.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
         </member>
         <member name="M:K4AdotNet.Sensor.FirmwareVersion.op_LessThan(K4AdotNet.Sensor.FirmwareVersion,K4AdotNet.Sensor.FirmwareVersion)">
             <summary>Versions comparison.</summary>
@@ -4211,6 +5782,351 @@
             The 'Sync In' jack is used for synchronization and 'Sync Out' is driven for the
             next device in the chain. 'Sync Out' is a mirror of 'Sync In' for this mode.
             </summary>
+        </member>
+        <member name="T:K4AdotNet.Timeout">
+            <summary>32-bit timeout value in milliseconds. Used in API to define timeouts to wait.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int32"/> type.
+            And <see cref="T:K4AdotNet.Timeout"/> value can be smoothly converted to/from <see cref="T:System.Int32"/> and <see cref="T:System.TimeSpan"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Timeout.ValueMs">
+            <summary>Value in milliseconds. Should be of <see cref="T:System.UInt32"/> type but for CLS-compatibility it is declared is <see cref="T:System.Int32"/>.</summary>
+            <remarks><para>
+            There are two special values:
+            0 - means "no wait" (see <see cref="F:K4AdotNet.Timeout.NoWait"/>),
+            -1 (that is <see cref="F:System.UInt32.MaxValue"/>) - means infinite waiting (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).
+            </para><para>
+            This structure is an wrapper around this value.
+            </para></remarks>
+        </member>
+        <member name="M:K4AdotNet.Timeout.#ctor(System.Int32)">
+            <summary>Creates instance from integer value in milliseconds.</summary>
+            <param name="valueMs">Timeout in milliseconds, or -1 for infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="valueMs"/> is less than -1.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.#ctor(System.TimeSpan)">
+            <summary>Creates instance from <see cref="T:System.TimeSpan"/> value.</summary>
+            <param name="value">Timeout specified as <see cref="T:System.TimeSpan"/> value. Use <see cref="F:System.TimeSpan.MaxValue"/> to specify infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="value"/> is negative.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.ToTimeSpan">
+            <summary>Converts timeout to <see cref="T:System.TimeSpan"/> value.</summary>
+            <returns>Corresponding <see cref="T:System.TimeSpan"/> value. For infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>) this method returns <see cref="F:System.TimeSpan.MaxValue"/>.</returns>
+        </member>
+        <member name="P:K4AdotNet.Timeout.TotalSeconds">
+            <summary>The total number of seconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Timeout.TotalMilliseconds">
+            <summary>The total number of milliseconds represented by this instance.</summary>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(System.TimeSpan)">
+            <summary>Equality with another value specified as <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(System.Int32)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="otherMs">Another value in milliseconds to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)">
+            <summary>Two values comparison exactly like <see cref="T:System.UInt32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.UInt32.CompareTo(System.UInt32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)">
+            <summary>Two values comparison.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.UInt32.CompareTo(System.UInt32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.CompareTo(System.Int32)">
+            <summary>Two values comparison exactly like <see cref="T:System.UInt32"/> type has.</summary>
+            <param name="otherMs">Another value in milliseconds to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.UInt32.CompareTo(System.UInt32)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.CompareTo(System.Object)">
+            <summary>Can compare current instance with <see cref="T:K4AdotNet.Timeout"/>, <see cref="T:System.TimeSpan"/> and <see cref="T:System.IConvertible"/> value.</summary>
+            <param name="obj">Value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.UInt32.CompareTo(System.UInt32)"/>.
+            </returns>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of current instance.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{value} ms</c> or <c>Infinite</c> string or <c>NoWait</c> string.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)"/>.</summary>
+            <param name="obj">Object to be compared with this instance.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="T:K4AdotNet.Microseconds32"/> and result is equal to this one.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.ToString">
+            <summary>String representation of current instance.</summary>
+            <returns><c>{value} ms</c> or <c>Infinite</c> string or <c>NoWait</c> string.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Equality(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Inequality(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThan(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThan(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(K4AdotNet.Timeout,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(K4AdotNet.Timeout)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Equality(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Inequality(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThan(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThan(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(K4AdotNet.Timeout,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Equality(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Inequality(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThan(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThan(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(System.TimeSpan,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than on equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Equality(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Inequality(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThan(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThan(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(K4AdotNet.Timeout,System.Int32)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightMs">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightMs"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Equality(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Inequality(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThan(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThan(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(System.Int32,K4AdotNet.Timeout)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
+            <param name="leftMs">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftMs"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Implicit(K4AdotNet.Timeout)~System.TimeSpan">
+            <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
+            <seealso cref="M:K4AdotNet.Timeout.ToTimeSpan"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Implicit(System.TimeSpan)~K4AdotNet.Timeout">
+            <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:K4AdotNet.Microseconds32"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Implicit(System.Int32)~K4AdotNet.Timeout">
+            <summary>Implicit conversion from <see cref="T:System.Int32"/>.</summary>
+            <param name="valueMs">Value in milliseconds to be converted to <see cref="T:K4AdotNet.Timeout"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Timeout.FromSeconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Timeout"/> from seconds.</summary>
+            <param name="timeoutSec">Value in seconds.</param>
+            <returns>Created value.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="timeoutSec"/> is less than zero.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.FromMilliseconds(System.Int32)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Timeout"/> from milliseconds.</summary>
+            <param name="timeoutMs">Value in milliseconds.</param>
+            <returns>Created value.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="timeoutMs"/> is less than zero.</exception>
+        </member>
+        <member name="F:K4AdotNet.Timeout.NoWait">
+            <summary>Special timeout value: non blocking call.</summary>
+        </member>
+        <member name="F:K4AdotNet.Timeout.Infinite">
+            <summary>Special timeout value: infinite waiting.</summary>
         </member>
     </members>
 </doc>

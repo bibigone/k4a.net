@@ -8,22 +8,36 @@ using System.Reflection;
 
 namespace K4AdotNet
 {
+    /// <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
     public static class Sdk
     {
-        /// <summary>Name of Kinect for Azure Sensor SDK DLL.</summary>
+        #region Dependencies
+
+        /// <summary>Name of main library (DLL) from Azure Kinect Sensor SDK.</summary>
+        /// <remarks>This library is required for the most of API including Record and Body Tracking parts.</remarks>
         public const string SENSOR_DLL_NAME = "k4a";
 
+        /// <summary>Name of depth engine library (DLL) from Azure Kinect Sensor SDK.</summary>
+        /// <remarks>This library is required for <see cref="Device.StartCameras(DeviceConfiguration)"/> and <see cref="Transformation.Transformation(ref Calibration)"/>.</remarks>
         public const string DEPTHENGINE_DLL_NAME = "depthengine_1_0";
 
-        /// <summary>Name of record DLL in Kinect for Azure Sensor SDK.</summary>
+        /// <summary>Name of record library (DLL) from Azure Kinect Sensor SDK.</summary>
+        /// <remarks>This library is required for Record part of API (see <c>K4AdotNet.Record</c> namespace).</remarks>
         public const string RECORD_DLL_NAME = "k4arecord";
 
-        /// <summary>Name of Kinect for Azure Body Tracking SDK DLL.</summary>
+        /// <summary>Name of body tracking library (DLL) from Azure Kinect Body Tracking SDK.</summary>
+        /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
 
+        /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
+        /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string ONNX_RUNTIME_DLL_NAME = "onnxruntime";
 
+        /// <summary>Name of ONNX file with model of neural network used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
+        /// <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model.onnx";
+
+        #endregion
 
         #region Logging
 
@@ -35,6 +49,7 @@ namespace K4AdotNet
         /// Must end in '.log' to be considered a valid entry.
         /// Use <see langword="null"/> or empty string to completely disable logging to a file.
         /// </param>
+        /// <remarks>Call this method before any usage of Sensor and Record APIs.</remarks>
         public static void ConfigureLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
         {
             Environment.SetEnvironmentVariable("K4A_LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
@@ -50,6 +65,7 @@ namespace K4AdotNet
         /// Must end in '.log' to be considered a valid entry.
         /// Use <see langword="null"/> or empty string to completely disable logging to a file.
         /// </param>
+        /// <remarks>Call this method before any usage of Body Tracking API.</remarks>
         public static void ConfigureBodyTrackingLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
         {
             Environment.SetEnvironmentVariable("K4ABT_LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
@@ -74,8 +90,26 @@ namespace K4AdotNet
 
         #region Body tracking SDK availability and initialization
 
-        public static readonly string BodyTrackingSdkInstallationGuideUrl = "https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup";
+        /// <summary>URL to step-by-step instruction "How to set up Body Tracking SDK". Helpful for UI and user messages.</summary>
+        public static readonly string BodyTrackingSdkInstallationGuideUrl
+            = "https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup";
 
+        /// <summary>Checks that Body Tracking runtime is available.</summary>
+        /// <param name="message">
+        /// Detailed information about troubles with Body Tracking runtime if method returns <see langword="false"/>,
+        /// or <see langword="null"/> if method returns <see langword="true"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if Body Tracking runtime is available and can be used, in this case <paramref name="message"/> is <see langword="null"/>,
+        /// <see langword="false"/> if Body Tracking runtime is not available for some reason, in this case <paramref name="message"/> contains user-friendly description of this reason.
+        /// </returns>
+        /// <remarks><para>
+        /// This method tries to find Body Tracking runtime in one of the following locations:
+        /// directory with executable file,
+        /// directory with <c>K4AdotNet</c> assembly,
+        /// installation directory of Body Tracking SDK under <c>Program Files</c>.
+        /// </para></remarks>
+        /// <seealso cref="TryInitializeBodyTrackingRuntime(out string)"/>
         public static bool IsBodyTrackingRuntimeAvailable(out string message)
         {
             if (!IsOSCompatibleWithBodyTracking(out message))
@@ -94,6 +128,79 @@ namespace K4AdotNet
 
             message = null;
             return true;
+        }
+
+        /// <summary>Call this method to initialization of Body Tracking runtime.</summary>
+        /// <param name="message">
+        /// If Body Tracking runtime was initialized successfully, this parameter is <see langword="null"/>,
+        /// otherwise it contains user-friendly description of failure reason.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> - if Body Tracking runtime was initialized successfully (in this case <paramref name="message"/> is <see langword="null"/>),
+        /// <see langword="false"/> - otherwise and in this case <paramref name="message"/> contains user-friendly description of failure.
+        /// </returns>
+        /// <remarks><para>
+        /// It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
+        /// For this reason, it is recommended to initialize Body Tracking runtime in advance and show some progress window for user.
+        /// But this initialization is optional. If it wasn't called explicitly, it will be called implicitly during first construction of
+        /// <see cref="BodyTracking.Tracker"/> object.
+        /// </para><para>
+        /// This method tries to find Body Tracking runtime in one of the following locations:
+        /// directory with executable file,
+        /// directory with <c>K4AdotNet</c> assembly,
+        /// installation directory of Body Tracking SDK under <c>Program Files</c>.
+        /// </para></remarks>
+        /// <seealso cref="IsBodyTrackingRuntimeAvailable(out string)"/>
+        /// <seealso cref="BodyTracking.Tracker.Tracker(ref Calibration)"/>
+        public static bool TryInitializeBodyTrackingRuntime(out string message)
+        {
+            Calibration.CreateDummy(DepthMode.NarrowView2x2Binned, ColorResolution.Off, out var calibration);
+            if (!TryCreateTrackerHandle(ref calibration, out var trackerHandle, out message))
+            {
+                return false;
+            }
+
+            trackerHandle.Dispose();
+            message = null;
+            return true;
+        }
+
+        private static string GetBodyTrackingRuntimePath(out string message)
+        {
+            const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\sdk\windows-desktop\amd64\release\bin";
+
+            message = null;
+
+            // Try current directory
+            var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
+            if (ProbePathForBodyTrackingRuntime(currentDir))
+                return currentDir;
+
+            // Try base directory of current app domain
+            var baseDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
+            if (!baseDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (ProbePathForBodyTrackingRuntime(baseDir))
+                    return baseDir;
+            }
+
+            // Try location of this assembly
+            var asm = Assembly.GetExecutingAssembly();
+            var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase).LocalPath));
+            if (!asmDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase)
+                && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (ProbePathForBodyTrackingRuntime(asmDir))
+                    return asmDir;
+            }
+
+            // Try standard location of installed Body Tracking SDK
+            var sdkBinDir = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), BODY_TRACKING_SDK_BIN_PATH));
+            if (ProbePathForBodyTrackingRuntime(sdkBinDir))
+                return sdkBinDir;
+
+            message = "Cannot find Body Tracking runtime (neither in application directory, nor in Body Tracking SDK directory).";
+            return null;
         }
 
         private static bool IsOSCompatibleWithBodyTracking(out string message)
@@ -193,44 +300,6 @@ namespace K4AdotNet
             return true;
         }
 
-        public static string GetBodyTrackingRuntimePath(out string message)
-        {
-            const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\sdk\windows-desktop\amd64\release\bin";
-
-            message = null;
-
-            // Try current directory
-            var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
-            if (ProbePathForBodyTrackingRuntime(currentDir))
-                return currentDir;
-
-            // Try base directory of current app domain
-            var baseDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
-            if (!baseDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (ProbePathForBodyTrackingRuntime(baseDir))
-                    return baseDir;
-            }
-
-            // Try location of this assembly
-            var asm = Assembly.GetExecutingAssembly();
-            var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase).LocalPath));
-            if (!asmDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase)
-                && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (ProbePathForBodyTrackingRuntime(asmDir))
-                    return asmDir;
-            }
-
-            // Try standard location of installed Body Tracking SDK
-            var sdkBinDir = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), BODY_TRACKING_SDK_BIN_PATH));
-            if (ProbePathForBodyTrackingRuntime(sdkBinDir))
-                return sdkBinDir;
-
-            message = "Cannot find Body Tracking runtime (neither in application directory, nor in Body Tracking SDK directory).";
-            return null;
-        }
-
         private static bool ProbePathForBodyTrackingRuntime(string path)
         {
             const string DLL_EXTENSION = ".dll";
@@ -250,19 +319,6 @@ namespace K4AdotNet
             if (!File.Exists(dnnmodel))
                 return false;
 
-            return true;
-        }
-
-        public static bool TryInitializeBodyTrackingRuntime(out string message)
-        {
-            Calibration.CreateDummy(DepthMode.NarrowView2x2Binned, ColorResolution.Off, out var calibration);
-            if (!TryCreateTrackerHandle(ref calibration, out var trackerHandle, out message))
-            {
-                return false;
-            }
-
-            trackerHandle.Dispose();
-            message = null;
             return true;
         }
 

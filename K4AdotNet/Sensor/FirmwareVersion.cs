@@ -11,7 +11,7 @@ namespace K4AdotNet.Sensor
     // } k4a_version_t;
     //
     /// <summary>Version information about sensor firmware.</summary>
-    /// <remarks>Can be smoothly converted to/from <see cref="Version"/> object for convenience.</remarks>
+    /// <remarks>Can be smoothly converted to/from <see cref="Version"/> object for convenience of usage in your code.</remarks>
     [StructLayout(LayoutKind.Sequential)]
     public struct FirmwareVersion :
         IEquatable<FirmwareVersion>, IEquatable<Version>,
@@ -75,13 +75,13 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Per-component comparison of versions. Implementation of <see cref="IEquatable{Version}"/>.</summary>
         /// <param name="other">Version to be compared with this one. Can be <see langword="null"/>.</param>
-        /// <returns><c>true</c> - versions are the same, <c>false</c> - otherwise.</returns>
+        /// <returns><see langword="true"/> if versions are the same, <see langword="false"/> - otherwise.</returns>
         public bool Equals(Version other)
             => other != null && Equals(new FirmwareVersion(other));
 
         /// <summary>Per-component comparison of versions.</summary>
         /// <param name="obj">Object to be compared with this one.</param>
-        /// <returns><c>true</c> - <paramref name="obj"/> is not <see langword="null"/> and it is version and versions are equal, <c>false</c> - otherwise.</returns>
+        /// <returns><see langword="true"/> - if <paramref name="obj"/> is not <see langword="null"/> and it is version and versions are equal, <see langword="false"/> - otherwise.</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -181,7 +181,7 @@ namespace K4AdotNet.Sensor
         /// <c>0</c> - <paramref name="obj"/> equals this one,
         /// <c>-1</c> - <paramref name="obj"/> is less than this one.
         /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="obj"/> cannot be cast to version type.</exception>
+        /// <exception cref="ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
         public int CompareTo(object obj)
         {
             if (obj is null)

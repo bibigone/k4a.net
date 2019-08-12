@@ -84,7 +84,7 @@ namespace K4AdotNet.BodyTracking
         /// <param name="jointType">Joint type asked about.</param>
         /// <returns>
         /// Parent joint of <paramref name="jointType"/> in skeletal hierarchy
-        /// or value of <paramref name="jointType"/> if it is root joint (see <see cref="IsRoot(JointType)").
+        /// or value of <paramref name="jointType"/> if it is root joint (see <see cref="IsRoot(JointType)"/>).
         /// </returns>
         /// <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
         /// <exception cref="ArgumentOutOfRangeException">Unknown joint.</exception>

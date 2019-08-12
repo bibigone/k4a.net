@@ -4,6 +4,7 @@ using System.Text;
 
 namespace K4AdotNet
 {
+    /// <summary>Internal helper methods.</summary>
     internal static class Helpers
     {
         public static int UIntPtrToInt32(UIntPtr value)
