@@ -22,18 +22,19 @@
 * Library **K4AdotNet** is compiled against **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
   * This makes it compatible with **.NET Core 2.0** and later, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
-* Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download). Plus useful helper methods, additional checks and meaningful exceptions.
+* Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
+* Plus useful helper methods, additional checks and meaningful exceptions.
 * No additional dependencies
   * Except dependencies on native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download)
   * Native libraries from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) are included to repository(see `externals` directory) and [NuGet package](https://www.nuget.org/packages/K4AdotNet)
   * But native libraries from [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) are *not* included to repository. It is recommended to install [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) separately. For details see below
-* Plenty of powerful samples
+* Plenty of powerful samples:
   * for .NET Core
   * for WPF
   * for Unity
   * and even more samples will be available soon (stay tuned)
 * Well documented
-* Unit-tested
+* Unit-tested (more tests are awaited)
 * Potentially multi-platform (Windows, Linux)
   * But currently tested only under Windows
   * And most of samples are written using WPF
@@ -69,15 +70,15 @@ Some important notes:
 
 * [v0.9.0](https://github.com/bibigone/k4a.net/releases/tag/v0.9.0) &mdash; Mostly production-ready version of library
   * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.9.0
-  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.9.0)
+  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.9.0))
   * Tested with Azure Kinect Body Tracking SDK 0.9.1 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
   * Changes:
     * Icon :)
     * Some minor bug fixes
-	* Improvements in exceptions and error messages (especially in `Device` class)
-	* Documentation comments for all public API
-	* Sample for Unity
-	* Switching to version 0.9.1 of Body Tracking runtime
+    * Improvements in exceptions and error messages (especially in `Device` class)
+    * Documentation comments for all public API
+    * Sample for Unity
+    * Switching to version 0.9.1 of Body Tracking runtime
 
 * [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects
   * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.5.0
