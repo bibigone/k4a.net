@@ -25,18 +25,17 @@
 * Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download). Plus useful helper methods, additional checks and meaningful exceptions.
 * No additional dependencies
   * Except dependencies on native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download)
-  * Native libraries from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) are included to repository (see `externals` directory)
-  * But native libraries from [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) are *not* included to repository
-  * For details see below
+  * Native libraries from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) are included to repository(see `externals` directory) and [NuGet package](https://www.nuget.org/packages/K4AdotNet)
+  * But native libraries from [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) are *not* included to repository. It is recommended to install [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) separately. For details see below
 * Plenty of powerful samples
-  * More samples will be available soon (stay tuned)
-* Unit-tested
-  * To be done ASAP
+  * for .NET Core
+  * for WPF
+  * for Unity
+  * and even more samples will be available soon (stay tuned)
 * Well documented
-  * To be done ASAP
+* Unit-tested
 * Potentially multi-platform (Windows, Linux)
   * But currently tested only under Windows
-  * Plus there's no Linux-version of [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) yet
   * And most of samples are written using WPF
 * Available as NuGet package: https://www.nuget.org/packages/K4AdotNet
 
@@ -68,6 +67,18 @@ Some important notes:
 
 ## Versions
 
+* [v0.9.0](https://github.com/bibigone/k4a.net/releases/tag/v0.9.0) &mdash; Mostly production-ready version of library
+  * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.9.0
+  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.9.0)
+  * Tested with Azure Kinect Body Tracking SDK 0.9.1 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
+  * Changes:
+    * Icon :)
+    * Some minor bug fixes
+	* Improvements in exceptions and error messages (especially in `Device` class)
+	* Documentation comments for all public API
+	* Sample for Unity
+	* Switching to version 0.9.1 of Body Tracking runtime
+
 * [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects
   * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.5.0
   * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.5.0)
@@ -76,10 +87,9 @@ Some important notes:
 
 ## Roadmap
 
-* Documentation comments
 * More unit-tests
 * More samples (Green screen, Recording, 3D view, Box-man, IMU...)
-* Samples for Unity3D
+* Further development of sample for Unity
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)
 * Some hosting for HTML documentation ([DocFX](https://dotnet.github.io/docfx/) + [github.io](https://pages.github.com/)?)
@@ -93,3 +103,4 @@ Some important notes:
   * `K4AdotNet.Samples.BodyTrackingSpeedTest` &mdash; Core .NET sample console application to measure speed of Body Tracking.
   * `K4AdotNet.Samples.Wpf.Viewer` &mdash; WPF sample application to demonstrate usage of Sensor API and Record API.
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; WPF sample application to demonstrate usage of Body Tracking API.
+* Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.txt)
