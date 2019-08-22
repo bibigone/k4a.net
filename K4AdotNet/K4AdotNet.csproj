@@ -5,7 +5,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <Platforms>AnyCPU</Platforms>
-    <Description>Three-in-one managed .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later. All required binaries from Azure Kinect Sensor SDK (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</Description>
+    <Description>Three-in-one .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later. All required binaries from Azure Kinect Sensor SDK (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</Description>
     <PackageTags>Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking SDK</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIconUrl>https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png</PackageIconUrl>
