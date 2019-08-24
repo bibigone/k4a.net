@@ -101,6 +101,56 @@ namespace K4AdotNet.Record
         public void GetRecordConfiguration(out RecordConfiguration config)
             => CheckResult(NativeApi.PlaybackGetRecordConfiguration(handle.ValueNotDisposed, out config));
 
+        /// <summary>Checks whether a track with the given track name exists in the playback file.</summary>
+        /// <param name="trackName">The track name to be checked to see whether it exists or not.</param>
+        /// <returns><see langword="true"/> if the track exists.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        public bool CheckTrackExists(string trackName)
+        {
+            if (string.IsNullOrEmpty(trackName))
+                throw new ArgumentNullException(nameof(trackName));
+            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
+            return NativeApi.PlaybackCheckTrackExists(handle.ValueNotDisposed, trackNameAsBytes);
+        }
+
+        /// <summary>Get the number of tracks in a playback file.</summary>
+        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        /// <seealso cref="GetTrackName(int)"/>
+        public int TrackCount => Helpers.UIntPtrToInt32(NativeApi.PlaybackGetTrackCount(handle.ValueNotDisposed));
+
+        /// <summary>Gets the name of a track at a specific index.</summary>
+        /// <param name="trackIndex">Zero-based index of track.</param>
+        /// <returns>Track name.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="trackIndex"/> is less than zero -or- is equal to or greater than <see cref="TrackCount"/>.</exception>
+        /// <exception cref="PlaybackException">Cannot get name of track with specified index.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        /// <seealso cref="TrackCount"/>
+        public string GetTrackName(int trackIndex)
+        {
+            if (trackIndex < 0 || trackIndex >= TrackCount)
+                throw new ArgumentOutOfRangeException(nameof(trackIndex));
+            if (!Helpers.TryGetValueInByteBuffer(GetTrackName, trackIndex, out var trackNameAsBytes))
+                throw new PlaybackException("Cannot get name of track #" + trackIndex, FilePath);
+            return Encoding.UTF8.GetString(trackNameAsBytes, 0, trackNameAsBytes.Length - 1);
+        }
+
+        private NativeCallResults.BufferResult GetTrackName(int trackIndex, byte[] trackName, ref UIntPtr trackNameSize)
+            => NativeApi.PlaybackGetTrackName(handle.ValueNotDisposed, Helpers.Int32ToUIntPtr(trackIndex), trackName, ref trackNameSize);
+
+        /// <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
+        /// <param name="trackName">The track name to be checked to see whether it is a built-in track. Not <see langword="null"/> or empty.</param>
+        /// <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        public bool IsBuiltInTrack(string trackName)
+        {
+            if (string.IsNullOrEmpty(trackName))
+                throw new ArgumentNullException(nameof(trackName));
+            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
+            return NativeApi.PlaybackTrackIsBuiltIn(handle.ValueNotDisposed, trackNameAsBytes);
+        }
+
         /// <summary>Reads the value of a tag from a recording.</summary>
         /// <param name="name">The name of the tag to read. Not <see langword="null"/> and not empty. Can contain only ASCII characters.</param>
         /// <param name="value">Output: tag value on success.</param>

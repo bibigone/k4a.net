@@ -47,12 +47,12 @@
 
 | Library "component" | Depends on                       | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
 |---------------------|----------------------------------|----------------|---------------------------------------|--------------------------
-| Sensor API          | `k4a.dll`, `depthengine_1_0.dll` | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
-| Record API          | `k4arecord.dll`                  | 1.1.1          | `externals/k4a/windows-desktop/amd64` | YES
+| Sensor API          | `k4a.dll`, `depthengine_2_0.dll` | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                  | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
 | Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9.1          |                                       | no
 
 Some important notes:
-* `depthengine_1_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
+* `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
 * Native libraries from Body Tacking runtime are not included to repository because they, in turn, depend on:
   * bulky `dnn_model.onnx` file (159 MB)
   * [NVIDIA CUDA 10.0](https://developer.nvidia.com/cuda-10.0-download-archive)

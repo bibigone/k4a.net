@@ -25,11 +25,16 @@ namespace K4AdotNet.Sensor
     public enum ColorControlCommand
     {
         /// <summary>Exposure time setting.</summary>
-        /// <remarks>
+        /// <remarks><para>
         /// May be set to <see cref="ColorControlMode.Auto"/> or <see cref="ColorControlMode.Manual"/>.
-        /// Exposure time is measured in microseconds. For details see:
-        /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#rgb-camera-exposure-time-values
-        /// </remarks>
+        /// </para><para>
+        /// The Azure Kinect supports a limited number of fixed exposure settings. When setting this, expect the exposure to
+        /// be rounded up to the nearest setting. Exceptions are 1) The last value in the table is the upper limit, so a
+        /// value larger than this will be overridden to the largest entry in the table. 2) The exposure time cannot be
+        /// larger than the equivalent FPS. So expect 100ms exposure time to be reduced to 30ms or 33.33ms when the camera is
+        /// started. The most recent copy of the table 'device_exposure_mapping' is in
+        /// https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/src/color/color_priv.h
+        /// </para></remarks>
         ExposureTimeAbsolute = 0,
 
         /// <summary>Exposure or Frame rate priority setting.</summary>
@@ -37,9 +42,9 @@ namespace K4AdotNet.Sensor
         /// May only be set to <see cref="ColorControlMode.Manual"/>.
         /// Value of <c>0</c> means frame rate priority. Value of <c>1</c> means exposure priority.
         /// Using exposure priority may impact the frame rate of both the color and depth cameras.
-        /// Deprecated starting in 1.1.0. Please discontinue usage, firmware does not support this.
+        /// Deprecated starting from version 1.1.0 of Sensor SDK. Please discontinue usage, firmware does not support this.
         /// </remarks>
-        [Obsolete]
+        [Obsolete("Deprecated starting from version 1.1.0 of Sensor SDK. Please discontinue usage, firmware does not support this.")]
         AutoExposurePriority,
 
         /// <summary>Brightness setting.</summary>

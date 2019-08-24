@@ -237,7 +237,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(TimeSpan)"/>
         public static bool operator ==(TimeSpan left, Microseconds32 right)
-            => new Microseconds32(left).Equals(right);
+            => right.Equals(left);
 
         /// <summary>To be consistent with <see cref="Equals(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -245,7 +245,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(TimeSpan)"/>
         public static bool operator !=(TimeSpan left, Microseconds32 right)
-            => !new Microseconds32(left).Equals(right);
+            => !right.Equals(left);
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -253,7 +253,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
         public static bool operator <(TimeSpan left, Microseconds32 right)
-            => new Microseconds32(left).CompareTo(right) < 0;
+            => right.CompareTo(left) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -261,7 +261,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
         public static bool operator >(TimeSpan left, Microseconds32 right)
-            => new Microseconds32(left).CompareTo(right) > 0;
+            => right.CompareTo(left) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -269,7 +269,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
         public static bool operator <=(TimeSpan left, Microseconds32 right)
-            => new Microseconds32(left).CompareTo(right) <= 0;
+            => right.CompareTo(left) >= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -277,7 +277,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
         public static bool operator >=(TimeSpan left, Microseconds32 right)
-            => new Microseconds32(left).CompareTo(right) >= 0;
+            => right.CompareTo(left) <= 0;
 
         /// <summary>To be consistent with <see cref="Equals(int)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
@@ -333,7 +333,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(int)"/>
         public static bool operator ==(int leftUsec, Microseconds32 right)
-            => new Microseconds32(leftUsec).Equals(right);
+            => right.Equals(leftUsec);
 
         /// <summary>To be consistent with <see cref="Equals(int)"/>.</summary>
         /// <param name="leftUsec">Left part of operator.</param>
@@ -341,7 +341,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(int)"/>
         public static bool operator !=(int leftUsec, Microseconds32 right)
-            => !new Microseconds32(leftUsec).Equals(right);
+            => !right.Equals(leftUsec);
 
         /// <summary>To be consistent with <see cref="CompareTo(int)"/>.</summary>
         /// <param name="leftUsec">Left part of operator.</param>
@@ -349,7 +349,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(int)"/>
         public static bool operator <(int leftUsec, Microseconds32 right)
-            => new Microseconds32(leftUsec).CompareTo(right) < 0;
+            => right.CompareTo(leftUsec) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(int)"/>.</summary>
         /// <param name="leftUsec">Left part of operator.</param>
@@ -357,7 +357,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(int)"/>
         public static bool operator >(int leftUsec, Microseconds32 right)
-            => new Microseconds32(leftUsec).CompareTo(right) > 0;
+            => right.CompareTo(leftUsec) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(int)"/>.</summary>
         /// <param name="leftUsec">Left part of operator.</param>
@@ -365,7 +365,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(int)"/>
         public static bool operator <=(int leftUsec, Microseconds32 right)
-            => new Microseconds32(leftUsec).CompareTo(right) <= 0;
+            => right.CompareTo(leftUsec) >= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(int)"/>.</summary>
         /// <param name="leftUsec">Left part of operator.</param>
@@ -373,7 +373,7 @@ namespace K4AdotNet
         /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(int)"/>
         public static bool operator >=(int leftUsec, Microseconds32 right)
-            => new Microseconds32(leftUsec).CompareTo(right) >= 0;
+            => right.CompareTo(leftUsec) <= 0;
 
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>

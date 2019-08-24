@@ -44,7 +44,7 @@ namespace K4AdotNet.Sensor
         { }
 
         /// <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
-        /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
+        /// <param name="format">Format of image. Cannot be <see cref="ImageFormat.ColorMjpg"/>.</param>
         /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
         /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
@@ -59,10 +59,6 @@ namespace K4AdotNet.Sensor
         /// <exception cref="InvalidOperationException">
         /// <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
         /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// If <paramref name="format"/> equals to <see cref="ImageFormat.ColorNV12"/>.
-        /// For details see https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587.
-        /// </exception>
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
         {
             if (widthPixels <= 0)
@@ -76,13 +72,6 @@ namespace K4AdotNet.Sensor
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
 
-            if (format == ImageFormat.ColorNV12)
-            {
-                // Because of bug in Sensor DK
-                // See https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587
-                throw new NotSupportedException($"Please, specify size of image data in bytes for {format} format. This is because of issue #587 in Sensor DK.");
-            }
-
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels and stride {strideBytes} bytes.");
@@ -92,7 +81,7 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
-        /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
+        /// <param name="format">Format of image.</param>
         /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
         /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
@@ -101,9 +90,6 @@ namespace K4AdotNet.Sensor
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
         /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
         /// or <paramref name="sizeBytes"/> is less than zero or <paramref name="sizeBytes"/> is less than size calculated from <paramref name="heightPixels"/> and <paramref name="strideBytes"/>.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
         /// </exception>
         public Image(ImageFormat format, int widthPixels, int heightPixels, int strideBytes, int sizeBytes)
         {
@@ -269,18 +255,51 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public int StrideBytes => NativeApi.ImageGetStrideBytes(handle.ValueNotDisposed);
 
-        /// <summary>Get and set the image timestamp.</summary>
+        /// <summary>Deprecated in version 1.2 of Sensor SDK. Please use <see cref="DeviceTimestamp"/> property instead of this one.</summary>
+        [Obsolete("Deprecated in version 1.2 of Sensor SDK. Please use DeviceTimestamp property instead of this one.")]
+        public Microseconds64 Timestamp
+        {
+            get => DeviceTimestamp;
+            set => DeviceTimestamp = value;
+        }
+
+        /// <summary>Get and set the image's device timestamp.</summary>
         /// <remarks><para>
-        /// Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
-        /// They may be used for relative comparison, but their absolute value has no defined meaning.
+        /// Returns the device timestamp of the image, as captured by the hardware. Timestamps are recorded by the device and
+        /// represent the mid-point of exposure. They may be used for relative comparison, but their absolute value has no
+        /// defined meaning.
         /// </para><para>
         /// <see cref="Microseconds64"/> supports implicit conversion to/from <see cref="TimeSpan"/>.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Microseconds64 Timestamp
+        /// <seealso cref="SystemTimestamp"/>
+        public Microseconds64 DeviceTimestamp
         {
-            get => NativeApi.ImageGetTimestamp(handle.ValueNotDisposed);
-            set => NativeApi.ImageSetTimestamp(handle.ValueNotDisposed, value);
+            get => NativeApi.ImageGetDeviceTimestamp(handle.ValueNotDisposed);
+            set => NativeApi.ImageSetDeviceTimestamp(handle.ValueNotDisposed, value);
+        }
+
+        /// <summary>Get and set the image's system timestamp.</summary>
+        /// <remarks><para>
+        /// Returns the system timestamp of the image. Timestamps are recorded by the host. They may be used for relative
+        /// comparison, as they are relative to the corresponding system clock.The absolute value is a monotonic count from
+        /// an arbitrary point in the past.
+        /// </para><para>
+        /// The system timestamp is captured at the moment host PC finishes receiving the image.
+        /// </para><para>
+        /// On Linux the system timestamp is read from <c>clock_gettime(CLOCK_MONOTONIC)</c>, which measures realtime and is not
+        /// impacted by adjustments to the system clock.It starts from an arbitrary point in the past. On Windows the system
+        /// timestamp is read from <c>QueryPerformanceCounter()</c>, it also measures realtime and is not impacted by adjustments to the
+        /// system clock. It also starts from an arbitrary point in the past.
+        /// </para><para>
+        /// <see cref="Nanoseconds64"/> supports implicit conversion to/from <see cref="TimeSpan"/>.
+        /// </para></remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        /// <seealso cref="DeviceTimestamp"/>
+        public Nanoseconds64 SystemTimestamp
+        {
+            get => NativeApi.ImageGetSystemTimestamp(handle.ValueNotDisposed);
+            set => NativeApi.ImageSetSystemTimestamp(handle.ValueNotDisposed, value);
         }
 
         /// <summary>Get and set the image exposure time. This is only supported on color image formats.</summary>
@@ -290,8 +309,8 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Microseconds64 Exposure
         {
-            get => NativeApi.ImageGetExposureUsec(handle.ValueNotDisposed);
-            set => NativeApi.ImageSetExposureTimeUsec(handle.ValueNotDisposed, value);
+            get => NativeApi.ImageGetExposure(handle.ValueNotDisposed);
+            set => NativeApi.ImageSetExposure(handle.ValueNotDisposed, value);
         }
 
         /// <summary>Get and set the image white balance in degrees Kelvin. This is only supported on color image formats.</summary>

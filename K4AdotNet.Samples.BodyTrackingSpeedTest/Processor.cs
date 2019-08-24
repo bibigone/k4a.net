@@ -63,16 +63,16 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
                 return false;
             if (!processingParameters.EndTime.HasValue)
                 return true;
-            var timestamp = GetTimestamp(capture);
-            return timestamp.HasValue
-                && processingParameters.IsTimeInStartEndInterval(timestamp.Value);
+            var deviceTimestamp = GetDeviceTimestamp(capture);
+            return deviceTimestamp.HasValue
+                && processingParameters.IsTimeInStartEndInterval(deviceTimestamp.Value);
         }
 
-        private static Microseconds64? GetTimestamp(Sensor.Capture capture)
+        private static Microseconds64? GetDeviceTimestamp(Sensor.Capture capture)
         {
             using (var image = capture.DepthImage)
             {
-                return image?.Timestamp;
+                return image?.DeviceTimestamp;
             }
         }
     }

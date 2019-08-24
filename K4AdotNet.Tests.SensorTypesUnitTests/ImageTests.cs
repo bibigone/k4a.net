@@ -10,7 +10,8 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
     {
         private static readonly int testWidth = 32;
         private static readonly int testHeight = 16;
-        private static readonly Microseconds64 testTimestamp = Microseconds64.FromSeconds(1.5);
+        private static readonly Microseconds64 testDeviceTimestamp = Microseconds64.FromSeconds(1.5);
+        private static readonly Nanoseconds64 testSystemTimestamp = Nanoseconds64.FromSeconds(1.5001);
         private static readonly int testWhiteBalance = 300;
         private static readonly int testIsoSpeed = 100;
 
@@ -29,13 +30,20 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorBgra32);
 
         [TestMethod]
-        [Ignore("There is a bug in Sensor DK: https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587")]
         public void TestColorNV12ImageCreation()
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorNV12);
 
         [TestMethod]
         public void TestColorYUY2ImageCreation()
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorYUY2);
+
+        [TestMethod]
+        public void TestCustom8ImageCreation()
+            => TestImageCreationWithNoSizeSpecified(ImageFormat.Custom8);
+
+        [TestMethod]
+        public void TestCustom16ImageCreation()
+            => TestImageCreationWithNoSizeSpecified(ImageFormat.Custom16);
 
         [TestMethod]
         public void TestCustomImageWithKnownStrideCreation()
@@ -50,6 +58,8 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
         {
             var stride = strideOrNull ?? format.StrideBytes(testWidth);
             var expectedSize = stride * testHeight;
+            if (format == ImageFormat.ColorNV12)
+                expectedSize = expectedSize * 3 / 2;
 
             var image = strideOrNull.HasValue
                 ? new Image(format, testWidth, testHeight, strideOrNull.Value)
@@ -183,10 +193,15 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
         {
             using (var image = new Image(ImageFormat.Depth16, testWidth, testHeight))
             {
-                // Check Timestamp property
-                Assert.AreEqual(Microseconds64.Zero, image.Timestamp);
-                image.Timestamp = testTimestamp;
-                Assert.AreEqual(testTimestamp, image.Timestamp);
+                // Check DeviceTimestamp property
+                Assert.AreEqual(Microseconds64.Zero, image.DeviceTimestamp);
+                image.DeviceTimestamp = testDeviceTimestamp;
+                Assert.AreEqual(testDeviceTimestamp, image.DeviceTimestamp);
+
+                // Check SystemTimestamp property
+                Assert.AreEqual(Nanoseconds64.Zero, image.SystemTimestamp);
+                image.SystemTimestamp = testSystemTimestamp;
+                Assert.AreEqual(testSystemTimestamp, image.SystemTimestamp);
 
                 // Check WhiteBalance property
                 Assert.AreEqual(0, image.WhiteBalance);
@@ -223,8 +238,8 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
 
             // Check that when we change property of image,
             // then property of refImage is also synchronously changed
-            image.Timestamp = testTimestamp;
-            Assert.AreEqual(testTimestamp, refImage.Timestamp);
+            image.DeviceTimestamp = testDeviceTimestamp;
+            Assert.AreEqual(testDeviceTimestamp, refImage.DeviceTimestamp);
 
             // And vice versa
             refImage.WhiteBalance = testWhiteBalance;
@@ -315,7 +330,6 @@ namespace K4AdotNet.Tests.SensorTypesUnitTests
         #region Test image size calculations
 
         [TestMethod]
-        [Ignore("There is a bug in Sensor DK: https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587")]
         public void TestImageSizeCalculationNV12()
         {
             using (var image = new Image(ImageFormat.ColorNV12, 1280, 720))

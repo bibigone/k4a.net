@@ -2,58 +2,61 @@
 
 namespace K4AdotNet
 {
-    /// <summary>64-bit time value in microseconds. Used for timestamps and delays.</summary>
+    /// <summary>64-bit time value in nanoseconds. Used for system timestamps.</summary>
     /// <remarks>
     /// Actually, this structure is an simple wrapper of <see cref="Int64"/> type.
-    /// And <see cref="Microseconds64"/> value can be smoothly converted to/from <see cref="long"/> and <see cref="TimeSpan"/> values for convenience of usage in your code.
+    /// And <see cref="Nanoseconds64"/> value can be smoothly converted to/from <see cref="long"/> and <see cref="TimeSpan"/> values for convenience of usage in your code.
     /// </remarks>
-    public struct Microseconds64 :
-        IEquatable<Microseconds64>, IEquatable<TimeSpan>, IEquatable<long>,
-        IComparable<Microseconds64>, IComparable<TimeSpan>, IComparable<long>, IComparable,
+    public struct Nanoseconds64 :
+        IEquatable<Nanoseconds64>, IEquatable<TimeSpan>, IEquatable<long>,
+        IComparable<Nanoseconds64>, IComparable<TimeSpan>, IComparable<long>, IComparable,
         IFormattable
     {
-        /// <summary>Value in microseconds.</summary>
+        /// <summary>Value in nanoseconds.</summary>
         /// <remarks>This structure is an wrapper around this value.</remarks>
-        public long ValueUsec;
+        public long ValueNsec;
 
-        /// <summary>Creates instance from 64-bit integer value in microseconds.</summary>
-        /// <param name="valueUsec">Value in microseconds.</param>
-        public Microseconds64(long valueUsec)
-            => ValueUsec = valueUsec;
+        /// <summary>Creates instance from 64-bit integer value in nanoseconds.</summary>
+        /// <param name="valueNsec">Value in nanoseconds.</param>
+        public Nanoseconds64(long valueNsec)
+            => ValueNsec = valueNsec;
 
         /// <summary>Creates instance from <see cref="TimeSpan"/> value.</summary>
-        /// <param name="value">This value will be converted from <see cref="TimeSpan.Ticks"/> to microseconds.</param>
-        public Microseconds64(TimeSpan value)
-            => ValueUsec = value.Ticks / UsecToTimeSpanTicksFactor;
+        /// <param name="value">This value will be converted from <see cref="TimeSpan.Ticks"/> to nanoseconds.</param>
+        public Nanoseconds64(TimeSpan value)
+            => ValueNsec = value.Ticks * NsecToTimeSpanTicksFactor;
 
         /// <summary>Converts to <see cref="TimeSpan"/>.</summary>
         /// <returns><see cref="TimeSpan"/> representation of this value.</returns>
         public TimeSpan ToTimeSpan()
-            => TimeSpan.FromTicks(ValueUsec * UsecToTimeSpanTicksFactor);
+            => TimeSpan.FromTicks(ValueNsec / NsecToTimeSpanTicksFactor);
 
         /// <summary>The total number of seconds represented by this instance.</summary>
-        public double TotalSeconds => ValueUsec / 1_000_000.0;
+        public double TotalSeconds => ValueNsec / 1_000_000_000.0;
 
         /// <summary>The total number of milliseconds represented by this instance.</summary>
-        public double TotalMilliseconds => ValueUsec / 1_000.0;
+        public double TotalMilliseconds => ValueNsec / 1_000_000.0;
+
+        /// <summary>The total number of microseconds represented by this instance.</summary>
+        public double TotalMicroseconds => ValueNsec / 1_000.0;
 
         /// <summary>Equality exactly like <see cref="Int64"/> type has.</summary>
         /// <param name="other">Another value to be compared with this one.</param>
         /// <returns><see langword="true"/> if values are equal.</returns>
-        public bool Equals(Microseconds64 other)
-            => ValueUsec.Equals(other.ValueUsec);
+        public bool Equals(Nanoseconds64 other)
+            => ValueNsec.Equals(other.ValueNsec);
 
         /// <summary>Equality with another value specified as <see cref="TimeSpan"/>.</summary>
         /// <param name="other">Another value to be compared with this one.</param>
         /// <returns><see langword="true"/> if values are equal.</returns>
         public bool Equals(TimeSpan other)
-            => Equals(new Microseconds64(other));
+            => Equals(new Nanoseconds64(other));
 
         /// <summary>Equality exactly like <see cref="Int64"/> type has.</summary>
-        /// <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+        /// <param name="otherNsec">Another value in nanoseconds to be compared with this one.</param>
         /// <returns><see langword="true"/> if values are equal.</returns>
-        public bool Equals(long otherUsec)
-            => ValueUsec.Equals(otherUsec);
+        public bool Equals(long otherNsec)
+            => ValueNsec.Equals(otherNsec);
 
         /// <summary>Two values comparison exactly like <see cref="Int64"/> type has.</summary>
         /// <param name="other">Another value to be compared with this one.</param>
@@ -61,8 +64,8 @@ namespace K4AdotNet
         /// A signed number indicating the relative values of this instance and value.
         /// For details see <see cref="Int64.CompareTo(long)"/>.
         /// </returns>
-        public int CompareTo(Microseconds64 other)
-            => ValueUsec.CompareTo(other.ValueUsec);
+        public int CompareTo(Nanoseconds64 other)
+            => ValueNsec.CompareTo(other.ValueNsec);
 
         /// <summary>Two values comparison.</summary>
         /// <param name="other">Another value to be compared with this one.</param>
@@ -71,18 +74,18 @@ namespace K4AdotNet
         /// For details see <see cref="Int64.CompareTo(long)"/>.
         /// </returns>
         public int CompareTo(TimeSpan other)
-            => CompareTo(new Microseconds64(other));
+            => CompareTo(new Nanoseconds64(other));
 
         /// <summary>Two values comparison exactly like <see cref="Int64"/> type has.</summary>
-        /// <param name="otherUsec">Another value in microseconds to be compared with this one.</param>
+        /// <param name="otherNsec">Another value in nanoseconds to be compared with this one.</param>
         /// <returns>
         /// A signed number indicating the relative values of this instance and value.
         /// For details see <see cref="Int64.CompareTo(long)"/>.
         /// </returns>
-        public int CompareTo(long otherUsec)
-            => ValueUsec.CompareTo(otherUsec);
+        public int CompareTo(long otherNsec)
+            => ValueNsec.CompareTo(otherNsec);
 
-        /// <summary>Can compare current instance with <see cref="Microseconds64"/>, <see cref="TimeSpan"/> and <see cref="IConvertible"/> value.</summary>
+        /// <summary>Can compare current instance with <see cref="Nanoseconds64"/>, <see cref="TimeSpan"/> and <see cref="IConvertible"/> value.</summary>
         /// <param name="obj">Value to be compared with this one.</param>
         /// <returns>
         /// A signed number indicating the relative values of this instance and value.
@@ -93,31 +96,31 @@ namespace K4AdotNet
         {
             if (obj is null)
                 return 1;
-            if (obj is Microseconds64)
-                return CompareTo((Microseconds64)obj);
+            if (obj is Nanoseconds64)
+                return CompareTo((Nanoseconds64)obj);
             if (obj is TimeSpan)
                 return CompareTo((TimeSpan)obj);
             if (obj is IConvertible)
                 return CompareTo(Convert.ToInt64(obj));
-            throw new ArgumentException("Object is not a Microseconds64 or TimeSpan or 64-bit integer number", nameof(obj));
+            throw new ArgumentException("Object is not a Nanoseconds64 or TimeSpan or 64-bit integer number", nameof(obj));
         }
 
         /// <summary>String representation of current instance.</summary>
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
         /// <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
-        /// <returns><c>{value} usec</c></returns>
+        /// <returns><c>{value} nsec</c></returns>
         public string ToString(string format, IFormatProvider formatProvider)
-            => ValueUsec.ToString(format, formatProvider) + UNIT_POSTFIX;
+            => ValueNsec.ToString(format, formatProvider) + UNIT_POSTFIX;
 
-        /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Microseconds64)"/>.</summary>
+        /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Nanoseconds64)"/>.</summary>
         /// <param name="obj">Object to be compared with this instance.</param>
-        /// <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="Microseconds64"/> and result is equal to this one.</returns>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="Nanoseconds64"/> and result is equal to this one.</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
                 return false;
-            if (obj is Microseconds64)
-                return Equals((Microseconds64)obj);
+            if (obj is Nanoseconds64)
+                return Equals((Nanoseconds64)obj);
             if (obj is TimeSpan)
                 return Equals((TimeSpan)obj);
             if (obj is IConvertible)
@@ -128,75 +131,75 @@ namespace K4AdotNet
         /// <summary>Calculates hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>
         public override int GetHashCode()
-            => ValueUsec.GetHashCode();
+            => ValueNsec.GetHashCode();
 
         /// <summary>String representation of current instance.</summary>
-        /// <returns><c>{value} usec</c></returns>
+        /// <returns><c>{value} nsec</c></returns>
         public override string ToString()
-            => ValueUsec.ToString() + UNIT_POSTFIX;
+            => ValueNsec.ToString() + UNIT_POSTFIX;
 
-        /// <summary>To be consistent with <see cref="Equals(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="Equals(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
-        /// <seealso cref="Equals(Microseconds64)"/>
-        public static bool operator ==(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="Equals(Nanoseconds64)"/>
+        public static bool operator ==(Nanoseconds64 left, Nanoseconds64 right)
             => left.Equals(right);
 
-        /// <summary>To be consistent with <see cref="Equals(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="Equals(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
-        /// <seealso cref="Equals(Microseconds64)"/>
-        public static bool operator !=(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="Equals(Nanoseconds64)"/>
+        public static bool operator !=(Nanoseconds64 left, Nanoseconds64 right)
             => !left.Equals(right);
 
-        /// <summary>To be consistent with <see cref="CompareTo(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="CompareTo(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
-        /// <seealso cref="CompareTo(Microseconds64)"/>
-        public static bool operator <(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="CompareTo(Nanoseconds64)"/>
+        public static bool operator <(Nanoseconds64 left, Nanoseconds64 right)
             => left.CompareTo(right) < 0;
 
-        /// <summary>To be consistent with <see cref="CompareTo(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="CompareTo(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
-        /// <seealso cref="CompareTo(Microseconds64)"/>
-        public static bool operator >(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="CompareTo(Nanoseconds64)"/>
+        public static bool operator >(Nanoseconds64 left, Nanoseconds64 right)
             => left.CompareTo(right) > 0;
 
-        /// <summary>To be consistent with <see cref="CompareTo(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="CompareTo(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
-        /// <seealso cref="CompareTo(Microseconds64)"/>
-        public static bool operator <=(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="CompareTo(Nanoseconds64)"/>
+        public static bool operator <=(Nanoseconds64 left, Nanoseconds64 right)
             => left.CompareTo(right) <= 0;
 
-        /// <summary>To be consistent with <see cref="CompareTo(Microseconds64)"/>.</summary>
+        /// <summary>To be consistent with <see cref="CompareTo(Nanoseconds64)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
-        /// <seealso cref="CompareTo(Microseconds64)"/>
-        public static bool operator >=(Microseconds64 left, Microseconds64 right)
+        /// <seealso cref="CompareTo(Nanoseconds64)"/>
+        public static bool operator >=(Nanoseconds64 left, Nanoseconds64 right)
             => left.CompareTo(right) >= 0;
 
         /// <summary>To be consistent with <see cref="Equals(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
-        /// <seealso cref="Equals(Microseconds64)"/>
-        public static bool operator ==(Microseconds64 left, TimeSpan right)
+        /// <seealso cref="Equals(Nanoseconds64)"/>
+        public static bool operator ==(Nanoseconds64 left, TimeSpan right)
             => left.Equals(right);
 
         /// <summary>To be consistent with <see cref="Equals(TimeSpan)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
-        /// <seealso cref="Equals(Microseconds64)"/>
-        public static bool operator !=(Microseconds64 left, TimeSpan right)
+        /// <seealso cref="Equals(Nanoseconds64)"/>
+        public static bool operator !=(Nanoseconds64 left, TimeSpan right)
             => !left.Equals(right);
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -204,7 +207,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator <(Microseconds64 left, TimeSpan right)
+        public static bool operator <(Nanoseconds64 left, TimeSpan right)
             => left.CompareTo(right) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -212,7 +215,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator >(Microseconds64 left, TimeSpan right)
+        public static bool operator >(Nanoseconds64 left, TimeSpan right)
             => left.CompareTo(right) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -220,7 +223,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator <=(Microseconds64 left, TimeSpan right)
+        public static bool operator <=(Nanoseconds64 left, TimeSpan right)
             => left.CompareTo(right) <= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -228,7 +231,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator >=(Microseconds64 left, TimeSpan right)
+        public static bool operator >=(Nanoseconds64 left, TimeSpan right)
             => left.CompareTo(right) >= 0;
 
         /// <summary>To be consistent with <see cref="Equals(TimeSpan)"/>.</summary>
@@ -236,7 +239,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(TimeSpan)"/>
-        public static bool operator ==(TimeSpan left, Microseconds64 right)
+        public static bool operator ==(TimeSpan left, Nanoseconds64 right)
             => right.Equals(left);
 
         /// <summary>To be consistent with <see cref="Equals(TimeSpan)"/>.</summary>
@@ -244,7 +247,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(TimeSpan)"/>
-        public static bool operator !=(TimeSpan left, Microseconds64 right)
+        public static bool operator !=(TimeSpan left, Nanoseconds64 right)
             => !right.Equals(left);
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -252,7 +255,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator <(TimeSpan left, Microseconds64 right)
+        public static bool operator <(TimeSpan left, Nanoseconds64 right)
             => right.CompareTo(left) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -260,7 +263,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator >(TimeSpan left, Microseconds64 right)
+        public static bool operator >(TimeSpan left, Nanoseconds64 right)
             => right.CompareTo(left) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -268,7 +271,7 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator <=(TimeSpan left, Microseconds64 right)
+        public static bool operator <=(TimeSpan left, Nanoseconds64 right)
             => right.CompareTo(left) >= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(TimeSpan)"/>.</summary>
@@ -276,141 +279,147 @@ namespace K4AdotNet
         /// <param name="right">Right part of operator.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(TimeSpan)"/>
-        public static bool operator >=(TimeSpan left, Microseconds64 right)
+        public static bool operator >=(TimeSpan left, Nanoseconds64 right)
             => right.CompareTo(left) <= 0;
 
         /// <summary>To be consistent with <see cref="Equals(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="Equals(long)"/>
-        public static bool operator ==(Microseconds64 left, long rightUsec)
-            => left.Equals(rightUsec);
+        public static bool operator ==(Nanoseconds64 left, long rightNsec)
+            => left.Equals(rightNsec);
 
         /// <summary>To be consistent with <see cref="Equals(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="Equals(long)"/>
-        public static bool operator !=(Microseconds64 left, long rightUsec)
-            => !left.Equals(rightUsec);
+        public static bool operator !=(Nanoseconds64 left, long rightNsec)
+            => !left.Equals(rightNsec);
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator <(Microseconds64 left, long rightUsec)
-            => left.CompareTo(rightUsec) < 0;
+        public static bool operator <(Nanoseconds64 left, long rightNsec)
+            => left.CompareTo(rightNsec) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator >(Microseconds64 left, long rightUsec)
-            => left.CompareTo(rightUsec) > 0;
+        public static bool operator >(Nanoseconds64 left, long rightNsec)
+            => left.CompareTo(rightNsec) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator <=(Microseconds64 left, long rightUsec)
-            => left.CompareTo(rightUsec) <= 0;
+        public static bool operator <=(Nanoseconds64 left, long rightNsec)
+            => left.CompareTo(rightNsec) <= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
         /// <param name="left">Left part of operator.</param>
-        /// <param name="rightUsec">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightUsec"/>.</returns>
+        /// <param name="rightNsec">Right part of operator.</param>
+        /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightNsec"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator >=(Microseconds64 left, long rightUsec)
-            => left.CompareTo(rightUsec) >= 0;
+        public static bool operator >=(Nanoseconds64 left, long rightNsec)
+            => left.CompareTo(rightNsec) >= 0;
 
         /// <summary>To be consistent with <see cref="Equals(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is equal to <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(long)"/>
-        public static bool operator ==(long leftUsec, Microseconds64 right)
-            => right.Equals(leftUsec);
+        public static bool operator ==(long leftNsec, Nanoseconds64 right)
+            => right.Equals(leftNsec);
 
         /// <summary>To be consistent with <see cref="Equals(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is not equal to <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(long)"/>
-        public static bool operator !=(long leftUsec, Microseconds64 right)
-            => !right.Equals(leftUsec);
+        public static bool operator !=(long leftNsec, Nanoseconds64 right)
+            => !right.Equals(leftNsec);
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is less than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator <(long leftUsec, Microseconds64 right)
-            => right.CompareTo(leftUsec) > 0;
+        public static bool operator <(long leftNsec, Nanoseconds64 right)
+            => right.CompareTo(leftNsec) > 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is greater than <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator >(long leftUsec, Microseconds64 right)
-            => right.CompareTo(leftUsec) < 0;
+        public static bool operator >(long leftNsec, Nanoseconds64 right)
+            => right.CompareTo(leftNsec) < 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is less than or equal to <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is less than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator <=(long leftUsec, Microseconds64 right)
-            => right.CompareTo(leftUsec) >= 0;
+        public static bool operator <=(long leftNsec, Nanoseconds64 right)
+            => right.CompareTo(leftNsec) >= 0;
 
         /// <summary>To be consistent with <see cref="CompareTo(long)"/>.</summary>
-        /// <param name="leftUsec">Left part of operator.</param>
+        /// <param name="leftNsec">Left part of operator.</param>
         /// <param name="right">Right part of operator.</param>
-        /// <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="leftNsec"/> is greater than or equal to <paramref name="right"/>.</returns>
         /// <seealso cref="CompareTo(long)"/>
-        public static bool operator >=(long leftUsec, Microseconds64 right)
-            => right.CompareTo(leftUsec) <= 0;
+        public static bool operator >=(long leftNsec, Nanoseconds64 right)
+            => right.CompareTo(leftNsec) <= 0;
 
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>
-        public static implicit operator TimeSpan(Microseconds64 value)
+        public static implicit operator TimeSpan(Nanoseconds64 value)
             => value.ToTimeSpan();
 
         /// <summary>Implicit conversion from <see cref="TimeSpan"/>.</summary>
-        /// <param name="value">Value to be converted to <see cref="Microseconds64"/>.</param>
-        public static implicit operator Microseconds64(TimeSpan value)
-            => new Microseconds64(value);
+        /// <param name="value">Value to be converted to <see cref="Nanoseconds64"/>.</param>
+        public static implicit operator Nanoseconds64(TimeSpan value)
+            => new Nanoseconds64(value);
 
-        /// <summary>Implicit conversion to <see cref="long"/> value in microseconds.</summary>
+        /// <summary>Implicit conversion to <see cref="long"/> value in nanoseconds.</summary>
         /// <param name="value">Value to be converted to <see cref="long"/>.</param>
-        public static implicit operator long(Microseconds64 value)
-            => value.ValueUsec;
+        public static implicit operator long(Nanoseconds64 value)
+            => value.ValueNsec;
 
         /// <summary>Implicit conversion from <see cref="long"/>.</summary>
-        /// <param name="valueUsec">Value in microseconds to be converted to <see cref="Microseconds64"/>.</param>
-        public static implicit operator Microseconds64(long valueUsec)
-            => new Microseconds64(valueUsec);
+        /// <param name="valueNsec">Value in nanoseconds to be converted to <see cref="Nanoseconds64"/>.</param>
+        public static implicit operator Nanoseconds64(long valueNsec)
+            => new Nanoseconds64(valueNsec);
 
-        /// <summary>Creates instance of <see cref="Microseconds64"/> from seconds.</summary>
+        /// <summary>Creates instance of <see cref="Nanoseconds64"/> from seconds.</summary>
         /// <param name="valueSec">Value in seconds.</param>
         /// <returns>Created value.</returns>
-        public static Microseconds64 FromSeconds(double valueSec)
-            => new Microseconds64((long)(valueSec * 1_000_000));
+        public static Nanoseconds64 FromSeconds(double valueSec)
+            => new Nanoseconds64((long)(valueSec * 1_000_000_000));
 
-        /// <summary>Creates instance of <see cref="Microseconds64"/> from milliseconds.</summary>
+        /// <summary>Creates instance of <see cref="Nanoseconds64"/> from milliseconds.</summary>
         /// <param name="valueMs">Value in milliseconds.</param>
         /// <returns>Created value.</returns>
-        public static Microseconds64 FromMilliseconds(double valueMs)
-            => new Microseconds64((long)(valueMs * 1_000));
+        public static Nanoseconds64 FromMilliseconds(double valueMs)
+            => new Nanoseconds64((long)(valueMs * 1_000_000));
+
+        /// <summary>Creates instance of <see cref="Nanoseconds64"/> from microseconds.</summary>
+        /// <param name="valueUs">Value in microseconds.</param>
+        /// <returns>Created value.</returns>
+        public static Nanoseconds64 FromMicroseconds(double valueUs)
+            => new Nanoseconds64((long)(valueUs * 1_000));
 
         /// <summary>Zero value.</summary>
-        public static readonly Microseconds64 Zero = new Microseconds64(0);
+        public static readonly Nanoseconds64 Zero = new Nanoseconds64(0);
 
-        internal static readonly long UsecToTimeSpanTicksFactor = TimeSpan.TicksPerSecond / 1_000_000L;
-        internal const string UNIT_POSTFIX = " usec";
+        private static readonly long NsecToTimeSpanTicksFactor = 1_000_000_000L / TimeSpan.TicksPerSecond;
+        private const string UNIT_POSTFIX = " nsec";
     }
 }

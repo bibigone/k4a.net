@@ -105,8 +105,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_1_0.dll">
-      <Link>depthengine_1_0.dll</Link>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll">
+      <Link>depthengine_2_0.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll">

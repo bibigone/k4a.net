@@ -14,7 +14,6 @@ namespace K4AdotNet.Record
         //                                                 k4a_record_t *recording_handle);
         /// <summary>
         /// Opens a new recording file for writing.
-        /// The file will be created if it doesn't exist, or overwritten if an existing file is specified.
         /// </summary>
         /// <param name="path">File system path for the new recording.</param>
         /// <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
@@ -23,6 +22,8 @@ namespace K4AdotNet.Record
         /// <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         /// <remarks>
+        /// The file will be created if it doesn't exist, or overwritten if an existing file is specified.
+        ///
         /// Streaming does not need to be started on the device at the time this function is called, but when it is started
         /// it should be started with the same configuration provided in <paramref name="deviceConfiguration"/>.
         /// 
@@ -37,7 +38,7 @@ namespace K4AdotNet.Record
             out NativeHandles.RecordHandle recordingHandle);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_add_tag(k4a_record_t recording_handle, const char *name, const char *value);
-        /// <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
+        /// <summary>Adds a tag to the recording.</summary>
         /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
         /// <param name="name">The name of the tag to write.</param>
         /// <param name="value">The string value to store in the tag.</param>
@@ -45,6 +46,10 @@ namespace K4AdotNet.Record
         /// <remarks>
         /// Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
         /// recording location.
+        /// 
+        /// Tag names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+        /// 
+        /// All tags need to be added before the recording header is written.
         /// </remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_add_tag", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result RecordAddTag(
@@ -53,30 +58,130 @@ namespace K4AdotNet.Record
             [In] byte[] value);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_add_imu_track(k4a_record_t recording_handle);
-        /// <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
+        /// <summary>Adds the track header for recording IMU.</summary>
         /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>The track needs to be added before the recording header is written.</remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_add_imu_track", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result RecordAddImuTrack(NativeHandles.RecordHandle recordingHandle);
 
+        // K4ARECORD_EXPORT k4a_result_t k4a_record_add_attachment(const k4a_record_t recording_handle,
+        //                                                         const char *attachment_name,
+        //                                                         const uint8_t *buffer,
+        //                                                         size_t buffer_size);
+        /// <summary>Adds an attachment to the recording.</summary>
+        /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
+        /// <param name="attachmentName">The name of the attachment to be stored in the recording file. This name should be a valid filename with an extension.</param>
+        /// <param name="buffer">The attachment data buffer.</param>
+        /// <param name="bufferSize">The size of the attachment data buffer.</param>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>All attachments need to be added before the recording header is written.</remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_add_attachment", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result RecordAddAttachment(
+            NativeHandles.RecordHandle recordingHandle,
+            [In] byte[] attachmentName,
+            [In] byte[] buffer,
+            UIntPtr bufferSize);
+
+        // K4ARECORD_EXPORT k4a_result_t k4a_record_add_custom_video_track(const k4a_record_t recording_handle,
+        //                                                                 const char *track_name,
+        //                                                                 const char *codec_id,
+        //                                                                 const uint8_t *codec_context,
+        //                                                                 size_t codec_context_size,
+        //                                                                 const k4a_record_video_settings_t *track_settings);
+        /// <summary>Adds custom video tracks to the recording.</summary>
+        /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
+        /// <param name="trackName">The name of the custom video track to be added.</param>
+        /// <param name="codecId">
+        /// A UTF8 null terminated string containing the codec ID of the track. Some of the existing formats are listed here:
+        /// https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+        /// Video codec ID's should start with 'V_'.
+        /// </param>
+        /// <param name="codecContext">
+        /// The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+        /// codec. It is mapped to the matroska <c>CodecPrivate</c> element.
+        /// </param>
+        /// <param name="codecContextSize">The size of the codec context buffer.</param>
+        /// <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>
+        /// Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>
+        /// API is called. This API can be used to add additional video tracks to save custom data.
+        /// 
+        /// Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+        /// 
+        /// All tracks need to be added before the recording header is written.
+        /// 
+        /// Call <see cref="RecordWriteCustomTrackData"/> with the same <paramref name="trackName"/> to write data to this track.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_add_custom_video_track", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result RecordAddCustomVideoTrack(
+            NativeHandles.RecordHandle recordingHandle,
+            [In] byte[] trackName,
+            [In] byte[] codecId,
+            [In] byte[] codecContext,
+            UIntPtr codecContextSize,
+            [In] ref RecordVideoSettings trackSettings);
+
+        // K4ARECORD_EXPORT k4a_result_t
+        // k4a_record_add_custom_subtitle_track(const k4a_record_t recording_handle,
+        //                                      const char *track_name,
+        //                                      const char *codec_id,
+        //                                      const uint8_t *codec_context,
+        //                                      size_t codec_context_size,
+        //                                      const k4a_record_subtitle_settings_t *track_settings);
+        /// <summary>Adds custom subtitle tracks to the recording.</summary>
+        /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
+        /// <param name="trackName">The name of the custom subtitle track to be added.</param>
+        /// <param name="codecId">
+        /// A UTF8 null terminated string containing the codec ID of the track. Some of the existing formats are listed here:
+        /// https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+        /// Subtitle codec ID's should start with 'S_'.
+        /// </param>
+        /// <param name="codecContext">
+        /// The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+        /// codec. It is mapped to the matroska <c>CodecPrivate</c> element.
+        /// </param>
+        /// <param name="codecContextSize">The size of the codec context buffer.</param>
+        /// <param name="trackSettings">Additional metadata for the subtitle track.</param>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>
+        /// Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="RecordAddImuTrack(NativeHandles.RecordHandle)"/> API is
+        /// called. This API can be used to add additional subtitle tracks to save custom data.
+        /// 
+        /// Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+        /// 
+        /// All tracks need to be added before the recording header is written.
+        /// 
+        /// Call <see cref="RecordWriteCustomTrackData"/> with the same <paramref name="trackName"/> to write data to this track.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_add_custom_subtitle_track", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result RecordAddCustomSubtitleTrack(
+            NativeHandles.RecordHandle recordingHandle,
+            [In] byte[] trackName,
+            [In] byte[] codecId,
+            [In] byte[] codecContext,
+            UIntPtr codecContextSize,
+            [In] ref RecordSubtitleSettings trackSettings);
+
         // K4ARECORD_EXPORT k4a_result_t k4a_record_write_header(k4a_record_t recording_handle);
-        /// <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
+        /// <summary>Writes the recording header and metadata to file.</summary>
         /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>This must be called before captures can be written.</remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_write_header", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result RecordWriteHeader(NativeHandles.RecordHandle recordingHandle);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_write_capture(k4a_record_t recording_handle, k4a_capture_t capture_handle);
-        /// <summary>
-        /// Writes a camera capture to file.
-        /// Captures must be written in increasing order of timestamp, and the file's header must already be written.
-        /// </summary>
+        /// <summary>Writes a camera capture to file.</summary>
         /// <param name="recordingHandle">The handle of recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
         /// <param name="captureHandle">The handle of a capture to write to file.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         /// <remarks>
         /// This method will write all images in the capture to the corresponding tracks in the recording file.
         /// If any of the images fail to write, other images will still be written before a failure is returned.
+        /// 
+        /// Captures must be written in increasing order of timestamp, and the file's header must already be written.
         /// </remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_write_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result RecordWriteCapture(NativeHandles.RecordHandle recordingHandle, NativeHandles.CaptureHandle captureHandle);
@@ -93,6 +198,34 @@ namespace K4AdotNet.Record
         /// </remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_write_imu_sample", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result RecordWriteImuSample(NativeHandles.RecordHandle recordingHandle, Sensor.ImuSample imuSample);
+
+        // K4ARECORD_EXPORT k4a_result_t k4a_record_write_custom_track_data(const k4a_record_t recording_handle,
+        //                                                                  const char *track_name,
+        //                                                                  uint64_t device_timestamp_usec,
+        //                                                                  uint8_t *custom_data,
+        //                                                                  size_t custom_data_size);
+        /// <summary>Writes data for a custom track to file.</summary>
+        /// <param name="recordingHandle">The handle of a new recording, obtained by <see cref="RecordCreate(byte[], NativeHandles.DeviceHandle, Sensor.DeviceConfiguration, out NativeHandles.RecordHandle)"/>.</param>
+        /// <param name="trackName">The name of the custom track that the data is going to be written to.</param>
+        /// <param name="deviceTimestamp">
+        /// The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
+        /// device timestamp used for recording.
+        /// </param>
+        /// <param name="customData">The buffer of custom track data.</param>
+        /// <param name="customDataSize">The size of the custom track data buffer.</param>
+        /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+        /// <remarks>
+        /// Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
+        /// When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
+        /// the most recently written timestamp.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_record_write_custom_track_data", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result RecordWriteCustomTrackData(
+            NativeHandles.RecordHandle recordingHandle,
+            [In] byte[] trackName,
+            Microseconds64 deviceTimestamp,
+            [In] byte[] customData,
+            UIntPtr customDataSize);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_flush(k4a_record_t recording_handle);
         /// <summary>Flushes all pending recording data to disk.</summary>
@@ -173,6 +306,60 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.Result PlaybackGetRecordConfiguration(
             NativeHandles.PlaybackHandle playbackHandle,
             out RecordConfiguration config);
+
+        // K4ARECORD_EXPORT bool k4a_playback_check_track_exists(k4a_playback_t playback_handle, const char* track_name);
+        /// <summary>Checks whether a track with the given track name exists in the playback file.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The track name to be checked to see whether it exists or not.</param>
+        /// <returns><see langword="true"/> if the track exists.</returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_check_track_exists", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool PlaybackCheckTrackExists(
+            NativeHandles.PlaybackHandle playbackHandle,
+            byte[] trackName);
+
+        // K4ARECORD_EXPORT size_t k4a_playback_get_track_count(k4a_playback_t playback_handle);
+        /// <summary>Get the number of tracks in a playback file.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <returns>The number of tracks in the playback file.</returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_track_count", CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr PlaybackGetTrackCount(NativeHandles.PlaybackHandle playbackHandle);
+
+        // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_track_name(k4a_playback_t playback_handle,
+        //                                                                  size_t track_index,
+        //                                                                  char* track_name,
+        //                                                                  size_t* track_name_size);
+        /// <summary>Gets the name of a track at a specific index.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackIndex">The index of the track to read the name form.</param>
+        /// <param name="trackName">
+        /// Location to write the track name. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
+        /// <paramref name="trackNameSize"/> will be set to the size of buffer needed to store the string.
+        /// </param>
+        /// <param name="trackNameSize">
+        /// On input, the size of the <paramref name="trackName"/> buffer. On output, this is set to the length of the <paramref name="trackName"/> value
+        /// (including the 0 terminator).
+        /// </param>
+        /// <returns>
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="trackName"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
+        /// and the needed size of the <paramref name="trackName"/> buffer is returned in the <paramref name="trackNameSize"/> parameter.
+        /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the track index does not exist.
+        /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
+        /// </returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_track_name", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.BufferResult PlaybackGetTrackName(
+            NativeHandles.PlaybackHandle playbackHandle,
+            UIntPtr trackIndex,
+            [Out] byte[] trackName,
+            ref UIntPtr trackNameSize);
+
+        // K4ARECORD_EXPORT bool k4a_playback_track_is_builtin(k4a_playback_t playback_handle, const char* track_name);
+        /// <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The track name to be checked to see whether it is a built-in track.</param>
+        /// <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_is_builtin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle playbackHandle, [In] byte[] trackName);
 
         // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_tag(k4a_playback_t playback_handle,
         //                                                           const char *name,

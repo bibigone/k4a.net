@@ -166,7 +166,13 @@ namespace K4AdotNet.Sensor
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> on success.</returns>
         /// <remarks>This function is used to create images of formats that have consistent stride.
         /// The function is not suitable for compressed formats that may not be represented by the same number of bytes per line.
-        /// The function will allocate an image buffer of size <paramref name="heightPixels"/> * <paramref name="strideBytes"/> bytes.
+        /// 
+        /// For most image formats, the function will allocate an image buffer of size <paramref name="heightPixels"/> * <paramref name="strideBytes"/>.
+        /// Buffers <see cref="ImageFormat.ColorNV12"/> format will allocate an additional <paramref name="heightPixels"/> / 2 set of lines (each of
+        /// <paramref name="strideBytes"/>).
+        /// 
+        /// This function cannot be used to allocate <see cref="ImageFormat.ColorMjpg"/> buffers.
+        /// 
         /// To create an image object without the API allocating memory, or to represent an image that has a non-deterministic
         /// stride, use <see cref="ImageCreateFromBuffer"/>.
         /// </remarks>
@@ -284,21 +290,42 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_stride_bytes", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ImageGetStrideBytes(NativeHandles.ImageHandle imageHandle);
 
-        // K4A_EXPORT uint64_t k4a_image_get_timestamp_usec(k4a_image_t image_handle);
-        /// <summary>Get the image timestamp.</summary>
+        // K4A_EXPORT uint64_t k4a_image_get_device_timestamp_usec(k4a_image_t image_handle);
+        /// <summary>Get the image's device timestamp in microseconds.</summary>
         /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
         /// <returns>
-        /// If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image,
-        /// this function will return <see cref="Microseconds64.Zero"/>.
-        /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from the beginning
-        /// of a recording or the start of streaming.
+        /// If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image, this function will return <see cref="Microseconds64.Zero"/>.
+        /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
         /// </returns>
         /// <remarks>
-        /// Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
-        /// They may be used for relative comparison, but their absolute value has no defined meaning.
+        /// Returns the device timestamp of the image, as captured by the hardware.Timestamps are recorded by the device and
+        /// represent the mid-point of exposure.They may be used for relative comparison, but their absolute value has no
+        /// defined meaning.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern Microseconds64 ImageGetTimestamp(NativeHandles.ImageHandle imageHandle);
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_device_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Microseconds64 ImageGetDeviceTimestamp(NativeHandles.ImageHandle imageHandle);
+
+        // K4A_EXPORT uint64_t k4a_image_get_system_timestamp_nsec(k4a_image_t image_handle);
+        /// <summary>Get the image's system timestamp in nanoseconds.</summary>
+        /// <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
+        /// <returns>
+        /// If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image, this function will return <see cref="Nanoseconds64.Zero"/>.
+        /// It is also possible for <see cref="Nanoseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+        /// </returns>
+        /// <remarks>
+        /// Returns the system timestamp of the image. Timestamps are recorded by the host. They may be used for relative
+        /// comparison, as they are relative to the corresponding system clock.The absolute value is a monotonic count from
+        /// an arbitrary point in the past.
+        /// 
+        /// The system timestamp is captured at the moment host PC finishes receiving the image.
+        /// 
+        /// On Linux the system timestamp is read from <c>clock_gettime(CLOCK_MONOTONIC)</c>, which measures realtime and is not
+        /// impacted by adjustments to the system clock.It starts from an arbitrary point in the past. On Windows the system
+        /// timestamp is read from <c>QueryPerformanceCounter()</c>, it also measures realtime and is not impacted by adjustments to the
+        /// system clock. It also starts from an arbitrary point in the past.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Nanoseconds64 ImageGetSystemTimestamp(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint64_t k4a_image_get_exposure_usec(k4a_image_t image_handle);
         /// <summary>Get the image exposure in microseconds.</summary>
@@ -310,7 +337,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>Returns an exposure time in microseconds. This is only supported on color image formats.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_exposure_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern Microseconds64 ImageGetExposureUsec(NativeHandles.ImageHandle imageHandle);
+        public static extern Microseconds64 ImageGetExposure(NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint32_t k4a_image_get_white_balance(k4a_image_t image_handle);
         /// <summary>Get the image white balance.</summary>
@@ -333,18 +360,32 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_get_iso_speed", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint ImageGetIsoSpeed(NativeHandles.ImageHandle imageHandle);
 
-        // K4A_EXPORT void k4a_image_set_timestamp_usec(k4a_image_t image_handle, uint64_t timestamp_usec);
-        /// <summary>Set the timestamp, in microseconds, of the image.</summary>
+        // K4A_EXPORT void k4a_image_set_device_timestamp_usec(k4a_image_t image_handle, uint64_t timestamp_usec);
+        /// <summary>Set the device time stamp, in microseconds, of the image.</summary>
         /// <param name="imageHandle">Handle of the image to set the timestamp on.</param>
         /// <param name="timestamp">Time stamp of the image.</param>
         /// <remarks>
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImageSetTimestamp(NativeHandles.ImageHandle imageHandle, Microseconds64 timestamp);
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_device_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ImageSetDeviceTimestamp(NativeHandles.ImageHandle imageHandle, Microseconds64 timestamp);
 
-        // K4A_EXPORT void k4a_image_set_exposure_time_usec(k4a_image_t image_handle, uint64_t exposure_usec);
+        // K4A_EXPORT void k4a_image_set_system_timestamp_nsec(k4a_image_t image_handle, uint64_t timestamp_nsec);
+        /// <summary>Set the system time stamp, in nanoseconds, of the image.</summary>
+        /// <param name="imageHandle">Handle of the image to set the timestamp on.</param>
+        /// <param name="timestamp">Time stamp of the image.</param>
+        /// <remarks>
+        /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
+        /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
+        /// 
+        /// The system timestamp is a high performance and increasing clock (from boot). The timestamp represents the time
+        /// immediately after the image buffer was read by the host PC.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ImageSetSystemTimestamp(NativeHandles.ImageHandle imageHandle, Nanoseconds64 timestamp);
+
+        // K4A_EXPORT void k4a_image_set_exposure_usec(k4a_image_t image_handle, uint64_t exposure_usec);
         /// <summary>Set the exposure time, in microseconds, of the image.</summary>
         /// <param name="imageHandle">Handle of the image to set the exposure time on.</param>
         /// <param name="exposure">Exposure time of the image in microseconds.</param>
@@ -352,8 +393,8 @@ namespace K4AdotNet.Sensor
         /// Use this function in conjunction with <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/> to construct an image.
         /// </remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_exposure_time_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImageSetExposureTimeUsec(NativeHandles.ImageHandle imageHandle, Microseconds64 exposure);
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_exposure_usec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ImageSetExposure(NativeHandles.ImageHandle imageHandle, Microseconds64 exposure);
 
         // K4A_EXPORT void k4a_image_set_white_balance(k4a_image_t image_handle, uint32_t white_balance);
         /// <summary>Set the white balance of the image.</summary>
@@ -377,7 +418,7 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_image_set_iso_speed", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImageSetIsoSpeed(NativeHandles.ImageHandle imageHandle, uint isoSpeed);
 
-        // K4A_EXPORT k4a_result_t k4a_device_start_cameras(k4a_device_t device_handle, k4a_device_configuration_t *config);
+        // K4A_EXPORT k4a_result_t k4a_device_start_cameras(k4a_device_t device_handle, const k4a_device_configuration_t *config);
         /// <summary>Starts color and depth camera capture.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <param name="config">The configuration we want to run the device in. This can be initialized with <see cref="DeviceConfiguration.DisableAll"/>.</param>
@@ -690,7 +731,11 @@ namespace K4AdotNet.Sensor
         /// </summary>
         /// <param name="calibration">Camera calibration data.</param>
         /// <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
-        /// <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+        /// <param name="sourceDepthMm">
+        /// The depth of <paramref name="sourcePoint2D"/> in millimeters.
+        /// One way to derive the depth value in the color camera geometry is to
+        /// use the function <see cref="TransformationDepthImageToColorCamera"/>.
+        /// </param>
         /// <param name="sourceCamera">The current camera.</param>
         /// <param name="targetCamera">The target camera.</param>
         /// <param name="targetPoint3DMm">Output: the 3D coordinates of the input pixel in the coordinate system of <paramref name="targetCamera"/> in millimeters.</param>
@@ -784,7 +829,11 @@ namespace K4AdotNet.Sensor
         /// </summary>
         /// <param name="calibration">Camera calibration data.</param>
         /// <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
-        /// <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+        /// <param name="sourceDepthMm">
+        /// The depth of <paramref name="sourcePoint2D"/> in millimeters.
+        /// One way to derive the depth value in the color camera geometry is to
+        /// use the function <see cref="TransformationDepthImageToColorCamera"/>.
+        /// </param>
         /// <param name="sourceCamera">The current camera.</param>
         /// <param name="targetCamera">The target camera.</param>
         /// <param name="targetPoint2D">Output: the 2D pixel in <paramref name="targetCamera"/> coordinates.</param>
@@ -863,6 +912,67 @@ namespace K4AdotNet.Sensor
             NativeHandles.TransformationHandle transformationHandle,
             NativeHandles.ImageHandle depthImage,
             NativeHandles.ImageHandle transformedDepthImage);
+
+        // K4A_EXPORT k4a_result_t k4a_transformation_depth_image_to_color_camera_custom(k4a_transformation_t transformation_handle,
+        //                                                                               const k4a_image_t depth_image,
+        //                                                                               const k4a_image_t custom_image,
+        //                                                                               k4a_image_t transformed_depth_image,
+        //                                                                               k4a_image_t transformed_custom_image,
+        //                                                                               k4a_transformation_interpolation_type_t interpolation_type,
+        //                                                                               uint32_t invalid_custom_value);
+        /// <summary>Transforms depth map and a custom image into the geometry of the color camera.</summary>
+        /// <param name="transformationHandle">Transformation handle.</param>
+        /// <param name="depthImage">Handle to input depth image.</param>
+        /// <param name="customImage">Handle to input custom image.</param>
+        /// <param name="transformedDepthImage">Handle to output transformed depth image.</param>
+        /// <param name="transformedCustomImage">Handle to output transformed custom image.</param>
+        /// <param name="interpolation">
+        /// Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
+        /// <see cref="TransformationInterpolation.Linear"/> if linear interpolation should be used.
+        /// <see cref="TransformationInterpolation.Nearest"/> if nearest neighbor interpolation should be used.
+        /// </param>
+        /// <param name="invalidCustomValue">
+        /// Defines the custom image pixel value that should be written to <paramref name="transformedCustomImage"/> in case the corresponding
+        /// depth pixel can not be transformed into the color camera space.
+        /// </param>
+        /// <returns>
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="transformedDepthImage"/> and <paramref name="transformedCustomImage"/> were successfully written and
+        /// <see cref="NativeCallResults.Result.Failed"/> otherwise.
+        /// </returns>
+        /// <remarks>
+        /// This produces a depth image and a corresponding custom image for which each pixel matches the corresponding
+        /// pixel coordinates of the color camera.
+        /// 
+        /// <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="ImageFormat.Depth16"/>.
+        /// 
+        /// <paramref name="customImage"/> and <paramref name="transformedCustomImage"/> must be of format <see cref="ImageFormat.Custom8"/> or
+        /// <see cref="ImageFormat.Custom16"/>.
+        /// 
+        /// <paramref name="transformedDepthImage"/> and <paramref name="transformedCustomImage"/> must have a width and height matching the width and
+        /// height of the color camera in the mode specified by the <see cref="Calibration"/> used to create the
+        /// <paramref name="transformationHandle"/> with <see cref="TransformationCreate(ref Calibration)"/>.
+        /// 
+        /// <paramref name="customImage"/> must have a width and height matching the width and height of <paramref name="depthImage"/>.
+        /// 
+        /// The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
+        /// camera's coordinate space.
+        /// 
+        /// The contents <paramref name="transformedCustomImage"/> will be filled with the values derived from <paramref name="customImage"/> in the color
+        /// camera's coordinate space.
+        /// 
+        /// Using linear interpolation could create new values to <paramref name="transformedCustomImage"/> which do no exist in <paramref name="customImage"/>.
+        /// Setting <paramref name="interpolation"/> to <see cref="TransformationInterpolation.Nearest"/> will prevent this from happening but will result in less
+        /// smooth image.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_depth_image_to_color_camera_custom", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result TransformationDepthImageToColorCameraCustom(
+            NativeHandles.TransformationHandle transformationHandle,
+            NativeHandles.ImageHandle depthImage,
+            NativeHandles.ImageHandle customImage,
+            NativeHandles.ImageHandle transformedDepthImage,
+            NativeHandles.ImageHandle transformedCustomImage,
+            TransformationInterpolation interpolation,
+            int invalidCustomValue);
 
         // K4A_EXPORT k4a_result_t k4a_transformation_color_image_to_depth_camera(k4a_transformation_t transformation_handle,
         //                                                                        const k4a_image_t depth_image,

@@ -19,7 +19,7 @@ namespace K4AdotNet
 
         /// <summary>Name of depth engine library (DLL) from Azure Kinect Sensor SDK.</summary>
         /// <remarks>This library is required for <see cref="Device.StartCameras(DeviceConfiguration)"/> and <see cref="Transformation.Transformation(ref Calibration)"/>.</remarks>
-        public const string DEPTHENGINE_DLL_NAME = "depthengine_1_0";
+        public const string DEPTHENGINE_DLL_NAME = "depthengine_2_0";
 
         /// <summary>Name of record library (DLL) from Azure Kinect Sensor SDK.</summary>
         /// <remarks>This library is required for Record part of API (see <c>K4AdotNet.Record</c> namespace).</remarks>
@@ -49,15 +49,19 @@ namespace K4AdotNet
         /// Must end in '.log' to be considered a valid entry.
         /// Use <see langword="null"/> or empty string to completely disable logging to a file.
         /// </param>
-        /// <remarks>Call this method before any usage of Sensor and Record APIs.</remarks>
+        /// <remarks><para>
+        /// Call this method before any usage of Sensor API (classes from <c>K4AdotNet.Sensor</c> namespace).
+        /// </para><para>
+        /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+        /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
+        /// </para></remarks>
         public static void ConfigureLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
         {
-            Environment.SetEnvironmentVariable("K4A_LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("K4A_ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("K4A_ENABLE_LOG_TO_A_FILE", string.IsNullOrWhiteSpace(logToFile) ? "0" : logToFile, EnvironmentVariableTarget.Process);
+            const string PREFIX = "K4A_";
+            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
         }
 
-        /// <summary>Current version of Body Tracking SDK can log data only to the console.</summary>
+        /// <summary>Record part of Sensor SDK can log data to the console, files, or to a custom handler.</summary>
         /// <param name="level">Level of logging.</param>
         /// <param name="logToStdout">Log messages to STDOUT?</param>
         /// <param name="logToFile">
@@ -65,12 +69,43 @@ namespace K4AdotNet
         /// Must end in '.log' to be considered a valid entry.
         /// Use <see langword="null"/> or empty string to completely disable logging to a file.
         /// </param>
-        /// <remarks>Call this method before any usage of Body Tracking API.</remarks>
+        /// <remarks><para>
+        /// Call this method before any usage of Record API (classes from <c>K4AdotNet.Record</c> namespace).
+        /// </para><para>
+        /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+        /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
+        /// </para></remarks>
+        public static void ConfigureRecordLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
+        {
+            const string PREFIX = "K4A_RECORD_";
+            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
+        }
+
+        /// <summary>The Body Tracking SDK can log data to the console, files, or to a custom handler.</summary>
+        /// <param name="level">Level of logging.</param>
+        /// <param name="logToStdout">Log messages to STDOUT?</param>
+        /// <param name="logToFile">
+        /// Log all messages to the path and file specified.
+        /// Must end in '.log' to be considered a valid entry.
+        /// Use <see langword="null"/> or empty string to completely disable logging to a file.
+        /// </param>
+        /// <remarks><para>
+        /// Call this method before any usage of Body Tracking API (classes from <c>K4AdotNet.BodyTracking</c> namespace).
+        /// </para><para>
+        /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+        /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
+        /// </para></remarks>
         public static void ConfigureBodyTrackingLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
         {
-            Environment.SetEnvironmentVariable("K4ABT_LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("K4ABT_ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("K4ABT_ENABLE_LOG_TO_A_FILE", string.IsNullOrWhiteSpace(logToFile) ? "0" : logToFile, EnvironmentVariableTarget.Process);
+            const string PREFIX = "K4ABT_";
+            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
+        }
+
+        private static void ConfigureLogging(string variableNamePrefix, TraceLevel level, bool logToStdout, string logToFile)
+        {
+            Environment.SetEnvironmentVariable(variableNamePrefix + "LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_A_FILE", string.IsNullOrWhiteSpace(logToFile) ? "0" : logToFile, EnvironmentVariableTarget.Process);
         }
 
         private static string ToSdkLogLevelLetter(this TraceLevel level)

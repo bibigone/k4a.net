@@ -69,7 +69,7 @@
             <seealso cref="P:K4AdotNet.BodyTracking.BodyFrame.BodyIndexMap"/>
         </member>
         <member name="P:K4AdotNet.BodyTracking.BodyFrame.BodyIndexMap">
-            <summary>Gets the body index map: image in custom format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="F:K4AdotNet.BodyTracking.BodyFrame.NotABodyIndexMapPixelValue"/> for background pixels.</summary>
+            <summary>Gets the body index map: image in <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="F:K4AdotNet.BodyTracking.BodyFrame.NotABodyIndexMapPixelValue"/> for background pixels.</summary>
             <remarks><para>
             Body Index map is the body instance segmentation map. Each pixel maps to the corresponding pixel in the
             depth image or the IR image. The value for each pixel is byte and represents which body the pixel belongs to. It can be either
@@ -1611,14 +1611,14 @@
             <param name="left">Left part of operator.</param>
             <param name="right">Right part of operator.</param>
             <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>
         </member>
         <member name="M:K4AdotNet.Microseconds64.op_Inequality(System.TimeSpan,K4AdotNet.Microseconds64)">
             <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>.</summary>
             <param name="left">Left part of operator.</param>
             <param name="right">Right part of operator.</param>
             <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Microseconds64.Equals(K4AdotNet.Microseconds64)"/>
+            <seealso cref="M:K4AdotNet.Microseconds64.Equals(System.TimeSpan)"/>
         </member>
         <member name="M:K4AdotNet.Microseconds64.op_LessThan(System.TimeSpan,K4AdotNet.Microseconds64)">
             <summary>To be consistent with <see cref="M:K4AdotNet.Microseconds64.CompareTo(System.TimeSpan)"/>.</summary>
@@ -1759,6 +1759,349 @@
             <returns>Created value.</returns>
         </member>
         <member name="F:K4AdotNet.Microseconds64.Zero">
+            <summary>Zero value.</summary>
+        </member>
+        <member name="T:K4AdotNet.Nanoseconds64">
+            <summary>64-bit time value in nanoseconds. Used for system timestamps.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int64"/> type.
+            And <see cref="T:K4AdotNet.Nanoseconds64"/> value can be smoothly converted to/from <see cref="T:System.Int64"/> and <see cref="T:System.TimeSpan"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Nanoseconds64.ValueNsec">
+            <summary>Value in nanoseconds.</summary>
+            <remarks>This structure is an wrapper around this value.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.#ctor(System.Int64)">
+            <summary>Creates instance from 64-bit integer value in nanoseconds.</summary>
+            <param name="valueNsec">Value in nanoseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.#ctor(System.TimeSpan)">
+            <summary>Creates instance from <see cref="T:System.TimeSpan"/> value.</summary>
+            <param name="value">This value will be converted from <see cref="P:System.TimeSpan.Ticks"/> to nanoseconds.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.ToTimeSpan">
+            <summary>Converts to <see cref="T:System.TimeSpan"/>.</summary>
+            <returns><see cref="T:System.TimeSpan"/> representation of this value.</returns>
+        </member>
+        <member name="P:K4AdotNet.Nanoseconds64.TotalSeconds">
+            <summary>The total number of seconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Nanoseconds64.TotalMilliseconds">
+            <summary>The total number of milliseconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Nanoseconds64.TotalMicroseconds">
+            <summary>The total number of microseconds represented by this instance.</summary>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)">
+            <summary>Equality exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)">
+            <summary>Equality with another value specified as <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)">
+            <summary>Equality exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="otherNsec">Another value in nanoseconds to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)">
+            <summary>Two values comparison.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)">
+            <summary>Two values comparison exactly like <see cref="T:System.Int64"/> type has.</summary>
+            <param name="otherNsec">Another value in nanoseconds to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.CompareTo(System.Object)">
+            <summary>Can compare current instance with <see cref="T:K4AdotNet.Nanoseconds64"/>, <see cref="T:System.TimeSpan"/> and <see cref="T:System.IConvertible"/> value.</summary>
+            <param name="obj">Value to be compared with this one.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and value.
+            For details see <see cref="M:System.Int64.CompareTo(System.Int64)"/>.
+            </returns>
+            <exception cref="T:System.ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.ToString(System.String,System.IFormatProvider)">
+            <summary>String representation of current instance.</summary>
+            <param name="format">The format to use or <see langword="null"/> for default format.</param>
+            <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
+            <returns><c>{value} nsec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.Equals(System.Object)">
+            <summary>Overloads <see cref="M:System.Object.Equals(System.Object)"/> to be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="obj">Object to be compared with this instance.</param>
+            <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="T:K4AdotNet.Nanoseconds64"/> and result is equal to this one.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.GetHashCode">
+            <summary>Calculates hash code.</summary>
+            <returns>Hash code. Consistent with overridden equality.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.ToString">
+            <summary>String representation of current instance.</summary>
+            <returns><c>{value} nsec</c></returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Equality(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Inequality(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThan(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThan(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThanOrEqual(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThanOrEqual(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Equality(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Inequality(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(K4AdotNet.Nanoseconds64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThan(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThan(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThanOrEqual(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThanOrEqual(K4AdotNet.Nanoseconds64,System.TimeSpan)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Equality(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Inequality(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThan(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThan(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThanOrEqual(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThanOrEqual(System.TimeSpan,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.TimeSpan)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Equality(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Inequality(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThan(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThan(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThanOrEqual(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThanOrEqual(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="left">Left part of operator.</param>
+            <param name="rightNsec">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightNsec"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Equality(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Inequality(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is not equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.Equals(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThan(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is less than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThan(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is greater than <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_LessThanOrEqual(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is less than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_GreaterThanOrEqual(System.Int64,K4AdotNet.Nanoseconds64)">
+            <summary>To be consistent with <see cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>.</summary>
+            <param name="leftNsec">Left part of operator.</param>
+            <param name="right">Right part of operator.</param>
+            <returns><see langword="true"/> if <paramref name="leftNsec"/> is greater than or equal to <paramref name="right"/>.</returns>
+            <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(K4AdotNet.Nanoseconds64)~System.TimeSpan">
+            <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(System.TimeSpan)~K4AdotNet.Nanoseconds64">
+            <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="value">Value to be converted to <see cref="T:K4AdotNet.Nanoseconds64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(K4AdotNet.Nanoseconds64)~System.Int64">
+            <summary>Implicit conversion to <see cref="T:System.Int64"/> value in nanoseconds.</summary>
+            <param name="value">Value to be converted to <see cref="T:System.Int64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(System.Int64)~K4AdotNet.Nanoseconds64">
+            <summary>Implicit conversion from <see cref="T:System.Int64"/>.</summary>
+            <param name="valueNsec">Value in nanoseconds to be converted to <see cref="T:K4AdotNet.Nanoseconds64"/>.</param>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.FromSeconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Nanoseconds64"/> from seconds.</summary>
+            <param name="valueSec">Value in seconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.FromMilliseconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Nanoseconds64"/> from milliseconds.</summary>
+            <param name="valueMs">Value in milliseconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.FromMicroseconds(System.Double)">
+            <summary>Creates instance of <see cref="T:K4AdotNet.Nanoseconds64"/> from microseconds.</summary>
+            <param name="valueUs">Value in microseconds.</param>
+            <returns>Created value.</returns>
+        </member>
+        <member name="F:K4AdotNet.Nanoseconds64.Zero">
             <summary>Zero value.</summary>
         </member>
         <member name="T:K4AdotNet.NativeCallResults.BufferResult">
@@ -2023,6 +2366,14 @@
             <summary>Closes a recording playback handle.</summary>
             <param name="recordingHandle">Recording playback handle to be closed.</param>
         </member>
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.PlaybackDataBlockRelease(System.IntPtr)">
+            <summary>Release a data block handle.</summary>
+            <param name="dataBlockHandle">Handle obtained by k4a_playback_get_next_data_block() or k4a_playback_get_previous_data_block().</param>
+            <remarks>Release the memory of a data block. The caller must not access the object after it is released.</remarks>
+        </member>
+        <member name="T:K4AdotNet.NativeHandles.PlaybackDataBlockHandle">
+            <summary>Handle to a block of data read from a <see cref="T:K4AdotNet.NativeHandles.PlaybackHandle"/> custom track.</summary>
+        </member>
         <member name="T:K4AdotNet.NativeHandles.PlaybackHandle">
             <summary>Handle to a Kinect for Azure recording opened for playback.</summary>
         </member>
@@ -2128,26 +2479,27 @@
             <summary>DLL imports for most of native functions from <c>record.h</c> and <c>playback.h</c> header files.</summary>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)">
-            <summary>
-            Opens a new recording file for writing.
-            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
-            </summary>
-            <param name="path">File system path for the new recording.</param>
-            <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
-            number information. May be <see cref="F:K4AdotNet.NativeHandles.DeviceHandle.Zero"/> if recording user-generated data.</param>
-            <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
-            <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
-            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
-            <remarks>
-            Streaming does not need to be started on the device at the time this function is called, but when it is started
-            it should be started with the same configuration provided in <paramref name="deviceConfiguration"/>.
+             <summary>
+             Opens a new recording file for writing.
+             </summary>
+             <param name="path">File system path for the new recording.</param>
+             <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
+             number information. May be <see cref="F:K4AdotNet.NativeHandles.DeviceHandle.Zero"/> if recording user-generated data.</param>
+             <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
+             <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
+             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+             <remarks>
+             The file will be created if it doesn't exist, or overwritten if an existing file is specified.
             
-            Subsequent calls to <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)"/> will need to have images in the resolution and format defined
-            in <paramref name="deviceConfiguration"/>.
-            </remarks>
+             Streaming does not need to be started on the device at the time this function is called, but when it is started
+             it should be started with the same configuration provided in <paramref name="deviceConfiguration"/>.
+             
+             Subsequent calls to <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)"/> will need to have images in the resolution and format defined
+             in <paramref name="deviceConfiguration"/>.
+             </remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordAddTag(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],System.Byte[])">
-            <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
+            <summary>Adds a tag to the recording.</summary>
             <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
             <param name="name">The name of the tag to write.</param>
             <param name="value">The string value to store in the tag.</param>
@@ -2155,29 +2507,97 @@
             <remarks>
             Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
             recording location.
+            
+            Tag names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            
+            All tags need to be added before the recording header is written.
             </remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordAddImuTrack(K4AdotNet.NativeHandles.RecordHandle)">
-            <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
+            <summary>Adds the track header for recording IMU.</summary>
             <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>The track needs to be added before the recording header is written.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddAttachment(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],System.Byte[],System.UIntPtr)">
+            <summary>Adds an attachment to the recording.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="attachmentName">The name of the attachment to be stored in the recording file. This name should be a valid filename with an extension.</param>
+            <param name="buffer">The attachment data buffer.</param>
+            <param name="bufferSize">The size of the attachment data buffer.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>All attachments need to be added before the recording header is written.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddCustomVideoTrack(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],System.Byte[],System.Byte[],System.UIntPtr,K4AdotNet.Record.RecordVideoSettings@)">
+            <summary>Adds custom video tracks to the recording.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="trackName">The name of the custom video track to be added.</param>
+            <param name="codecId">
+            A UTF8 null terminated string containing the codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Video codec ID's should start with 'V_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element.
+            </param>
+            <param name="codecContextSize">The size of the codec context buffer.</param>
+            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>
+            API is called. This API can be used to add additional video tracks to save custom data.
+            
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            
+            All tracks need to be added before the recording header is written.
+            
+            Call <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCustomTrackData(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],K4AdotNet.Microseconds64,System.Byte[],System.UIntPtr)"/> with the same <paramref name="trackName"/> to write data to this track.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordAddCustomSubtitleTrack(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],System.Byte[],System.Byte[],System.UIntPtr,K4AdotNet.Record.RecordSubtitleSettings@)">
+            <summary>Adds custom subtitle tracks to the recording.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="trackName">The name of the custom subtitle track to be added.</param>
+            <param name="codecId">
+            A UTF8 null terminated string containing the codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Subtitle codec ID's should start with 'S_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element.
+            </param>
+            <param name="codecContextSize">The size of the codec context buffer.</param>
+            <param name="trackSettings">Additional metadata for the subtitle track.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="M:K4AdotNet.Record.NativeApi.RecordAddImuTrack(K4AdotNet.NativeHandles.RecordHandle)"/> API is
+            called. This API can be used to add additional subtitle tracks to save custom data.
+            
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            
+            All tracks need to be added before the recording header is written.
+            
+            Call <see cref="M:K4AdotNet.Record.NativeApi.RecordWriteCustomTrackData(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],K4AdotNet.Microseconds64,System.Byte[],System.UIntPtr)"/> with the same <paramref name="trackName"/> to write data to this track.
+            </remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordWriteHeader(K4AdotNet.NativeHandles.RecordHandle)">
-            <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
+            <summary>Writes the recording header and metadata to file.</summary>
             <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>This must be called before captures can be written.</remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordWriteCapture(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.NativeHandles.CaptureHandle)">
-            <summary>
-            Writes a camera capture to file.
-            Captures must be written in increasing order of timestamp, and the file's header must already be written.
-            </summary>
+            <summary>Writes a camera capture to file.</summary>
             <param name="recordingHandle">The handle of recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
             <param name="captureHandle">The handle of a capture to write to file.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
             <remarks>
             This method will write all images in the capture to the corresponding tracks in the recording file.
             If any of the images fail to write, other images will still be written before a failure is returned.
+            
+            Captures must be written in increasing order of timestamp, and the file's header must already be written.
             </remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordWriteImuSample(K4AdotNet.NativeHandles.RecordHandle,K4AdotNet.Sensor.ImuSample)">
@@ -2189,6 +2609,23 @@
             Samples must be written in increasing order of timestamp, and the file's header must already be written.
             When writing IMU samples at the same time as captures, the samples should be within 1 second of the most recently
             written capture.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.RecordWriteCustomTrackData(K4AdotNet.NativeHandles.RecordHandle,System.Byte[],K4AdotNet.Microseconds64,System.Byte[],System.UIntPtr)">
+            <summary>Writes data for a custom track to file.</summary>
+            <param name="recordingHandle">The handle of a new recording, obtained by <see cref="M:K4AdotNet.Record.NativeApi.RecordCreate(System.Byte[],K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DeviceConfiguration,K4AdotNet.NativeHandles.RecordHandle@)"/>.</param>
+            <param name="trackName">The name of the custom track that the data is going to be written to.</param>
+            <param name="deviceTimestamp">
+            The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
+            device timestamp used for recording.
+            </param>
+            <param name="customData">The buffer of custom track data.</param>
+            <param name="customDataSize">The size of the custom track data buffer.</param>
+            <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
+            <remarks>
+            Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
+            When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
+            the most recently written timestamp.
             </remarks>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.RecordFlush(K4AdotNet.NativeHandles.RecordHandle)">
@@ -2243,6 +2680,43 @@
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="config">Output: recording configuration.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="config"/> was successfully written. <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> otherwise.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackCheckTrackExists(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[])">
+            <summary>Checks whether a track with the given track name exists in the playback file.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackName">The track name to be checked to see whether it exists or not.</param>
+            <returns><see langword="true"/> if the track exists.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTrackCount(K4AdotNet.NativeHandles.PlaybackHandle)">
+            <summary>Get the number of tracks in a playback file.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <returns>The number of tracks in the playback file.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTrackName(K4AdotNet.NativeHandles.PlaybackHandle,System.UIntPtr,System.Byte[],System.UIntPtr@)">
+            <summary>Gets the name of a track at a specific index.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackIndex">The index of the track to read the name form.</param>
+            <param name="trackName">
+            Location to write the track name. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
+            <paramref name="trackNameSize"/> will be set to the size of buffer needed to store the string.
+            </param>
+            <param name="trackNameSize">
+            On input, the size of the <paramref name="trackName"/> buffer. On output, this is set to the length of the <paramref name="trackName"/> value
+            (including the 0 terminator).
+            </param>
+            <returns>
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="trackName"/> has been filled in.
+            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
+            and the needed size of the <paramref name="trackName"/> buffer is returned in the <paramref name="trackNameSize"/> parameter.
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the track index does not exist.
+            All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackIsBuiltIn(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[])">
+            <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackName">The track name to be checked to see whether it is a built-in track.</param>
+            <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
             <summary>Read the value of a tag from a recording.</summary>
@@ -2457,6 +2931,34 @@
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot read configuration from recording. See logs for details.</exception>
         </member>
+        <member name="M:K4AdotNet.Record.Playback.CheckTrackExists(System.String)">
+            <summary>Checks whether a track with the given track name exists in the playback file.</summary>
+            <param name="trackName">The track name to be checked to see whether it exists or not.</param>
+            <returns><see langword="true"/> if the track exists.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.Playback.TrackCount">
+            <summary>Get the number of tracks in a playback file.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Record.Playback.GetTrackName(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Record.Playback.GetTrackName(System.Int32)">
+            <summary>Gets the name of a track at a specific index.</summary>
+            <param name="trackIndex">Zero-based index of track.</param>
+            <returns>Track name.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="trackIndex"/> is less than zero -or- is equal to or greater than <see cref="P:K4AdotNet.Record.Playback.TrackCount"/>.</exception>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot get name of track with specified index.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="P:K4AdotNet.Record.Playback.TrackCount"/>
+        </member>
+        <member name="M:K4AdotNet.Record.Playback.IsBuiltInTrack(System.String)">
+            <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
+            <param name="trackName">The track name to be checked to see whether it is a built-in track. Not <see langword="null"/> or empty.</param>
+            <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
         <member name="M:K4AdotNet.Record.Playback.TryGetTag(System.String,System.String@)">
             <summary>Reads the value of a tag from a recording.</summary>
             <param name="name">The name of the tag to read. Not <see langword="null"/> and not empty. Can contain only ASCII characters.</param>
@@ -2668,6 +3170,9 @@
         <member name="F:K4AdotNet.Record.PlaybackSeekOrigin.End">
             <summary>Seek relative to the end of a recording.</summary>
         </member>
+        <member name="F:K4AdotNet.Record.PlaybackSeekOrigin.DeviceTime">
+            <summary>Seek to an absolute device timestamp.</summary>
+        </member>
         <member name="T:K4AdotNet.Record.RecordConfiguration">
             <summary>Structure containing the device configuration used to record.</summary>
         </member>
@@ -2723,13 +3228,14 @@
         <member name="M:K4AdotNet.Record.Recorder.#ctor(System.String,K4AdotNet.Sensor.Device,K4AdotNet.Sensor.DeviceConfiguration)">
             <summary>
             Opens a new recording file for writing.
-            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
             </summary>
             <param name="filePath">File system path for the new recording. Not <see langword="null"/>, not empty.</param>
             <param name="device">The Azure Kinect device that is being recorded. The device is used to store device calibration and serial
             number information. May be <see langword="null"/> if recording user-generated data.</param>
             <param name="config">The configuration the Azure Kinect device was started with. Must be valid: see <see cref="M:K4AdotNet.Sensor.DeviceConfiguration.IsValid(System.String@)"/>.</param>
             <remarks><para>
+            The file will be created if it doesn't exist, or overwritten if an existing file is specified.
+            </para><para>
             Streaming does not need to be started on the device at the time this function is called, but when it is started
             it should be started with the same configuration provided in <paramref name="config"/>.
             </para><para>
@@ -2758,37 +3264,117 @@
             <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.AddTag(System.String,System.String)">
-            <summary>Adds a tag to the recording. All tags need to be added before the recording header is written.</summary>
-            <param name="name">The name of the tag to write. Not <see langword="null"/>, not empty. Can contain only ASCII characters.</param>
-            <param name="value">The string value to store in the tag. Not <see langword="null"/>. UTF-8 encoding is used to store.</param>
-            <remarks>
+            <summary>Adds a tag to the recording.</summary>
+            <param name="tagName">The name of the tag to write. Not <see langword="null"/>, not empty. Must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.</param>
+            <param name="tagValue">The string value to store in the tag. Not <see langword="null"/>. UTF-8 encoding is used to store.</param>
+            <remarks><para>
             Tags are global to a file, and should store data related to the entire recording, such as camera configuration or
             recording location.
-            </remarks>
-            <exception cref="T:System.ArgumentNullException"><paramref name="name"/> is <see langword="null"/> or empty, or <paramref name="value"/> is <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="name"/> contains non-ASCII characters.</exception>
+            </para><para>
+            All tags need to be added before the recording header is written.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/> or empty, or <paramref name="tagValue"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="tagName"/> contains invalid characters.</exception>
+            <exception cref="T:System.InvalidOperationException"><see cref="M:K4AdotNet.Record.Recorder.AddTag(System.String,System.String)"/> must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <seealso cref="M:K4AdotNet.Record.Playback.TryGetTag(System.String,System.String@)"/>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.AddImuTrack">
-            <summary>Adds the track header for recording IMU. The track needs to be added before the recording header is written.</summary>
+            <summary>Adds the track header for recording IMU.</summary>
+            <remarks>The track needs to be added before the recording header is written.</remarks>
             <exception cref="T:System.InvalidOperationException"><see cref="M:K4AdotNet.Record.Recorder.AddImuTrack"/> must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
+        <member name="M:K4AdotNet.Record.Recorder.AddAttachment(System.String,System.Byte[])">
+            <summary>Adds an attachment to the recording.</summary>
+            <param name="attachmentName">The name of the attachment to be stored in the recording file. This name should be a valid filename with an extension. Not <see langword="null"/>.</param>
+            <param name="attachmentData">The attachment data to be added to recording. Not <see langword="null"/>.</param>
+            <remarks>All attachments need to be added before the recording header is written.</remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="attachmentName"/> or <paramref name="attachmentData"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="attachmentName"/> is not a valid file name or contains non-ASCII symbols.</exception>
+            <exception cref="T:System.InvalidOperationException"><see cref="M:K4AdotNet.Record.Recorder.AddAttachment(System.String,System.Byte[])"/> must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.AddCustomVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)">
+            <summary>Adds custom video track to the recording.</summary>
+            <param name="trackName">
+            The name of the custom video track to be added. Not <see langword="null"/>.
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            </param>
+            <param name="codecId">
+            The codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Video codec ID's should start with 'V_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </param>
+            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+            <remarks><para>
+            Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the object of <see cref="T:K4AdotNet.Record.Recorder"/>
+            class is constructed. This API can be used to add additional video tracks to save custom data.
+            </para><para>
+            All tracks need to be added before the recording header is written.
+            </para><para>
+            Call <see cref="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])"/> with the same <paramref name="trackName"/> to write data to this track.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
+            or <paramref name="codecId"/> is not a valid video codec ID.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)">
+            <summary>Adds custom subtitle track to the recording.</summary>
+            <param name="trackName">
+            The name of the custom subtitle track to be added. Not <see langword="null"/>.
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            </param>
+            <param name="codecId">
+            The codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Subtitle codec ID's should start with 'S_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </param>
+            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+            <remarks><para>
+            Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="M:K4AdotNet.Record.Recorder.AddImuTrack"/> API is
+            called. This API can be used to add additional subtitle tracks to save custom data.
+            </para><para>
+            All tracks need to be added before the recording header is written.
+            </para><para>
+            Call <see cref="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])"/> with the same <paramref name="trackName"/> to write data to this track.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
+            or <paramref name="codecId"/> is not a valid subtitle codec ID.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
         <member name="M:K4AdotNet.Record.Recorder.WriteHeader">
-            <summary>Writes the recording header and metadata to file. This must be called before captures can be written.</summary>
+            <summary>Writes the recording header and metadata to file.</summary>
+            <remarks>This must be called before captures can be written.</remarks>
             <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.WriteCapture(K4AdotNet.Sensor.Capture)">
             <summary>
             Writes a camera capture to file.
-            Captures must be written in increasing order of timestamp, and the file's header must already be written.
             </summary>
-            <remarks>
+            <remarks><para>
             This method will write all images in the capture to the corresponding tracks in the recording file.
             If any of the images fail to write, other images will still be written before throwing an exception.
-            </remarks>
+            </para><para>
+            Captures must be written in increasing order of timestamp, and the file's header must already be written.
+            </para></remarks>
             <param name="capture">Capture to write to file. Not <see langword="null"/>.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> is <see langword="null"/>.</exception>
             <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
@@ -2802,6 +3388,26 @@
             When writing IMU samples at the same time as captures, the samples should be within 1 second of the most recently
             written capture.
             </remarks>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])">
+            <summary>Writes data for a custom track to file.</summary>
+            <param name="trackName">The name of the custom track that the data is going to be written to. Not <see langword="null"/>.</param>
+            <param name="deviceTimestamp">
+            The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
+            device timestamp used for recording.
+            </param>
+            <param name="customData">The buffer of custom track data. Not <see langword="null"/>.</param>
+            <remarks>
+            Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
+            When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
+            the most recently written timestamp.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="customData"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_').
+            </exception>
             <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
@@ -2844,6 +3450,34 @@
             <param name="info">Serialization info.</param>
             <param name="context">Streaming context.</param>
         </member>
+        <member name="T:K4AdotNet.Record.RecordSubtitleSettings">
+            <summary>Structure containing additional metadata specific to custom subtitle tracks.</summary>
+        </member>
+        <member name="F:K4AdotNet.Record.RecordSubtitleSettings.HighFreqData">
+            <summary>
+            If <see langword="true"/>, data will be grouped together in batches to reduce overhead. 
+            If <see langword="false"/>, data will be stored as individual blocks with full timestamp information (Default).
+            </summary>
+            <remarks>
+            If <see langword="true"/>, only a single timestamp will
+            be stored per batch, and an estimated timestamp will be used by <see cref="M:K4AdotNet.Record.Playback.SeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> and
+            <see cref="!:PlaybackDataBlock.Timestamp"/>. The estimated timestamp is calculated with the assumption that
+            blocks are evenly spaced within a batch. If precise timestamps are required, the timestamp should be added to
+            each data block itself.
+            </remarks>
+        </member>
+        <member name="T:K4AdotNet.Record.RecordVideoSettings">
+            <summary>Structure containing additional metadata specific to custom video tracks.</summary>
+        </member>
+        <member name="F:K4AdotNet.Record.RecordVideoSettings.Width">
+            <summary>Frame width of the video.</summary>
+        </member>
+        <member name="F:K4AdotNet.Record.RecordVideoSettings.Height">
+            <summary>Frame height of the video.</summary>
+        </member>
+        <member name="F:K4AdotNet.Record.RecordVideoSettings.FrameRate">
+            <summary>Frame rate (frames-per-second) of the video.</summary>
+        </member>
         <member name="T:K4AdotNet.Sdk">
             <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
         </member>
@@ -2880,10 +3514,15 @@
             Must end in '.log' to be considered a valid entry.
             Use <see langword="null"/> or empty string to completely disable logging to a file.
             </param>
-            <remarks>Call this method before any usage of Sensor and Record APIs.</remarks>
+            <remarks><para>
+            Call this method before any usage of Sensor API (classes from <c>K4AdotNet.Sensor</c> namespace).
+            </para><para>
+            Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+            Each part uses separate logger instance that do not allowed shared access to the file being written to.
+            </para></remarks>
         </member>
-        <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
-            <summary>Current version of Body Tracking SDK can log data only to the console.</summary>
+        <member name="M:K4AdotNet.Sdk.ConfigureRecordLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
+            <summary>Record part of Sensor SDK can log data to the console, files, or to a custom handler.</summary>
             <param name="level">Level of logging.</param>
             <param name="logToStdout">Log messages to STDOUT?</param>
             <param name="logToFile">
@@ -2891,7 +3530,28 @@
             Must end in '.log' to be considered a valid entry.
             Use <see langword="null"/> or empty string to completely disable logging to a file.
             </param>
-            <remarks>Call this method before any usage of Body Tracking API.</remarks>
+            <remarks><para>
+            Call this method before any usage of Record API (classes from <c>K4AdotNet.Record</c> namespace).
+            </para><para>
+            Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+            Each part uses separate logger instance that do not allowed shared access to the file being written to.
+            </para></remarks>
+        </member>
+        <member name="M:K4AdotNet.Sdk.ConfigureBodyTrackingLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
+            <summary>The Body Tracking SDK can log data to the console, files, or to a custom handler.</summary>
+            <param name="level">Level of logging.</param>
+            <param name="logToStdout">Log messages to STDOUT?</param>
+            <param name="logToFile">
+            Log all messages to the path and file specified.
+            Must end in '.log' to be considered a valid entry.
+            Use <see langword="null"/> or empty string to completely disable logging to a file.
+            </param>
+            <remarks><para>
+            Call this method before any usage of Body Tracking API (classes from <c>K4AdotNet.BodyTracking</c> namespace).
+            </para><para>
+            Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
+            Each part uses separate logger instance that do not allowed shared access to the file being written to.
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.Sdk.BodyTrackingSdkInstallationGuideUrl">
             <summary>URL to step-by-step instruction "How to set up Body Tracking SDK". Helpful for UI and user messages.</summary>
@@ -3108,10 +3768,10 @@
             <summary>Extrinsic calibration defines the physical relationship between two separate sensors inside Kinect for Azure device.</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationExtrinsics.Rotation">
-            <summary>Rotation matrix.</summary>
+            <summary>3x3 rotation matrix.</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationExtrinsics.Translation">
-            <summary>Translation vector.</summary>
+            <summary>Translation vector (in millimeters).</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.CalibrationGeometries">
             <summary>Extensions to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration. Adds some metadata to <see cref="T:K4AdotNet.Sensor.CalibrationGeometry"/> enumeration.</summary>
@@ -3463,11 +4123,16 @@
         </member>
         <member name="F:K4AdotNet.Sensor.ColorControlCommand.ExposureTimeAbsolute">
             <summary>Exposure time setting.</summary>
-            <remarks>
+            <remarks><para>
             May be set to <see cref="F:K4AdotNet.Sensor.ColorControlMode.Auto"/> or <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/>.
-            Exposure time is measured in microseconds. For details see:
-            https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#rgb-camera-exposure-time-values
-            </remarks>
+            </para><para>
+            The Azure Kinect supports a limited number of fixed exposure settings. When setting this, expect the exposure to
+            be rounded up to the nearest setting. Exceptions are 1) The last value in the table is the upper limit, so a
+            value larger than this will be overridden to the largest entry in the table. 2) The exposure time cannot be
+            larger than the equivalent FPS. So expect 100ms exposure time to be reduced to 30ms or 33.33ms when the camera is
+            started. The most recent copy of the table 'device_exposure_mapping' is in
+            https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/src/color/color_priv.h
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.ColorControlCommand.AutoExposurePriority">
             <summary>Exposure or Frame rate priority setting.</summary>
@@ -3475,7 +4140,7 @@
             May only be set to <see cref="F:K4AdotNet.Sensor.ColorControlMode.Manual"/>.
             Value of <c>0</c> means frame rate priority. Value of <c>1</c> means exposure priority.
             Using exposure priority may impact the frame rate of both the color and depth cameras.
-            Deprecated starting in 1.1.0. Please discontinue usage, firmware does not support this.
+            Deprecated starting from version 1.1.0 of Sensor SDK. Please discontinue usage, firmware does not support this.
             </remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.ColorControlCommand.Brightness">
@@ -4590,7 +5255,7 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
             <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
-            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="format">Format of image. Cannot be <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/>.</param>
             <param name="widthPixels">Width of image in pixels. Must be positive.</param>
             <param name="heightPixels">Height of image in pixels. Must be positive.</param>
             <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
@@ -4605,14 +5270,10 @@
             <exception cref="T:System.InvalidOperationException">
             <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
             </exception>
-            <exception cref="T:System.NotSupportedException">
-            If <paramref name="format"/> equals to <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorNV12"/>.
-            For details see https://github.com/microsoft/Azure-Kinect-Sensor-SDK/issues/587.
-            </exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Image.#ctor(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
-            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="format">Format of image.</param>
             <param name="widthPixels">Width of image in pixels. Must be positive.</param>
             <param name="heightPixels">Height of image in pixels. Must be positive.</param>
             <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>
@@ -4621,9 +5282,6 @@
             <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
             or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
             or <paramref name="sizeBytes"/> is less than zero or <paramref name="sizeBytes"/> is less than size calculated from <paramref name="heightPixels"/> and <paramref name="strideBytes"/>.
-            </exception>
-            <exception cref="T:System.InvalidOperationException">
-            <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
             </exception>
         </member>
         <member name="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
@@ -4725,14 +5383,38 @@
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         </member>
         <member name="P:K4AdotNet.Sensor.Image.Timestamp">
-            <summary>Get and set the image timestamp.</summary>
+            <summary>Deprecated in version 1.2 of Sensor SDK. Please use <see cref="P:K4AdotNet.Sensor.Image.DeviceTimestamp"/> property instead of this one.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.DeviceTimestamp">
+            <summary>Get and set the image's device timestamp.</summary>
             <remarks><para>
-            Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
-            They may be used for relative comparison, but their absolute value has no defined meaning.
+            Returns the device timestamp of the image, as captured by the hardware. Timestamps are recorded by the device and
+            represent the mid-point of exposure. They may be used for relative comparison, but their absolute value has no
+            defined meaning.
             </para><para>
             <see cref="T:K4AdotNet.Microseconds64"/> supports implicit conversion to/from <see cref="T:System.TimeSpan"/>.
             </para></remarks>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+            <seealso cref="P:K4AdotNet.Sensor.Image.SystemTimestamp"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Image.SystemTimestamp">
+            <summary>Get and set the image's system timestamp.</summary>
+            <remarks><para>
+            Returns the system timestamp of the image. Timestamps are recorded by the host. They may be used for relative
+            comparison, as they are relative to the corresponding system clock.The absolute value is a monotonic count from
+            an arbitrary point in the past.
+            </para><para>
+            The system timestamp is captured at the moment host PC finishes receiving the image.
+            </para><para>
+            On Linux the system timestamp is read from <c>clock_gettime(CLOCK_MONOTONIC)</c>, which measures realtime and is not
+            impacted by adjustments to the system clock.It starts from an arbitrary point in the past. On Windows the system
+            timestamp is read from <c>QueryPerformanceCounter()</c>, it also measures realtime and is not impacted by adjustments to the
+            system clock. It also starts from an arbitrary point in the past.
+            </para><para>
+            <see cref="T:K4AdotNet.Nanoseconds64"/> supports implicit conversion to/from <see cref="T:System.TimeSpan"/>.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+            <seealso cref="P:K4AdotNet.Sensor.Image.DeviceTimestamp"/>
         </member>
         <member name="P:K4AdotNet.Sensor.Image.Exposure">
             <summary>Get and set the image exposure time. This is only supported on color image formats.</summary>
@@ -4910,6 +5592,20 @@
             Each pixel of IR16 data is two bytes of little endian unsigned depth data. The value of the data represents
             brightness.
             </summary>
+            <remarks>
+            Stride indicates the length of each line in bytes and should be used to determine the start location of each
+            line of the image in memory.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Sensor.ImageFormat.Custom8">
+            <summary>Each pixel is a single channel one byte of unsigned data.</summary>
+            <remarks>
+            Stride indicates the length of each line in bytes and should be used to determine the start location of each
+            line of the image in memory.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Sensor.ImageFormat.Custom16">
+            <summary>Each pixel is a single channel two bytes of little endian unsigned data.</summary>
             <remarks>
             Stride indicates the length of each line in bytes and should be used to determine the start location of each
             line of the image in memory.
@@ -5116,7 +5812,13 @@
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> on success.</returns>
             <remarks>This function is used to create images of formats that have consistent stride.
             The function is not suitable for compressed formats that may not be represented by the same number of bytes per line.
-            The function will allocate an image buffer of size <paramref name="heightPixels"/> * <paramref name="strideBytes"/> bytes.
+            
+            For most image formats, the function will allocate an image buffer of size <paramref name="heightPixels"/> * <paramref name="strideBytes"/>.
+            Buffers <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorNV12"/> format will allocate an additional <paramref name="heightPixels"/> / 2 set of lines (each of
+            <paramref name="strideBytes"/>).
+            
+            This function cannot be used to allocate <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> buffers.
+            
             To create an image object without the API allocating memory, or to represent an image that has a non-deterministic
             stride, use <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/>.
             </remarks>
@@ -5195,21 +5897,40 @@
             If the <paramref name="imageHandle"/> is invalid or the image's format does not have a stride, the function will return <c>0</c>.
             </returns>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageGetTimestamp(K4AdotNet.NativeHandles.ImageHandle)">
-            <summary>Get the image timestamp.</summary>
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageGetDeviceTimestamp(K4AdotNet.NativeHandles.ImageHandle)">
+            <summary>Get the image's device timestamp in microseconds.</summary>
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <returns>
-            If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image,
-            this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
-            It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from the beginning
-            of a recording or the start of streaming.
+            If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image, this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
+            It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
             </returns>
             <remarks>
-            Returns the timestamp of the image. Time stamps are recorded by the device and represent the mid-point of exposure.
-            They may be used for relative comparison, but their absolute value has no defined meaning.
+            Returns the device timestamp of the image, as captured by the hardware.Timestamps are recorded by the device and
+            represent the mid-point of exposure.They may be used for relative comparison, but their absolute value has no
+            defined meaning.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageGetExposureUsec(K4AdotNet.NativeHandles.ImageHandle)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageGetSystemTimestamp(K4AdotNet.NativeHandles.ImageHandle)">
+            <summary>Get the image's system timestamp in nanoseconds.</summary>
+            <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
+            <returns>
+            If the <paramref name="imageHandle"/> is invalid or if no timestamp was set for the image, this function will return <see cref="F:K4AdotNet.Nanoseconds64.Zero"/>.
+            It is also possible for <see cref="F:K4AdotNet.Nanoseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+            </returns>
+            <remarks>
+            Returns the system timestamp of the image. Timestamps are recorded by the host. They may be used for relative
+            comparison, as they are relative to the corresponding system clock.The absolute value is a monotonic count from
+            an arbitrary point in the past.
+            
+            The system timestamp is captured at the moment host PC finishes receiving the image.
+            
+            On Linux the system timestamp is read from <c>clock_gettime(CLOCK_MONOTONIC)</c>, which measures realtime and is not
+            impacted by adjustments to the system clock.It starts from an arbitrary point in the past. On Windows the system
+            timestamp is read from <c>QueryPerformanceCounter()</c>, it also measures realtime and is not impacted by adjustments to the
+            system clock. It also starts from an arbitrary point in the past.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageGetExposure(K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Get the image exposure in microseconds.</summary>
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <returns>
@@ -5236,8 +5957,8 @@
             </returns>
             <remarks>This function is only valid for color captures, and not for depth or IR captures.</remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
-            <summary>Set the timestamp, in microseconds, of the image.</summary>
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetDeviceTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
+            <summary>Set the device time stamp, in microseconds, of the image.</summary>
             <param name="imageHandle">Handle of the image to set the timestamp on.</param>
             <param name="timestamp">Time stamp of the image.</param>
             <remarks>
@@ -5245,7 +5966,19 @@
             or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/> to construct an image.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetExposureTimeUsec(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetSystemTimestamp(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Nanoseconds64)">
+            <summary>Set the system time stamp, in nanoseconds, of the image.</summary>
+            <param name="imageHandle">Handle of the image to set the timestamp on.</param>
+            <param name="timestamp">Time stamp of the image.</param>
+            <remarks>
+            Use this function in conjunction with <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
+            or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/> to construct an image.
+            
+            The system timestamp is a high performance and increasing clock (from boot). The timestamp represents the time
+            immediately after the image buffer was read by the host PC.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.NativeApi.ImageSetExposure(K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Microseconds64)">
             <summary>Set the exposure time, in microseconds, of the image.</summary>
             <param name="imageHandle">Handle of the image to set the exposure time on.</param>
             <param name="exposure">Exposure time of the image in microseconds.</param>
@@ -5482,7 +6215,11 @@
             </summary>
             <param name="calibration">Camera calibration data.</param>
             <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
-            <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+            <param name="sourceDepthMm">
+            The depth of <paramref name="sourcePoint2D"/> in millimeters.
+            One way to derive the depth value in the color camera geometry is to
+            use the function <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>.
+            </param>
             <param name="sourceCamera">The current camera.</param>
             <param name="targetCamera">The target camera.</param>
             <param name="targetPoint3DMm">Output: the 3D coordinates of the input pixel in the coordinate system of <paramref name="targetCamera"/> in millimeters.</param>
@@ -5548,7 +6285,11 @@
             </summary>
             <param name="calibration">Camera calibration data.</param>
             <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
-            <param name="sourceDepthMm">The depth of <paramref name="sourcePoint2D"/> in millimeters.</param>
+            <param name="sourceDepthMm">
+            The depth of <paramref name="sourcePoint2D"/> in millimeters.
+            One way to derive the depth value in the color camera geometry is to
+            use the function <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>.
+            </param>
             <param name="sourceCamera">The current camera.</param>
             <param name="targetCamera">The target camera.</param>
             <param name="targetPoint2D">Output: the 2D pixel in <paramref name="targetCamera"/> coordinates.</param>
@@ -5608,6 +6349,52 @@
             
             <paramref name="transformedDepthImage"/> should be created by the caller using <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
             or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/>.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCameraCustom(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Sensor.TransformationInterpolation,System.Int32)">
+            <summary>Transforms depth map and a custom image into the geometry of the color camera.</summary>
+            <param name="transformationHandle">Transformation handle.</param>
+            <param name="depthImage">Handle to input depth image.</param>
+            <param name="customImage">Handle to input custom image.</param>
+            <param name="transformedDepthImage">Handle to output transformed depth image.</param>
+            <param name="transformedCustomImage">Handle to output transformed custom image.</param>
+            <param name="interpolation">
+            Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
+            <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Linear"/> if linear interpolation should be used.
+            <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest"/> if nearest neighbor interpolation should be used.
+            </param>
+            <param name="invalidCustomValue">
+            Defines the custom image pixel value that should be written to <paramref name="transformedCustomImage"/> in case the corresponding
+            depth pixel can not be transformed into the color camera space.
+            </param>
+            <returns>
+            <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="transformedDepthImage"/> and <paramref name="transformedCustomImage"/> were successfully written and
+            <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> otherwise.
+            </returns>
+            <remarks>
+            This produces a depth image and a corresponding custom image for which each pixel matches the corresponding
+            pixel coordinates of the color camera.
+            
+            <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>.
+            
+            <paramref name="customImage"/> and <paramref name="transformedCustomImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or
+            <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/>.
+            
+            <paramref name="transformedDepthImage"/> and <paramref name="transformedCustomImage"/> must have a width and height matching the width and
+            height of the color camera in the mode specified by the <see cref="T:K4AdotNet.Sensor.Calibration"/> used to create the
+            <paramref name="transformationHandle"/> with <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationCreate(K4AdotNet.Sensor.Calibration@)"/>.
+            
+            <paramref name="customImage"/> must have a width and height matching the width and height of <paramref name="depthImage"/>.
+            
+            The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
+            camera's coordinate space.
+            
+            The contents <paramref name="transformedCustomImage"/> will be filled with the values derived from <paramref name="customImage"/> in the color
+            camera's coordinate space.
+            
+            Using linear interpolation could create new values to <paramref name="transformedCustomImage"/> which do no exist in <paramref name="customImage"/>.
+            Setting <paramref name="interpolation"/> to <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest"/> will prevent this from happening but will result in less
+            smooth image.
             </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.TransformationColorImageToDepthCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)">
@@ -5722,6 +6509,53 @@
             <exception cref="T:System.InvalidOperationException">Failed to transform specified depth image to color camera.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCameraCustom(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.TransformationInterpolation,System.Int32)">
+            <summary>Transforms the depth map into the geometry of the color camera.</summary>
+            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <param name="customImage">Input custom image to be transformed. In <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
+            <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution and be of the same format as <paramref name="customImage"/>.</param>
+            <param name="interpolation">
+            Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
+            <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Linear"/> if linear interpolation should be used.
+            <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest"/> if nearest neighbor interpolation should be used.
+            </param>
+            <param name="invalidCustomValue">
+            Defines the custom image pixel value that should be written to <paramref name="transformedCustomImage"/> in case the corresponding
+            depth pixel can not be transformed into the color camera space.
+            </param>
+            <remarks><para>
+            This produces a depth image and a corresponding custom image for which each pixel matches the corresponding
+            pixel coordinates of the color camera.
+            </para><para>
+            <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>.
+            </para><para>
+            <paramref name="customImage"/> and <paramref name="transformedCustomImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or
+            <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/>.
+            </para><para>
+            The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
+            camera's coordinate space.
+            </para><para>
+            The contents <paramref name="transformedCustomImage"/> will be filled with the values derived from <paramref name="customImage"/> in the color
+            camera's coordinate space.
+            </para><para>
+            Using linear interpolation could create new values to <paramref name="transformedCustomImage"/> which do no exist in <paramref name="customImage"/>.
+            Setting <paramref name="interpolation"/> to <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest"/> will prevent this from happening but will result in less
+            smooth image.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="depthImage"/> is <see langword="null"/>
+            or <paramref name="customImage"/> is <see langword="null"/>
+            or <paramref name="transformedDepthImage"/> is <see langword="null"/>
+            or <paramref name="transformedCustomImage"/> is <see langword="null"/>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="depthImage"/> or <paramref name="customImage"/> or <paramref name="transformedDepthImage"/> or <paramref name="transformedCustomImage"/>
+            has invalid format or resolution.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">Failed to transform specified depth and custom images to color camera.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.Transformation.ColorImageToDepthCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
             <summary>Transforms a color image into the geometry of the depth camera.</summary>
             <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
@@ -5768,6 +6602,16 @@
             <exception cref="T:System.InvalidOperationException">Failed to transform specified depth image to point cloud.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
+        <member name="T:K4AdotNet.Sensor.TransformationInterpolation">
+            <summary>Transformation interpolation type.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCameraCustom(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.TransformationInterpolation,System.Int32)"/>
+        </member>
+        <member name="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest">
+            <summary>Nearest neighbor interpolation.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sensor.TransformationInterpolation.Linear">
+            <summary>Linear interpolation.</summary>
+        </member>
         <member name="T:K4AdotNet.Sensor.WiredSyncMode">
             <summary>Synchronization mode when connecting two or more devices together.</summary>
         </member>
@@ -5776,6 +6620,11 @@
         </member>
         <member name="F:K4AdotNet.Sensor.WiredSyncMode.Master">
             <summary>The 'Sync Out' jack is enabled and synchronization data it driven out the connected wire.</summary>
+            <remarks>
+            While in master mode the color camera must be enabled as part of the
+            multi device sync signaling logic. Even if the color image is not needed, the color
+            camera must be running.
+            </remarks>
         </member>
         <member name="F:K4AdotNet.Sensor.WiredSyncMode.Subordinate">
             <summary>

@@ -13,10 +13,10 @@ namespace K4AdotNet.Sensor
     [StructLayout(LayoutKind.Sequential)]
     public struct CalibrationExtrinsics
     {
-        /// <summary>Rotation matrix.</summary>
+        /// <summary>3x3 rotation matrix.</summary>
         public Float3x3 Rotation;
 
-        /// <summary>Translation vector.</summary>
+        /// <summary>Translation vector (in millimeters).</summary>
         public Float3 Translation;
     }
 }

@@ -9,6 +9,8 @@
     //      K4A_IMAGE_FORMAT_COLOR_BGRA32,
     //      K4A_IMAGE_FORMAT_DEPTH16,
     //      K4A_IMAGE_FORMAT_IR16,
+    //      K4A_IMAGE_FORMAT_CUSTOM8,
+    //      K4A_IMAGE_FORMAT_CUSTOM16,
     //      K4A_IMAGE_FORMAT_CUSTOM,
     // } k4a_image_format_t;
     //
@@ -79,6 +81,20 @@
         /// line of the image in memory.
         /// </remarks>
         IR16,
+
+        /// <summary>Each pixel is a single channel one byte of unsigned data.</summary>
+        /// <remarks>
+        /// Stride indicates the length of each line in bytes and should be used to determine the start location of each
+        /// line of the image in memory.
+        /// </remarks>
+        Custom8,
+
+        /// <summary>Each pixel is a single channel two bytes of little endian unsigned data.</summary>
+        /// <remarks>
+        /// Stride indicates the length of each line in bytes and should be used to determine the start location of each
+        /// line of the image in memory.
+        /// </remarks>
+        Custom16,
 
         /// <summary>
         /// Custom image format.

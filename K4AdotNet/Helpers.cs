@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace K4AdotNet
@@ -90,5 +91,28 @@ namespace K4AdotNet
                     return i;
             return -1;
         }
+
+        public static void CheckTagName(string tagName)
+        {
+            if (string.IsNullOrEmpty(tagName))
+                throw new ArgumentNullException(tagName);
+            if (!IsValidTagOrTrackName(tagName))
+                throw new ArgumentException($"Invalid value \"{tagName}\" of {nameof(tagName)}. Tag name must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.", nameof(tagName));
+        }
+
+        public static void CheckTrackName(string trackName)
+        {
+            if (string.IsNullOrEmpty(trackName))
+                throw new ArgumentNullException(trackName);
+            if (!IsValidTagOrTrackName(trackName))
+                throw new ArgumentException($"Invalid value \"{trackName}\" of {nameof(trackName)}. Track name must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.", nameof(trackName));
+        }
+
+        private static bool IsValidTagOrTrackName(string tagName)
+            => !string.IsNullOrEmpty(tagName) && tagName.All(chr => IsValidTagOrTrackNameCharacter(chr));
+
+        private static bool IsValidTagOrTrackNameCharacter(char chr)
+            => (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9') || chr == '-' || chr == '_';
+
     }
 }

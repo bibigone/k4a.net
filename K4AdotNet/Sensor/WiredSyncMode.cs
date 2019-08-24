@@ -15,6 +15,11 @@
         Standalone = 0,
 
         /// <summary>The 'Sync Out' jack is enabled and synchronization data it driven out the connected wire.</summary>
+        /// <remarks>
+        /// While in master mode the color camera must be enabled as part of the
+        /// multi device sync signaling logic. Even if the color image is not needed, the color
+        /// camera must be running.
+        /// </remarks>
         Master,
 
         /// <summary>

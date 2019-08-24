@@ -98,6 +98,13 @@ namespace K4AdotNet.NativeHandles
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_close", CallingConvention = CallingConvention.Cdecl)]
         public static extern void PlaybackClose(IntPtr recordingHandle);
 
+        // K4ARECORD_EXPORT void k4a_playback_data_block_release(k4a_playback_data_block_t data_block_handle);
+        /// <summary>Release a data block handle.</summary>
+        /// <param name="dataBlockHandle">Handle obtained by k4a_playback_get_next_data_block() or k4a_playback_get_previous_data_block().</param>
+        /// <remarks>Release the memory of a data block. The caller must not access the object after it is released.</remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_data_block_release", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void PlaybackDataBlockRelease(IntPtr dataBlockHandle);
+
         #endregion
     }
 }

@@ -92,6 +92,69 @@ namespace K4AdotNet.Sensor
                 throw new InvalidOperationException("Failed to transform specified depth image to color camera.");
         }
 
+        /// <summary>Transforms the depth map into the geometry of the color camera.</summary>
+        /// <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
+        /// <param name="customImage">Input custom image to be transformed. In <see cref="ImageFormat.Custom8"/> or <see cref="ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
+        /// <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution.</param>
+        /// <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution and be of the same format as <paramref name="customImage"/>.</param>
+        /// <param name="interpolation">
+        /// Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
+        /// <see cref="TransformationInterpolation.Linear"/> if linear interpolation should be used.
+        /// <see cref="TransformationInterpolation.Nearest"/> if nearest neighbor interpolation should be used.
+        /// </param>
+        /// <param name="invalidCustomValue">
+        /// Defines the custom image pixel value that should be written to <paramref name="transformedCustomImage"/> in case the corresponding
+        /// depth pixel can not be transformed into the color camera space.
+        /// </param>
+        /// <remarks><para>
+        /// This produces a depth image and a corresponding custom image for which each pixel matches the corresponding
+        /// pixel coordinates of the color camera.
+        /// </para><para>
+        /// <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="ImageFormat.Depth16"/>.
+        /// </para><para>
+        /// <paramref name="customImage"/> and <paramref name="transformedCustomImage"/> must be of format <see cref="ImageFormat.Custom8"/> or
+        /// <see cref="ImageFormat.Custom16"/>.
+        /// </para><para>
+        /// The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
+        /// camera's coordinate space.
+        /// </para><para>
+        /// The contents <paramref name="transformedCustomImage"/> will be filled with the values derived from <paramref name="customImage"/> in the color
+        /// camera's coordinate space.
+        /// </para><para>
+        /// Using linear interpolation could create new values to <paramref name="transformedCustomImage"/> which do no exist in <paramref name="customImage"/>.
+        /// Setting <paramref name="interpolation"/> to <see cref="TransformationInterpolation.Nearest"/> will prevent this from happening but will result in less
+        /// smooth image.
+        /// </para></remarks>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="depthImage"/> is <see langword="null"/>
+        /// or <paramref name="customImage"/> is <see langword="null"/>
+        /// or <paramref name="transformedDepthImage"/> is <see langword="null"/>
+        /// or <paramref name="transformedCustomImage"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="depthImage"/> or <paramref name="customImage"/> or <paramref name="transformedDepthImage"/> or <paramref name="transformedCustomImage"/>
+        /// has invalid format or resolution.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">Failed to transform specified depth and custom images to color camera.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        public void DepthImageToColorCameraCustom(
+            Image depthImage, Image customImage,
+            Image transformedDepthImage, Image transformedCustomImage,
+            TransformationInterpolation interpolation, int invalidCustomValue)
+        {
+            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
+            CheckImageParameter(nameof(customImage), customImage, ImageFormat.Custom8, ImageFormat.Custom16, DepthMode);
+            CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, ColorResolution);
+            CheckImageParameter(nameof(transformedCustomImage), transformedCustomImage, customImage.Format, ColorResolution);
+
+            var res = NativeApi.TransformationDepthImageToColorCameraCustom(handle.ValueNotDisposed,
+                Image.ToHandle(depthImage), Image.ToHandle(customImage),
+                Image.ToHandle(transformedDepthImage), Image.ToHandle(transformedCustomImage),
+                interpolation, invalidCustomValue);
+            if (res != NativeCallResults.Result.Succeeded)
+                throw new InvalidOperationException("Failed to transform specified depth and custom images to color camera.");
+        }
+
         /// <summary>Transforms a color image into the geometry of the depth camera.</summary>
         /// <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
         /// <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution.</param>
@@ -174,22 +237,28 @@ namespace K4AdotNet.Sensor
                 throw new InvalidOperationException($"Failed to transform specified depth image to point cloud in coordinates of {camera} camera.");
         }
 
-        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, int expectedWidth, int expectedHeight)
+        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat1, ImageFormat expectedFormat2, int expectedWidth, int expectedHeight)
         {
             if (paramValue == null)
                 throw new ArgumentNullException(paramName);
-            if (paramValue.Format != expectedFormat)
-                throw new ArgumentException($"{paramName} must have {expectedFormat} format but has {paramValue.Format}.", paramName);
+            if (paramValue.Format != expectedFormat1 && paramValue.Format != expectedFormat2)
+                throw new ArgumentException($"{paramName} must have {CombineExpectedFormatsForMessage(expectedFormat1, expectedFormat2)} format but has {paramValue.Format}.", paramName);
             if (paramValue.WidthPixels != expectedWidth)
                 throw new ArgumentException($"{paramName} must have {expectedWidth} width in pixels but has {paramValue.WidthPixels}.", paramName);
             if (paramValue.HeightPixels != expectedHeight)
                 throw new ArgumentException($"{paramName} must have {expectedHeight} height pixels but has {paramValue.HeightPixels}.", paramName);
         }
 
+        private static string CombineExpectedFormatsForMessage(ImageFormat format1, ImageFormat format2)
+            => format1 == format2 ? format1.ToString() : (format1.ToString() + " or " + format2.ToString());
+
         private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, DepthMode depthMode)
-            => CheckImageParameter(paramName, paramValue, expectedFormat, depthMode.WidthPixels(), depthMode.HeightPixels());
+            => CheckImageParameter(paramName, paramValue, expectedFormat, expectedFormat, depthMode.WidthPixels(), depthMode.HeightPixels());
+
+        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat1, ImageFormat expectedFormat2, DepthMode depthMode)
+            => CheckImageParameter(paramName, paramValue, expectedFormat1, expectedFormat2, depthMode.WidthPixels(), depthMode.HeightPixels());
 
         private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, ColorResolution colorResolution)
-            => CheckImageParameter(paramName, paramValue, expectedFormat, colorResolution.WidthPixels(), colorResolution.HeightPixels());
+            => CheckImageParameter(paramName, paramValue, expectedFormat, expectedFormat, colorResolution.WidthPixels(), colorResolution.HeightPixels());
     }
 }

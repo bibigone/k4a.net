@@ -108,7 +108,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                         {
                             using (var colorImage = capture.ColorImage)
                             {
-                                using (var transformedBodyIndexMap = bodyIndexMapTransformation.ToColor(depthImage, indexMap, e.BodyFrame.BodyCount))
+                                using (var transformedBodyIndexMap = bodyIndexMapTransformation.ToColor(depthImage, indexMap))
                                 {
                                     colorImageVisualizer.Update(colorImage, transformedBodyIndexMap);
                                 }

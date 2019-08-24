@@ -1,2 +1,2 @@
-Bin - 1.1.1
-Include - 1.1.1
+Bin - 1.2.0
+Include - 1.2.0

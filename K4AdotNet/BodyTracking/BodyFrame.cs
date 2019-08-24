@@ -87,7 +87,7 @@ namespace K4AdotNet.BodyTracking
         /// <seealso cref="BodyIndexMap"/>
         public const byte NotABodyIndexMapPixelValue = byte.MaxValue;
 
-        /// <summary>Gets the body index map: image in custom format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="NotABodyIndexMapPixelValue"/> for background pixels.</summary>
+        /// <summary>Gets the body index map: image in <see cref="Sensor.ImageFormat.Custom8"/> format, one byte per pixel, pixel value: zero-based index of a detected body or <see cref="NotABodyIndexMapPixelValue"/> for background pixels.</summary>
         /// <remarks><para>
         /// Body Index map is the body instance segmentation map. Each pixel maps to the corresponding pixel in the
         /// depth image or the IR image. The value for each pixel is byte and represents which body the pixel belongs to. It can be either

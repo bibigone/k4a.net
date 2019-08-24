@@ -15,6 +15,8 @@ namespace K4AdotNet.Sensor
             ImageFormat.ColorBgra32,
             ImageFormat.Depth16,
             ImageFormat.IR16,
+            ImageFormat.Custom8,
+            ImageFormat.Custom16,
             ImageFormat.Custom,
         };
 
@@ -35,7 +37,8 @@ namespace K4AdotNet.Sensor
         /// <returns><see langword="true"/> if bytes-per-pixel is known for specified <paramref name="imageFormat"/>, <see langword="false"/> - otherwise.</returns>
         public static bool HasKnownBytesPerPixel(this ImageFormat imageFormat)
             => imageFormat == ImageFormat.Depth16 || imageFormat == ImageFormat.IR16
-            || imageFormat == ImageFormat.ColorBgra32 || imageFormat == ImageFormat.ColorYUY2;
+            || imageFormat == ImageFormat.ColorBgra32 || imageFormat == ImageFormat.ColorYUY2
+            || imageFormat == ImageFormat.Custom8 || imageFormat == ImageFormat.Custom16;
 
         /// <summary>How many bytes are used for one pixel?</summary>
         /// <param name="imageFormat">Image format.</param>
@@ -45,9 +48,12 @@ namespace K4AdotNet.Sensor
         {
             switch (imageFormat)
             {
+                case ImageFormat.Custom8:
+                    return 1;
                 case ImageFormat.Depth16:
                 case ImageFormat.IR16:
                 case ImageFormat.ColorYUY2:
+                case ImageFormat.Custom16:
                     return 2;
                 case ImageFormat.ColorBgra32:
                     return 4;
@@ -68,14 +74,16 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(widthPixels));
             switch (imageFormat)
             {
+                case ImageFormat.ColorNV12:
+                case ImageFormat.Custom8:
+                    return widthPixels;
                 case ImageFormat.Depth16:
                 case ImageFormat.IR16:
                 case ImageFormat.ColorYUY2:
+                case ImageFormat.Custom16:
                     return 2 * widthPixels;
                 case ImageFormat.ColorBgra32:
                     return 4 * widthPixels;
-                case ImageFormat.ColorNV12:
-                    return widthPixels;
                 default:
                     throw new ArgumentException($"Cannot determine image stride in bytes from width in pixels for {imageFormat} format.", nameof(imageFormat));
             }
