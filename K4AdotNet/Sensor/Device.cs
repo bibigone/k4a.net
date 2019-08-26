@@ -43,7 +43,7 @@ namespace K4AdotNet.Sensor
         public void Dispose()
             => handle.Dispose();
 
-        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 

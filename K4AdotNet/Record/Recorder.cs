@@ -47,6 +47,8 @@ namespace K4AdotNet.Record
             this.handle.Disposed += Handle_Disposed;
 
             FilePath = filePath;
+
+            CustomTracks = new RecorderCustomTrackCollection(this);
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
@@ -63,7 +65,7 @@ namespace K4AdotNet.Record
         public void Dispose()
             => handle.Dispose();
 
-        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
@@ -73,6 +75,17 @@ namespace K4AdotNet.Record
 
         /// <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
         public string FilePath { get; }
+
+        /// <summary>Collection of custom tracks to be recorded to destination file. Not <see langword="null"/>.</summary>
+        /// <remarks><para>
+        /// Unlike <see cref="Playback.Tracks"/> this collection contains information only about custom tracks.
+        /// </para><para>
+        /// Use <see cref="RecorderCustomTrackCollection.AddVideoTrack(string, string, byte[], RecordVideoSettings)"/> and <see cref="RecorderCustomTrackCollection.AddCustomSubtitleTrack(string, string, byte[], RecordSubtitleSettings)"/>
+        /// to add new custom tracks to recording.
+        /// </para></remarks>
+        /// <seealso cref="RecorderCustomTrack"/>
+        /// <seealso cref="Playback.Tracks"/>
+        public RecorderCustomTrackCollection CustomTracks { get; }
 
         /// <summary>Adds a tag to the recording.</summary>
         /// <param name="tagName">The name of the tag to write. Not <see langword="null"/>, not empty. Must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.</param>
@@ -121,6 +134,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentException"><paramref name="attachmentName"/> is not a valid file name or contains non-ASCII symbols.</exception>
         /// <exception cref="InvalidOperationException"><see cref="AddAttachment(string, byte[])"/> must be called before <see cref="WriteHeader"/>.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        /// <seealso cref="Playback.TryGetAttachment"/>
         public void AddAttachment(string attachmentName, byte[] attachmentData)
         {
             if (string.IsNullOrEmpty(attachmentName))
@@ -137,108 +151,6 @@ namespace K4AdotNet.Record
 
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"{nameof(AddAttachment)}() must be called before {nameof(WriteHeader)}().");
-        }
-
-        /// <summary>Adds custom video track to the recording.</summary>
-        /// <param name="trackName">
-        /// The name of the custom video track to be added. Not <see langword="null"/>.
-        /// Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
-        /// </param>
-        /// <param name="codecId">
-        /// The codec ID of the track. Some of the existing formats are listed here:
-        /// https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
-        /// Video codec ID's should start with 'V_'.
-        /// </param>
-        /// <param name="codecContext">
-        /// The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
-        /// codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
-        /// </param>
-        /// <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-        /// <remarks><para>
-        /// Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the object of <see cref="Recorder"/>
-        /// class is constructed. This API can be used to add additional video tracks to save custom data.
-        /// </para><para>
-        /// All tracks need to be added before the recording header is written.
-        /// </para><para>
-        /// Call <see cref="WriteCustomTrackData"/> with the same <paramref name="trackName"/> to write data to this track.
-        /// </para></remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">
-        /// <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
-        /// or <paramref name="codecId"/> is not a valid video codec ID.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">This method must be called before <see cref="WriteHeader"/>.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        public void AddCustomVideoTrack(string trackName, string codecId, byte[] codecContext, RecordVideoSettings trackSettings)
-        {
-            Helpers.CheckTrackName(trackName);
-            if (string.IsNullOrEmpty(codecId))
-                throw new ArgumentNullException(nameof(codecId));
-            if (!codecId.StartsWith("V_"))
-                throw new ArgumentException("Video codec ID should start with 'V_'", nameof(codecId));
-            if (codecContext == null)
-                throw new ArgumentNullException(nameof(codecContext));
-            if (trackSettings.Width < 0 || trackSettings.Height < 0 || trackSettings.FrameRate < 0)
-                throw new ArgumentException($"Invalid value of {trackSettings}", nameof(trackSettings));
-
-            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.ASCII);
-            var codecIdAsBytes = Helpers.StringToBytes(codecId, Encoding.UTF8);
-            var codecContextLength = Helpers.Int32ToUIntPtr(codecContext.Length);
-
-            var res = NativeApi.RecordAddCustomVideoTrack(handle.ValueNotDisposed, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, ref trackSettings);
-
-            if (res != NativeCallResults.Result.Succeeded)
-                throw new InvalidOperationException($"{nameof(AddCustomVideoTrack)}() must be called before {nameof(WriteHeader)}().");
-        }
-
-        /// <summary>Adds custom subtitle track to the recording.</summary>
-        /// <param name="trackName">
-        /// The name of the custom subtitle track to be added. Not <see langword="null"/>.
-        /// Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
-        /// </param>
-        /// <param name="codecId">
-        /// The codec ID of the track. Some of the existing formats are listed here:
-        /// https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
-        /// Subtitle codec ID's should start with 'S_'.
-        /// </param>
-        /// <param name="codecContext">
-        /// The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
-        /// codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
-        /// </param>
-        /// <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-        /// <remarks><para>
-        /// Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="AddImuTrack"/> API is
-        /// called. This API can be used to add additional subtitle tracks to save custom data.
-        /// </para><para>
-        /// All tracks need to be added before the recording header is written.
-        /// </para><para>
-        /// Call <see cref="WriteCustomTrackData"/> with the same <paramref name="trackName"/> to write data to this track.
-        /// </para></remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">
-        /// <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
-        /// or <paramref name="codecId"/> is not a valid subtitle codec ID.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">This method must be called before <see cref="WriteHeader"/>.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        public void AddCustomSubtitleTrack(string trackName, string codecId, byte[] codecContext, RecordSubtitleSettings trackSettings)
-        {
-            Helpers.CheckTrackName(trackName);
-            if (string.IsNullOrEmpty(codecId))
-                throw new ArgumentNullException(nameof(codecId));
-            if (!codecId.StartsWith("S_"))
-                throw new ArgumentException("Subtitle codec ID should start with 'S_'", nameof(codecId));
-            if (codecContext == null)
-                throw new ArgumentNullException(nameof(codecContext));
-
-            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.ASCII);
-            var codecIdAsBytes = Helpers.StringToBytes(codecId, Encoding.UTF8);
-            var codecContextLength = Helpers.Int32ToUIntPtr(codecContext.Length);
-
-            var res = NativeApi.RecordAddCustomSubtitleTrack(handle.ValueNotDisposed, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, ref trackSettings);
-
-            if (res != NativeCallResults.Result.Succeeded)
-                throw new InvalidOperationException($"{nameof(AddCustomSubtitleTrack)}() must be called before {nameof(WriteHeader)}().");
         }
 
         /// <summary>Writes the recording header and metadata to file.</summary>
@@ -280,36 +192,6 @@ namespace K4AdotNet.Record
         public void WriteImuSample(Sensor.ImuSample imuSample)
             => CheckResult(NativeApi.RecordWriteImuSample(handle.ValueNotDisposed, imuSample));
 
-        /// <summary>Writes data for a custom track to file.</summary>
-        /// <param name="trackName">The name of the custom track that the data is going to be written to. Not <see langword="null"/>.</param>
-        /// <param name="deviceTimestamp">
-        /// The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
-        /// device timestamp used for recording.
-        /// </param>
-        /// <param name="customData">The buffer of custom track data. Not <see langword="null"/>.</param>
-        /// <remarks>
-        /// Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
-        /// When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
-        /// the most recently written timestamp.
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> or <paramref name="customData"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">
-        /// <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_').
-        /// </exception>
-        /// <exception cref="RecordingException">Some error during recording to file. See logs for details.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        public void WriteCustomTrackData(string trackName, Microseconds64 deviceTimestamp, byte[] customData)
-        {
-            Helpers.CheckTrackName(trackName);
-            if (customData == null)
-                throw new ArgumentNullException(nameof(customData));
-
-            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.ASCII);
-            var customDataLength = Helpers.Int32ToUIntPtr(customData.Length);
-
-            CheckResult(NativeApi.RecordWriteCustomTrackData(handle.ValueNotDisposed, trackNameAsBytes, deviceTimestamp, customData, customDataLength));
-        }
-
         /// <summary>Flushes all pending recording data to disk.</summary>
         /// <remarks><para>
         /// This method ensures that all data passed to the recording API prior to calling flush is written to disk.
@@ -328,5 +210,8 @@ namespace K4AdotNet.Record
             if (result != NativeCallResults.Result.Succeeded)
                 throw new RecordingException(FilePath);
         }
+
+        internal static NativeHandles.RecordHandle ToHandle(Recorder recorder)
+            => recorder?.handle.ValueNotDisposed ?? NativeHandles.RecordHandle.Zero;
     }
 }

@@ -26,7 +26,7 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
             this.processingParameters = processingParameters;
             playback = new Record.Playback(processingParameters.MkvPath);
             playback.GetRecordConfiguration(out recordConfig);
-            RecordLength = playback.LastTimestamp;
+            RecordLength = playback.RecordLength;
             playback.GetCalibration(out calibration);
             if (processingParameters.StartTime.HasValue)
                 Seek(processingParameters.StartTime.Value);
@@ -64,6 +64,8 @@ namespace K4AdotNet.Samples.BodyTrackingSpeedTest
             if (!processingParameters.EndTime.HasValue)
                 return true;
             var deviceTimestamp = GetDeviceTimestamp(capture);
+            if (deviceTimestamp.HasValue)
+                deviceTimestamp = deviceTimestamp.Value - RecordConfig.StartTimeOffset;
             return deviceTimestamp.HasValue
                 && processingParameters.IsTimeInStartEndInterval(deviceTimestamp.Value);
         }

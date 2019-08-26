@@ -19,7 +19,7 @@ namespace K4AdotNet.Record
         /// <remarks>
         /// If <see langword="true"/>, only a single timestamp will
         /// be stored per batch, and an estimated timestamp will be used by <see cref="Playback.SeekTimestamp(Microseconds64, PlaybackSeekOrigin)"/> and
-        /// <see cref="PlaybackDataBlock.Timestamp"/>. The estimated timestamp is calculated with the assumption that
+        /// <see cref="PlaybackDataBlock.DeviceTimestamp"/>. The estimated timestamp is calculated with the assumption that
         /// blocks are evenly spaced within a batch. If precise timestamps are required, the timestamp should be added to
         /// each data block itself.
         /// </remarks>

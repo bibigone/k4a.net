@@ -9,6 +9,7 @@ namespace K4AdotNet.Record
     public sealed class Playback : IDisposablePlus
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.PlaybackHandle> handle;      // This class is an wrapper around this handle
+        private readonly Lazy<PlaybackTrackCollection> tracks;
 
         /// <summary>Opens an existing recording file for reading.</summary>
         /// <param name="filePath">File system path of the existing recording. Not <see langword="null"/>. Not empty.</param>
@@ -35,6 +36,8 @@ namespace K4AdotNet.Record
             this.handle.Disposed += Handle_Disposed;
 
             FilePath = filePath;
+
+            tracks = new Lazy<PlaybackTrackCollection>(() => new PlaybackTrackCollection(this), isThreadSafe: true);
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
@@ -51,7 +54,7 @@ namespace K4AdotNet.Record
         public void Dispose()
             => handle.Dispose();
 
-        /// <summary>Gets a value indicating whether the image has been disposed of.</summary>
+        /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
         public bool IsDisposed => handle.IsDisposed;
 
@@ -62,11 +65,34 @@ namespace K4AdotNet.Record
         /// <summary>File system path to recording opened for playback. Not <see langword="null"/>. Not empty.</summary>
         public string FilePath { get; }
 
-        /// <summary>Gets the last timestamp in a recording. Returns the timestamp of the last capture image or IMU sample.</summary>
-        /// <remarks>Recordings start at timestamp <see cref="Microseconds64.Zero"/>, and end at the timestamp returned by this method.</remarks>
+        /// <summary>Gets the length of the recording in microseconds (the difference between the first and last timestamp in the file).</summary>
+        /// <remarks>
+        /// The recording length may be longer than an individual track if, for example, the IMU continues to run after the last
+        /// color image is recorded.
+        /// </remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
-        /// <seealso cref="Sensor.Image.Timestamp"/>
-        public Microseconds64 LastTimestamp => NativeApi.PlaybackGetLastTimestamp(handle.ValueNotDisposed);
+        /// <seealso cref="Sensor.Image.DeviceTimestamp"/>
+        public Microseconds64 RecordLength => NativeApi.PlaybackGetRecordingLength(handle.ValueNotDisposed);
+
+        /// <summary>Gets the last timestamp in a recording, relative to the start of the recording.</summary>
+        /// <remarks>
+        /// This function returns a file timestamp, not an absolute device timestamp, meaning it is relative to the start of the
+        /// recording. This function is equivalent to the length of the recording.
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        /// <seealso cref="Sensor.Image.DeviceTimestamp"/>
+        [Obsolete("Deprecated starting version 1.2.0 of Sensor SDK. Please use RecordLength property")]
+        public Microseconds64 LastTimestamp => RecordLength;
+
+        /// <summary>Gets the list of tracks in the playback file. Not <see langword="null"/>.</summary>
+        /// <remarks>
+        /// This collection includes information about built-in and custom tracks.
+        /// To check if track is built-in, use <see cref="PlaybackTrack.IsBuiltIn"/> property.
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        /// <seealso cref="PlaybackTrack"/>
+        /// <seealso cref="Recorder.CustomTracks"/>
+        public PlaybackTrackCollection Tracks => tracks.Value;
 
         /// <summary>Convenient string representation of object.</summary>
         /// <returns><c>Playback from {FilePath}</c></returns>
@@ -100,56 +126,6 @@ namespace K4AdotNet.Record
         /// <exception cref="PlaybackException">Cannot read configuration from recording. See logs for details.</exception>
         public void GetRecordConfiguration(out RecordConfiguration config)
             => CheckResult(NativeApi.PlaybackGetRecordConfiguration(handle.ValueNotDisposed, out config));
-
-        /// <summary>Checks whether a track with the given track name exists in the playback file.</summary>
-        /// <param name="trackName">The track name to be checked to see whether it exists or not.</param>
-        /// <returns><see langword="true"/> if the track exists.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        public bool CheckTrackExists(string trackName)
-        {
-            if (string.IsNullOrEmpty(trackName))
-                throw new ArgumentNullException(nameof(trackName));
-            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
-            return NativeApi.PlaybackCheckTrackExists(handle.ValueNotDisposed, trackNameAsBytes);
-        }
-
-        /// <summary>Get the number of tracks in a playback file.</summary>
-        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
-        /// <seealso cref="GetTrackName(int)"/>
-        public int TrackCount => Helpers.UIntPtrToInt32(NativeApi.PlaybackGetTrackCount(handle.ValueNotDisposed));
-
-        /// <summary>Gets the name of a track at a specific index.</summary>
-        /// <param name="trackIndex">Zero-based index of track.</param>
-        /// <returns>Track name.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="trackIndex"/> is less than zero -or- is equal to or greater than <see cref="TrackCount"/>.</exception>
-        /// <exception cref="PlaybackException">Cannot get name of track with specified index.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        /// <seealso cref="TrackCount"/>
-        public string GetTrackName(int trackIndex)
-        {
-            if (trackIndex < 0 || trackIndex >= TrackCount)
-                throw new ArgumentOutOfRangeException(nameof(trackIndex));
-            if (!Helpers.TryGetValueInByteBuffer(GetTrackName, trackIndex, out var trackNameAsBytes))
-                throw new PlaybackException("Cannot get name of track #" + trackIndex, FilePath);
-            return Encoding.UTF8.GetString(trackNameAsBytes, 0, trackNameAsBytes.Length - 1);
-        }
-
-        private NativeCallResults.BufferResult GetTrackName(int trackIndex, byte[] trackName, ref UIntPtr trackNameSize)
-            => NativeApi.PlaybackGetTrackName(handle.ValueNotDisposed, Helpers.Int32ToUIntPtr(trackIndex), trackName, ref trackNameSize);
-
-        /// <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
-        /// <param name="trackName">The track name to be checked to see whether it is a built-in track. Not <see langword="null"/> or empty.</param>
-        /// <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        public bool IsBuiltInTrack(string trackName)
-        {
-            if (string.IsNullOrEmpty(trackName))
-                throw new ArgumentNullException(nameof(trackName));
-            var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
-            return NativeApi.PlaybackTrackIsBuiltIn(handle.ValueNotDisposed, trackNameAsBytes);
-        }
 
         /// <summary>Reads the value of a tag from a recording.</summary>
         /// <param name="name">The name of the tag to read. Not <see langword="null"/> and not empty. Can contain only ASCII characters.</param>
@@ -188,6 +164,28 @@ namespace K4AdotNet.Record
         private NativeCallResults.BufferResult GetTag(byte[] name, byte[] value, ref UIntPtr valueSize)
             => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, value, ref valueSize);
 
+        /// <summary>Reads an attachment file from a recording.</summary>
+        /// <param name="attachmentName">Attachment file name. Not <see langword="null"/>, not empty.</param>
+        /// <param name="attachmentData">Output: attachment data.</param>
+        /// <returns>
+        /// <see langword="true"/> attachment successfully read,
+        /// <see langword="false"/> if attachment cannot be read (most likely, attachment with specified name doesn't exist in recording).
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="attachmentName"/> is <see langword="null"/> or empty.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        /// <seealso cref="Recorder.AddAttachment(string, byte[])"/>
+        public bool TryGetAttachment(string attachmentName, out byte[] attachmentData)
+        {
+            if (string.IsNullOrEmpty(attachmentName))
+                throw new ArgumentNullException(nameof(attachmentName));
+
+            var attachmentNameAsBytes = Helpers.StringToBytes(attachmentName, Encoding.UTF8);
+            return Helpers.TryGetValueInByteBuffer(GetAttachment, attachmentNameAsBytes, out attachmentData);
+        }
+
+        private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, byte[] data, ref UIntPtr dataSize)
+            => NativeApi.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, data, ref dataSize);
+
         /// <summary>
         /// Sets the image format that color captures will be converted to. By default the conversion format will be the same as
         /// the image format stored in the recording file, and no conversion will occur.
@@ -215,12 +213,19 @@ namespace K4AdotNet.Record
         /// Like <see cref="SeekTimestamp(Microseconds64, PlaybackSeekOrigin)"/> but returns <see langword="false"/> in case of failure.
         /// </summary>
         /// <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-        /// <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
+        /// <param name="origin">
+        /// Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+        /// recording, or using an absolute device timestamp.
+        /// </param>
         /// <returns>
         /// <see langword="true"/> if the seek operation was successful, or <see langword="false"/>
         /// if an error occurred. The current seek position is left unchanged if <see langword="false"/> is returned.
         /// </returns>
         /// <remarks><para>
+        /// The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+        /// defined by <see cref="RecordConfiguration.StartTimeOffset"/>,
+        /// which is accessible via <see cref="GetRecordConfiguration(out RecordConfiguration)"/>.
+        /// </para><para>
         /// The first call to <see cref="TryGetNextCapture(out Sensor.Capture)"/> after this method
         /// will return the first capture containing an image timestamp greater than or equal to the seek time.
         /// </para><para>
@@ -242,7 +247,16 @@ namespace K4AdotNet.Record
         /// Seeks to a specific timestamp within a recording.
         /// Like <see cref="TrySeekTimestamp(Microseconds64, PlaybackSeekOrigin)"/> but throws exception in case of failure.
         /// </summary>
+        /// <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
+        /// <param name="origin">
+        /// Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+        /// recording, or using an absolute device timestamp.
+        /// </param>
         /// <remarks><para>
+        /// The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+        /// defined by <see cref="RecordConfiguration.StartTimeOffset"/>,
+        /// which is accessible via <see cref="GetRecordConfiguration(out RecordConfiguration)"/>.
+        /// </para><para>
         /// The first call to <see cref="TryGetNextCapture(out Sensor.Capture)"/> after this method
         /// will return the first capture containing an image timestamp greater than or equal to the seek time.
         /// </para><para>
@@ -255,8 +269,6 @@ namespace K4AdotNet.Record
         /// The first call to <see cref="TryGetPreviousImuSample(out Sensor.ImuSample)"/> after this method
         /// will return the first IMU sample with a timestamp less than the seek time.
         /// </para></remarks>
-        /// <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-        /// <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="PlaybackException">Cannot seek playback to position specified.</exception>
         /// <seealso cref="TrySeekTimestamp(Microseconds64, PlaybackSeekOrigin)"/>
@@ -406,5 +418,8 @@ namespace K4AdotNet.Record
             if (result != NativeCallResults.Result.Succeeded)
                 throw new PlaybackException(FilePath);
         }
+
+        internal static NativeHandles.PlaybackHandle ToHandle(Playback playback)
+            => playback?.handle.ValueNotDisposed ?? NativeHandles.PlaybackHandle.Zero;
     }
 }

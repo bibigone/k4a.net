@@ -361,6 +361,87 @@ namespace K4AdotNet.Record
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_is_builtin", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle playbackHandle, [In] byte[] trackName);
 
+        // K4ARECORD_EXPORT k4a_result_t k4a_playback_track_get_video_settings(k4a_playback_t playback_handle,
+        //                                                                     const char* track_name,
+        //                                                                     k4a_record_video_settings_t *video_settings);
+        /// <summary>Gets the video-specific track information for a particular video track.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The track name to read video settings from.</param>
+        /// <param name="videoSettings">Location to write the track's video settings.</param>
+        /// <returns>
+        /// <see cref="NativeCallResults.Result.Succeeded"/> is returned on success,
+        /// <see cref="NativeCallResults.Result.Failed"/> is returned if the specified track does not exist or is not a video track.</returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_get_video_settings", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result PlaybackTrackGetVideoSetting(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] trackName,
+            out RecordVideoSettings videoSettings);
+
+        // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_track_get_codec_id(k4a_playback_t playback_handle,
+        //                                                                      const char* track_name,
+        //                                                                      char* codec_id,
+        //                                                                      size_t *codec_id_size);
+        /// <summary>Gets the codec id string for a particular track.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The track name to read the codec id from.</param>
+        /// <param name="codecId">
+        /// Location to write the codec id. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
+        /// <paramref name="codecIdSize"/> will be set to the size of buffer needed to store the string.
+        /// </param>
+        /// <param name="codecIdSize">
+        /// On input, the size of the <paramref name="codecId"/> buffer. On output, this is set to the length of the <paramref name="codecId"/> value
+        /// (including the 0 terminator).
+        /// </param>
+        /// <returns>
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecId"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
+        /// and the needed size of the <paramref name="codecId"/> buffer is returned in the <paramref name="codecIdSize"/> parameter.
+        /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
+        /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
+        /// </returns>
+        /// <remarks>
+        /// The codec ID is a string that corresponds to the codec of the track's data. Some of the existing formats are listed
+        /// here: https://www.matroska.org/technical/specs/codecid/index.html. It can also be custom defined by the user.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_get_codec_id", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.BufferResult PlaybackTrackGetCodecId(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] trackName,
+            [Out] byte[] codecId,
+            ref UIntPtr codecIdSize);
+
+        // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_track_get_codec_context(k4a_playback_t playback_handle,
+        //                                                                           const char* track_name,
+        //                                                                           uint8_t *codec_context,
+        //                                                                           size_t* codec_context_size);
+        /// <summary>Gets the codec context for a particular track.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The track name to read the codec id from.</param>
+        /// <param name="codecContext">
+        /// Location to write the codec context data. If a <see langword="null"/> buffer is specified,
+        /// <paramref name="codecContextSize"/> will be set to the size of buffer needed to store the data.
+        /// </param>
+        /// <param name="codecContextSize">
+        /// On input, the size of the <paramref name="codecContext"/> buffer. On output, this is set to the length of the <paramref name="codecContext"/> data.
+        /// </param>
+        /// <returns>
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecContext"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
+        /// and the needed size of the <paramref name="codecContext"/> buffer is returned in the <paramref name="codecContextSize"/> parameter.
+        /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
+        /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
+        /// </returns>
+        /// <remarks>
+        /// The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+        /// codec.It is mapped to the matroska Codec Private field.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_get_codec_context", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.BufferResult PlaybackTrackGetCodecContext(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] trackName,
+            [Out] byte[] codecContext,
+            ref UIntPtr codecContextSize);
+
         // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_tag(k4a_playback_t playback_handle,
         //                                                           const char *name,
         //                                                           char *value,
@@ -415,6 +496,34 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.Result PlaybackSetColorConversion(
             NativeHandles.PlaybackHandle playbackHandle,
             Sensor.ImageFormat targetFormat);
+
+        // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_attachment(k4a_playback_t playback_handle,
+        //                                                                  const char* file_name,
+        //                                                                  uint8_t *data,
+        //                                                                  size_t* data_size);
+        /// <summary>Reads an attachment file from a recording.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="fileName">Attachment file name.</param>
+        /// <param name="data">
+        /// Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="dataSize"/> will be set to the size of
+        /// buffer needed to store the data.
+        /// </param>
+        /// <param name="dataSize">
+        /// On input, the size of the <paramref name="data"/> buffer. On output, this is set to the length of the attachment data.
+        /// </param>
+        /// <returns>
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="data"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
+        /// and the needed size of the <paramref name="data"/> buffer is returned in the <paramref name="dataSize"/> parameter.
+        /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the attachment <paramref name="fileName"/> does not exist.
+        /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
+        /// </returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_attachment", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.BufferResult PlaybackGetAttachment(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] fileName,
+            [Out] byte[] data,
+            ref UIntPtr dataSize);
 
         // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_next_capture(k4a_playback_t playback_handle,
         //                                                                    k4a_capture_t* capture_handle);
@@ -518,18 +627,125 @@ namespace K4AdotNet.Record
             NativeHandles.PlaybackHandle playbackHandle,
             out Sensor.ImuSample imuSample);
 
+        // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_next_data_block(k4a_playback_t playback_handle,
+        //                                                                       const char* track_name,
+        //                                                                       k4a_playback_data_block_t *data_block_handle);
+        /// <summary>Read the next data block for a particular track.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The name of the track to read the next data block from.</param>
+        /// <param name="dataHandle">The location to write the data block handle.</param>
+        /// <returns>
+        /// <see cref="NativeCallResults.StreamResult.Succeeded"/> if a data block is returned,
+        /// or <see cref="NativeCallResults.StreamResult.Eof"/> if the end of the recording is reached.
+        /// All other failures will return <see cref="NativeCallResults.StreamResult.Failed"/>.
+        /// </returns>
+        /// <remarks>
+        /// This method always returns the data block after the most recently returned data block for a particular track.
+        /// 
+        /// If a call was made to <see cref="PlaybackGetPreviousDataBlock"/> which returned <see cref="NativeCallResults.StreamResult.Eof"/>, then the
+        /// playback position is at the beginning of the recording and calling this method with the same
+        /// track will return the first data block in the track.
+        /// 
+        /// The first call to this method after <see cref="PlaybackSeekTimestamp(NativeHandles.PlaybackHandle, Microseconds64, PlaybackSeekOrigin)"/>
+        /// will return the data block in the recording closest to the seek time with a timestamp greater than or equal to the seek time.
+        /// 
+        /// This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+        /// <see cref="PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle, byte[])"/> can be used to determine if a track is a built-in track.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_next_data_block", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.StreamResult PlaybackGetNextDataBlock(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] trackName,
+            out NativeHandles.PlaybackDataBlockHandle dataHandle);
+
+        // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_previous_data_block(k4a_playback_t playback_handle,
+        //                                                                           const char* track_name,
+        //                                                                           k4a_playback_data_block_t *data_block_handle);
+        /// <summary>Read the previous data block for a particular track.</summary>
+        /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
+        /// <param name="trackName">The name of the track to read the previous data block from.</param>
+        /// <param name="dataHandle">The location to write the data block handle.</param>
+        /// <returns>
+        /// <see cref="NativeCallResults.StreamResult.Succeeded"/> if a data block is returned,
+        /// or <see cref="NativeCallResults.StreamResult.Eof"/> if the start of the recording is reached.
+        /// All other failures will return <see cref="NativeCallResults.StreamResult.Failed"/>.
+        /// </returns>
+        /// <remarks>
+        /// This method always returns the data block before the most recently returned data block for a particular track.
+        /// 
+        /// If a call was made to <see cref="PlaybackGetNextDataBlock"/> which returned <see cref="NativeCallResults.StreamResult.Eof"/>, then the
+        /// playback position is at the end of the recording and calling this method with the same
+        /// track will return the last data block in the track.
+        /// 
+        /// The first call to this method after <see cref="PlaybackSeekTimestamp(NativeHandles.PlaybackHandle, Microseconds64, PlaybackSeekOrigin)"/>
+        /// will return the data block in the recording closest to the seek time with a timestamp less than the seek time.
+        /// 
+        /// This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+        /// <see cref="PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle, byte[])"/> can be used to determine if a track is a built-in track.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_previous_data_block", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.StreamResult PlaybackGetPreviousDataBlock(
+            NativeHandles.PlaybackHandle playbackHandle,
+            [In] byte[] trackName,
+            out NativeHandles.PlaybackDataBlockHandle dataHandle);
+
+        // K4ARECORD_EXPORT uint64_t k4a_playback_data_block_get_device_timestamp_usec(k4a_playback_data_block_t data_block_handle);
+        /// <summary>Get the device timestamp of a data block in microseconds.</summary>
+        /// <param name="dataBlockHandle">
+        /// Handle obtained by <see cref="PlaybackGetNextDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>
+        /// or <see cref="PlaybackGetPreviousDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>.
+        /// </param>
+        /// <returns>
+        /// Returns the device timestamp of the data block. If the <paramref name="dataBlockHandle"/> is invalid this function will return <see cref="Microseconds64.Zero"/>.
+        /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from when a device was first powered on.
+        /// </returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_data_block_get_device_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Microseconds64 PlaybackDataBlockGetDeviceTimestamp(NativeHandles.PlaybackDataBlockHandle dataBlockHandle);
+
+        // K4ARECORD_EXPORT size_t k4a_playback_data_block_get_buffer_size(k4a_playback_data_block_t data_block_handle);
+        /// <summary>Get the buffer size of a data block.</summary>
+        /// <param name="dataBlockHandle">
+        /// Handle obtained by <see cref="PlaybackGetNextDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>
+        /// or <see cref="PlaybackGetPreviousDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>.
+        /// </param>
+        /// <returns>
+        /// Returns the buffer size of the data block, or 0 if the data block is invalid.
+        /// </returns>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_data_block_get_buffer_size", CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr PlaybackDataBlockGetBufferSize(NativeHandles.PlaybackDataBlockHandle dataBlockHandle);
+
+        // K4ARECORD_EXPORT uint8_t *k4a_playback_data_block_get_buffer(k4a_playback_data_block_t data_block_handle);
+        /// <summary>Get the buffer of a data block.</summary>
+        /// <param name="dataBlockHandle">
+        /// Handle obtained by <see cref="PlaybackGetNextDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>
+        /// or <see cref="PlaybackGetPreviousDataBlock(NativeHandles.PlaybackHandle, byte[], out NativeHandles.PlaybackDataBlockHandle)"/>.
+        /// </param>
+        /// <returns>
+        /// Returns a pointer to the data block buffer, or <see cref="IntPtr.Zero"/> if the data block is invalid.
+        /// </returns>
+        /// <remarks>Use this buffer to access the data written to a custom recording track.</remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_data_block_get_buffer", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr PlaybackDataBlockGetBuffer(NativeHandles.PlaybackDataBlockHandle dataBlockHandle);
+
         // K4ARECORD_EXPORT k4a_result_t k4a_playback_seek_timestamp(k4a_playback_t playback_handle,
         //                                                           int64_t offset_usec,
         //                                                           k4a_playback_seek_origin_t origin);
         /// <summary>Seek to a specific timestamp within a recording.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-        /// <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
+        /// <param name="origin">
+        /// Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+        /// recording, or using an absolute device timestamp.
+        /// </param>
         /// <returns>
         /// <see cref="NativeCallResults.Result.Succeeded"/> if the seek operation was successful, or <see cref="NativeCallResults.Result.Failed"/>
         /// if an error occurred. The current seek position is left unchanged if a failure is returned.
         /// </returns>
         /// <remarks>
+        /// The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+        /// defined by <see cref="RecordConfiguration.StartTimeOffset"/>,
+        /// which is accessible via <see cref="PlaybackGetRecordConfiguration(NativeHandles.PlaybackHandle, out RecordConfiguration)"/>.
+        ///
         /// The first call to <see cref="PlaybackGetNextCapture(NativeHandles.PlaybackHandle, out NativeHandles.CaptureHandle)"/> after this method
         /// will return the first capture containing an image timestamp greater than or equal to the seek time.
         /// 
@@ -548,13 +764,16 @@ namespace K4AdotNet.Record
             Microseconds64 offset,
             PlaybackSeekOrigin origin);
 
-        // K4ARECORD_EXPORT uint64_t k4a_playback_get_last_timestamp_usec(k4a_playback_t playback_handle);
-        /// <summary>Gets the last timestamp in a recording.</summary>
+        // K4ARECORD_EXPORT uint64_t k4a_playback_get_recording_length_usec(k4a_playback_t playback_handle);
+        /// <summary>Returns the length of the recording in microseconds.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
-        /// <returns>The timestamp of the last capture image or IMU sample.</returns>
-        /// <remarks>Recordings start at timestamp <see cref="Microseconds64.Zero"/>, and end at the timestamp returned by this method.</remarks>
-        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_last_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
-        public static extern Microseconds64 PlaybackGetLastTimestamp(NativeHandles.PlaybackHandle playbackHandle);
+        /// <returns>The recording length, calculated as the difference between the first and last timestamp in the file.</returns>
+        /// <remarks>
+        /// The recording length may be longer than an individual track if, for example, the IMU continues to run after the last
+        /// color image is recorded.
+        /// </remarks>
+        [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_recording_length_usec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Microseconds64 PlaybackGetRecordingLength(NativeHandles.PlaybackHandle playbackHandle);
 
         #endregion
     }

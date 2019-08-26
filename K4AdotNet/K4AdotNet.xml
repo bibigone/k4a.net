@@ -688,7 +688,7 @@
             <seealso cref="P:K4AdotNet.BodyTracking.Tracker.IsDisposed"/>
         </member>
         <member name="P:K4AdotNet.BodyTracking.Tracker.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.BodyTracking.Tracker.Dispose"/>
         </member>
         <member name="E:K4AdotNet.BodyTracking.Tracker.Disposed">
@@ -2718,6 +2718,62 @@
             <param name="trackName">The track name to be checked to see whether it is a built-in track.</param>
             <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
         </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetVideoSetting(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.Record.RecordVideoSettings@)">
+            <summary>Gets the video-specific track information for a particular video track.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackName">The track name to read video settings from.</param>
+            <param name="videoSettings">Location to write the track's video settings.</param>
+            <returns>
+            <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success,
+            <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> is returned if the specified track does not exist or is not a video track.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecId(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+            <summary>Gets the codec id string for a particular track.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackName">The track name to read the codec id from.</param>
+            <param name="codecId">
+            Location to write the codec id. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
+            <paramref name="codecIdSize"/> will be set to the size of buffer needed to store the string.
+            </param>
+            <param name="codecIdSize">
+            On input, the size of the <paramref name="codecId"/> buffer. On output, this is set to the length of the <paramref name="codecId"/> value
+            (including the 0 terminator).
+            </param>
+            <returns>
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecId"/> has been filled in.
+            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
+            and the needed size of the <paramref name="codecId"/> buffer is returned in the <paramref name="codecIdSize"/> parameter.
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
+            All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
+            </returns>
+            <remarks>
+            The codec ID is a string that corresponds to the codec of the track's data. Some of the existing formats are listed
+            here: https://www.matroska.org/technical/specs/codecid/index.html. It can also be custom defined by the user.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecContext(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+            <summary>Gets the codec context for a particular track.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="trackName">The track name to read the codec id from.</param>
+            <param name="codecContext">
+            Location to write the codec context data. If a <see langword="null"/> buffer is specified,
+            <paramref name="codecContextSize"/> will be set to the size of buffer needed to store the data.
+            </param>
+            <param name="codecContextSize">
+            On input, the size of the <paramref name="codecContext"/> buffer. On output, this is set to the length of the <paramref name="codecContext"/> data.
+            </param>
+            <returns>
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecContext"/> has been filled in.
+            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
+            and the needed size of the <paramref name="codecContext"/> buffer is returned in the <paramref name="codecContextSize"/> parameter.
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
+            All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
+            </returns>
+            <remarks>
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec.It is mapped to the matroska Codec Private field.
+            </remarks>
+        </member>
         <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
             <summary>Read the value of a tag from a recording.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
@@ -2758,6 +2814,25 @@
             stored in the file may significantly increase the latency of <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> and
             <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/>.
             </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetAttachment(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+            <summary>Reads an attachment file from a recording.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <param name="fileName">Attachment file name.</param>
+            <param name="data">
+            Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="dataSize"/> will be set to the size of
+            buffer needed to store the data.
+            </param>
+            <param name="dataSize">
+            On input, the size of the <paramref name="data"/> buffer. On output, this is set to the length of the attachment data.
+            </param>
+            <returns>
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="data"/> has been filled in.
+            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
+            and the needed size of the <paramref name="data"/> buffer is returned in the <paramref name="dataSize"/> parameter.
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the attachment <paramref name="fileName"/> does not exist.
+            All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
+            </returns>
         </member>
         <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)">
             <summary>Read the next capture in the recording sequence.</summary>
@@ -2841,34 +2916,124 @@
             position is at the beginning of the stream and this method will return the first IMU sample in the recording.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)">
-            <summary>Seek to a specific timestamp within a recording.</summary>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetNextDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)">
+            <summary>Read the next data block for a particular track.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
-            <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-            <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
+            <param name="trackName">The name of the track to read the next data block from.</param>
+            <param name="dataHandle">The location to write the data block handle.</param>
             <returns>
-            <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if the seek operation was successful, or <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/>
-            if an error occurred. The current seek position is left unchanged if a failure is returned.
+            <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a data block is returned,
+            or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/> if the end of the recording is reached.
+            All other failures will return <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Failed"/>.
             </returns>
             <remarks>
-            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
-            will return the first capture containing an image timestamp greater than or equal to the seek time.
+            This method always returns the data block after the most recently returned data block for a particular track.
             
-            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
-            will return the firs capture with all image timestamps less than the seek time.
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/> which returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, then the
+            playback position is at the beginning of the recording and calling this method with the same
+            track will return the first data block in the track.
             
-            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
-            will return the first IMU sample with a timestamp greater than or equal to the seek time.
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/>
+            will return the data block in the recording closest to the seek time with a timestamp greater than or equal to the seek time.
             
-            The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
-            will return the first IMU sample with a timestamp less than the seek time.
+            This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+            <see cref="M:K4AdotNet.Record.NativeApi.PlaybackTrackIsBuiltIn(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[])"/> can be used to determine if a track is a built-in track.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetLastTimestamp(K4AdotNet.NativeHandles.PlaybackHandle)">
-            <summary>Gets the last timestamp in a recording.</summary>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)">
+            <summary>Read the previous data block for a particular track.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
-            <returns>The timestamp of the last capture image or IMU sample.</returns>
-            <remarks>Recordings start at timestamp <see cref="F:K4AdotNet.Microseconds64.Zero"/>, and end at the timestamp returned by this method.</remarks>
+            <param name="trackName">The name of the track to read the previous data block from.</param>
+            <param name="dataHandle">The location to write the data block handle.</param>
+            <returns>
+            <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Succeeded"/> if a data block is returned,
+            or <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/> if the start of the recording is reached.
+            All other failures will return <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Failed"/>.
+            </returns>
+            <remarks>
+            This method always returns the data block before the most recently returned data block for a particular track.
+            
+            If a call was made to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/> which returned <see cref="F:K4AdotNet.NativeCallResults.StreamResult.Eof"/>, then the
+            playback position is at the end of the recording and calling this method with the same
+            track will return the last data block in the track.
+            
+            The first call to this method after <see cref="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/>
+            will return the data block in the recording closest to the seek time with a timestamp less than the seek time.
+            
+            This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+            <see cref="M:K4AdotNet.Record.NativeApi.PlaybackTrackIsBuiltIn(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[])"/> can be used to determine if a track is a built-in track.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackDataBlockGetDeviceTimestamp(K4AdotNet.NativeHandles.PlaybackDataBlockHandle)">
+            <summary>Get the device timestamp of a data block in microseconds.</summary>
+            <param name="dataBlockHandle">
+            Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>
+            or <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>.
+            </param>
+            <returns>
+            Returns the device timestamp of the data block. If the <paramref name="dataBlockHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
+            It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from when a device was first powered on.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackDataBlockGetBufferSize(K4AdotNet.NativeHandles.PlaybackDataBlockHandle)">
+            <summary>Get the buffer size of a data block.</summary>
+            <param name="dataBlockHandle">
+            Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>
+            or <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>.
+            </param>
+            <returns>
+            Returns the buffer size of the data block, or 0 if the data block is invalid.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackDataBlockGetBuffer(K4AdotNet.NativeHandles.PlaybackDataBlockHandle)">
+            <summary>Get the buffer of a data block.</summary>
+            <param name="dataBlockHandle">
+            Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>
+            or <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousDataBlock(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],K4AdotNet.NativeHandles.PlaybackDataBlockHandle@)"/>.
+            </param>
+            <returns>
+            Returns a pointer to the data block buffer, or <see cref="F:System.IntPtr.Zero"/> if the data block is invalid.
+            </returns>
+            <remarks>Use this buffer to access the data written to a custom recording track.</remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackSeekTimestamp(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)">
+             <summary>Seek to a specific timestamp within a recording.</summary>
+             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+             <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
+             <param name="origin">
+             Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+             recording, or using an absolute device timestamp.
+             </param>
+             <returns>
+             <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if the seek operation was successful, or <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/>
+             if an error occurred. The current seek position is left unchanged if a failure is returned.
+             </returns>
+             <remarks>
+             The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+             defined by <see cref="F:K4AdotNet.Record.RecordConfiguration.StartTimeOffset"/>,
+             which is accessible via <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetRecordConfiguration(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Record.RecordConfiguration@)"/>.
+            
+             The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
+             will return the first capture containing an image timestamp greater than or equal to the seek time.
+             
+             The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/> after this method
+             will return the firs capture with all image timestamps less than the seek time.
+             
+             The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetNextImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
+             will return the first IMU sample with a timestamp greater than or equal to the seek time.
+             
+             The first call to <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousImuSample(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.Sensor.ImuSample@)"/> after this method
+             will return the first IMU sample with a timestamp less than the seek time.
+             </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetRecordingLength(K4AdotNet.NativeHandles.PlaybackHandle)">
+            <summary>Returns the length of the recording in microseconds.</summary>
+            <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
+            <returns>The recording length, calculated as the difference between the first and last timestamp in the file.</returns>
+            <remarks>
+            The recording length may be longer than an individual track if, for example, the IMU continues to run after the last
+            color image is recorded.
+            </remarks>
         </member>
         <member name="T:K4AdotNet.Record.Playback">
             <summary>Kinect for Azure recording opened for playback.</summary>
@@ -2890,7 +3055,7 @@
             <seealso cref="P:K4AdotNet.Record.Playback.IsDisposed"/>
         </member>
         <member name="P:K4AdotNet.Record.Playback.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.Record.Playback.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Record.Playback.Disposed">
@@ -2900,11 +3065,33 @@
         <member name="P:K4AdotNet.Record.Playback.FilePath">
             <summary>File system path to recording opened for playback. Not <see langword="null"/>. Not empty.</summary>
         </member>
-        <member name="P:K4AdotNet.Record.Playback.LastTimestamp">
-            <summary>Gets the last timestamp in a recording. Returns the timestamp of the last capture image or IMU sample.</summary>
-            <remarks>Recordings start at timestamp <see cref="F:K4AdotNet.Microseconds64.Zero"/>, and end at the timestamp returned by this method.</remarks>
+        <member name="P:K4AdotNet.Record.Playback.RecordLength">
+            <summary>Gets the length of the recording in microseconds (the difference between the first and last timestamp in the file).</summary>
+            <remarks>
+            The recording length may be longer than an individual track if, for example, the IMU continues to run after the last
+            color image is recorded.
+            </remarks>
             <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
-            <seealso cref="P:K4AdotNet.Sensor.Image.Timestamp"/>
+            <seealso cref="P:K4AdotNet.Sensor.Image.DeviceTimestamp"/>
+        </member>
+        <member name="P:K4AdotNet.Record.Playback.LastTimestamp">
+            <summary>Gets the last timestamp in a recording, relative to the start of the recording.</summary>
+            <remarks>
+            This function returns a file timestamp, not an absolute device timestamp, meaning it is relative to the start of the
+            recording. This function is equivalent to the length of the recording.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+            <seealso cref="P:K4AdotNet.Sensor.Image.DeviceTimestamp"/>
+        </member>
+        <member name="P:K4AdotNet.Record.Playback.Tracks">
+            <summary>Gets the list of tracks in the playback file. Not <see langword="null"/>.</summary>
+            <remarks>
+            This collection includes information about built-in and custom tracks.
+            To check if track is built-in, use <see cref="P:K4AdotNet.Record.PlaybackTrack.IsBuiltIn"/> property.
+            </remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+            <seealso cref="T:K4AdotNet.Record.PlaybackTrack"/>
+            <seealso cref="P:K4AdotNet.Record.Recorder.CustomTracks"/>
         </member>
         <member name="M:K4AdotNet.Record.Playback.ToString">
             <summary>Convenient string representation of object.</summary>
@@ -2931,34 +3118,6 @@
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot read configuration from recording. See logs for details.</exception>
         </member>
-        <member name="M:K4AdotNet.Record.Playback.CheckTrackExists(System.String)">
-            <summary>Checks whether a track with the given track name exists in the playback file.</summary>
-            <param name="trackName">The track name to be checked to see whether it exists or not.</param>
-            <returns><see langword="true"/> if the track exists.</returns>
-            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
-        <member name="P:K4AdotNet.Record.Playback.TrackCount">
-            <summary>Get the number of tracks in a playback file.</summary>
-            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
-            <seealso cref="M:K4AdotNet.Record.Playback.GetTrackName(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Record.Playback.GetTrackName(System.Int32)">
-            <summary>Gets the name of a track at a specific index.</summary>
-            <param name="trackIndex">Zero-based index of track.</param>
-            <returns>Track name.</returns>
-            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="trackIndex"/> is less than zero -or- is equal to or greater than <see cref="P:K4AdotNet.Record.Playback.TrackCount"/>.</exception>
-            <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot get name of track with specified index.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-            <seealso cref="P:K4AdotNet.Record.Playback.TrackCount"/>
-        </member>
-        <member name="M:K4AdotNet.Record.Playback.IsBuiltInTrack(System.String)">
-            <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
-            <param name="trackName">The track name to be checked to see whether it is a built-in track. Not <see langword="null"/> or empty.</param>
-            <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
-            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
         <member name="M:K4AdotNet.Record.Playback.TryGetTag(System.String,System.String@)">
             <summary>Reads the value of a tag from a recording.</summary>
             <param name="name">The name of the tag to read. Not <see langword="null"/> and not empty. Can contain only ASCII characters.</param>
@@ -2975,6 +3134,18 @@
             <exception cref="T:System.ArgumentException"><paramref name="name"/> contains non-ASCII characters.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <seealso cref="M:K4AdotNet.Record.Recorder.AddTag(System.String,System.String)"/>
+        </member>
+        <member name="M:K4AdotNet.Record.Playback.TryGetAttachment(System.String,System.Byte[]@)">
+            <summary>Reads an attachment file from a recording.</summary>
+            <param name="attachmentName">Attachment file name. Not <see langword="null"/>, not empty.</param>
+            <param name="attachmentData">Output: attachment data.</param>
+            <returns>
+            <see langword="true"/> attachment successfully read,
+            <see langword="false"/> if attachment cannot be read (most likely, attachment with specified name doesn't exist in recording).
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="attachmentName"/> is <see langword="null"/> or empty.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Record.Recorder.AddAttachment(System.String,System.Byte[])"/>
         </member>
         <member name="M:K4AdotNet.Record.Playback.SetColorConversion(K4AdotNet.Sensor.ImageFormat)">
             <summary>
@@ -2999,12 +3170,19 @@
             Like <see cref="M:K4AdotNet.Record.Playback.SeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> but returns <see langword="false"/> in case of failure.
             </summary>
             <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-            <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
+            <param name="origin">
+            Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+            recording, or using an absolute device timestamp.
+            </param>
             <returns>
             <see langword="true"/> if the seek operation was successful, or <see langword="false"/>
             if an error occurred. The current seek position is left unchanged if <see langword="false"/> is returned.
             </returns>
             <remarks><para>
+            The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+            defined by <see cref="F:K4AdotNet.Record.RecordConfiguration.StartTimeOffset"/>,
+            which is accessible via <see cref="M:K4AdotNet.Record.Playback.GetRecordConfiguration(K4AdotNet.Record.RecordConfiguration@)"/>.
+            </para><para>
             The first call to <see cref="M:K4AdotNet.Record.Playback.TryGetNextCapture(K4AdotNet.Sensor.Capture@)"/> after this method
             will return the first capture containing an image timestamp greater than or equal to the seek time.
             </para><para>
@@ -3025,7 +3203,16 @@
             Seeks to a specific timestamp within a recording.
             Like <see cref="M:K4AdotNet.Record.Playback.TrySeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> but throws exception in case of failure.
             </summary>
+            <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
+            <param name="origin">
+            Specifies how the given timestamp should be interpreted. Seek can be done relative to the beginning or end of the
+            recording, or using an absolute device timestamp.
+            </param>
             <remarks><para>
+            The first device timestamp in a recording is usually non-zero. The recording file starts at the device timestamp
+            defined by <see cref="F:K4AdotNet.Record.RecordConfiguration.StartTimeOffset"/>,
+            which is accessible via <see cref="M:K4AdotNet.Record.Playback.GetRecordConfiguration(K4AdotNet.Record.RecordConfiguration@)"/>.
+            </para><para>
             The first call to <see cref="M:K4AdotNet.Record.Playback.TryGetNextCapture(K4AdotNet.Sensor.Capture@)"/> after this method
             will return the first capture containing an image timestamp greater than or equal to the seek time.
             </para><para>
@@ -3038,8 +3225,6 @@
             The first call to <see cref="M:K4AdotNet.Record.Playback.TryGetPreviousImuSample(K4AdotNet.Sensor.ImuSample@)"/> after this method
             will return the first IMU sample with a timestamp less than the seek time.
             </para></remarks>
-            <param name="offset">The timestamp offset to seek to relative to <paramref name="origin"/>.</param>
-            <param name="origin">Specifies if the seek operation should be done relative to the beginning or end of the recording.</param>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot seek playback to position specified.</exception>
             <seealso cref="M:K4AdotNet.Record.Playback.TrySeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/>
@@ -3134,6 +3319,70 @@
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
             <exception cref="T:K4AdotNet.Record.PlaybackException">Error during reading from recording. See logs for details.</exception>
         </member>
+        <member name="T:K4AdotNet.Record.PlaybackDataBlock">
+            <summary>Data block read from custom track in recording.</summary>
+            <seealso cref="T:K4AdotNet.Record.PlaybackTrack"/>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackDataBlock.Dispose">
+            <summary>
+            Call this method to release data block and free all unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.Record.PlaybackDataBlock.Disposed"/>
+            <seealso cref="P:K4AdotNet.Record.PlaybackDataBlock.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackDataBlock.IsDisposed">
+            <summary>Gets a value indicating whether the data block has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Record.PlaybackDataBlock.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Record.PlaybackDataBlock.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.Record.PlaybackDataBlock.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackDataBlock.DeviceTimestamp">
+            <summary>Gets the device timestamp of a data block in microseconds.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackDataBlock.SizeBytes">
+            <summary>Gets the buffer size of a data block in bytes.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackDataBlock.Buffer">
+            <summary>Gets the buffer of a data block.</summary>
+            <remarks>Use this buffer to access the data written to a custom recording track.</remarks>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be asked for disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackDataBlock.CopyTo(System.Byte[])">
+            <summary>Copies block data from <see cref="P:K4AdotNet.Record.PlaybackDataBlock.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for block data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Record.PlaybackDataBlock.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackDataBlock.CopyTo(System.Int16[])">
+            <summary>Copies block data from <see cref="P:K4AdotNet.Record.PlaybackDataBlock.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for block data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Record.PlaybackDataBlock.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackDataBlock.CopyTo(System.Single[])">
+            <summary>Copies block data from <see cref="P:K4AdotNet.Record.PlaybackDataBlock.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for block data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Record.PlaybackDataBlock.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackDataBlock.CopyTo(System.Int32[])">
+            <summary>Copies block data from <see cref="P:K4AdotNet.Record.PlaybackDataBlock.Buffer"/> to <paramref name="dst"/> array.</summary>
+            <param name="dst">Destination array for block data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="P:K4AdotNet.Record.PlaybackDataBlock.SizeBytes"/>).</param>
+            <returns>Number of copied array elements.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="dst"/> cannot be <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Length of <paramref name="dst"/> array is too small.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
+        </member>
         <member name="T:K4AdotNet.Record.PlaybackException">
             <summary>Class for all playback-related exceptions.</summary>
             <seealso cref="T:K4AdotNet.Record.Playback"/>
@@ -3172,6 +3421,138 @@
         </member>
         <member name="F:K4AdotNet.Record.PlaybackSeekOrigin.DeviceTime">
             <summary>Seek to an absolute device timestamp.</summary>
+        </member>
+        <member name="T:K4AdotNet.Record.PlaybackTrack">
+            <summary>Information about track in <see cref="T:K4AdotNet.Record.Playback"/>.</summary>
+            <seealso cref="P:K4AdotNet.Record.Playback.Tracks"/>
+            <seealso cref="T:K4AdotNet.Record.PlaybackTrackCollection"/>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrack.#ctor(K4AdotNet.Record.Playback,System.Int32)">
+            <summary>Creates track object with specified <paramref name="index"/> for specified <paramref name="playback"/>.</summary>
+            <param name="playback">Owner. Not <see langword="null"/>.</param>
+            <param name="index">Zero-based index of track.</param>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot get name of track with specified index.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed <paramref name="playback"/> object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.Index">
+            <summary>Zero-based index of track.</summary>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.Name">
+            <summary>Name of track. Not <see langword="null"/> and empty.</summary>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.IsBuiltIn">
+            <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
+            <exception cref="T:System.ObjectDisposedException">Appropriated <see cref="T:K4AdotNet.Record.Playback"/> object was disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.VideoSettings">
+            <summary>Gets the video-specific track information for this track.</summary>
+            <exception cref="T:System.InvalidOperationException">This is not a video track.</exception>
+            <exception cref="T:System.ObjectDisposedException">Appropriated <see cref="T:K4AdotNet.Record.Playback"/> object was disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.CodecId">
+            <summary>Gets the codec id string for this track.</summary>
+            <remarks>
+            The codec ID is a string that corresponds to the codec of the track's data. Some of the existing formats are listed
+            here: https://www.matroska.org/technical/specs/codecid/index.html. It can also be custom defined by the user.
+            </remarks>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot get coded ID for this track for some reason. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">Appropriated <see cref="T:K4AdotNet.Record.Playback"/> object was disposed object.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrack.CodecContext">
+            <summary>Gets the codec context for this track.</summary>
+            <remarks>
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </remarks>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Cannot get coded context for this track for some reason. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">Appropriated <see cref="T:K4AdotNet.Record.Playback"/> object was disposed object.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrack.TryGetNextDataBlock(K4AdotNet.Record.PlaybackDataBlock@)">
+            <summary>Reads the next data block for this track.</summary>
+            <param name="dataBlock">Output: data block object on success or <see langword="null"/> on EOF. Don't forget to dispose this object after usage.</param>
+            <returns>
+            <see langword="true"/> - if a data block is returned,
+            <see langword="false"/> - if the end of the recording is reached.
+            All other failures will throw <see cref="T:K4AdotNet.Record.PlaybackException"/> exception.
+            </returns>
+            <remarks><para>
+            This method always returns the data block after the most recently returned data block for a particular track.
+            </para><para>
+            If a call was made to <see cref="M:K4AdotNet.Record.PlaybackTrack.TryGetPreviousDataBlock(K4AdotNet.Record.PlaybackDataBlock@)"/> which returned <see langword="false"/>, then the
+            playback position is at the beginning of the recording and calling this method will return the first data block in the track.
+            </para><para>
+            The first call to this method after <see cref="M:K4AdotNet.Record.Playback.SeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/>
+            will return the data block in the recording closest to the seek time with a timestamp greater than or equal to the seek time.
+            </para><para>
+            This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+            <see cref="P:K4AdotNet.Record.PlaybackTrack.IsBuiltIn"/> property can be used to determine if a track is a built-in track.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed playback object.</exception>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Error during reading from recording. See logs for details.</exception>
+            <exception cref="T:System.InvalidOperationException">This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrack.TryGetPreviousDataBlock(K4AdotNet.Record.PlaybackDataBlock@)">
+            <summary>Reads the previous data block for this track.</summary>
+            <param name="dataBlock">Output: data block object on success or <see langword="null"/> on EOF. Don't forget to dispose this object after usage.</param>
+            <returns>
+            <see langword="true"/> - if a data block is returned,
+            <see langword="false"/> - if the start of the recording is reached.
+            All other failures will throw <see cref="T:K4AdotNet.Record.PlaybackException"/> exception.
+            </returns>
+            <remarks><para>
+            This method always returns the data block before the most recently returned data block for a particular track.
+            </para><para>
+            If a call was made to <see cref="M:K4AdotNet.Record.PlaybackTrack.TryGetNextDataBlock(K4AdotNet.Record.PlaybackDataBlock@)"/> which returned <see langword="false"/>, then the
+            playback position is at the end of the recording and calling this method will return the last data block in the track.
+            </para><para>
+            The first call to this method after <see cref="M:K4AdotNet.Record.Playback.SeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/>
+            will return the data block in the recording closest to the seek time with a timestamp less than the seek time.
+            </para><para>
+            This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...
+            <see cref="P:K4AdotNet.Record.PlaybackTrack.IsBuiltIn"/> property can be used to determine if a track is a built-in track.
+            </para></remarks>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed playback object.</exception>
+            <exception cref="T:K4AdotNet.Record.PlaybackException">Error during reading from recording. See logs for details.</exception>
+            <exception cref="T:System.InvalidOperationException">This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...</exception>
+        </member>
+        <member name="T:K4AdotNet.Record.PlaybackTrackCollection">
+            <summary>Collection of information about all tracks in <see cref="T:K4AdotNet.Record.Playback"/>, including built-in tracks.</summary>
+            <seealso cref="P:K4AdotNet.Record.Playback.Tracks"/>
+            <seealso cref="T:K4AdotNet.Record.PlaybackTrack"/>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrackCollection.Item(System.Int32)">
+            <summary>Gets information about track in <see cref="T:K4AdotNet.Record.Playback"/> by its zero-bases index.</summary>
+            <param name="index">Zero-based index of track in <see cref="T:K4AdotNet.Record.Playback"/>.</param>
+            <returns>Information about track in <see cref="T:K4AdotNet.Record.Playback"/> with a given index. Not <see langword="null"/>.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> is less than zero or is greater than or equal to <see cref="P:K4AdotNet.Record.PlaybackTrackCollection.Count"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">Appropriate <see cref="T:K4AdotNet.Record.Playback"/> object was disposed.</exception>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrackCollection.Item(System.String)">
+            <summary>Gets information about track in <see cref="T:K4AdotNet.Record.Playback"/> by its name.</summary>
+            <param name="name">Name of track.</param>
+            <returns>Information about track with a given name or <see langword="null"/> if there is no track with such name in <see cref="T:K4AdotNet.Record.Playback"/>.</returns>
+            <exception cref="T:System.ObjectDisposedException">Appropriate <see cref="T:K4AdotNet.Record.Playback"/> object was disposed.</exception>
+            <seealso cref="M:K4AdotNet.Record.PlaybackTrackCollection.Exists(System.String)"/>
+        </member>
+        <member name="P:K4AdotNet.Record.PlaybackTrackCollection.Count">
+            <summary>Get the number of tracks in a playback file.</summary>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrackCollection.GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</summary>
+            <returns>All tracks in this collection.</returns>
+            <exception cref="T:System.ObjectDisposedException">Appropriate <see cref="T:K4AdotNet.Record.Playback"/> object was disposed.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrackCollection.System#Collections#IEnumerable#GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.IEnumerable"/>.</summary>
+            <returns>All tracks in this collection.</returns>
+            <exception cref="T:System.ObjectDisposedException">Appropriate <see cref="T:K4AdotNet.Record.Playback"/> object was disposed.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.PlaybackTrackCollection.Exists(System.String)">
+            <summary>Checks whether a track with the given track name exists in the playback file.</summary>
+            <param name="trackName">The track name to be checked to see whether it exists or not. Not <see langword="null"/> and not empty.</param>
+            <returns><see langword="true"/> if the track exists.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> is <see langword="null"/> or empty.</exception>
+            <exception cref="T:System.ObjectDisposedException">Appropriate <see cref="T:K4AdotNet.Record.Playback"/> object was disposed.</exception>
         </member>
         <member name="T:K4AdotNet.Record.RecordConfiguration">
             <summary>Structure containing the device configuration used to record.</summary>
@@ -3253,7 +3634,7 @@
             <seealso cref="P:K4AdotNet.Record.Recorder.IsDisposed"/>
         </member>
         <member name="P:K4AdotNet.Record.Recorder.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.Record.Recorder.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Record.Recorder.Disposed">
@@ -3262,6 +3643,17 @@
         </member>
         <member name="P:K4AdotNet.Record.Recorder.FilePath">
             <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
+        </member>
+        <member name="P:K4AdotNet.Record.Recorder.CustomTracks">
+            <summary>Collection of custom tracks to be recorded to destination file. Not <see langword="null"/>.</summary>
+            <remarks><para>
+            Unlike <see cref="P:K4AdotNet.Record.Playback.Tracks"/> this collection contains information only about custom tracks.
+            </para><para>
+            Use <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)"/> and <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)"/>
+            to add new custom tracks to recording.
+            </para></remarks>
+            <seealso cref="T:K4AdotNet.Record.RecorderCustomTrack"/>
+            <seealso cref="P:K4AdotNet.Record.Playback.Tracks"/>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.AddTag(System.String,System.String)">
             <summary>Adds a tag to the recording.</summary>
@@ -3294,70 +3686,7 @@
             <exception cref="T:System.ArgumentException"><paramref name="attachmentName"/> is not a valid file name or contains non-ASCII symbols.</exception>
             <exception cref="T:System.InvalidOperationException"><see cref="M:K4AdotNet.Record.Recorder.AddAttachment(System.String,System.Byte[])"/> must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
-        <member name="M:K4AdotNet.Record.Recorder.AddCustomVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)">
-            <summary>Adds custom video track to the recording.</summary>
-            <param name="trackName">
-            The name of the custom video track to be added. Not <see langword="null"/>.
-            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
-            </param>
-            <param name="codecId">
-            The codec ID of the track. Some of the existing formats are listed here:
-            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
-            Video codec ID's should start with 'V_'.
-            </param>
-            <param name="codecContext">
-            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
-            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
-            </param>
-            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-            <remarks><para>
-            Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the object of <see cref="T:K4AdotNet.Record.Recorder"/>
-            class is constructed. This API can be used to add additional video tracks to save custom data.
-            </para><para>
-            All tracks need to be added before the recording header is written.
-            </para><para>
-            Call <see cref="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])"/> with the same <paramref name="trackName"/> to write data to this track.
-            </para></remarks>
-            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">
-            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
-            or <paramref name="codecId"/> is not a valid video codec ID.
-            </exception>
-            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
-        <member name="M:K4AdotNet.Record.Recorder.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)">
-            <summary>Adds custom subtitle track to the recording.</summary>
-            <param name="trackName">
-            The name of the custom subtitle track to be added. Not <see langword="null"/>.
-            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
-            </param>
-            <param name="codecId">
-            The codec ID of the track. Some of the existing formats are listed here:
-            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
-            Subtitle codec ID's should start with 'S_'.
-            </param>
-            <param name="codecContext">
-            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
-            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
-            </param>
-            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-            <remarks><para>
-            Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="M:K4AdotNet.Record.Recorder.AddImuTrack"/> API is
-            called. This API can be used to add additional subtitle tracks to save custom data.
-            </para><para>
-            All tracks need to be added before the recording header is written.
-            </para><para>
-            Call <see cref="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])"/> with the same <paramref name="trackName"/> to write data to this track.
-            </para></remarks>
-            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">
-            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
-            or <paramref name="codecId"/> is not a valid subtitle codec ID.
-            </exception>
-            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+            <seealso cref="M:K4AdotNet.Record.Playback.TryGetAttachment(System.String,System.Byte[]@)"/>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.WriteHeader">
             <summary>Writes the recording header and metadata to file.</summary>
@@ -3391,26 +3720,6 @@
             <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
         </member>
-        <member name="M:K4AdotNet.Record.Recorder.WriteCustomTrackData(System.String,K4AdotNet.Microseconds64,System.Byte[])">
-            <summary>Writes data for a custom track to file.</summary>
-            <param name="trackName">The name of the custom track that the data is going to be written to. Not <see langword="null"/>.</param>
-            <param name="deviceTimestamp">
-            The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
-            device timestamp used for recording.
-            </param>
-            <param name="customData">The buffer of custom track data. Not <see langword="null"/>.</param>
-            <remarks>
-            Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
-            When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
-            the most recently written timestamp.
-            </remarks>
-            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="customData"/> is <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">
-            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_').
-            </exception>
-            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
         <member name="M:K4AdotNet.Record.Recorder.Flush">
             <summary>Flushes all pending recording data to disk.</summary>
             <remarks><para>
@@ -3422,6 +3731,147 @@
             </para></remarks>
             <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        </member>
+        <member name="T:K4AdotNet.Record.RecorderCustomTrack">
+            <summary>Custom track to be recorded using <see cref="T:K4AdotNet.Record.Recorder"/>.</summary>
+            <remarks>
+            Use <see cref="M:K4AdotNet.Record.RecorderCustomTrack.WritekData(K4AdotNet.Microseconds64,System.Byte[])"/> to write data for custom tracks.
+            </remarks>
+            <seealso cref="P:K4AdotNet.Record.Recorder.CustomTracks"/>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrack.Name">
+            <summary>The name of the custom track.</summary>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrack.CodecId">
+            <summary>Gets the codec id string for this track.</summary>
+            <remarks>
+            The codec ID is a string that corresponds to the codec of the track's data. Some of the existing formats are listed
+            here: https://www.matroska.org/technical/specs/codecid/index.html. It can also be custom defined by the user.
+            </remarks>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrack.CodecContext">
+            <summary>Gets the codec context for this track.</summary>
+            <remarks>
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </remarks>
+        </member>
+        <member name="M:K4AdotNet.Record.RecorderCustomTrack.WritekData(K4AdotNet.Microseconds64,System.Byte[])">
+            <summary>Writes data for the custom track to file.</summary>
+            <param name="deviceTimestamp">
+            The timestamp in microseconds for the custom track data. This timestamp should be in the same time domain as the
+            device timestamp used for recording.
+            </param>
+            <param name="customData">The buffer of custom track data. Not <see langword="null"/>.</param>
+            <remarks>
+            Custom track data must be written in increasing order of timestamp, and the file's header must already be written.
+            When writing custom track data at the same time as captures or IMU data, the custom data should be within 1 second of
+            the most recently written timestamp.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="customData"/> is <see langword="null"/>.</exception>
+            <exception cref="T:K4AdotNet.Record.RecordingException">Some error during recording to file. See logs for details.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed <see cref="T:K4AdotNet.Record.Recorder"/>.</exception>
+        </member>
+        <member name="T:K4AdotNet.Record.RecorderCustomTrackCollection">
+            <summary>Collection of <see cref="T:K4AdotNet.Record.RecorderCustomTrack"/> to be written using <see cref="T:K4AdotNet.Record.Recorder"/>.</summary>
+            <remarks>
+            Use <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)"/> and <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)"/>
+            to add new custom tracks to recording.
+            </remarks>
+            <seealso cref="P:K4AdotNet.Record.Recorder.CustomTracks"/>
+            <seealso cref="T:K4AdotNet.Record.RecorderCustomTrack"/>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrackCollection.Item(System.Int32)">
+            <summary>Gets custom track to be recorded by zero-based index.</summary>
+            <param name="index">Zero-based index of custom track.</param>
+            <returns>Custom track with a given index. Not <see langword="null"/>.</returns>
+            <exception cref="T:System.IndexOutOfRangeException"><paramref name="index"/> is less than zero or is greater than or equal to <see cref="P:K4AdotNet.Record.RecorderCustomTrackCollection.Count"/>.</exception>
+            <remarks>
+            Use <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)"/> and <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)"/>
+            to add new custom tracks to recording.
+            </remarks>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrackCollection.Item(System.String)">
+            <summary>Gets custom track to be recorded by its name.</summary>
+            <param name="name">Name of custom track.</param>
+            <returns>Custom track with a given name or <see langword="null"/> if there is no custom track with a given name.</returns>
+            <remarks>
+            Use <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)"/> and <see cref="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)"/>
+            to add new custom tracks to recording.
+            </remarks>
+        </member>
+        <member name="P:K4AdotNet.Record.RecorderCustomTrackCollection.Count">
+            <summary>Count of added custom tracks.</summary>
+        </member>
+        <member name="M:K4AdotNet.Record.RecorderCustomTrackCollection.GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</summary>
+            <returns>All added custom tracks.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.RecorderCustomTrackCollection.System#Collections#IEnumerable#GetEnumerator">
+            <summary>Implementation of <see cref="T:System.Collections.IEnumerable"/>.</summary>
+            <returns>All added custom tracks.</returns>
+        </member>
+        <member name="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddVideoTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordVideoSettings)">
+            <summary>Adds custom video track to the recording.</summary>
+            <param name="trackName">
+            The name of the custom video track to be added. Not <see langword="null"/>.
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            </param>
+            <param name="codecId">
+            The codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Video codec ID's should start with 'V_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </param>
+            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+            <returns>Added custom video track. Non <see langword="null"/>. Call <see cref="M:K4AdotNet.Record.RecorderCustomTrack.WritekData(K4AdotNet.Microseconds64,System.Byte[])"/> to write data to this track.</returns>
+            <remarks><para>
+            Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the object of <see cref="T:K4AdotNet.Record.Recorder"/>
+            class is constructed. This API can be used to add additional video tracks to save custom data.
+            </para><para>
+            All tracks need to be added before the recording header is written.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
+            or <paramref name="codecId"/> is not a valid video codec ID.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed <see cref="T:K4AdotNet.Record.Recorder"/>.</exception>
+        </member>
+        <member name="M:K4AdotNet.Record.RecorderCustomTrackCollection.AddCustomSubtitleTrack(System.String,System.String,System.Byte[],K4AdotNet.Record.RecordSubtitleSettings)">
+            <summary>Adds custom subtitle track to the recording.</summary>
+            <param name="trackName">
+            The name of the custom subtitle track to be added. Not <see langword="null"/>.
+            Track names must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.
+            </param>
+            <param name="codecId">
+            The codec ID of the track. Some of the existing formats are listed here:
+            https://www.matroska.org/technical/specs/codecid/index.html. The codec ID can also be custom defined by the user.
+            Subtitle codec ID's should start with 'S_'.
+            </param>
+            <param name="codecContext">
+            The codec context is a codec-specific buffer that contains any required codec metadata that is only known to the
+            codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
+            </param>
+            <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
+            <returns>Added custom subtitle track. Non <see langword="null"/>. Call <see cref="M:K4AdotNet.Record.RecorderCustomTrack.WritekData(K4AdotNet.Microseconds64,System.Byte[])"/> to write data to this track.</returns>
+            <remarks><para>
+            Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="M:K4AdotNet.Record.Recorder.AddImuTrack"/> API is
+            called. This API can be used to add additional subtitle tracks to save custom data.
+            </para><para>
+            All tracks need to be added before the recording header is written.
+            </para></remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="trackName"/> or <paramref name="codecId"/> or <paramref name="codecContext"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="trackName"/> is not a valid track name (must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_')
+            or <paramref name="codecId"/> is not a valid subtitle codec ID.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">This method must be called before <see cref="M:K4AdotNet.Record.Recorder.WriteHeader"/>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed <see cref="T:K4AdotNet.Record.Recorder"/>.</exception>
         </member>
         <member name="T:K4AdotNet.Record.RecordingException">
             <summary>Class for all recording-related exceptions.</summary>
@@ -3461,7 +3911,7 @@
             <remarks>
             If <see langword="true"/>, only a single timestamp will
             be stored per batch, and an estimated timestamp will be used by <see cref="M:K4AdotNet.Record.Playback.SeekTimestamp(K4AdotNet.Microseconds64,K4AdotNet.Record.PlaybackSeekOrigin)"/> and
-            <see cref="!:PlaybackDataBlock.Timestamp"/>. The estimated timestamp is calculated with the assumption that
+            <see cref="P:K4AdotNet.Record.PlaybackDataBlock.DeviceTimestamp"/>. The estimated timestamp is calculated with the assumption that
             blocks are evenly spaced within a batch. If precise timestamps are required, the timestamp should be added to
             each data block itself.
             </remarks>
@@ -4455,7 +4905,7 @@
             <seealso cref="P:K4AdotNet.Sensor.Device.IsDisposed"/>
         </member>
         <member name="P:K4AdotNet.Sensor.Device.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.Sensor.Device.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Sensor.Device.Disposed">
@@ -6482,7 +6932,7 @@
             <seealso cref="P:K4AdotNet.Sensor.Transformation.IsDisposed"/>
         </member>
         <member name="P:K4AdotNet.Sensor.Transformation.IsDisposed">
-            <summary>Gets a value indicating whether the image has been disposed of.</summary>
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
             <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
         </member>
         <member name="E:K4AdotNet.Sensor.Transformation.Disposed">
