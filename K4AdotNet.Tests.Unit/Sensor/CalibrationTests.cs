@@ -1,7 +1,7 @@
 ﻿using K4AdotNet.Sensor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace K4AdotNet.Tests.SensorTypesUnitTests
+namespace K4AdotNet.Tests.Unit.Sensor
 {
     [TestClass]
     public class CalibrationTests

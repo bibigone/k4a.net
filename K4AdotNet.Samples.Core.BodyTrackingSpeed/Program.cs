@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 
-namespace K4AdotNet.Samples.BodyTrackingSpeedTest
+namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
     internal class Program
     {

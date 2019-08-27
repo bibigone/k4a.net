@@ -7,7 +7,7 @@
     <ProjectGuid>{28F1EB11-BDF2-464E-A9C4-92D624F32F42}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>K4AdotNet.Samples.Wpf.Viewer</RootNamespace>
-    <AssemblyName>K4AdotNet.Samples.Wpf.Viewer</AssemblyName>
+    <AssemblyName>K4AViewer</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

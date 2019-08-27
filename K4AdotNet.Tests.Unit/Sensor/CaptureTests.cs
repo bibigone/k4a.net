@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace K4AdotNet.Tests.SensorTypesUnitTests
+namespace K4AdotNet.Tests.Unit.Sensor
 {
     [TestClass]
     public class CaptureTests

@@ -6,6 +6,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU</Platforms>
+    <Description>Unit tests on types from K4AdotNet library</Description>
   </PropertyGroup>
 
   <ItemGroup>

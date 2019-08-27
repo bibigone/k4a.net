@@ -67,7 +67,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             get => depthMode;
             set => SetPropertyValue(ref depthMode, value, nameof(DepthMode), nameof(IsOpenDeviceEnabled));
         }
-        private DepthMode depthMode = DepthMode.WideView2x2Binned;
+        private DepthMode depthMode = DepthMode.NarrowViewUnbinned;
 
         public IReadOnlyList<KeyValuePair<ColorResolution, string>> ColorResolutions { get; } = Helpers.AllColorResolutions;
 
@@ -85,7 +85,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             get => frameRate;
             set => SetPropertyValue(ref frameRate, value, nameof(FrameRate), nameof(IsOpenDeviceEnabled));
         }
-        private FrameRate frameRate = FrameRate.Fifteen;
+        private FrameRate frameRate = FrameRate.Thirty;
 
         public bool IsOpenDeviceEnabled
             => ColorResolution.IsCompatibleWith(FrameRate)

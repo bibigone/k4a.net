@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace K4AdotNet.Samples.BodyTrackingSpeedTest
+namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
     internal abstract class Processor : IDisposable
     {

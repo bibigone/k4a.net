@@ -23,9 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Samples", "2 - Samples"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Tests", "3 - Tests", "{B227E80C-8E74-486D-887E-AC31D7A70F96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Samples.BodyTrackingSpeedTest", "K4AdotNet.Samples.BodyTrackingSpeedTest\K4AdotNet.Samples.BodyTrackingSpeedTest.csproj", "{45AEA3B6-EB45-479A-8962-93AC42B6AA41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Samples.Core.BodyTrackingSpeed", "K4AdotNet.Samples.Core.BodyTrackingSpeed\K4AdotNet.Samples.Core.BodyTrackingSpeed.csproj", "{45AEA3B6-EB45-479A-8962-93AC42B6AA41}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Tests.SensorTypesUnitTests", "K4AdotNet.Tests.SensorTypesUnitTests\K4AdotNet.Tests.SensorTypesUnitTests.csproj", "{4E37EEE5-15FD-46A8-A8AC-8A3C1DE48893}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Tests.Unit", "K4AdotNet.Tests.Unit\K4AdotNet.Tests.Unit.csproj", "{4E37EEE5-15FD-46A8-A8AC-8A3C1DE48893}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.Viewer", "K4AdotNet.Samples.Wpf.Viewer\K4AdotNet.Samples.Wpf.Viewer.csproj", "{28F1EB11-BDF2-464E-A9C4-92D624F32F42}"
 EndProject

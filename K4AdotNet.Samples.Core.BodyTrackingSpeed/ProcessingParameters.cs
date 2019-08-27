@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace K4AdotNet.Samples.BodyTrackingSpeedTest
+namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
     internal sealed class ProcessingParameters
     {

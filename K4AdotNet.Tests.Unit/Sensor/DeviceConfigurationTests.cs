@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using K4AdotNet.Sensor;
 
-namespace K4AdotNet.Tests.SensorTypesUnitTests
+namespace K4AdotNet.Tests.Unit.Sensor
 {
     [TestClass]
     public class DeviceConfigurationTests

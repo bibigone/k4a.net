@@ -3,7 +3,7 @@ using K4AdotNet.Sensor;
 using System;
 using System.Runtime.InteropServices;
 
-namespace K4AdotNet.Tests.SensorTypesUnitTests
+namespace K4AdotNet.Tests.Unit.Sensor
 {
     [TestClass]
     public class ImageTests

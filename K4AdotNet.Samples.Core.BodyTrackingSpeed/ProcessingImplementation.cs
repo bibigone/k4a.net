@@ -1,4 +1,4 @@
-﻿namespace K4AdotNet.Samples.BodyTrackingSpeedTest
+﻿namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
     internal enum ProcessingImplementation
     {
