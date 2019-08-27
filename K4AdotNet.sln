@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.BodyTracker", "K4AdotNet.Samples.Wpf.BodyTracker\K4AdotNet.Samples.Wpf.BodyTracker.csproj", "{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.BackgroundRemover", "K4AdotNet.Samples.Wpf.BackgroundRemover\K4AdotNet.Samples.Wpf.BackgroundRemover.csproj", "{684CCB9A-758B-4D45-99E9-40758B03603D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{684CCB9A-758B-4D45-99E9-40758B03603D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{684CCB9A-758B-4D45-99E9-40758B03603D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{684CCB9A-758B-4D45-99E9-40758B03603D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{684CCB9A-758B-4D45-99E9-40758B03603D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{28F1EB11-BDF2-464E-A9C4-92D624F32F42} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 		{496FF115-D576-446A-87D4-C03B60B5DBF7} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 		{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
+		{684CCB9A-758B-4D45-99E9-40758B03603D} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2012927-1A97-4801-B3C9-76EBC40D34F4}

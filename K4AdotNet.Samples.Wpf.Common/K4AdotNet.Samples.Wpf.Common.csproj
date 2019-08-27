@@ -50,6 +50,7 @@
     <Compile Include="AppBase.cs" />
     <Compile Include="BackgroundReadingLoop.cs" />
     <Compile Include="CaptureReadyEventArgs.cs" />
+    <Compile Include="DelegateCommand.cs" />
     <Compile Include="FailedEventArgs.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IApp.cs" />
