@@ -1,7 +1,6 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
@@ -63,7 +62,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             get => depthMode;
             set => SetPropertyValue(ref depthMode, value);
         }
-        private DepthMode depthMode = DepthMode.WideView2x2Binned;
+        private DepthMode depthMode = DepthMode.NarrowViewUnbinned;
 
         public IReadOnlyList<KeyValuePair<ColorResolution, string>> ColorResolutions { get; } 
             = Helpers.AllColorResolutions.Where(i => i.Key != ColorResolution.Off).ToArray();
@@ -82,7 +81,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             get => frameRate;
             set => SetPropertyValue(ref frameRate, value);
         }
-        private FrameRate frameRate = FrameRate.Fifteen;
+        private FrameRate frameRate = FrameRate.Thirty;
 
         public ICommand OpenDeviceCommand => openDeviceCommand;
         private readonly DelegateCommand openDeviceCommand;

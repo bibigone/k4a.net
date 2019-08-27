@@ -1,6 +1,5 @@
 ﻿using K4AdotNet.Sensor;
 using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -67,7 +66,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             get => depthThreshold;
             set => SetPropertyValue(ref depthThreshold, value);
         }
-        private int depthThreshold = 1000;
+        private int depthThreshold = 1500;
 
         public bool UnknownDepthIsBackground
         {
@@ -81,7 +80,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             get => backgroundOpacity;
             set => SetPropertyValue(ref backgroundOpacity, value);
         }
-        private int backgroundOpacity = 50;
+        private int backgroundOpacity = 30;
 
 
         public void Run()
