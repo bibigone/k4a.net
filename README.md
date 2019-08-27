@@ -101,7 +101,8 @@ Some important notes:
 * Open `K4AdotNet.sln` in Visual Studio 2017 or Visual Studio 2019
 * Build solution (`Ctrl+Shift+B`)
 * After that you can run and explore samples:
-  * `K4AdotNet.Samples.BodyTrackingSpeedTest` &mdash; Core .NET sample console application to measure speed of Body Tracking.
-  * `K4AdotNet.Samples.Wpf.Viewer` &mdash; WPF sample application to demonstrate usage of Sensor API and Record API.
-  * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; WPF sample application to demonstrate usage of Body Tracking API.
+  * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core console application to measure speed of Body Tracking.
+  * `K4AdotNet.Samples.Wpf.Viewer` &mdash; sample WPF application to demonstrate usage of Sensor API and Record API.
+  * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
+  * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application implementing the background removal effect for color picture with the help of depth data.
 * Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.txt)
