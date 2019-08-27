@@ -1,6 +1,7 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
@@ -60,12 +61,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         public DepthMode DepthMode
         {
             get => depthMode;
-            set
-            {
-                var changed = SetPropertyValue(ref depthMode, value, nameof(DepthMode));
-                if (changed)
-                    openDeviceCommand.InvalidateCanExecute();
-            }
+            set => SetPropertyValue(ref depthMode, value);
         }
         private DepthMode depthMode = DepthMode.WideView2x2Binned;
 
@@ -75,12 +71,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         public ColorResolution ColorResolution
         {
             get => colorResolution;
-            set
-            {
-                var changed = SetPropertyValue(ref colorResolution, value, nameof(ColorResolution));
-                if (changed)
-                    openDeviceCommand.InvalidateCanExecute();
-            }
+            set => SetPropertyValue(ref colorResolution, value);
         }
         private ColorResolution colorResolution = ColorResolution.R720p;
 
@@ -89,12 +80,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         public FrameRate FrameRate
         {
             get => frameRate;
-            set
-            {
-                var changed = SetPropertyValue(ref frameRate, value, nameof(FrameRate));
-                if (changed)
-                    openDeviceCommand.InvalidateCanExecute();
-            }
+            set => SetPropertyValue(ref frameRate, value);
         }
         private FrameRate frameRate = FrameRate.Fifteen;
 
@@ -123,5 +109,18 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             => DepthMode.IsCompatibleWith(FrameRate) && ColorResolution.IsCompatibleWith(FrameRate);
 
         #endregion
+
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case nameof(DepthMode):
+                case nameof(ColorResolution):
+                case nameof(FrameRate):
+                    openDeviceCommand.InvalidateCanExecute();
+                    break;
+            }
+        }
     }
 }

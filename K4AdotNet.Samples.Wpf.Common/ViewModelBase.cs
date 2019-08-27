@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -15,7 +16,7 @@ namespace K4AdotNet.Samples.Wpf
 
         protected ViewModelBase(IApp app)
         {
-            this.app = app;
+            this.app = app ?? throw new ArgumentNullException(nameof(app));
             dispatcher = app.Dispatcher;
         }
 
@@ -32,10 +33,22 @@ namespace K4AdotNet.Samples.Wpf
                 return;
             }
 
+            OnPropertyChanged(propertyName);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected bool SetPropertyValue<T>(ref T field, T value, string propertyName, string dependentPropertyName = null)
+        /// <summary>
+        /// Invoked just before <see cref="PropertyChanged"/> event is raised.
+        /// </summary>
+        /// <remarks>
+        /// Default implementation does nothing.
+        /// The method is invoked on <see cref="dispatcher"/>'s thread.
+        /// </remarks>
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+        }
+
+        protected bool SetPropertyValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null, string dependentPropertyName = null)
         {
             if (!Equals(field, value))
             {

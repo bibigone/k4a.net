@@ -7,5 +7,53 @@
         mc:Ignorable="d"
         Title="K4AdotNet Sample - Background Remover - Processing" Icon="K4AdotNet.ico"
         Height="450" Width="800">
-    <Image Source="{Binding Image}"/>
+    <DockPanel>
+        <Grid DockPanel.Dock="Top" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" TextBlock.TextAlignment="Center">
+                <Span>
+                    Depth threshold
+                    <LineBreak/>
+                    <Bold>
+                        <Run Text="{Binding DepthThreshold, Mode=OneWay}"/> mm
+                    </Bold>
+                </Span>
+            </Label>
+            <Slider Grid.Column="1" VerticalAlignment="Center"
+                    Value="{Binding DepthThreshold}"
+                    Minimum="0" Maximum="10000"
+                    TickFrequency="1" IsSnapToTickEnabled="True"
+                    SmallChange="10" LargeChange="100"/>
+            <CheckBox Grid.Column="2" Margin="10,0"
+                      VerticalContentAlignment="Center" HorizontalContentAlignment="Left"
+                      IsChecked="{Binding UnknownDepthIsBackground}">
+                <Span>
+                    Unknown depth
+                    <LineBreak/>
+                    is background
+                </Span>
+            </CheckBox>
+            <Label Grid.Column="3" TextBlock.TextAlignment="Center">
+                <Span>
+                    Background opacity
+                    <LineBreak/>
+                    <Bold>
+                        <Run Text="{Binding BackgroundOpacity, Mode=OneWay}"/>%
+                    </Bold>
+                </Span>
+            </Label>
+            <Slider Grid.Column="4" VerticalAlignment="Center"
+                    Value="{Binding BackgroundOpacity}"
+                    Minimum="0" Maximum="100"
+                    TickFrequency="1" IsSnapToTickEnabled="True"
+                    SmallChange="1" LargeChange="10"/>
+        </Grid>
+        <Image Source="{Binding Image}"/>
+    </DockPanel>
 </Window>

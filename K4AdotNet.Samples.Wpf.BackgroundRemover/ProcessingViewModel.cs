@@ -1,5 +1,6 @@
 ﻿using K4AdotNet.Sensor;
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -28,15 +29,10 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             var frameWidth = readingLoop.ColorResolution.WidthPixels();
             var frameHeight = readingLoop.ColorResolution.HeightPixels();
             depthImage = new Image(ImageFormat.Depth16, frameWidth, frameHeight);
-            bitmap = app.Dispatcher.Invoke(new Func<WriteableBitmap>(
+            bitmap = dispatcher.Invoke(new Func<WriteableBitmap>(
                 () => new WriteableBitmap(frameWidth, frameHeight, 96, 96, PixelFormats.Bgra32, null)));
 
-            processor = new Processor(frameWidth, frameHeight)
-            {
-                DepthLimitMillimeters = 1000,
-                UnknownDepthIsBackground = true,
-                BackgroundOpacity = 127,
-            };
+            processor = new Processor(frameWidth, frameHeight);
 
             readingLoop.CaptureReady += ReadingLoop_CaptureReady;
             readingLoop.Failed += ReadingLoop_Failed;
@@ -66,8 +62,31 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         public ImageSource Image => bitmap;
         private readonly WriteableBitmap bitmap;
 
+        public int DepthThreshold
+        {
+            get => depthThreshold;
+            set => SetPropertyValue(ref depthThreshold, value);
+        }
+        private int depthThreshold = 1000;
+
+        public bool UnknownDepthIsBackground
+        {
+            get => unknownDepthIsBackground;
+            set => SetPropertyValue(ref unknownDepthIsBackground, value);
+        }
+        private bool unknownDepthIsBackground = true;
+
+        public int BackgroundOpacity
+        {
+            get => backgroundOpacity;
+            set => SetPropertyValue(ref backgroundOpacity, value);
+        }
+        private int backgroundOpacity = 50;
+
+
         public void Run()
         {
+            UpdateProcessingOptions();
             try
             {
                 processor.Start();
@@ -92,7 +111,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 
         private void ReadingLoop_Failed(object sender, FailedEventArgs e)
         {
-            app.Dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message, "Capture failed")));
+            dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message, "Capture failed")));
         }
 
         private void Processor_ImageUpdated(object sender, EventArgs e)
@@ -113,6 +132,25 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
                                       bitmap.BackBufferStride * bitmap.PixelHeight, image.SizeBytes));
                 bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
                 bitmap.Unlock();
+            }
+        }
+
+        private void UpdateProcessingOptions()
+        {
+            processor.DepthLimitMillimeters = (ushort)Math.Max(0, Math.Min(ushort.MaxValue, DepthThreshold));
+            processor.UnknownDepthIsBackground = UnknownDepthIsBackground;
+            processor.BackgroundOpacity = (byte)(255 * Math.Max(0, Math.Min(100, backgroundOpacity)) / 100d);
+        }
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case nameof(DepthThreshold):
+                case nameof(UnknownDepthIsBackground):
+                case nameof(BackgroundOpacity):
+                    UpdateProcessingOptions();
+                    break;
             }
         }
     }
