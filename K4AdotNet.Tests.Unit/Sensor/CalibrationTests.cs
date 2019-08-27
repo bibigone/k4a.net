@@ -33,7 +33,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         private byte[] ReadRawCalibrationFromResources()
         {
             var assembly = GetType().Assembly;
-            using (var stream = assembly.GetManifestResourceStream("K4AdotNet.Tests.SensorTypesUnitTests.raw_calibration.bin"))
+            using (var stream = assembly.GetManifestResourceStream("K4AdotNet.Tests.Unit.raw_calibration.bin"))
             {
                 var rawCalibration = new byte[stream.Length];
                 var len = stream.Read(rawCalibration, 0, rawCalibration.Length);
