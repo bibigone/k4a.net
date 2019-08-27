@@ -31,8 +31,6 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             window.DataContext = viewModel;
             window.Owner = CurrentWindow;
             window.Show();
-
-            window.Closed += (_, __) => (viewModel as IDisposable)?.Dispose();
         }
     }
 }

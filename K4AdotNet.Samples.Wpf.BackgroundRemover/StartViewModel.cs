@@ -39,7 +39,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
                         if (readingLoop.DepthMode == DepthMode.Off || readingLoop.DepthMode == DepthMode.PassiveIR)
                             throw new ApplicationException("There is no depth data in the video");
 
-                        var viewModel = new ProcessingViewModel(readingLoop);
+                        var viewModel = new ProcessingViewModel(readingLoop, app);
                         app.ShowWindowForModel(viewModel);
                     }
                 }
@@ -109,7 +109,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
                 {
                     var device = Device.Open();
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
-                    var processingModel = new ProcessingViewModel(readingLoop);
+                    var processingModel = new ProcessingViewModel(readingLoop, app);
                     app.ShowWindowForModel(processingModel);
                 }
             }
