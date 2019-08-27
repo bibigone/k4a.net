@@ -83,7 +83,7 @@ namespace K4AdotNet.Record
             if (string.IsNullOrEmpty(trackName))
                 throw new ArgumentNullException(nameof(trackName));
             var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
-            return NativeApi.PlaybackCheckTrackExists(PlaybackHandle, trackNameAsBytes);
+            return NativeApi.PlaybackCheckTrackExists(PlaybackHandle, trackNameAsBytes) != 0;
         }
 
         private NativeHandles.PlaybackHandle PlaybackHandle => Playback.ToHandle(playback);

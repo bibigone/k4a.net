@@ -47,6 +47,7 @@ namespace K4AdotNet.Record
             this.handle.Disposed += Handle_Disposed;
 
             FilePath = filePath;
+            DeviceConfiguration = config;
 
             CustomTracks = new RecorderCustomTrackCollection(this);
         }
@@ -75,6 +76,9 @@ namespace K4AdotNet.Record
 
         /// <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
         public string FilePath { get; }
+
+        /// <summary>Device configuration for which this recorder has been created.</summary>
+        public readonly Sensor.DeviceConfiguration DeviceConfiguration;
 
         /// <summary>Collection of custom tracks to be recorded to destination file. Not <see langword="null"/>.</summary>
         /// <remarks><para>
@@ -131,7 +135,7 @@ namespace K4AdotNet.Record
         /// <param name="attachmentData">The attachment data to be added to recording. Not <see langword="null"/>.</param>
         /// <remarks>All attachments need to be added before the recording header is written.</remarks>
         /// <exception cref="ArgumentNullException"><paramref name="attachmentName"/> or <paramref name="attachmentData"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="attachmentName"/> is not a valid file name or contains non-ASCII symbols.</exception>
+        /// <exception cref="ArgumentException"><paramref name="attachmentName"/> is not a valid file name.</exception>
         /// <exception cref="InvalidOperationException"><see cref="AddAttachment(string, byte[])"/> must be called before <see cref="WriteHeader"/>.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="Playback.TryGetAttachment"/>
@@ -139,12 +143,12 @@ namespace K4AdotNet.Record
         {
             if (string.IsNullOrEmpty(attachmentName))
                 throw new ArgumentNullException(nameof(attachmentName));
-            if (!Helpers.IsAsciiCompatible(attachmentName) || attachmentName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            if (attachmentName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 throw new ArgumentException($"Invalid value \"{attachmentName}\" of {nameof(attachmentName)}. This name should be a valid filename with an extension.", nameof(attachmentName));
             if (attachmentData == null)
                 throw new ArgumentNullException(nameof(attachmentData));
 
-            var attachmentNameAsBytes = Helpers.StringToBytes(attachmentName, Encoding.ASCII);
+            var attachmentNameAsBytes = Helpers.StringToBytes(attachmentName, Encoding.UTF8);
             var attachmentDataLength = Helpers.Int32ToUIntPtr(attachmentData.Length);
 
             var res = NativeApi.RecordAddAttachment(handle.ValueNotDisposed, attachmentNameAsBytes, attachmentData, attachmentDataLength);

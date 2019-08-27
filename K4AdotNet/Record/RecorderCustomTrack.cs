@@ -4,7 +4,7 @@ namespace K4AdotNet.Record
 {
     /// <summary>Custom track to be recorded using <see cref="Recorder"/>.</summary>
     /// <remarks>
-    /// Use <see cref="WritekData(Microseconds64, byte[])"/> to write data for custom tracks.
+    /// Use <see cref="WriteData(Microseconds64, byte[])"/> to write data for custom tracks.
     /// </remarks>
     /// <seealso cref="Recorder.CustomTracks"/>
     public sealed class RecorderCustomTrack
@@ -53,7 +53,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentNullException"><paramref name="customData"/> is <see langword="null"/>.</exception>
         /// <exception cref="RecordingException">Some error during recording to file. See logs for details.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed <see cref="Recorder"/>.</exception>
-        public void WritekData(Microseconds64 deviceTimestamp, byte[] customData)
+        public void WriteData(Microseconds64 deviceTimestamp, byte[] customData)
         {
             if (customData == null)
                 throw new ArgumentNullException(nameof(customData));

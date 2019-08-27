@@ -15,15 +15,12 @@ namespace K4AdotNet.Record
     public struct RecordVideoSettings
     {
         /// <summary>Frame width of the video.</summary>
-        [MarshalAs(UnmanagedType.U8)]
-        public int Width;
+        public long Width;
 
         /// <summary>Frame height of the video.</summary>
-        [MarshalAs(UnmanagedType.U8)]
-        public int Height;
+        public long Height;
 
         /// <summary>Frame rate (frames-per-second) of the video.</summary>
-        [MarshalAs(UnmanagedType.U8)]
-        public int FrameRate;
+        public long FrameRate;
     }
 }

@@ -65,7 +65,7 @@ namespace K4AdotNet.Record
         /// codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
         /// </param>
         /// <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-        /// <returns>Added custom video track. Non <see langword="null"/>. Call <see cref="RecorderCustomTrack.WritekData(Microseconds64, byte[])"/> to write data to this track.</returns>
+        /// <returns>Added custom video track. Non <see langword="null"/>. Call <see cref="RecorderCustomTrack.WriteData(Microseconds64, byte[])"/> to write data to this track.</returns>
         /// <remarks><para>
         /// Built-in video tracks like the DEPTH, IR, and COLOR tracks will be created automatically when the object of <see cref="Recorder"/>
         /// class is constructed. This API can be used to add additional video tracks to save custom data.
@@ -121,7 +121,7 @@ namespace K4AdotNet.Record
         /// codec. It is mapped to the matroska <c>CodecPrivate</c> element. Not <see langword="null"/>.
         /// </param>
         /// <param name="trackSettings">Additional metadata for the video track such as resolution and frame rate.</param>
-        /// <returns>Added custom subtitle track. Non <see langword="null"/>. Call <see cref="RecorderCustomTrack.WritekData(Microseconds64, byte[])"/> to write data to this track.</returns>
+        /// <returns>Added custom subtitle track. Non <see langword="null"/>. Call <see cref="RecorderCustomTrack.WriteData(Microseconds64, byte[])"/> to write data to this track.</returns>
         /// <remarks><para>
         /// Built-in subtitle tracks like the IMU track will be created automatically when the <see cref="Recorder.AddImuTrack"/> API is
         /// called. This API can be used to add additional subtitle tracks to save custom data.

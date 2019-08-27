@@ -88,8 +88,8 @@ Some important notes:
 
 ## Roadmap
 
-* More unit-tests
-* More samples (Green screen, Recording, 3D view, Box-man, IMU...)
+* More unit and integration tests
+* More samples (Recording, 3D view, Box-man, IMU...)
 * Further development of sample for Unity
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)

@@ -313,7 +313,7 @@ namespace K4AdotNet.Record
         /// <param name="trackName">The track name to be checked to see whether it exists or not.</param>
         /// <returns><see langword="true"/> if the track exists.</returns>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_check_track_exists", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool PlaybackCheckTrackExists(
+        public static extern byte PlaybackCheckTrackExists(
             NativeHandles.PlaybackHandle playbackHandle,
             byte[] trackName);
 
@@ -359,7 +359,7 @@ namespace K4AdotNet.Record
         /// <param name="trackName">The track name to be checked to see whether it is a built-in track.</param>
         /// <returns><see langword="true"/> if the track is built-in. If the provided track name does not exist, <see langword="false"/> will be returned.</returns>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_track_is_builtin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle playbackHandle, [In] byte[] trackName);
+        public static extern byte PlaybackTrackIsBuiltIn(NativeHandles.PlaybackHandle playbackHandle, [In] byte[] trackName);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_playback_track_get_video_settings(k4a_playback_t playback_handle,
         //                                                                     const char* track_name,

@@ -21,7 +21,7 @@ namespace K4AdotNet.Record
             this.playback = playback;
             Index = index;
             Name = GetTrackName(out nameAsBytes);
-            IsBuiltIn = NativeApi.PlaybackTrackIsBuiltIn(PlaybackHandle, nameAsBytes);
+            IsBuiltIn = NativeApi.PlaybackTrackIsBuiltIn(PlaybackHandle, nameAsBytes) != 0;
         }
 
         private string GetTrackName(out byte[] nameAsBytes)
