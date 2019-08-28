@@ -60,10 +60,10 @@ namespace K4AdotNet.Samples.Unity
 
                 try
                 {
-                    IsInitialized = Sdk.TryInitializeBodyTrackingRuntime(out var _);
+                    IsInitialized = Sdk.TryInitializeBodyTrackingRuntime(out var message);
                     if (!IsInitialized)
                     {
-                        Debug.Log("Cannot initialize body tracking");
+                        Debug.Log($"Cannot initialize body tracking: {message}");
                     }
                 }
                 catch (Exception ex)
@@ -89,7 +89,7 @@ namespace K4AdotNet.Samples.Unity
             }
             else
             {
-                FindObjectOfType<ErrorMessage>().Show("Azure Kinect Body Tracking SDK is not installed");
+                FindObjectOfType<ErrorMessage>().Show("Cannot initialize Azure Kinect Body Tracking runtime");
             }
         }
 
