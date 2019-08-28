@@ -18,7 +18,7 @@
 
 * Written fully on C#
 * No unsafe code in library **K4AdotNet** itself (only `DllImports`)
-* CLS-compliant (can be used from any .Net-compatible language, including C#, VB.Net)
+* CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
 * Library **K4AdotNet** is compiled against **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
   * This makes it compatible with **.NET Core 2.0** and later, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details

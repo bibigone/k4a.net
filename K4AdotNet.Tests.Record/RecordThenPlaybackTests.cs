@@ -1,7 +1,6 @@
 using K4AdotNet.Record;
 using K4AdotNet.Sensor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -319,6 +318,172 @@ namespace K4AdotNet.Tests.Record
 
                 // eof
                 Assert.IsFalse(track1.TryGetPreviousDataBlock(out dataBlock));
+                Assert.IsNull(dataBlock);
+
+                // Reading of track 2
+
+                Assert.IsFalse(track2.TryGetPreviousDataBlock(out dataBlock));
+                Assert.IsNull(dataBlock);
+
+                // forward
+                Assert.IsTrue(track2.TryGetNextDataBlock(out dataBlock));
+                Assert.IsNotNull(dataBlock);
+                Assert.AreEqual(deviceTimestamp0, dataBlock.DeviceTimestamp);
+                Assert.AreEqual(2, dataBlock.SizeBytes);
+                Assert.AreEqual(2, Marshal.ReadByte(dataBlock.Buffer, 0));
+                Assert.AreEqual(0, Marshal.ReadByte(dataBlock.Buffer, 1));
+                dataBlock.Dispose();
+
+                Assert.IsTrue(track2.TryGetNextDataBlock(out dataBlock));
+                Assert.IsNotNull(dataBlock);
+                Assert.AreEqual(deviceTimestamp1, dataBlock.DeviceTimestamp);
+                Assert.AreEqual(2, dataBlock.SizeBytes);
+                Assert.AreEqual(2, Marshal.ReadByte(dataBlock.Buffer, 0));
+                Assert.AreEqual(1, Marshal.ReadByte(dataBlock.Buffer, 1));
+                dataBlock.Dispose();
+
+                // eof
+                Assert.IsFalse(track2.TryGetNextDataBlock(out dataBlock));
+                Assert.IsNull(dataBlock);
+
+                // backward
+                Assert.IsTrue(track2.TryGetPreviousDataBlock(out dataBlock));
+                Assert.IsNotNull(dataBlock);
+                Assert.AreEqual(deviceTimestamp1, dataBlock.DeviceTimestamp);
+                Assert.AreEqual(2, dataBlock.SizeBytes);
+                Assert.AreEqual(2, Marshal.ReadByte(dataBlock.Buffer, 0));
+                Assert.AreEqual(1, Marshal.ReadByte(dataBlock.Buffer, 1));
+                dataBlock.Dispose();
+
+                Assert.IsTrue(track2.TryGetPreviousDataBlock(out dataBlock));
+                Assert.IsNotNull(dataBlock);
+                Assert.AreEqual(deviceTimestamp0, dataBlock.DeviceTimestamp);
+                Assert.AreEqual(2, dataBlock.SizeBytes);
+                Assert.AreEqual(2, Marshal.ReadByte(dataBlock.Buffer, 0));
+                Assert.AreEqual(0, Marshal.ReadByte(dataBlock.Buffer, 1));
+                dataBlock.Dispose();
+
+                // eof
+                Assert.IsFalse(track2.TryGetPreviousDataBlock(out dataBlock));
+                Assert.IsNull(dataBlock);
+            }
+
+            File.Delete(mkvPath);
+        }
+
+        [TestMethod]
+        public void TestCustomSubtitleTracks()
+        {
+            var mkvPath = GenerateTempMkvFilePath();
+
+            var config = new DeviceConfiguration
+            {
+                CameraFps = FrameRate.Five,
+                ColorFormat = ImageFormat.ColorNV12,
+                ColorResolution = ColorResolution.R720p,
+                DepthMode = DepthMode.Off,
+            };
+
+            var deviceTimestamp0 = Microseconds64.FromMilliseconds(0);
+            var deviceTimestamp1 = Microseconds64.FromMilliseconds(20);
+
+            var track1Name = "TEST_TRACK_NAME";
+            var track1CodecId = "S_CUSTOM_SUBTITLE_CODEC";
+            var track1CodecContext = new byte[] { 0, 1, 2, 3 };
+            var track1Settings = new RecordSubtitleSettings { HighFreqData = false };
+
+            var track2Name = "ANOTHER_CUSTOM_TRACK";
+            var track2CodecId = "S_XYZ_CODEC";
+            var track2CodecContext = new byte[] { 255, 254, 253 };
+            var track2Settings = new RecordSubtitleSettings { HighFreqData = true };
+
+            using (var recorder = new Recorder(mkvPath, null, config))
+            {
+                var track1 = recorder.CustomTracks.AddCustomSubtitleTrack(track1Name, track1CodecId, track1CodecContext, track1Settings);
+                Assert.AreEqual(track1Name, track1.Name);
+                Assert.AreEqual(track1CodecId, track1.CodecId);
+                Assert.AreSame(track1CodecContext, track1.CodecContext);
+
+                var track2 = recorder.CustomTracks.AddCustomSubtitleTrack(track2Name, track2CodecId, track2CodecContext, track2Settings);
+                Assert.AreEqual(track2Name, track2.Name);
+                Assert.AreEqual(track2CodecId, track2.CodecId);
+                Assert.AreSame(track2CodecContext, track2.CodecContext);
+
+                recorder.WriteHeader();
+
+                WriteTestCaptures(recorder, deviceTimestamp0, deviceTimestamp1);
+
+                track1.WriteData(deviceTimestamp0, new byte[] { 10 });
+                track1.WriteData(deviceTimestamp0 + 200, new byte[] { 12 });
+                track1.WriteData(deviceTimestamp0 + 400, new byte[] { 14 });
+                track1.WriteData(deviceTimestamp0 + 600, new byte[] { 16 });
+                track1.WriteData(deviceTimestamp0 + 800, new byte[] { 18 });
+                track1.WriteData(deviceTimestamp1, new byte[] { 20 });
+                track1.WriteData(deviceTimestamp1 + 200, new byte[] { 22 });
+                track1.WriteData(deviceTimestamp1 + 400, new byte[] { 24 });
+                track1.WriteData(deviceTimestamp1 + 600, new byte[] { 26 });
+                track1.WriteData(deviceTimestamp1 + 800, new byte[] { 28 });
+
+                track2.WriteData(deviceTimestamp0, new byte[] { 2, 0 });
+                track2.WriteData(deviceTimestamp1, new byte[] { 2, 1 });
+            }
+
+            using (var playback = new Playback(mkvPath))
+            {
+                var builtInTrackCount = GetBuiltInTrackCount(config);
+                var trackCount = builtInTrackCount + 2;
+                Assert.AreEqual(trackCount, playback.Tracks.Count);
+                Assert.AreEqual(builtInTrackCount, playback.Tracks.Count(t => t.IsBuiltIn));
+                Assert.AreEqual(2, playback.Tracks.Count(t => !t.IsBuiltIn));
+
+                Assert.IsTrue(playback.Tracks.Exists(track1Name));
+                Assert.IsTrue(playback.Tracks.Exists(track2Name));
+                Assert.IsFalse(playback.Tracks.Exists("SOME_UNKNOWN_TRACK_NAME"));
+
+                var track1 = playback.Tracks[track1Name];
+                Assert.IsNotNull(track1);
+                Assert.AreEqual(track1Name, track1.Name);
+                Assert.AreEqual(track1CodecId, track1.CodecId);
+                AssertAreEqual(track1CodecContext, track1.CodecContext);
+                Assert.IsFalse(track1.IsBuiltIn);
+
+                var track2 = playback.Tracks[track2Name];
+                Assert.IsNotNull(track2);
+                Assert.AreEqual(track2Name, track2.Name);
+                Assert.AreEqual(track2CodecId, track2.CodecId);
+                AssertAreEqual(track2CodecContext, track2.CodecContext);
+                Assert.IsFalse(track2.IsBuiltIn);
+
+                Assert.IsNull(playback.Tracks["SOME_UNKNOWN_TRACK_NAME"]);
+
+                // Reading of track 1
+
+                Assert.IsFalse(track1.TryGetPreviousDataBlock(out var dataBlock));
+                Assert.IsNull(dataBlock);
+
+                // forward
+                for (var i = 0; i < 10; i += 2)
+                {
+                    Assert.IsTrue(track1.TryGetNextDataBlock(out dataBlock));
+                    Assert.IsNotNull(dataBlock);
+                    Assert.AreEqual(deviceTimestamp0.ValueUsec + i * 100, dataBlock.DeviceTimestamp.ValueUsec);
+                    Assert.AreEqual(1, dataBlock.SizeBytes);
+                    Assert.AreEqual(10 + i, Marshal.ReadByte(dataBlock.Buffer));
+                    dataBlock.Dispose();
+                }
+
+                for (var i = 0; i < 10; i += 2)
+                {
+                    Assert.IsTrue(track1.TryGetNextDataBlock(out dataBlock));
+                    Assert.IsNotNull(dataBlock);
+                    Assert.AreEqual(deviceTimestamp1.ValueUsec + i * 100, dataBlock.DeviceTimestamp.ValueUsec);
+                    Assert.AreEqual(1, dataBlock.SizeBytes);
+                    Assert.AreEqual(20 + i, Marshal.ReadByte(dataBlock.Buffer));
+                    dataBlock.Dispose();
+                }
+
+                // eof
+                Assert.IsFalse(track1.TryGetNextDataBlock(out dataBlock));
                 Assert.IsNull(dataBlock);
 
                 // Reading of track 2
