@@ -30,9 +30,9 @@ namespace K4AdotNet.Samples.Unity
         #region Render objects
 
         private GameObject _root;
-        private IReadOnlyDictionary<JointType, GameObject> _joints;
+        private IReadOnlyDictionary<JointType, Transform> _joints;
         private IReadOnlyCollection<Bone> _bones;
-        private GameObject _head;
+        private Transform _head;
 
         private class Bone
         {
@@ -41,19 +41,21 @@ namespace K4AdotNet.Samples.Unity
                 ParentJoint = parentJoint;
                 ChildJoint = childJoint;
 
-                Object = new GameObject();
-                Object.name = $"{parentJoint}->{childJoint}:pos";
+                var pos = new GameObject();
+                pos.name = $"{parentJoint}->{childJoint}:pos";
 
                 var bone = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                 bone.name = $"{parentJoint}->{childJoint}:bone";
-                bone.transform.parent = Object.transform;
+                bone.transform.parent = pos.transform;
                 bone.transform.localScale = new Vector3(0.033f, 0.5f, 0.033f);
                 bone.transform.localPosition = 0.5f * Vector3.up;
+
+                Transform = pos.transform;
             }
 
             public JointType ParentJoint { get; }
             public JointType ChildJoint { get; }
-            public GameObject Object { get; }
+            public Transform Transform { get; }
         }
 
         private void CreateJoints()
@@ -65,10 +67,10 @@ namespace K4AdotNet.Samples.Unity
                     jt =>
                     {
                         var joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        joint.name = jt.ToString();
                         joint.transform.parent = _root.transform;
                         joint.transform.localScale = 0.075f * Vector3.one;
-                        joint.name = jt.ToString();
-                        return joint;
+                        return joint.transform;
                     });
 
             // Set green as default color
@@ -87,7 +89,7 @@ namespace K4AdotNet.Samples.Unity
         private void SetJointScale(float scale, params JointType[] jointTypes)
         {
             foreach (var jt in jointTypes)
-                _joints[jt].transform.localScale = scale * Vector3.one;
+                _joints[jt].localScale = scale * Vector3.one;
         }
 
         private void SetJointColor(Color color, params JointType[] jointTypes)
@@ -133,15 +135,17 @@ namespace K4AdotNet.Samples.Unity
             _bones = bones;
             foreach (var b in _bones)
             {
-                b.Object.transform.parent = _root.transform;
+                b.Transform.parent = _root.transform;
             }
         }
 
         private void CreateHead()
         {
-            _head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _head.GetComponent<Renderer>().material.color = new Color(0.8f, 0.8f, 0.8f);
-            _head.transform.parent = _root.transform;
+            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.GetComponent<Renderer>().material.color = new Color(0.8f, 0.8f, 0.8f);
+            head.transform.parent = _root.transform;
+
+            _head = head.transform;
         }
 
         #endregion
@@ -234,7 +238,7 @@ namespace K4AdotNet.Samples.Unity
         {
             foreach (var item in _joints)
             {
-                item.Value.transform.localPosition = ConvertKinectPos(skeleton[item.Key].PositionMm);
+                item.Value.localPosition = ConvertKinectPos(skeleton[item.Key].PositionMm);
             }
 
             foreach (var bone in _bones)
@@ -251,9 +255,9 @@ namespace K4AdotNet.Samples.Unity
         {
             var parentPos = ConvertKinectPos(skeleton[bone.ParentJoint].PositionMm);
             var direction = ConvertKinectPos(skeleton[bone.ChildJoint].PositionMm) - parentPos;
-            bone.Object.transform.localPosition = parentPos;
-            bone.Object.transform.localScale = new Vector3(1, direction.magnitude, 1);
-            bone.Object.transform.localRotation = UnityEngine.Quaternion.FromToRotation(Vector3.up, direction);
+            bone.Transform.localPosition = parentPos;
+            bone.Transform.localScale = new Vector3(1, direction.magnitude, 1);
+            bone.Transform.localRotation = UnityEngine.Quaternion.FromToRotation(Vector3.up, direction);
         }
 
         private void PositionHead(Skeleton skeleton)
@@ -263,9 +267,9 @@ namespace K4AdotNet.Samples.Unity
             var earPosL = ConvertKinectPos(skeleton[JointType.EarLeft].PositionMm);
             var headCenter = 0.5f * (earPosR + earPosL);
             var d = (earPosR - earPosL).magnitude;
-            _head.transform.localPosition = headCenter;
-            _head.transform.localRotation = UnityEngine.Quaternion.FromToRotation(Vector3.up, headCenter - headPos);
-            _head.transform.localScale = new Vector3(d, 2 * (headCenter - headPos).magnitude, d);
+            _head.localPosition = headCenter;
+            _head.localRotation = UnityEngine.Quaternion.FromToRotation(Vector3.up, headCenter - headPos);
+            _head.localScale = new Vector3(d, 2 * (headCenter - headPos).magnitude, d);
         }
 
         private static Vector3 ConvertKinectPos(Float3 pos)
