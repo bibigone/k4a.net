@@ -68,22 +68,7 @@ Some important notes:
 
 ## Versions
 
-* [v0.9.0](https://github.com/bibigone/k4a.net/releases/tag/v0.9.0) &mdash; Mostly production-ready version of library
-  * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.9.0
-  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.9.0))
-  * Tested with Azure Kinect Body Tracking SDK 0.9.1 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
-  * Changes:
-    * Icon :)
-    * Some minor bug fixes
-    * Improvements in exceptions and error messages (especially in `Device` class)
-    * Documentation comments for all public API
-    * Sample for Unity
-    * Switching to version 0.9.1 of Body Tracking runtime
-
-* [v0.5.0](https://github.com/bibigone/k4a.net/releases/tag/v0.5.0) &mdash; First public build. Stable enough to be used in pre-production projects
-  * NuGet package: https://www.nuget.org/packages/K4AdotNet/0.5.0
-  * Corresponding version of Azure Kinect Sensor SDK: 1.1.1 (included in release and [NuGet package](https://www.nuget.org/packages/K4AdotNet/0.5.0)
-  * Tested with Azure Kinect Body Tracking SDK 0.9.0 and 0.9.1 (must be [installed separately](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup))
+See https://github.com/bibigone/k4a.net/releases
 
 
 ## Roadmap
