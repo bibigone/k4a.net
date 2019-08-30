@@ -9,13 +9,47 @@ namespace K4AdotNet.Samples.Unity
 {
     public class SkeletonRenderer : MonoBehaviour
     {
-        private Dictionary<JointType, GameObject> _joints;
         private Tracker _tracker;
 
         public bool IsInitialized { get; private set; }
 
         private void Awake()
         {
+            CreateJoints();
+            CreateBones();
+        }
+
+        #region Render objects
+
+        private IReadOnlyDictionary<JointType, GameObject> _joints;
+        private IReadOnlyCollection<Bone> _bones;
+
+        private class Bone
+        {
+            public Bone(JointType parentJoint, JointType childJoint)
+            {
+                ParentJoint = parentJoint;
+                ChildJoint = childJoint;
+
+                Object = new GameObject();
+                Object.name = $"{parentJoint}->{childJoint}:pos";
+
+                var bone = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                bone.name = $"{parentJoint}->{childJoint}:bone";
+                bone.transform.parent = Object.transform;
+                bone.transform.localScale = new Vector3(0.033f, 0.5f, 0.033f);
+                bone.transform.localPosition = 0.5f * Vector3.up;
+                bone.SetActive(true);
+            }
+
+            public JointType ParentJoint { get; }
+            public JointType ChildJoint { get; }
+            public GameObject Object { get; }
+        }
+
+        private void CreateJoints()
+        {
+            // Joints are rendered as spheres
             _joints = typeof(JointType).GetEnumValues().Cast<JointType>()
                 .ToDictionary(
                     jt => jt,
@@ -23,12 +57,17 @@ namespace K4AdotNet.Samples.Unity
                     {
                         var joint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                         joint.transform.parent = transform;
-                        joint.transform.localScale = 0.1f * Vector3.one;
+                        joint.transform.localScale = 0.075f * Vector3.one;
                         joint.name = jt.ToString();
                         joint.SetActive(false);
                         return joint;
                     });
-            SetJointScale(0.05f, JointType.EyeLeft, JointType.EyeRight, JointType.Nose, JointType.EarLeft, JointType.EarRight);
+
+            // Set slightly decreased size for some joints
+            SetJointScale(0.05f, JointType.Neck, JointType.Head, JointType.ClavicleLeft, JointType.ClavicleRight);
+
+            // Set greatly decreased size and specific colors for face joints
+            SetJointScale(0.033f, JointType.EyeLeft, JointType.EyeRight, JointType.Nose, JointType.EarLeft, JointType.EarRight);
             SetJointColor(Color.cyan, JointType.EyeLeft, JointType.EyeRight);
             SetJointColor(Color.magenta, JointType.Nose);
             SetJointColor(Color.yellow, JointType.EarLeft, JointType.EarRight);
@@ -45,6 +84,50 @@ namespace K4AdotNet.Samples.Unity
             foreach (var jt in jointTypes)
                 _joints[jt].GetComponent<Renderer>().material.color = color;
         }
+
+        private void CreateBones()
+        {
+            var bones = new List<Bone>();
+            
+            // Spine
+            bones.Add(new Bone(JointType.Pelvis, JointType.SpineNaval));
+            bones.Add(new Bone(JointType.SpineNaval, JointType.SpineChest));
+            bones.Add(new Bone(JointType.SpineChest, JointType.Neck));
+            bones.Add(new Bone(JointType.Neck, JointType.Head));
+
+            // Right arm
+            bones.Add(new Bone(JointType.SpineChest, JointType.ClavicleRight));
+            bones.Add(new Bone(JointType.ClavicleRight, JointType.ShoulderRight));
+            bones.Add(new Bone(JointType.ShoulderRight, JointType.ElbowRight));
+            bones.Add(new Bone(JointType.ElbowRight, JointType.WristRight));
+
+            // Left arm
+            bones.Add(new Bone(JointType.SpineChest, JointType.ClavicleLeft));
+            bones.Add(new Bone(JointType.ClavicleLeft, JointType.ShoulderLeft));
+            bones.Add(new Bone(JointType.ShoulderLeft, JointType.ElbowLeft));
+            bones.Add(new Bone(JointType.ElbowLeft, JointType.WristLeft));
+
+            // Right leg
+            bones.Add(new Bone(JointType.Pelvis, JointType.HipRight));
+            bones.Add(new Bone(JointType.HipRight, JointType.KneeRight));
+            bones.Add(new Bone(JointType.KneeRight, JointType.AnkleRight));
+            bones.Add(new Bone(JointType.AnkleRight, JointType.FootRight));
+
+            // Left leg
+            bones.Add(new Bone(JointType.Pelvis, JointType.HipLeft));
+            bones.Add(new Bone(JointType.HipLeft, JointType.KneeLeft));
+            bones.Add(new Bone(JointType.KneeLeft, JointType.AnkleLeft));
+            bones.Add(new Bone(JointType.AnkleLeft, JointType.FootLeft));
+
+            _bones = bones;
+            foreach (var b in _bones)
+            {
+                b.Object.transform.parent = transform;
+                b.Object.SetActive(false);
+            }
+        }
+
+        #endregion
 
         private void Start()
         {
@@ -134,16 +217,38 @@ namespace K4AdotNet.Samples.Unity
         {
             foreach (var item in _joints)
             {
-                var j = skeleton[item.Key];
-                item.Value.transform.localPosition = 0.001f * new Vector3(j.PositionMm.X, -j.PositionMm.Y, j.PositionMm.Z);
+                item.Value.transform.localPosition = ConvertKinectPos(skeleton[item.Key].PositionMm);
                 item.Value.SetActive(true);
             }
+
+            foreach (var bone in _bones)
+            {
+                var parentPos = ConvertKinectPos(skeleton[bone.ParentJoint].PositionMm);
+                var direction = ConvertKinectPos(skeleton[bone.ChildJoint].PositionMm) - parentPos;
+                bone.Object.transform.localPosition = parentPos;
+                bone.Object.transform.localScale = new Vector3(1, direction.magnitude, 1);
+                bone.Object.transform.localRotation = UnityEngine.Quaternion.FromToRotation(Vector3.up, direction);
+                bone.Object.SetActive(true);
+            }
+        }
+
+        private static Vector3 ConvertKinectPos(Float3 pos)
+        {
+            // Kinect Y axis points down, so negate Y coordinate
+            // Scale to convert millimeters to meters
+            // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
+            // Other transforms (positioning of the skeleton in the scene, mirroring)
+            // are handled by properties of ascendant GameObject's
+            return 0.001f * new Vector3(pos.X, -pos.Y, pos.Z);
         }
 
         private void HideSkeleton()
         {
             foreach (var joint in _joints.Values)
                 joint.SetActive(false);
+
+            foreach (var bone in _bones)
+                bone.Object.SetActive(false);
         }
     }
 }
