@@ -45,9 +45,12 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed depth = tex2D(_MainTex, i.uv).r;
-				depth = clamp(depth * 65535, _MinDepth, _MaxDepth);
-				fixed c = (_MaxDepth - depth) / (_MaxDepth - _MinDepth);
+                float depth = tex2D(_MainTex, i.uv).r;
+				float2 depthRange = float2(_MinDepth, _MaxDepth) / 65535.;
+				// Linear grayscale coloring along specified depth range, from white (near) to black (far)
+				depth = clamp(depth, depthRange.x, depthRange.y);
+				fixed c = (depthRange.y - depth) / (depthRange.y - depthRange.x);
+				// Pixels of unknown depth are rendered transparent
 				fixed a = depth == 0 ? 0 : 1;
 				return fixed4(c, c, c, a);
             }

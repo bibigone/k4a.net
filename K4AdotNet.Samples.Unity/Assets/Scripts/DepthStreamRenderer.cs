@@ -6,7 +6,6 @@ namespace K4AdotNet.Samples.Unity.Assets.Scripts
 {
     public class DepthStreamRenderer : MonoBehaviour
     {
-        public float Alpha;
         public Material DepthToColorMaterial;
 
         private Texture2D _depthTexture;
@@ -14,8 +13,6 @@ namespace K4AdotNet.Samples.Unity.Assets.Scripts
 
         private void Start()
         {
-            GetComponent<CanvasRenderer>().SetAlpha(Alpha);
-
             var captureManager = FindObjectOfType<CaptureManager>();
             if (captureManager.IsInitialized)
             {
@@ -28,6 +25,7 @@ namespace K4AdotNet.Samples.Unity.Assets.Scripts
                 _renderTexture.Create();
 
                 GetComponent<RawImage>().texture = _renderTexture;
+                GetComponent<AspectRatioFitter>().aspectRatio = (float)frameWidth / frameHeight;
 
                 captureManager.CaptureReady += CaptureManager_CaptureReady;
             }

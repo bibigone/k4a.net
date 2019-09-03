@@ -6,24 +6,21 @@ namespace K4AdotNet.Samples.Unity
 {
     public class ColorStreamRenderer : MonoBehaviour
     {
-        public float Alpha;
-
         private Texture2D _texture;
 
         // Start is called before the first frame update
         void Start()
         {
-            GetComponent<CanvasRenderer>().SetAlpha(Alpha);
-
             var captureManager = FindObjectOfType<CaptureManager>();
             if (captureManager.IsInitialized)
             {
-                _texture = new Texture2D(
-                    captureManager.Configuration.ColorResolution.WidthPixels(),
-                    captureManager.Configuration.ColorResolution.HeightPixels(),
-                    TextureFormat.BGRA32, false);
+                var frameWidth = captureManager.Configuration.ColorResolution.WidthPixels();
+                var frameHeight = captureManager.Configuration.ColorResolution.HeightPixels();
+
+                _texture = new Texture2D(frameWidth, frameHeight, TextureFormat.BGRA32, false);
 
                 GetComponent<RawImage>().texture = _texture;
+                GetComponent<AspectRatioFitter>().aspectRatio = (float)frameWidth / frameHeight;
 
                 captureManager.CaptureReady += CaptureManager_CaptureReady;
             }
