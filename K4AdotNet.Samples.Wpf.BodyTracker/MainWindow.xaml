@@ -68,5 +68,35 @@
                         Content="Open device" Click="OpenDevice" IsEnabled="{Binding IsOpenDeviceEnabled}"/>
             </Grid>
         </GroupBox>
+        <!-- Settings -->
+        <GroupBox Header="Body Tracking Settings">
+            <StackPanel Orientation="Vertical" Margin="4">
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Margin="3">Orientation:</Label>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding SensorOrientations}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding SensorOrientation}"/>
+                    <Label Grid.Row="1" Grid.Column="0" Margin="3,0">Smoothing:</Label>
+                    <Slider Grid.Row="1" Grid.Column="1" Margin="3,0" VerticalAlignment="Bottom"
+                            Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.25"
+                            TickPlacement="BottomRight"
+                            Value="{Binding SmoothingFactor}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Left" VerticalAlignment="Top">&lt; low</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Right" VerticalAlignment="Top">high &gt;</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" FontSize="14" TextAlignment="Center" VerticalAlignment="Top"><Run Text="{Binding SmoothingFactor, Mode=OneWay, StringFormat=0.00}"/></TextBlock>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
     </StackPanel>
 </Window>

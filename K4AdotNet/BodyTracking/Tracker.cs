@@ -18,9 +18,12 @@ namespace K4AdotNet.BodyTracking
 
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;   // this class is an wrapper around this handle
         private volatile int queueSize;                                                     // captures in queue
+        private float temporalSmoothingFactor = DefaultSmoothingFactor;
+        private readonly object temporalSmoothingFactorSync = new object();
 
         /// <summary>Creates a body tracker.</summary>
         /// <param name="calibration">The sensor calibration that will be used for capture processing.</param>
+        /// <param name="config">The configuration we want to run the tracker in. This can be initialized with <see cref="TrackerConfiguration.Default"/>.</param>
         /// <remarks><para>
         /// Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
         /// It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
@@ -44,7 +47,7 @@ namespace K4AdotNet.BodyTracking
         /// </exception>
         /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>
-        public Tracker(ref Calibration calibration)
+        public Tracker(ref Calibration calibration, TrackerConfiguration config = default(TrackerConfiguration))
         {
             if (!calibration.DepthMode.HasDepth())
                 throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
@@ -57,7 +60,7 @@ namespace K4AdotNet.BodyTracking
                 if (incrementedInstanceCounter != 1)
                     throw new NotSupportedException("Oops! Current version of Body Tracking runtime does not support creation of multiple body trackers. Sorry!");
 
-                if (!Sdk.TryCreateTrackerHandle(ref calibration, out var handle, out var message))
+                if (!Sdk.TryCreateTrackerHandle(ref calibration, config, out var handle, out var message))
                     throw new BodyTrackingException(message);
 
                 this.handle = handle;
@@ -101,6 +104,9 @@ namespace K4AdotNet.BodyTracking
         /// If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="TryPopResult(out BodyFrame, Timeout)"/> can
         /// still return successfully. Once the tracker queue is empty, the <see cref="TryPopResult(out BodyFrame, Timeout)"/> call will always immediately
         /// return failure.
+        /// </para><para>
+        /// This function may be called while another thread is blocking in <see cref="TryEnqueueCapture(Capture, Timeout)"/> or <see cref="TryPopResult(out BodyFrame, Timeout)"/>.
+        /// Calling this function while another thread is in that function will result in that function raising an exception.
         /// </para></remarks>
         public void Shutdown()
         {
@@ -127,6 +133,37 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Raised on decreasing of <see cref="QueueSize"/>.</summary>
         public event EventHandler QueueSizeDecreased;
+
+        /// <summary>Temporal smoothing across frames (0 - 1). Default value is <see cref="DefaultSmoothingFactor"/>.</summary>
+        /// <remarks>
+        /// Set between 0 for no smoothing and 1 for full smoothing.
+        /// Less smoothing will increase the responsiveness of the
+        /// detected skeletons but will cause more positional and orientation jitters.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">Value is less than zero or is greater than one.</exception>
+        /// <exception cref="ObjectDisposedException">Object was disposed.</exception>
+        public float TemporalSmoothingFactor
+        {
+            get
+            {
+                lock (temporalSmoothingFactorSync)
+                {
+                    return temporalSmoothingFactor;
+                }
+            }
+
+            set
+            {
+                if (value < 0 || value > 1)
+                    throw new ArgumentOutOfRangeException(nameof(TemporalSmoothingFactor));
+
+                lock (temporalSmoothingFactorSync)
+                {
+                    NativeApi.TrackerSetTemporalSmoothing(handle.ValueNotDisposed, value);
+                    temporalSmoothingFactor = value;
+                }
+            }
+        }
 
         /// <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
         /// <param name="capture">It should contain the depth data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
@@ -251,5 +288,8 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Max amount of captures that can be simultaneously in processing pipeline.</summary>
         /// <seealso cref="IsQueueFull"/>
         public static readonly int MaxQueueSize = NativeApi.MAX_TRACKING_QUEUE_SIZE;
+
+        /// <summary>The default tracker temporal smoothing factor.</summary>
+        public static readonly float DefaultSmoothingFactor = NativeApi.DEFAULT_TRACKER_SMOOTHING_FACTOR;
     }
 }

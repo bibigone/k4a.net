@@ -5,6 +5,7 @@
 #ifndef K4ABT_H
 #define K4ABT_H
 
+#include <k4abtversion.h>
 #include <k4abttypes.h>
 
 #ifdef K4ABT_STATIC_DEFINE
@@ -39,9 +40,12 @@ extern "C" {
  * \param sensor_calibration
  * The sensor calibration that will be used for capture processing.
  *
+ * \param config
+ * The configuration we want to run the tracker in. This can be initialized with ::K4ABT_TRACKER_CONFIG_DEFAULT.
+ *
  * \param tracker_handle
  * Output parameter which on success will return a handle to the body tracker.
- * 
+ *
  * \relates k4abt_tracker_t
  *
  * \return ::K4A_RESULT_SUCCEEDED if the body tracker handle was created successfully.
@@ -54,10 +58,11 @@ extern "C" {
  * When done with body tracking, close the handle with k4abt_tracker_destroy().
  *
  * \remarks
- * Only one tracker is allowed to exist at the same time in each process. If you call this API without destroying the 
+ * Only one tracker is allowed to exist at the same time in each process. If you call this API without destroying the
  * previous tracker you created, the API call will fail.
  */
  K4ABT_EXPORT k4a_result_t k4abt_tracker_create(const k4a_calibration_t* sensor_calibration,
+                                                k4abt_tracker_configuration_t config,
                                                 k4abt_tracker_t* tracker_handle);
 
 /** Releases a body tracker handle.
@@ -71,6 +76,22 @@ extern "C" {
  * Once released, the tracker_handle is no longer valid.
  */
  K4ABT_EXPORT void k4abt_tracker_destroy(k4abt_tracker_t tracker_handle);
+
+ /** Control the temporal smoothing across frames.
+ *
+ * \param tracker_handle
+ * Handle obtained by k4abt_tracker_create().
+ *
+ * \param smoothing_factor
+ * Set between 0 for no smoothing and 1 for full smoothing. Less smoothing will increase the responsiveness of the
+ * detected skeletons but will cause more positional and oriantational jitters.
+ *
+ * \relates k4abt_tracker_t
+ *
+ * \remarks
+ * The default smoothness value is defined as K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR.
+ */
+ K4ABT_EXPORT void k4abt_tracker_set_temporal_smoothing(k4abt_tracker_t tracker_handle, float smoothing_factor);
 
 /** Add a k4a sensor capture to the tracker input queue to generate its body tracking result asynchronously.
  *
@@ -113,7 +134,7 @@ extern "C" {
                                                               k4a_capture_t sensor_capture_handle,
                                                               int32_t timeout_in_ms);
 
- /** Gets the next available body frame.
+/** Gets the next available body frame.
  *
  * \param tracker_handle
  * Handle obtained by k4abt_tracker_create().
@@ -135,7 +156,7 @@ extern "C" {
  * \remarks
  * Retrieves the next available body frame result and pop it from the output queue in the k4abt_tracker_t. If a new body
  * frame is not currently available, this function will block up until the timeout is reached. The SDK will buffer at
- * least three body frames worth of data before stopping new capture being queued by k4abt_tracker_queue_capture.
+ * least three body frames worth of data before stopping new capture being queued by k4abt_tracker_enqueue_capture.
  * Once body_frame data is read, the user must call k4abt_frame_release() to return the allocated memory to the SDK.
  *
  * \remarks
@@ -150,22 +171,26 @@ extern "C" {
                                                          k4abt_frame_t* body_frame_handle,
                                                          int32_t timeout_in_ms);
 
- /** Shutdown the tracker so that no further capture can be added to the input queue.
-*
-* \param tracker_handle
-* Handle obtained by k4abt_tracker_create().
-*
-* \relates k4abt_tracker_t
-*
-* \remarks
-* Once the tracker is shutdown, k4abt_tracker_enqueue_capture() API will always immediately return failure.
-*
-* \remarks
-* If there are remaining catpures in the tracker queue after the tracker is shutdown, k4abt_tracker_pop_result() can
-* still return successfully. Once the tracker queue is empty, the k4abt_tracker_pop_result() call will always immediately
-* return failure.
-*
-*/
+/** Shutdown the tracker so that no further capture can be added to the input queue.
+ *
+ * \param tracker_handle
+ * Handle obtained by k4abt_tracker_create().
+ *
+ * \relates k4abt_tracker_t
+ *
+ * \remarks
+ * Once the tracker is shutdown, k4abt_tracker_enqueue_capture() API will always immediately return failure.
+ *
+ * \remarks
+ * If there are remaining catpures in the tracker queue after the tracker is shutdown, k4abt_tracker_pop_result() can
+ * still return successfully. Once the tracker queue is empty, the k4abt_tracker_pop_result() call will always immediately
+ * return failure.
+ *
+ * \remarks
+ * This function may be called while another thread is blocking in k4abt_tracker_enqueue_capture() or k4abt_tracker_pop_result().
+ * Calling this function while another thread is in that function will result in that function returning a failure.
+ *
+ */
  K4ABT_EXPORT void k4abt_tracker_shutdown(k4abt_tracker_t tracker_handle);
 
 /** Release a body frame back to the SDK
@@ -180,20 +205,20 @@ extern "C" {
  */
  K4ABT_EXPORT void k4abt_frame_release(k4abt_frame_t body_frame_handle);
 
- /** Add a reference to a body frame.
-  *
-  * \param body_frame_handle
-  * Body frame to add a reference to.
-  *
-  * \relates k4abt_frame_t
-  *
-  * \remarks
-  * Call this function to add an additional reference to a body frame. This reference must be removed with
-  * k4abt_frame_release().
-  *
-  * \remarks
-  * This function is not thread-safe.
-  */
+/** Add a reference to a body frame.
+ *
+ * \param body_frame_handle
+ * Body frame to add a reference to.
+ *
+ * \relates k4abt_frame_t
+ *
+ * \remarks
+ * Call this function to add an additional reference to a body frame. This reference must be removed with
+ * k4abt_frame_release().
+ *
+ * \remarks
+ * This function is not thread-safe.
+ */
  K4ABT_EXPORT void k4abt_frame_reference(k4abt_frame_t body_frame_handle);
 
 /** Get the number of people from the k4abt_frame_t
@@ -230,7 +255,7 @@ extern "C" {
  */
  K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, size_t index, k4abt_skeleton_t* skeleton);
 
- /** Get the body id for a particular person index from the k4abt_frame_t
+/** Get the body id for a particular person index from the k4abt_frame_t
  *
  * \param body_frame_handle
  * Handle to a body frame object returned by k4abt_tracker_pop_result function.
@@ -248,7 +273,7 @@ extern "C" {
  */
  K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, size_t index);
 
- /** Get the body frame timestamp in microseconds
+/** Get the body frame's device timestamp in microseconds
  *
  * \param body_frame_handle
  * Handle to a body frame object returned by k4abt_tracker_pop_result function.
@@ -262,7 +287,7 @@ extern "C" {
  * \remarks Called when the user has received a body frame handle and wants to access the data contained in it.
  *
  */
- K4ABT_EXPORT uint64_t k4abt_frame_get_timestamp_usec(k4abt_frame_t body_frame_handle);
+ K4ABT_EXPORT uint64_t k4abt_frame_get_device_timestamp_usec(k4abt_frame_t body_frame_handle);
 
 /** Get the body index map from k4abt_frame_t
  *
@@ -282,7 +307,7 @@ extern "C" {
  */
  K4ABT_EXPORT k4a_image_t k4abt_frame_get_body_index_map(k4abt_frame_t body_frame_handle);
 
- /** Get the original capture that is used to calculate the k4abt_frame_t
+/** Get the original capture that is used to calculate the k4abt_frame_t
  *
  * \param body_frame_handle
  * Handle to a body frame object returned by k4abt_tracker_pop_result function.
@@ -307,7 +332,8 @@ extern "C" {
         k4a_calibration_t sensor_calibration = ...
 
         k4abt_tracker_t tracker;
-        k4abt_tracker_create(&sensor_calibration, &tracker);
+        k4abt_tracker_configuration_t tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
+        k4abt_tracker_create(&sensor_calibration, tracker_config, &tracker);
 
         while (!stop)
         {

@@ -35,8 +35,8 @@ K4A_DECLARE_HANDLE(k4abt_tracker_t);
 
 /** Handle to a k4a body tracking frame.
  *
- * Handles are created with k4abt_process_capture and closed
- * with k4abt_release_frame. Invalid handles are set to 0.
+ * Handles are created with k4abt_tracker_pop_result and closed
+ * with k4abt_frame_release. Invalid handles are set to 0.
  */
 K4A_DECLARE_HANDLE(k4abt_frame_t);
 
@@ -84,6 +84,37 @@ typedef enum
     K4ABT_JOINT_EAR_RIGHT,
     K4ABT_JOINT_COUNT
 } k4abt_joint_id_t;
+
+/** Sensor mounting orientation types.
+ *
+ * \remarks
+ * This enumeration specifies the sensor mounting orientation. Passing the correct orientation in k4abt_tracker_create()
+ * can help the body tracker to achieve more accurate body tracking.
+ *
+ * \remarks
+ * The sensor orientation is defined while facing the camera.
+ */
+typedef enum
+{
+    K4ABT_SENSOR_ORIENTATION_DEFAULT = 0,        /**< Mount the sensor at its default orientation */
+    K4ABT_SENSOR_ORIENTATION_CLOCKWISE90,        /**< Clockwisely rotate the sensor 90 degree */
+    K4ABT_SENSOR_ORIENTATION_COUNTERCLOCKWISE90, /**< Counter-clockwisely rotate the sensor 90 degrees */
+    K4ABT_SENSOR_ORIENTATION_FLIP180,            /**< Mount the sensor upside-down */
+} k4abt_sensor_orientation_t;
+
+/** Configuration parameters for a k4abt body tracker
+ *
+ * \remarks
+ * Used by k4abt_tracker_create() to specify the configuration of the k4abt tracker
+ */
+typedef struct _k4abt_tracker_configuration_t
+{
+    /** The sensor mounting orientation type.
+     *
+     * Setting the correct orientation can help the body tracker to achieve more accurate body tracking results
+     */
+    k4abt_sensor_orientation_t sensor_orientation;
+} k4abt_tracker_configuration_t;
 
 /**
  *
@@ -154,9 +185,20 @@ typedef struct _k4abt_body_t
  */
 #define K4ABT_BODY_INDEX_MAP_BACKGROUND 255
 
- /** The invalid body id value
-  */
+/** The invalid body id value
+ */
 #define K4ABT_INVALID_BODY_ID 0xFFFFFFFF
+
+ /** The default tracker temporal smoothing factor
+  */
+#define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.5f
+
+/** Default configuration setting for k4abt tracker.
+ *
+ * \remarks
+ * Use this setting to initialize a \ref k4abt_tracker_configuration_t to a default state.
+ */
+static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT };
 
 /**
  * @}

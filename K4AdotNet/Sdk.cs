@@ -1,7 +1,8 @@
-﻿using K4AdotNet.Sensor;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 [assembly: CLSCompliant(isCompliant: true)]
@@ -18,7 +19,7 @@ namespace K4AdotNet
         public const string SENSOR_DLL_NAME = "k4a";
 
         /// <summary>Name of depth engine library (DLL) from Azure Kinect Sensor SDK.</summary>
-        /// <remarks>This library is required for <see cref="Device.StartCameras(DeviceConfiguration)"/> and <see cref="Transformation.Transformation(ref Calibration)"/>.</remarks>
+        /// <remarks>This library is required for <see cref="Sensor.Device.StartCameras"/> and <see cref="Sensor.Transformation.Transformation"/>.</remarks>
         public const string DEPTHENGINE_DLL_NAME = "depthengine_2_0";
 
         /// <summary>Name of record library (DLL) from Azure Kinect Sensor SDK.</summary>
@@ -29,6 +30,9 @@ namespace K4AdotNet
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
 
+        /// <summary>Expected version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
+        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(0, 9, 2);
+
         /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string ONNX_RUNTIME_DLL_NAME = "onnxruntime";
@@ -36,6 +40,18 @@ namespace K4AdotNet
         /// <summary>Name of ONNX file with model of neural network used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model.onnx";
+
+        /// <summary>ONNX runtime depends on NVIDIA cuDNN library. This list contains all required components for cuDNN under Windows.</summary>
+        public static readonly IReadOnlyList<string> CUDNN_DLL_NAMES = new[]
+        {
+            "cublas64_100.dll",
+            "cudart64_100.dll",
+            "cudnn64_7.dll",
+            "vcomp140.dll"
+        }.ToList().AsReadOnly();
+
+        /// <summary>Extension of Dynamic Link Libraries (DLL) under Windows.</summary>
+        private const string DLL_EXTENSION_WIN = ".dll";
 
         #endregion
 
@@ -150,15 +166,14 @@ namespace K4AdotNet
             if (!IsOSCompatibleWithBodyTracking(out message))
                 return false;
 
-            var cudaBinPath = GetCudaPathForBodyTracking(out message);
-            if (string.IsNullOrEmpty(cudaBinPath))
-                return false;
-
-            if (!IsCudnnAvailableForBodyTracking(cudaBinPath, out message))
-                return false;
-
             var bodyTrackingRuntimePath = GetBodyTrackingRuntimePath(out message);
             if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
+                return false;
+
+            if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
+                return false;
+
+            if (!IsCudnnAvailableForBodyTracking(bodyTrackingRuntimePath, out message))
                 return false;
 
             message = null;
@@ -186,11 +201,11 @@ namespace K4AdotNet
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
         /// </para></remarks>
         /// <seealso cref="IsBodyTrackingRuntimeAvailable(out string)"/>
-        /// <seealso cref="BodyTracking.Tracker.Tracker(ref Calibration)"/>
+        /// <seealso cref="BodyTracking.Tracker.Tracker"/>
         public static bool TryInitializeBodyTrackingRuntime(out string message)
         {
-            Calibration.CreateDummy(DepthMode.NarrowView2x2Binned, ColorResolution.Off, out var calibration);
-            if (!TryCreateTrackerHandle(ref calibration, out var trackerHandle, out message))
+            Sensor.Calibration.CreateDummy(Sensor.DepthMode.NarrowView2x2Binned, Sensor.ColorResolution.Off, out var calibration);
+            if (!TryCreateTrackerHandle(ref calibration, BodyTracking.TrackerConfiguration.Default, out var trackerHandle, out message))
             {
                 return false;
             }
@@ -200,9 +215,29 @@ namespace K4AdotNet
             return true;
         }
 
+        private static bool CheckBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath, out string message)
+        {
+            var path = Path.Combine(bodyTrackingRuntimePath, BODY_TRACKING_DLL_NAME + DLL_EXTENSION_WIN);
+            if (File.Exists(path))
+            {
+                var fvi = FileVersionInfo.GetVersionInfo(path);
+                if (fvi != null && !string.IsNullOrEmpty(fvi.FileVersion))
+                {
+                    if (Version.TryParse(fvi.FileVersion, out var version) && version >= BODY_TRACKING_EXPECTED_VERSION)
+                    {
+                        message = null;
+                        return true;
+                    }
+                }
+            }
+
+            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} of Body Tracking runtime is expected.";
+            return false;
+        }
+
         private static string GetBodyTrackingRuntimePath(out string message)
         {
-            const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\sdk\windows-desktop\amd64\release\bin";
+            const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\tools";
 
             message = null;
 
@@ -234,7 +269,7 @@ namespace K4AdotNet
             if (ProbePathForBodyTrackingRuntime(sdkBinDir))
                 return sdkBinDir;
 
-            message = "Cannot find Body Tracking runtime (neither in application directory, nor in Body Tracking SDK directory).";
+            message = "Cannot find Body Tracking runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
             return null;
         }
 
@@ -258,14 +293,46 @@ namespace K4AdotNet
             return true;
         }
 
-        private static string GetCudaPathForBodyTracking(out string message)
+        private static bool IsCudnnAvailableForBodyTracking(string bodyTrackingRuntimePath, out string message)
         {
-            const string CUDA_VERSION = "10.0";
+            if (ProbePathForBodyTrackingRuntime(bodyTrackingRuntimePath))
+            {
+                message = null;
+                return true;
+            }
+
+            var cudaBinPath = GetCudaBinPath();
+            if (!string.IsNullOrEmpty(cudaBinPath) && ProbePathForCudnn(cudaBinPath))
+            {
+                message = null;
+                return true;
+            }
+
+            message = $"Body tracking uses ONNX runtime ({ONNX_RUNTIME_DLL_NAME}), which in turn depends on NVIDIA cuDNN v7.5.x and CUDA 10.0 libraries: {string.Join(", ", CUDNN_DLL_NAMES)}.";
+            return false;
+        }
+
+        private static bool ProbePathForCudnn(string path)
+        {
+            if (!Directory.Exists(path))
+                return false;
+
+            foreach (var dllName in CUDNN_DLL_NAMES)
+            {
+                var fullPath = Path.Combine(path, dllName + DLL_EXTENSION_WIN);
+                if (!File.Exists(dllName))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static string GetCudaBinPath()
+        {
             const string CUDA_PATH_VARIABLE_NAME = "CUDA_PATH";
             const string CUDA_10_0_PATH_VARIABLE_NAME = "CUDA_PATH_V10_0";
             const string PATH_VARIABLE_NAME = "Path";
             const char PATH_ITEMS_SEPARATOR = ';';
-            const string CUDA_RUNTIME_DLL = "cudart64_100.dll";
 
             var cudaPath = Environment.GetEnvironmentVariable(CUDA_10_0_PATH_VARIABLE_NAME);
             if (string.IsNullOrWhiteSpace(cudaPath))
@@ -274,15 +341,12 @@ namespace K4AdotNet
                 || cudaPath.IndexOfAny(Path.GetInvalidPathChars()) >= 0
                 || !Directory.Exists(cudaPath))
             {
-                message = $"CUDA {CUDA_VERSION} must be installed.";
                 return null;
             }
             var cudaDir = new DirectoryInfo(cudaPath);
 
             var pathVariable = Environment.GetEnvironmentVariable(PATH_VARIABLE_NAME) ?? string.Empty;
             var pathVariableItems = pathVariable.Split(PATH_ITEMS_SEPARATOR);
-            string cudaBinPath = null;
-            var wasButWrongVersion = false;
             foreach (var item in pathVariableItems)
             {
                 if (!string.IsNullOrWhiteSpace(item) && item.IndexOfAny(Path.GetInvalidPathChars()) < 0)
@@ -290,63 +354,24 @@ namespace K4AdotNet
                     var itemDir = new DirectoryInfo(item);
                     if (Helpers.IsSubdirOf(itemDir, cudaDir) && itemDir.Exists)
                     {
-                        var cudaRuntimeDllPath = Path.Combine(itemDir.FullName, CUDA_RUNTIME_DLL);
-                        if (File.Exists(cudaRuntimeDllPath))
-                        {
-                            var ver = FileVersionInfo.GetVersionInfo(cudaRuntimeDllPath);
-                            if (ver != null && ver.FileDescription != null && ver.FileDescription.Contains($"Version {CUDA_VERSION}."))
-                            {
-                                cudaBinPath = itemDir.FullName;
-                                break;
-                            }
-                            else
-                            {
-                                wasButWrongVersion = true;
-                            }
-                        }
+                        return itemDir.FullName;
                     }
                 }
             }
 
-            if (string.IsNullOrEmpty(cudaBinPath))
-            {
-                message = wasButWrongVersion
-                    ? $"Version {CUDA_VERSION} of CUDA is required. Different version found. Please install CUDA {CUDA_VERSION}."
-                    : $"CUDA {CUDA_VERSION} is not installed or environment variable {PATH_VARIABLE_NAME} does not contain path to binary directory of CUDA {CUDA_VERSION}.";
-                return null;
-            }
-
-            message = null;
-            return cudaBinPath;
-        }
-
-        private static bool IsCudnnAvailableForBodyTracking(string cudaBinPath, out string message)
-        {
-            const string CUDNN_DLL = "cudnn64_7.dll";
-
-            var cudnnPath = Path.Combine(cudaBinPath, CUDNN_DLL);
-            if (!File.Exists(cudnnPath))
-            {
-                message = $"cuDNN v7.5.x for CUDA 10.0 is not installed: {CUDNN_DLL} library is not found in CUDA binary directory \"{cudaBinPath}\".";
-                return false;
-            }
-
-            message = null;
-            return true;
+            return null;
         }
 
         private static bool ProbePathForBodyTrackingRuntime(string path)
         {
-            const string DLL_EXTENSION = ".dll";
-
             if (!Directory.Exists(path))
                 return false;
 
-            var k4abt = Path.Combine(path, BODY_TRACKING_DLL_NAME + DLL_EXTENSION);
+            var k4abt = Path.Combine(path, BODY_TRACKING_DLL_NAME + DLL_EXTENSION_WIN);
             if (!File.Exists(k4abt))
                 return false;
 
-            var onnxruntime = Path.Combine(path, ONNX_RUNTIME_DLL_NAME + DLL_EXTENSION);
+            var onnxruntime = Path.Combine(path, ONNX_RUNTIME_DLL_NAME + DLL_EXTENSION_WIN);
             if (!File.Exists(onnxruntime))
                 return false;
 
@@ -357,7 +382,8 @@ namespace K4AdotNet
             return true;
         }
 
-        internal static bool TryCreateTrackerHandle(ref Calibration calibration, out NativeHandles.TrackerHandle trackerHandle, out string message)
+        internal static bool TryCreateTrackerHandle(ref Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
+            out NativeHandles.TrackerHandle trackerHandle, out string message)
         {
             string runtimePath;
 
@@ -376,16 +402,23 @@ namespace K4AdotNet
                 runtimePath = bodyTrackingRuntimePath;
             }
 
+            if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
+            {
+                trackerHandle = null;
+                return false;
+            }
+
             // Force loading of k4a.dll,
             // because k4abt.dll depends on it
-            NativeHandles.NativeApi.CaptureRelease(IntPtr.Zero);
+            var tmp = new Sensor.Capture();
+            tmp.Dispose();
 
             // We have to change current directory,
             // because Body Tracking runtime will try to load ONNX file from current directory
             // (Adding to Path environment variable doesn't work.)
             using (new CurrentDirectoryOverrider(runtimePath))
             {
-                if (BodyTracking.NativeApi.TrackerCreate(ref calibration, out trackerHandle) != NativeCallResults.Result.Succeeded
+                if (BodyTracking.NativeApi.TrackerCreate(ref calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
                     || trackerHandle == null || trackerHandle.IsInvalid)
                 {
                     if (IsBodyTrackingRuntimeAvailable(out message))

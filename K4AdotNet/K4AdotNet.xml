@@ -36,9 +36,12 @@
             <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed objects.</exception>
             <seealso cref="M:K4AdotNet.BodyTracking.BodyFrame.Dispose"/>
         </member>
-        <member name="P:K4AdotNet.BodyTracking.BodyFrame.Timestamp">
-            <summary>Gets the body frame timestamp.</summary>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.DeviceTimestamp">
+            <summary>Gets the body frame's device timestamp.</summary>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.Timestamp">
+            <summary>Deprecated in version 0.9.2 of Body Tracking SDK. Please use <see cref="P:K4AdotNet.BodyTracking.BodyFrame.DeviceTimestamp"/> property instead of this one.</summary>
         </member>
         <member name="P:K4AdotNet.BodyTracking.BodyFrame.BodyCount">
             <summary>Gets the number of detected bodies.</summary>
@@ -413,15 +416,31 @@
         <member name="T:K4AdotNet.BodyTracking.NativeApi">
             <summary>DLL imports for most of native functions from <c>k4abt.h</c> header file.</summary>
         </member>
-        <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.NativeHandles.TrackerHandle@)">
+        <member name="F:K4AdotNet.BodyTracking.NativeApi.DEFAULT_TRACKER_SMOOTHING_FACTOR">
+            <summary>The default tracker temporal smoothing factor.</summary>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration,K4AdotNet.NativeHandles.TrackerHandle@)">
             <summary>Create a body tracker handle.</summary>
             <param name="sensorCalibration">The sensor calibration that will be used for capture processing.</param>
+            <param name="config">The configuration we want to run the tracker in. This can be initialized with <see cref="F:K4AdotNet.BodyTracking.NativeApi.DEFAULT_TRACKER_SMOOTHING_FACTOR"/>.</param>
             <param name="trackerHandle">Output parameter which on success will return a handle to the body tracker.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if the body tracker handle was created successfully.</returns>
         </member>
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerSetTemporalSmoothing(K4AdotNet.NativeHandles.TrackerHandle,System.Single)">
+            <summary>Control the temporal smoothing across frames.</summary>
+            <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
+            <param name="smoothingFactor">
+            Set between 0 for no smoothing and 1 for full smoothing.
+            Less smoothing will increase the responsiveness of the
+            detected skeletons but will cause more positional and orientation jitters.
+            </param>
+            <remarks>
+            The default smoothness value is defined as <see cref="F:K4AdotNet.BodyTracking.NativeApi.DEFAULT_TRACKER_SMOOTHING_FACTOR"/>.
+            </remarks>
+        </member>
         <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerEnqueueCapture(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.Timeout)">
             <summary>Add a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
-            <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
+            <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
             <param name="sensorCaptureHandle">
             Handle to a sensor capture returned by <see cref="M:K4AdotNet.Sensor.NativeApi.CaptureCreate(K4AdotNet.NativeHandles.CaptureHandle@)"/> from Sensor SDK.
             It should contain the depth data for this function to work. Otherwise the function will return failure.
@@ -451,7 +470,7 @@
         </member>
         <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)">
             <summary>Gets the next available body frame.</summary>
-            <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
+            <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
             <param name="bodyFrameHandle">If successful this contains a handle to a body frame object.</param>
             <param name="timeout">
             Specifies the time the function should block waiting for the body frame. <see cref="F:K4AdotNet.Timeout.NoWait"/> is a check of the status without blocking.
@@ -475,7 +494,7 @@
         </member>
         <member name="M:K4AdotNet.BodyTracking.NativeApi.TrackerShutdown(K4AdotNet.NativeHandles.TrackerHandle)">
              <summary>Shutdown the tracker so that no further capture can be added to the input queue.</summary>
-             <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
+             <param name="trackerHandle">Handle obtained by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerCreate(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration,K4AdotNet.NativeHandles.TrackerHandle@)"/>.</param>
              <remarks>
              Once the tracker is shutdown, <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerEnqueueCapture(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.Timeout)"/> API will always immediately return failure.
             
@@ -507,8 +526,8 @@
             Called when the user has received a body frame handle and wants to access the id of the body given a particular index.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetTimestamp(K4AdotNet.NativeHandles.BodyFrameHandle)">
-            <summary>Get the body frame timestamp.</summary>
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetDeviceTimestamp(K4AdotNet.NativeHandles.BodyFrameHandle)">
+            <summary>Get the body frame's device timestamp.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
             <returns>
             Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
@@ -534,6 +553,27 @@
             <remarks>
             Called when the user has received a body frame handle and wants to access the data contained in it.
             </remarks>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.SensorOrientation">
+            <summary>Sensor mounting orientation types.</summary>
+            <remarks>
+            This enumeration specifies the sensor mounting orientation. Passing the correct orientation in <see cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
+            can help the body tracker to achieve more accurate body tracking.
+            </remarks>
+            <seealso cref="T:K4AdotNet.BodyTracking.TrackerConfiguration"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.SensorOrientation.Default">
+            <summary>Mount the sensor at its default orientation.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.SensorOrientation.Clockwise90">
+            <summary>Clock-wisely rotate the sensor 90°.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.SensorOrientation.Counterclockwise90">
+            <summary>Counter clock-wisely rotate the sensor 90°.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.SensorOrientation.Flip180">
+            <summary>Mount the sensor upside-down.</summary>
         </member>
         <member name="T:K4AdotNet.BodyTracking.Skeleton">
             <summary>Structure to define joints for skeleton.</summary>
@@ -653,9 +693,10 @@
             </para></remarks>
             <seealso cref="T:K4AdotNet.BodyTracking.BodyFrame"/>
         </member>
-        <member name="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@)">
+        <member name="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)">
             <summary>Creates a body tracker.</summary>
             <param name="calibration">The sensor calibration that will be used for capture processing.</param>
+            <param name="config">The configuration we want to run the tracker in. This can be initialized with <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.Default"/>.</param>
             <remarks><para>
             Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
             It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
@@ -703,6 +744,9 @@
             If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> can
             still return successfully. Once the tracker queue is empty, the <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/> call will always immediately
             return failure.
+            </para><para>
+            This function may be called while another thread is blocking in <see cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/> or <see cref="M:K4AdotNet.BodyTracking.Tracker.TryPopResult(K4AdotNet.BodyTracking.BodyFrame@,K4AdotNet.Timeout)"/>.
+            Calling this function while another thread is in that function will result in that function raising an exception.
             </para></remarks>
         </member>
         <member name="P:K4AdotNet.BodyTracking.Tracker.DepthMode">
@@ -724,6 +768,16 @@
         </member>
         <member name="E:K4AdotNet.BodyTracking.Tracker.QueueSizeDecreased">
             <summary>Raised on decreasing of <see cref="P:K4AdotNet.BodyTracking.Tracker.QueueSize"/>.</summary>
+        </member>
+        <member name="P:K4AdotNet.BodyTracking.Tracker.TemporalSmoothingFactor">
+            <summary>Temporal smoothing across frames (0 - 1). Default value is <see cref="F:K4AdotNet.BodyTracking.Tracker.DefaultSmoothingFactor"/>.</summary>
+            <remarks>
+            Set between 0 for no smoothing and 1 for full smoothing.
+            Less smoothing will increase the responsiveness of the
+            detected skeletons but will cause more positional and orientation jitters.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">Value is less than zero or is greater than one.</exception>
+            <exception cref="T:System.ObjectDisposedException">Object was disposed.</exception>
         </member>
         <member name="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)">
             <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
@@ -779,6 +833,22 @@
         <member name="F:K4AdotNet.BodyTracking.Tracker.MaxQueueSize">
             <summary>Max amount of captures that can be simultaneously in processing pipeline.</summary>
             <seealso cref="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Tracker.DefaultSmoothingFactor">
+            <summary>The default tracker temporal smoothing factor.</summary>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.TrackerConfiguration">
+            <summary>Configuration parameters for a k4abt body tracker.</summary>
+            <remarks>Used by <see cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/> to specify the configuration of the k4abt tracker.</remarks>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.SensorOrientation">
+            <summary>The sensor mounting orientation type.</summary>
+            <remarks>Setting the correct orientation can help the body tracker to achieve more accurate body tracking results.</remarks>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.Default">
+            <summary>Default configuration setting for k4abt tracker.</summary>
+            <remarks>Use this setting to initialize a <see cref="T:K4AdotNet.BodyTracking.TrackerConfiguration"/> to a default state.</remarks>
         </member>
         <member name="T:K4AdotNet.Float2">
             <summary>Two dimensional floating point vector.</summary>
@@ -3950,6 +4020,9 @@
             <summary>Name of body tracking library (DLL) from Azure Kinect Body Tracking SDK.</summary>
             <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         </member>
+        <member name="F:K4AdotNet.Sdk.BODY_TRACKING_EXPECTED_VERSION">
+            <summary>Expected version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
+        </member>
         <member name="F:K4AdotNet.Sdk.ONNX_RUNTIME_DLL_NAME">
             <summary>Name of ONNX runtime library (DLL) which is used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
             <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
@@ -3957,6 +4030,12 @@
         <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DNN_MODEL_FILE_NAME">
             <summary>Name of ONNX file with model of neural network used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
             <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
+        </member>
+        <member name="F:K4AdotNet.Sdk.CUDNN_DLL_NAMES">
+            <summary>ONNX runtime depends on NVIDIA cuDNN library. This list contains all required components for cuDNN under Windows.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sdk.DLL_EXTENSION_WIN">
+            <summary>Extension of Dynamic Link Libraries (DLL) under Windows.</summary>
         </member>
         <member name="M:K4AdotNet.Sdk.ConfigureLogging(System.Diagnostics.TraceLevel,System.Boolean,System.String)">
             <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
@@ -4049,7 +4128,7 @@
             installation directory of Body Tracking SDK under <c>Program Files</c>.
             </para></remarks>
             <seealso cref="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)"/>
-            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@)"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
         </member>
         <member name="T:K4AdotNet.Sensor.Calibration">
             <summary>Information about device calibration in particular depth mode and color resolution.</summary>

@@ -44,7 +44,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                             disableColor: DisableColor,
                             disableDepth: false,
                             doNotPlayFasterThanOriginalFps: DoNotPlayFasterThanOriginalFps);
-                        var viewModel = new TrackerModel(app, readingLoop);
+                        var viewModel = new TrackerModel(app, readingLoop, SensorOrientation, SmoothingFactor);
                         app.ShowWindowForModel(viewModel);
                     }
                 }
@@ -102,7 +102,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 using (app.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
-                    var viewModel = new TrackerModel(app, readingLoop);
+                    var viewModel = new TrackerModel(app, readingLoop, SensorOrientation, SmoothingFactor);
                     app.ShowWindowForModel(viewModel);
                 }
             }
@@ -112,6 +112,33 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 app.ShowErrorMessage(exc.Message, "Device Failed");
             }
         }
+
+        #endregion
+
+        #region Settings
+
+        public float SmoothingFactor
+        {
+            get => smoothingFactor;
+            set => SetPropertyValue(ref smoothingFactor, value, nameof(SmoothingFactor));
+        }
+        private float smoothingFactor = BodyTracking.Tracker.DefaultSmoothingFactor;
+
+        public BodyTracking.SensorOrientation SensorOrientation
+        {
+            get => sensorOrientation;
+            set => SetPropertyValue(ref sensorOrientation, value, nameof(SensorOrientation));
+        }
+        private BodyTracking.SensorOrientation sensorOrientation = BodyTracking.SensorOrientation.Default;
+
+        public IReadOnlyList<KeyValuePair<BodyTracking.SensorOrientation, string>> SensorOrientations { get; }
+            = new Dictionary<BodyTracking.SensorOrientation, string>
+            {
+                { BodyTracking.SensorOrientation.Default, "Default" },
+                { BodyTracking.SensorOrientation.Clockwise90, "90° clockwise" },
+                { BodyTracking.SensorOrientation.Counterclockwise90, "90° counter-clockwise" },
+                { BodyTracking.SensorOrientation.Flip180, "Upside-down" },
+            }.ToList();
 
         #endregion
     }
