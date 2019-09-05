@@ -45,19 +45,27 @@
 
 **K4AdotNet** depends on the following native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download):
 
-| Library "component" | Depends on                       | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
-|---------------------|----------------------------------|----------------|---------------------------------------|--------------------------
-| Sensor API          | `k4a.dll`, `depthengine_2_0.dll` | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Record API          | `k4arecord.dll`                  | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`, `onnxruntime.dll`   | 0.9.1          |                                       | no
+| Library "component" | Depends on                                   | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
+|---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
+| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                              | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model.onnx`   | 0.9.2          |                                       | no<sup>(3)</sup>
 
-Some important notes:
-* `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
-* Native libraries from Body Tacking runtime are not included to repository because they, in turn, depend on:
-  * bulky `dnn_model.onnx` file (159 MB)
-  * [NVIDIA CUDA 10.0](https://developer.nvidia.com/cuda-10.0-download-archive)
-  * [NVIDIA cuDNN](https://developer.nvidia.com/cudnn)
-* The easiest way to use Body Tracking is to ask user to install **Body Tracking SDK** and all required components by him/herself based on the following step-by-step instruction: https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup
+Notes:
+* <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
+* <sup>(2)</sup> `k4abt.dll` uses [ONNX Runtime](https://github.com/microsoft/onnxruntime) &mdash; `onnxruntime.dll`, which in turn depends on the following [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) and [NVIDIA CUDA 10.0](https://developer.nvidia.com/cuda-10.0-download-archive) libraries: `cudnn64_7.dll`, `cublas64_100.dll`, `cudart64_100.dll`. Also, Visual C++ Redistributable for Visual Studio 2015 is required: `vcomp140.dll`.
+* <sup>(3)</sup> The full list of libraries and data files required for Body Tracking: <br/>
+`k4abt.dll` (3.7 MB), <br/>
+`dnn_model.onnx` (159 MB), <br/>
+`cudnn64_7.dll` (333 MB), <br/>
+`cublas64_100.dll` (64 MB), <br/>
+`cudart64_100.dll` (0.4 MB), <br/>
+`vcomp140.dll` (0.2 MB). <br/>
+It is mostly unpractical to have such bulky files in repositories. For this reason they are not included to the repository. Also, they are not included to [NuGet package](https://www.nuget.org/packages/K4AdotNet).
+
+How to use Body Tracking runtime:
+* The easiest way to use Body Tracking is to ask user to install **Body Tracking SDK** by him/herself: https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup
+* But you can also put all required libraries and data files to the output directory of your project (on post-build step, for example). All required libraries and data files can be found in directory `tools` of Body Tracking SDK.
 * **K4AdotNet** is trying to find Body Tracking runtime in the following locations:
   * directory with executable file
   * directory with **K4AdotNet** assembly
