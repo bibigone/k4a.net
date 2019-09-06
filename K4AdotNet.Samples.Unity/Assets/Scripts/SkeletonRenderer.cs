@@ -150,33 +150,14 @@ namespace K4AdotNet.Samples.Unity
 
         #endregion
 
-        private void Start()
+        private IEnumerator Start()
         {
-            StartCoroutine(DelayedInitialize());
-        }
+            Debug.Log("Start");
 
-        private IEnumerator DelayedInitialize()
-        {
-            var attempt = 1;
-            do
-            {
-                yield return new WaitForSeconds(2);
+            var appController = FindObjectOfType<ApplicationController>();
+            yield return new WaitUntil(() => appController.IsInitialized);
 
-                try
-                {
-                    IsInitialized = Sdk.TryInitializeBodyTrackingRuntime(out var message);
-                    if (!IsInitialized)
-                    {
-                        Debug.Log($"Cannot initialize body tracking: {message}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"Exception on {nameof(Sdk.TryInitializeBodyTrackingRuntime)}\r\n{ex}");
-                }
-            } while (!IsInitialized && ++attempt <= 3);
-
-            if (IsInitialized)
+            if (appController.IsBodyTrackingAvailable)
             {
                 var captureManager = FindObjectOfType<CaptureManager>();
                 if (captureManager?.IsInitialized == true)
@@ -185,10 +166,8 @@ namespace K4AdotNet.Samples.Unity
                     _tracker = new Tracker(ref calibration);
 
                     captureManager.CaptureReady += DeviceManager_CaptureReady;
-                }
-                else
-                {
-                    IsInitialized = false;
+
+                    IsInitialized = true;
                 }
             }
             else
