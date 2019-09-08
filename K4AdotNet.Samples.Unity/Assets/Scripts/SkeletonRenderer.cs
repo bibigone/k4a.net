@@ -1,5 +1,4 @@
 ﻿using K4AdotNet.BodyTracking;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +8,6 @@ namespace K4AdotNet.Samples.Unity
 {
     public class SkeletonRenderer : MonoBehaviour
     {
-        private Tracker _tracker;
-
-        public bool IsInitialized { get; private set; }
-
         private void Awake()
         {
             _root = new GameObject();
@@ -150,66 +145,33 @@ namespace K4AdotNet.Samples.Unity
 
         #endregion
 
-        private IEnumerator Start()
+        private void OnEnable()
         {
-            Debug.Log("Start");
-
-            var appController = FindObjectOfType<ApplicationController>();
-            yield return new WaitUntil(() => appController.IsInitialized);
-
-            if (appController.IsBodyTrackingAvailable)
+            var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+            if (skeletonProvider != null)
             {
-                var captureManager = FindObjectOfType<CaptureManager>();
-                if (captureManager?.IsInitialized == true)
-                {
-                    var calibration = captureManager.Calibration;
-                    _tracker = new Tracker(ref calibration);
+                skeletonProvider.SkeletonUpdated += SkeletonProvider_SkeletonUpdated;
+            }
+        }
 
-                    captureManager.CaptureReady += DeviceManager_CaptureReady;
+        private void OnDisable()
+        {
+            var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+            if (skeletonProvider != null)
+            {
+                skeletonProvider.SkeletonUpdated -= SkeletonProvider_SkeletonUpdated;
+            }
+        }
 
-                    IsInitialized = true;
-                }
+        private void SkeletonProvider_SkeletonUpdated(object sender, SkeletonEventArgs e)
+        {
+            if (e.Skeleton == null)
+            {
+                HideSkeleton();
             }
             else
             {
-                FindObjectOfType<ErrorMessage>().Show("Cannot initialize Azure Kinect Body Tracking runtime");
-            }
-        }
-
-        private void OnDestroy()
-        {
-            var captureManager = FindObjectOfType<CaptureManager>();
-            if (captureManager != null) captureManager.CaptureReady -= DeviceManager_CaptureReady;
-            _tracker?.Dispose();
-        }
-
-        private void DeviceManager_CaptureReady(object sender, CaptureEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                _tracker.TryEnqueueCapture(e.Capture);
-            }
-        }
-
-        private void Update()
-        {
-            if (IsInitialized)
-            {
-                if (_tracker.TryPopResult(out var bodyFrame))
-                {
-                    using (bodyFrame)
-                    {
-                        if (bodyFrame.BodyCount > 0)
-                        {
-                            bodyFrame.GetBodySkeleton(0, out var skeleton);
-                            RenderSkeleton(skeleton);
-                        }
-                        else
-                        {
-                            HideSkeleton();
-                        }
-                    }
-                }
+                RenderSkeleton(e.Skeleton.Value);
             }
         }
 

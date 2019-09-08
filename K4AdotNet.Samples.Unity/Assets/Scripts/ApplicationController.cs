@@ -1,49 +1,43 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace K4AdotNet.Samples.Unity
 {
     public class ApplicationController : MonoBehaviour
     {
+        private ErrorMessage _errorMessage;
         private GameObject _skeleton;
         private GameObject _character;
         private GameObject _modes;
 
         private void Awake()
         {
+            _errorMessage = FindObjectOfType<ErrorMessage>();
             _skeleton = GetComponentInChildren<SkeletonRenderer>(includeInactive: true)?.gameObject;
             _character = GetComponentInChildren<CharacterAnimator>(includeInactive: true)?.gameObject;
             _modes = GameObject.Find("Modes");
         }
 
-        public bool IsInitialized { get; private set; }
-        public bool IsBodyTrackingAvailable { get; private set; }
-
         private IEnumerator Start()
         {
             _modes.SetActive(false);
 
-            var attempt = 1;
-            do
+            var captureManager = FindObjectOfType<CaptureManager>();
+            yield return new WaitUntil(() => captureManager?.IsInitializationComplete != false);
+            if (captureManager?.IsAvailable != true)
             {
-                yield return new WaitForSeconds(2);
+                _errorMessage.Show("Azure Kinect is not connected or recognized");
+                yield break;
+            }
 
-                try
-                {
-                    IsBodyTrackingAvailable = Sdk.TryInitializeBodyTrackingRuntime(out var message);
-                    if (!IsBodyTrackingAvailable)
-                    {
-                        Debug.Log($"Cannot initialize body tracking: {message}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"Exception on {nameof(Sdk.TryInitializeBodyTrackingRuntime)}\r\n{ex}");
-                }
-            } while (!IsBodyTrackingAvailable && ++attempt <= 3);
+            var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+            yield return new WaitUntil(() => skeletonProvider?.IsInitializationComplete != false);
+            if (skeletonProvider?.IsAvailable != true)
+            {
+                _errorMessage.Show("Cannot initialize Azure Kinect Body Tracking runtime");
+                yield break;
+            }
 
-            IsInitialized = true;
             _modes.SetActive(true);
         }
 

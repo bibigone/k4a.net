@@ -1,14 +1,41 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
-public class CharacterAnimator : MonoBehaviour
+namespace K4AdotNet.Samples.Unity
 {
-    // Start is called before the first frame update
-    void Start()
+    public class CharacterAnimator : MonoBehaviour
     {
-    }
+        private IReadOnlyDictionary<HumanBodyBones, Transform> _boneTransforms;
 
-    // Update is called once per frame
-    void Update()
-    {
+        private void Awake()
+        {
+            var animator = GetComponent<Animator>();
+            _boneTransforms = typeof(HumanBodyBones).GetEnumValues().Cast<HumanBodyBones>()
+                .Except(new[] { HumanBodyBones.LastBone })
+                .ToDictionary(b => b, b => animator.GetBoneTransform(b));
+        }
+
+        private void OnEnable()
+        {
+            var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+            if (skeletonProvider != null)
+            {
+                skeletonProvider.SkeletonUpdated += SkeletonProvider_SkeletonUpdated;
+            }
+        }
+
+        private void OnDisable()
+        {
+            var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+            if (skeletonProvider != null)
+            {
+                skeletonProvider.SkeletonUpdated -= SkeletonProvider_SkeletonUpdated;
+            }
+        }
+
+        private void SkeletonProvider_SkeletonUpdated(object sender, SkeletonEventArgs e)
+        {
+        }
     }
 }

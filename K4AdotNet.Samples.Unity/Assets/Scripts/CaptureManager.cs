@@ -4,11 +4,12 @@ using UnityEngine;
 
 namespace K4AdotNet.Samples.Unity
 {
-    public class CaptureManager : MonoBehaviour
+    public class CaptureManager : MonoBehaviour, IInitializable
     {
         private Device _device;
 
-        public bool IsInitialized => _device != null;
+        public bool IsInitializationComplete { get; private set; }
+        public bool IsAvailable => _device != null;
         public DeviceConfiguration Configuration { get; private set; }
         public Calibration Calibration { get; private set; }
 
@@ -32,23 +33,21 @@ namespace K4AdotNet.Samples.Unity
             {
                 Debug.Log("Cannot open device");
             }
+
+            IsInitializationComplete = true;
         }
 
         private void Start()
         {
-            if (IsInitialized)
+            if (IsAvailable)
             {
                 _device.StartCameras(Configuration);
-            }
-            else
-            {
-                FindObjectOfType<ErrorMessage>().Show("Azure Kinect is not connected");
             }
         }
 
         private void Update()
         {
-            if (IsInitialized)
+            if (IsAvailable)
             {
                 if (_device.TryGetCapture(out var capture))
                 {
@@ -64,6 +63,7 @@ namespace K4AdotNet.Samples.Unity
         {
             _device?.StopCameras();
             _device?.Dispose();
+            _device = null;
         }
     }
 }

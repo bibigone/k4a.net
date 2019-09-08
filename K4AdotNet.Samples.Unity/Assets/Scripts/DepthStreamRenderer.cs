@@ -14,7 +14,7 @@ namespace K4AdotNet.Samples.Unity.Assets.Scripts
         private void Start()
         {
             var captureManager = FindObjectOfType<CaptureManager>();
-            if (captureManager.IsInitialized)
+            if (captureManager?.IsAvailable == true)
             {
                 var frameWidth = captureManager.Configuration.DepthMode.WidthPixels();
                 var frameHeight = captureManager.Configuration.DepthMode.HeightPixels();

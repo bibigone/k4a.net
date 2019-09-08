@@ -12,7 +12,7 @@ namespace K4AdotNet.Samples.Unity
         void Start()
         {
             var captureManager = FindObjectOfType<CaptureManager>();
-            if (captureManager.IsInitialized)
+            if (captureManager?.IsAvailable == true)
             {
                 var frameWidth = captureManager.Configuration.ColorResolution.WidthPixels();
                 var frameHeight = captureManager.Configuration.ColorResolution.HeightPixels();
