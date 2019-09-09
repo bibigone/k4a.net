@@ -75,7 +75,6 @@ namespace K4AdotNet.Samples.Unity
         {
             if (IsAvailable)
             {
-                Debug.Log("Enqueued");
                 _tracker.TryEnqueueCapture(e.Capture);
             }
         }

@@ -31,6 +31,11 @@ namespace K4AdotNet.Samples.Unity
 
         private class Bone
         {
+            public static Bone FromChildJoint(JointType childJoint)
+            {
+                return new Bone(childJoint.GetParent(), childJoint);
+            }
+
             public Bone(JointType parentJoint, JointType childJoint)
             {
                 ParentJoint = parentJoint;
@@ -56,7 +61,7 @@ namespace K4AdotNet.Samples.Unity
         private void CreateJoints()
         {
             // Joints are rendered as spheres
-            _joints = typeof(JointType).GetEnumValues().Cast<JointType>()
+            _joints = JointTypes.All
                 .ToDictionary(
                     jt => jt,
                     jt =>
@@ -96,41 +101,30 @@ namespace K4AdotNet.Samples.Unity
         private void CreateBones()
         {
             var bones = new List<Bone>();
-            
+
             // Spine
-            bones.Add(new Bone(JointType.Pelvis, JointType.SpineNaval));
-            bones.Add(new Bone(JointType.SpineNaval, JointType.SpineChest));
-            bones.Add(new Bone(JointType.SpineChest, JointType.Neck));
-            bones.Add(new Bone(JointType.Neck, JointType.Head));
-
+            CreateBones(bones, JointType.SpineNaval, JointType.SpineChest, JointType.Neck, JointType.Head);
             // Right arm
-            bones.Add(new Bone(JointType.SpineChest, JointType.ClavicleRight));
-            bones.Add(new Bone(JointType.ClavicleRight, JointType.ShoulderRight));
-            bones.Add(new Bone(JointType.ShoulderRight, JointType.ElbowRight));
-            bones.Add(new Bone(JointType.ElbowRight, JointType.WristRight));
-
+            CreateBones(bones, JointType.ClavicleRight, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight);
             // Left arm
-            bones.Add(new Bone(JointType.SpineChest, JointType.ClavicleLeft));
-            bones.Add(new Bone(JointType.ClavicleLeft, JointType.ShoulderLeft));
-            bones.Add(new Bone(JointType.ShoulderLeft, JointType.ElbowLeft));
-            bones.Add(new Bone(JointType.ElbowLeft, JointType.WristLeft));
-
+            CreateBones(bones, JointType.ClavicleLeft, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft);
             // Right leg
-            bones.Add(new Bone(JointType.Pelvis, JointType.HipRight));
-            bones.Add(new Bone(JointType.HipRight, JointType.KneeRight));
-            bones.Add(new Bone(JointType.KneeRight, JointType.AnkleRight));
-            bones.Add(new Bone(JointType.AnkleRight, JointType.FootRight));
-
+            CreateBones(bones, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight);
             // Left leg
-            bones.Add(new Bone(JointType.Pelvis, JointType.HipLeft));
-            bones.Add(new Bone(JointType.HipLeft, JointType.KneeLeft));
-            bones.Add(new Bone(JointType.KneeLeft, JointType.AnkleLeft));
-            bones.Add(new Bone(JointType.AnkleLeft, JointType.FootLeft));
+            CreateBones(bones, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft);
 
             _bones = bones;
             foreach (var b in _bones)
             {
                 b.Transform.parent = _root.transform;
+            }
+        }
+
+        private static void CreateBones(ICollection<Bone> list, params JointType[] childJoints)
+        {
+            foreach (var joint in childJoints)
+            {
+                list.Add(Bone.FromChildJoint(joint));
             }
         }
 
