@@ -26,7 +26,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Creates an empty capture object.</summary>
         /// <exception cref="InvalidOperationException">
-        /// Sensor DK fails to create empty capture object for some reason. For details see logs.
+        /// Sensor SDK fails to create empty capture object for some reason. For details see logs.
         /// </exception>
         public Capture()
         {
