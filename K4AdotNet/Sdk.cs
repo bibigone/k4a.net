@@ -221,9 +221,10 @@ namespace K4AdotNet
             if (File.Exists(path))
             {
                 var fvi = FileVersionInfo.GetVersionInfo(path);
-                if (fvi != null && !string.IsNullOrEmpty(fvi.FileVersion))
+                // Do not use FileVersion property as it's not populated under Unity .NET runtime
+                if (fvi != null)
                 {
-                    if (Version.TryParse(fvi.FileVersion, out var version) && version >= BODY_TRACKING_EXPECTED_VERSION)
+                    if (new Version(fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart, fvi.FilePrivatePart) >= BODY_TRACKING_EXPECTED_VERSION)
                     {
                         message = null;
                         return true;
@@ -231,7 +232,7 @@ namespace K4AdotNet
                 }
             }
 
-            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} of Body Tracking runtime is expected.";
+            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} or greater of Body Tracking runtime is expected.";
             return false;
         }
 
