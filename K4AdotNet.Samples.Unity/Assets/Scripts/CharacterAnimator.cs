@@ -19,6 +19,8 @@ namespace K4AdotNet.Samples.Unity
 
         #region Joints
 
+        private Transform _rootJointTransform;
+        private float _rootJointTPoseY;
         private IReadOnlyDictionary<JointType, JointData> _joints;
 
         private class JointData
@@ -49,13 +51,19 @@ namespace K4AdotNet.Samples.Unity
         private void CreateBones()
         {
             var animator = GetComponent<Animator>();
+            _rootJointTransform = animator.GetBoneTransform(HumanBodyBones.Hips);
+
+            // Align root joint with character
+            // Now we can place character in camera coord space
+            _rootJointTransform.localPosition = Vector3.zero;
+
             var bones = JointTypes.All
                 .ToDictionary(jt => jt, jt => GetJointData(jt, animator));
 
             _joints = bones;
         }
 
-        private static JointData GetJointData(JointType jointType, Animator animator)
+        private JointData GetJointData(JointType jointType, Animator animator)
         {
             var hbb = MapKinectJoint(jointType);
             if (hbb == HumanBodyBones.LastBone)
@@ -65,13 +73,12 @@ namespace K4AdotNet.Samples.Unity
             if (transform == null)
                 return null;
 
-            var rootName = animator.GetBoneTransform(HumanBodyBones.Hips).name;
-            var tposeOrientation = GetSkeletonBoneRotation(animator, transform.name);
+            var tposeOrientation = GetSkeletonBone(animator, transform.name).rotation;
             var t = transform;
-            while (t.name != rootName)
+            while (!ReferenceEquals(t, _rootJointTransform))
             {
                 t = t.parent;
-                tposeOrientation = GetSkeletonBoneRotation(animator, t.name) * tposeOrientation;
+                tposeOrientation = GetSkeletonBone(animator, t.name).rotation * tposeOrientation;
             }
 
             var kinectTPoseOrientationInverse = GetKinectTPoseOrientationInverse(jointType);
@@ -79,8 +86,8 @@ namespace K4AdotNet.Samples.Unity
             return new JointData(jointType, transform, tposeOrientation, kinectTPoseOrientationInverse);
         }
 
-        private static Quaternion GetSkeletonBoneRotation(Animator animator, string boneName)
-            => animator.avatar.humanDescription.skeleton.First(sb => sb.name == boneName).rotation;
+        private static SkeletonBone GetSkeletonBone(Animator animator, string boneName)
+            => animator.avatar.humanDescription.skeleton.First(sb => sb.name == boneName);
 
         private static HumanBodyBones MapKinectJoint(JointType joint)
         {
@@ -114,6 +121,11 @@ namespace K4AdotNet.Samples.Unity
 
         private static Quaternion GetKinectTPoseOrientationInverse(JointType jointType)
         {
+            // Used this page as reference for T-pose orientations
+            // https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints
+            // Assuming T-pose as body facing Z+, with head at Y+. Same for target character
+            // Coordinate system seems to be left-handed not right handed as depicted
+            // Thus inverse T-pose rotation should align Y and Z axes of depicted local coords for a joint with body coords in T-pose
             switch (jointType)
             {
                 case JointType.Pelvis:
@@ -124,34 +136,34 @@ namespace K4AdotNet.Samples.Unity
                 case JointType.HipLeft:
                 case JointType.KneeLeft:
                 case JointType.AnkleLeft:
-                    return Quaternion.AngleAxis(-90, Vector3.forward) * Quaternion.AngleAxis(90, Vector3.up);
+                    return Quaternion.AngleAxis(90, Vector3.forward) * Quaternion.AngleAxis(-90, Vector3.up);
 
                 case JointType.FootLeft:
-                    return Quaternion.AngleAxis(-90, Vector3.forward) * Quaternion.AngleAxis(90, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.right);
+                    return Quaternion.AngleAxis(-90, Vector3.up);
 
                 case JointType.HipRight:
                 case JointType.KneeRight:
                 case JointType.AnkleRight:
-                    return Quaternion.AngleAxis(90, Vector3.forward) * Quaternion.AngleAxis(90, Vector3.up);
+                    return Quaternion.AngleAxis(-90, Vector3.forward) * Quaternion.AngleAxis(-90, Vector3.up);
 
                 case JointType.FootRight:
-                    return Quaternion.AngleAxis(90, Vector3.forward) * Quaternion.AngleAxis(90, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.right);
+                    return Quaternion.AngleAxis(180, Vector3.forward) * Quaternion.AngleAxis(-90, Vector3.up);
 
                 case JointType.ClavicleLeft:
                 case JointType.ShoulderLeft:
                 case JointType.ElbowLeft:
-                    return Quaternion.AngleAxis(180, Vector3.up) * Quaternion.AngleAxis(90, Vector3.right);
+                    return Quaternion.AngleAxis(90, Vector3.right);
 
                 case JointType.WristLeft:
-                    return Quaternion.AngleAxis(180, Vector3.up) * Quaternion.AngleAxis(180, Vector3.right);
+                    return Quaternion.AngleAxis(180, Vector3.right);
 
                 case JointType.ClavicleRight:
                 case JointType.ShoulderRight:
                 case JointType.ElbowRight:
-                    return Quaternion.AngleAxis(180, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.right);
+                    return Quaternion.AngleAxis(-90, Vector3.right);
 
                 case JointType.WristRight:
-                    return Quaternion.AngleAxis(180, Vector3.up);
+                    return Quaternion.identity;
 
                 default:
                     return Quaternion.identity;
@@ -203,7 +215,22 @@ namespace K4AdotNet.Samples.Unity
                 if (data != null)
                 {
                     var orientation = ConvertKinectQ(skeleton[joint].Orientation);
-                    data.Transform.rotation = transform.rotation * orientation * data.KinectTPoseOrientationInverse * data.TPoseOrientation;
+                    // rotation in character space = rotation rel to T-pose in character space * T-pose in character space
+                    // T-pose in character space = data.TPoseOrientation
+                    // rotation rel to T-pose in character space = Kinect rotation * inv(Kinect T-pose)
+                    // rotation in character space = root.localRotation * ... * localRotation
+                    // local rotation = inv(parent rotation in character space) * rotation in character space
+                    // inv(parent rotation in character space) = inv(parent.localRotation) * ... * inv(root.localRotation)
+                    var rotationRel2TPoseInCharacterSpace = orientation * data.KinectTPoseOrientationInverse;
+                    var rotationInCharacterSpace = rotationRel2TPoseInCharacterSpace * data.TPoseOrientation;
+                    var invParentRotationInCharacterSpace = Quaternion.identity;
+                    var t = data.Transform;
+                    while (!ReferenceEquals(t, _rootJointTransform))
+                    {
+                        t = t.parent;
+                        invParentRotationInCharacterSpace = invParentRotationInCharacterSpace * Quaternion.Inverse(t.localRotation);
+                    }
+                    data.Transform.localRotation = invParentRotationInCharacterSpace * rotationInCharacterSpace;
                 }
             }
         }
@@ -221,10 +248,10 @@ namespace K4AdotNet.Samples.Unity
 
         private static Quaternion ConvertKinectQ(K4AdotNet.Quaternion q)
         {
-            // Convert to Unity coordinates (right-handed Y down to left-handed Y up)
-            // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
-            // https://gamedev.stackexchange.com/questions/157946/converting-a-quaternion-in-a-right-to-left-handed-coordinate-system
-            return new Quaternion(-q.X, q.Y, -q.Z, q.W);
+            // Kinect coordinate system for rotations seems to be
+            // left-handed Y+ up, Z+ towards camera
+            // So apply 180 rotation around Y to align with Unity coords (Z away from camera)
+            return Quaternion.AngleAxis(180, Vector3.up) * new Quaternion(q.X, q.Y, q.Z, q.W);
         }
     }
 }
