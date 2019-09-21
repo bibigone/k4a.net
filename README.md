@@ -24,6 +24,8 @@
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
 * Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
 * Plus useful helper methods, additional checks and meaningful exceptions.
+* Full feature set (all API provided by native SDKs are available in this C# wrapper)
+* Up-to-date with the latest versions of native SDKs
 * No additional dependencies
   * Except dependencies on native libraries (DLLs) from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download)
   * Native libraries from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) are included to repository(see `externals` directory) and [NuGet package](https://www.nuget.org/packages/K4AdotNet)
@@ -49,14 +51,14 @@
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
 | Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
 | Record API          | `k4arecord.dll`                              | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model.onnx`   | 0.9.2          |                                       | no<sup>(3)</sup>
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 0.9.3          |                                       | no<sup>(3)</sup>
 
 Notes:
 * <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
 * <sup>(2)</sup> `k4abt.dll` uses [ONNX Runtime](https://github.com/microsoft/onnxruntime) &mdash; `onnxruntime.dll`, which in turn depends on the following [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) and [NVIDIA CUDA 10.0](https://developer.nvidia.com/cuda-10.0-download-archive) libraries: `cudnn64_7.dll`, `cublas64_100.dll`, `cudart64_100.dll`. Also, Visual C++ Redistributable for Visual Studio 2015 is required: `vcomp140.dll`.
 * <sup>(3)</sup> The full list of libraries and data files required for Body Tracking: <br/>
 `k4abt.dll` (3.7 MB), <br/>
-`dnn_model.onnx` (159 MB), <br/>
+`dnn_model_2_0.onnx` (159 MB), <br/>
 `cudnn64_7.dll` (333 MB), <br/>
 `cublas64_100.dll` (64 MB), <br/>
 `cudart64_100.dll` (0.4 MB), <br/>
@@ -83,7 +85,6 @@ See https://github.com/bibigone/k4a.net/releases
 
 * More unit and integration tests
 * More samples (Recording, 3D view, Box-man, IMU...)
-* Further development of sample for Unity
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)
 * Some hosting for HTML documentation ([DocFX](https://dotnet.github.io/docfx/) + [github.io](https://pages.github.com/)?)

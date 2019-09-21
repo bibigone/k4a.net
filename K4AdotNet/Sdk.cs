@@ -31,7 +31,7 @@ namespace K4AdotNet
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
 
         /// <summary>Expected version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
-        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(0, 9, 2);
+        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(0, 9, 3);
 
         /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
@@ -39,7 +39,7 @@ namespace K4AdotNet
 
         /// <summary>Name of ONNX file with model of neural network used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
-        public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model.onnx";
+        public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model_2_0.onnx";
 
         /// <summary>ONNX runtime depends on NVIDIA cuDNN library. This list contains all required components for cuDNN under Windows.</summary>
         public static readonly IReadOnlyList<string> CUDNN_DLL_NAMES = new[]

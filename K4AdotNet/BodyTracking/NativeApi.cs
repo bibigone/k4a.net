@@ -8,9 +8,9 @@ namespace K4AdotNet.BodyTracking
     {
         public const int MAX_TRACKING_QUEUE_SIZE = 3;
 
-        // #define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.5f
+        // #define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.0f
         /// <summary>The default tracker temporal smoothing factor.</summary>
-        public const float DEFAULT_TRACKER_SMOOTHING_FACTOR = 0.5f;
+        public const float DEFAULT_TRACKER_SMOOTHING_FACTOR = 0.0f;
 
         // K4ABT_EXPORT k4a_result_t k4abt_tracker_create(const k4a_calibration_t* sensor_calibration,
         //                                                k4abt_tracker_configuration_t config,

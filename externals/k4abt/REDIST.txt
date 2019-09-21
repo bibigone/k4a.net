@@ -1,6 +1,6 @@
 sdk\windows-desktop\amd64\release\bin\k4abt.dll
 sdk\windows-desktop\amd64\release\bin\onnxruntime.dll
-sdk\windows-desktop\amd64\release\bin\dnn_model.onnx
+sdk\windows-desktop\amd64\release\bin\dnn_model_2_0.onnx
 tools\cublas64_100.dll
 tools\cudart64_100.dll
 tools\cudnn64_7.dll

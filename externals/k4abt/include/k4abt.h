@@ -84,7 +84,7 @@ extern "C" {
  *
  * \param smoothing_factor
  * Set between 0 for no smoothing and 1 for full smoothing. Less smoothing will increase the responsiveness of the
- * detected skeletons but will cause more positional and oriantational jitters.
+ * detected skeletons but will cause more positional and orientational jitters.
  *
  * \relates k4abt_tracker_t
  *

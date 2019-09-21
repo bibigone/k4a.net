@@ -191,7 +191,7 @@ typedef struct _k4abt_body_t
 
  /** The default tracker temporal smoothing factor
   */
-#define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.5f
+#define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.0f
 
 /** Default configuration setting for k4abt tracker.
  *
