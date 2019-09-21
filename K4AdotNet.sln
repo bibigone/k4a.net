@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.572
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet", "K4AdotNet\K4AdotNet.csproj", "{0646EAF8-8941-4CBE-9D1A-59C643171F3E}"
 EndProject
@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Solution Items", "0 - S
 		K4AdotNet-64.png = K4AdotNet-64.png
 		K4AdotNet.ico = K4AdotNet.ico
 		LICENSE = LICENSE
-		Product.props.in = Product.props.in
+		Product.props = Product.props
 		ProductInfo.cs = ProductInfo.cs
 		README.md = README.md
 	EndProjectSection
@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.BodyT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.BackgroundRemover", "K4AdotNet.Samples.Wpf.BackgroundRemover\K4AdotNet.Samples.Wpf.BackgroundRemover.csproj", "{684CCB9A-758B-4D45-99E9-40758B03603D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Tests.Record", "K4AdotNet.Tests.Record\K4AdotNet.Tests.Record.csproj", "{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Tests.Record", "K4AdotNet.Tests.Record\K4AdotNet.Tests.Record.csproj", "{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
