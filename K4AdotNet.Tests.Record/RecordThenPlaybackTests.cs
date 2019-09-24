@@ -163,7 +163,7 @@ namespace K4AdotNet.Tests.Record
             var deviceTimestamp0 = Microseconds64.FromMilliseconds(1.0);
             var deviceTimestamp1 = Microseconds64.FromMilliseconds(7.7);
 
-            var attachment1Name = "русские буквы 'здесь' можно";
+            var attachment1Name = "\ud182\ud0b5\ud181\ud182 \ud0ba\ud0be\ud0b4\ud0b8\ud180\ud0be\ud0b2\ud0ba\ud0b8";
             var attachment1Data = new byte[] { 1, 255, 0, 8, 7, 254, 128, 3, 127, 65, 179 };
 
             var attachment2Name = "another_attachment.file";
