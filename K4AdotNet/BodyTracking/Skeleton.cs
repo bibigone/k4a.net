@@ -44,6 +44,15 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Left wrist joint.</summary>
         public Joint WristLeft;
 
+        /// <summary>Left hand joint.</summary>
+        public Joint HandLeft;
+
+        /// <summary>Tip of left hand joint.</summary>
+        public Joint HandTipLeft;
+
+        /// <summary>Left thumb joint.</summary>
+        public Joint ThumbLeft;
+
         /// <summary>Right clavicle joint.</summary>
         public Joint ClavicleRight;
 
@@ -55,6 +64,15 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Right wrist joint.</summary>
         public Joint WristRight;
+
+        /// <summary>Right hand joint.</summary>
+        public Joint HandRight;
+
+        /// <summary>Tip of right hand joint.</summary>
+        public Joint HandTipRight;
+
+        /// <summary>Right thumb joint.</summary>
+        public Joint ThumbRight;
 
         /// <summary>Left hip joint.</summary>
         public Joint HipLeft;
@@ -121,10 +139,16 @@ namespace K4AdotNet.BodyTracking
                     case JointType.ShoulderLeft: return ShoulderLeft;
                     case JointType.ElbowLeft: return ElbowLeft;
                     case JointType.WristLeft: return WristLeft;
+                    case JointType.HandLeft: return HandLeft;
+                    case JointType.HandTipLeft: return HandTipLeft;
+                    case JointType.ThumbLeft: return ThumbLeft;
                     case JointType.ClavicleRight: return ClavicleRight;
                     case JointType.ShoulderRight: return ShoulderRight;
                     case JointType.ElbowRight: return ElbowRight;
                     case JointType.WristRight: return WristRight;
+                    case JointType.HandRight: return HandRight;
+                    case JointType.HandTipRight: return HandTipRight;
+                    case JointType.ThumbRight: return ThumbRight;
                     case JointType.HipLeft: return HipLeft;
                     case JointType.KneeLeft: return KneeLeft;
                     case JointType.AnkleLeft: return AnkleLeft;
@@ -155,10 +179,16 @@ namespace K4AdotNet.BodyTracking
                     case JointType.ShoulderLeft: ShoulderLeft = value; break;
                     case JointType.ElbowLeft: ElbowLeft = value; break;
                     case JointType.WristLeft: WristLeft = value; break;
+                    case JointType.HandLeft: HandLeft = value; break;
+                    case JointType.HandTipLeft: HandTipLeft = value; break;
+                    case JointType.ThumbLeft: ThumbLeft = value; break;
                     case JointType.ClavicleRight: ClavicleRight = value; break;
                     case JointType.ShoulderRight: ShoulderRight = value; break;
                     case JointType.ElbowRight: ElbowRight = value; break;
                     case JointType.WristRight: WristRight = value; break;
+                    case JointType.HandRight: HandRight = value; break;
+                    case JointType.HandTipRight: HandTipRight = value; break;
+                    case JointType.ThumbRight: ThumbRight = value; break;
                     case JointType.HipLeft: HipLeft = value; break;
                     case JointType.KneeLeft: KneeLeft = value; break;
                     case JointType.AnkleLeft: AnkleLeft = value; break;

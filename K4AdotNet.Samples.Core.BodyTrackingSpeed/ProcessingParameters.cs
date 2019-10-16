@@ -8,6 +8,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         public const string MKV_FILE_EXTENSION = ".mkv";
 
         public static readonly string MkvPathDescription = "Path to MKV file";
+        public static readonly string CpuOnlyModeDescription = "CPU/GPU mode (C - use only CPU, G - use GPU, default - G)";
         public static readonly string ImplementationDescription = "Optional implementation type (S - single thread, P - pop in background, E - enqueue in background, default - S)";
         public static readonly string StartTimeDescription = "Optional start time of video interval in seconds (default - beginning of recording)";
         public static readonly string EndTimeDescription = "Optional end time of video interval in seconds (default - end of recording)";
@@ -26,6 +27,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         }
 
         public string MkvPath { get; private set; }
+        public bool CpuOnlyMode { get; private set; }
         public ProcessingImplementation Implementation { get; private set; }
         public TimeSpan? StartTime { get; private set; }
         public TimeSpan? EndTime { get; private set; }
@@ -66,6 +68,32 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             MkvPath = value;
             message = null;
             return true;
+        }
+
+        public bool TrySetCpuOnlyMode(string value, out string message)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                CpuOnlyMode = false;
+                message = null;
+                return true;
+            }
+
+            value = value.Trim().ToLowerInvariant();
+            switch (value)
+            {
+                case "c":
+                    CpuOnlyMode = true;
+                    message = null;
+                    return true;
+                case "g":
+                    CpuOnlyMode = false;
+                    message = null;
+                    return true;
+            }
+
+            message = $"Invalid value. Expected 'C' or 'G'.";
+            return false;
         }
 
         public bool TrySetImplementation(string value, out string message)

@@ -64,10 +64,16 @@ typedef enum
     K4ABT_JOINT_SHOULDER_LEFT,
     K4ABT_JOINT_ELBOW_LEFT,
     K4ABT_JOINT_WRIST_LEFT,
+    K4ABT_JOINT_HAND_LEFT,
+    K4ABT_JOINT_HANDTIP_LEFT,
+    K4ABT_JOINT_THUMB_LEFT,
     K4ABT_JOINT_CLAVICLE_RIGHT,
     K4ABT_JOINT_SHOULDER_RIGHT,
     K4ABT_JOINT_ELBOW_RIGHT,
     K4ABT_JOINT_WRIST_RIGHT,
+    K4ABT_JOINT_HAND_RIGHT,
+    K4ABT_JOINT_HANDTIP_RIGHT,
+    K4ABT_JOINT_THUMB_RIGHT,
     K4ABT_JOINT_HIP_LEFT,
     K4ABT_JOINT_KNEE_LEFT,
     K4ABT_JOINT_ANKLE_LEFT,
@@ -114,6 +120,13 @@ typedef struct _k4abt_tracker_configuration_t
      * Setting the correct orientation can help the body tracker to achieve more accurate body tracking results
      */
     k4abt_sensor_orientation_t sensor_orientation;
+
+    /** Specify whether to use CPU only mode or GPU mode to run the tracker.
+     *
+     * The CPU only mode doesn't require the machine to have a GPU to run this SDK. But it will be much slower 
+     * than the GPU mode.
+     */
+    bool cpu_only_mode;
 } k4abt_tracker_configuration_t;
 
 /**
@@ -143,6 +156,21 @@ typedef union
     float v[4];  /**< Array representation of a quaternion */
 } k4a_quaternion_t;
 
+/** k4abt_joint_confidence_level_t
+ *
+ * \remarks
+ * This enumeration specifies the joint confidence level.
+
+ */
+typedef enum
+{
+    K4ABT_JOINT_CONFIDENCE_NONE = 0,          /**< The joint is out of range (too far from depth camera) */
+    K4ABT_JOINT_CONFIDENCE_LOW = 1,           /**< The joint is not observed (likely due to occlusion), predicted joint pose */
+    K4ABT_JOINT_CONFIDENCE_MEDIUM = 2,        /**< Medium confidence in joint pose. Current SDK will only provide joints up to this confidence level */
+    K4ABT_JOINT_CONFIDENCE_HIGH = 3,          /**< High confidence in joint pose. Placeholder for future SDK */
+    K4ABT_JOINT_CONFIDENCE_LEVELS_COUNT = 4,  /**< The total number of confidence levels. */
+} k4abt_joint_confidence_level_t;
+
 /** Structure to define a single joint
  *
  * The position and orientation together defines the coordinate system for the given joint. They are defined relative
@@ -152,6 +180,7 @@ typedef struct _k4abt_joint_t
 {
     k4a_float3_t     position;    /**< The position of the joint specified in millimeters*/
     k4a_quaternion_t orientation; /**< The orientation of the joint specified in normalized quaternion*/
+    k4abt_joint_confidence_level_t confidence_level; /**< The confidence level of the joint*/
 } k4abt_joint_t;
 
 /** Structure to define joints for skeleton
@@ -198,7 +227,8 @@ typedef struct _k4abt_body_t
  * \remarks
  * Use this setting to initialize a \ref k4abt_tracker_configuration_t to a default state.
  */
-static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT };
+static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT, // sensor_orientation
+                                                                            false };                          // use_cpu_only_mode
 
 /**
  * @}

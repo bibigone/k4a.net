@@ -32,12 +32,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             DepthColumnWidth = ColorColumnWidth = new GridLength(1, GridUnitType.Star);
         }
 
-        public TrackerModel(IApp app, BackgroundReadingLoop readingLoop, SensorOrientation sensorOrientation, float smoothingFactor)
+        public TrackerModel(IApp app, BackgroundReadingLoop readingLoop, bool cpuOnlyMode, SensorOrientation sensorOrientation, float smoothingFactor)
             : base(app)
         {
             // try to create tracking loop first
             readingLoop.GetCalibration(out calibration);
-            trackingLoop = new BackgroundTrackingLoop(ref calibration, sensorOrientation, smoothingFactor);
+            trackingLoop = new BackgroundTrackingLoop(ref calibration, cpuOnlyMode, sensorOrientation, smoothingFactor);
             trackingLoop.BodyFrameReady += TrackingLoop_BodyFrameReady;
             trackingLoop.Failed += BackgroundLoop_Failed;
 

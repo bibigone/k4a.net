@@ -33,7 +33,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             JointCircleRadius = heightPixels / 70;
             JointBorder = new Pen(Brushes.Black, JointCircleRadius / 4);
             BonePen = new Pen(Brushes.White, JointCircleRadius * 2 / 3);
-            JointFill = Brushes.LightGray;
+            JointFill = Brushes.LightGreen;
+            JointFillLow = Brushes.Yellow;
+            JointFillNone = Brushes.OrangeRed;
         }
 
         /// <summary>
@@ -48,6 +50,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         /// <summary>Visualization setting: brush to fill joint circle.</summary>
         public Brush JointFill { get; set; }
+
+        /// <summary>Visualization setting: brush to fill joint circle for Low confidence.</summary>
+        public Brush JointFillLow { get; set; }
+
+        /// <summary>Visualization setting: brush to fill joint circle for None confidence.</summary>
+        public Brush JointFillNone { get; set; }
 
         /// <summary>Visualization setting: radius of joint circle.</summary>
         public double JointCircleRadius { get; set; }
@@ -127,15 +135,27 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             foreach (var jointType in JointTypes.All)
             {
-                var point2D = ProjectJointToImage(skeleton[jointType]);
+                var joint = skeleton[jointType];
+                var point2D = ProjectJointToImage(joint);
                 if (point2D.HasValue)
                 {
                     var radius = JointCircleRadius;
                     // smaller radius for face features (eyes, ears, nose)
                     if (jointType.IsFaceFeature())
                         radius /= 2;
-                    dc.DrawEllipse(JointFill, JointBorder, point2D.Value, radius, radius);
+                    var fillBrush = JointConfidenceLevelToToBrush(joint.ConfidenceLevel);
+                    dc.DrawEllipse(fillBrush, JointBorder, point2D.Value, radius, radius);
                 }
+            }
+        }
+
+        private Brush JointConfidenceLevelToToBrush(JointConfidenceLevel confidenceLevel)
+        {
+            switch (confidenceLevel)
+            {
+                case JointConfidenceLevel.None: return JointFillNone;
+                case JointConfidenceLevel.Low: return JointFillLow;
+                default: return JointFill;
             }
         }
 

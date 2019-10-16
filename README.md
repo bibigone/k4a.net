@@ -49,9 +49,9 @@
 
 | Library "component" | Depends on                                   | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
-| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Record API          | `k4arecord.dll`                              | 1.2.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 0.9.3          |                                       | no<sup>(3)</sup>
+| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.3.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                              | 1.3.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 0.9.4          |                                       | no<sup>(3)</sup>
 
 Notes:
 * <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.

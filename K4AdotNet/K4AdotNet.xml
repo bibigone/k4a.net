@@ -274,6 +274,24 @@
         <member name="F:K4AdotNet.BodyTracking.Joint.Orientation">
             <summary>The orientation of the joint specified in normalized quaternion.</summary>
         </member>
+        <member name="F:K4AdotNet.BodyTracking.Joint.ConfidenceLevel">
+            <summary>The confidence level of the joint.</summary>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.JointConfidenceLevel">
+            <summary>This enumeration specifies the joint confidence level.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointConfidenceLevel.None">
+            <summary>The joint is out of range (too far from depth camera).</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointConfidenceLevel.Low">
+            <summary>The joint is not observed (likely due to occlusion), predicted joint pose.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointConfidenceLevel.Medium">
+            <summary>Medium confidence in joint pose. Current SDK will only provide joints up to this confidence level.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointConfidenceLevel.High">
+            <summary>High confidence in joint pose. Placeholder for future SDK.</summary>
+        </member>
         <member name="T:K4AdotNet.BodyTracking.JointType">
             <summary>Skeleton joint index.</summary>
             <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
@@ -845,6 +863,13 @@
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.SensorOrientation">
             <summary>The sensor mounting orientation type.</summary>
             <remarks>Setting the correct orientation can help the body tracker to achieve more accurate body tracking results.</remarks>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.CpuOnlyMode">
+            <summary>Specify whether to use CPU only mode or GPU mode to run the tracker.</summary>
+            <remarks>
+            The CPU only mode doesn't require the machine to have a GPU to run this SDK.
+            But it will be much slower than the GPU mode.
+            </remarks>
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.Default">
             <summary>Default configuration setting for k4abt tracker.</summary>

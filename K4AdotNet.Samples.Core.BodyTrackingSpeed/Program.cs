@@ -62,6 +62,8 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             var parameters = new ProcessingParameters();
             if (!AskParameter(ProcessingParameters.MkvPathDescription, parameters.TrySetMkvPath))
                 return null;
+            if (!AskParameter(ProcessingParameters.CpuOnlyModeDescription, parameters.TrySetCpuOnlyMode))
+                return null;
             if (!AskParameter(ProcessingParameters.ImplementationDescription, parameters.TrySetImplementation))
                 return null;
             if (!AskParameter(ProcessingParameters.StartTimeDescription, parameters.TrySetStartTime))
@@ -100,6 +102,11 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 var arg = args[i].Trim();
                 switch (arg.ToLowerInvariant())
                 {
+                    case "-m":
+                    case "--mode":
+                        if (!ParseArgument(args, ref i, parameters.TrySetCpuOnlyMode))
+                            return null;
+                        break;
                     case "-i":
                     case "--implementation":
                         if (!ParseArgument(args, ref i, parameters.TrySetImplementation))
@@ -168,6 +175,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             Console.WriteLine("where: ");
             Console.WriteLine("  <mkvFile> - " + ProcessingParameters.MkvPathDescription);
             Console.WriteLine("  options:");
+            Console.WriteLine("    -m, --mode c|g\t\t" + ProcessingParameters.StartTimeDescription);
             Console.WriteLine("    -i, --implementation s|p|e\t\t" + ProcessingParameters.StartTimeDescription);
             Console.WriteLine("    -s, --startTime <time>\t\t" + ProcessingParameters.StartTimeDescription);
             Console.WriteLine("    -e, --endTime <time>\t\t" + ProcessingParameters.EndTimeDescription);

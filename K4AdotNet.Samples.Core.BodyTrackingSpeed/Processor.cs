@@ -30,7 +30,9 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             playback.GetCalibration(out calibration);
             if (processingParameters.StartTime.HasValue)
                 Seek(processingParameters.StartTime.Value);
-            tracker = new BodyTracking.Tracker(ref calibration);
+            var config = BodyTracking.TrackerConfiguration.Default;
+            config.CpuOnlyMode = processingParameters.CpuOnlyMode;
+            tracker = new BodyTracking.Tracker(ref calibration, config);
         }
 
         public virtual void Dispose()

@@ -31,7 +31,7 @@ namespace K4AdotNet
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
 
         /// <summary>Expected version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
-        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(0, 9, 3);
+        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(0, 9, 4);
 
         /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
@@ -224,7 +224,7 @@ namespace K4AdotNet
                 // Do not use FileVersion property as it's not populated under Unity .NET runtime
                 if (fvi != null)
                 {
-                    if (new Version(fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart, fvi.FilePrivatePart) >= BODY_TRACKING_EXPECTED_VERSION)
+                    if (new Version(fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart) == BODY_TRACKING_EXPECTED_VERSION)
                     {
                         message = null;
                         return true;
@@ -232,7 +232,7 @@ namespace K4AdotNet
                 }
             }
 
-            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} or greater of Body Tracking runtime is expected.";
+            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} of Body Tracking runtime is expected.";
             return false;
         }
 
@@ -270,7 +270,7 @@ namespace K4AdotNet
             if (ProbePathForBodyTrackingRuntime(sdkBinDir))
                 return sdkBinDir;
 
-            message = "Cannot find Body Tracking runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
+            message = $"Cannot find Body Tracking {BODY_TRACKING_EXPECTED_VERSION} runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
             return null;
         }
 

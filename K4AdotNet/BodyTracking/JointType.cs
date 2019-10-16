@@ -11,10 +11,16 @@
     //     K4ABT_JOINT_SHOULDER_LEFT,
     //     K4ABT_JOINT_ELBOW_LEFT,
     //     K4ABT_JOINT_WRIST_LEFT,
+    //     K4ABT_JOINT_HAND_LEFT,
+    //     K4ABT_JOINT_HANDTIP_LEFT,
+    //     K4ABT_JOINT_THUMB_LEFT,
     //     K4ABT_JOINT_CLAVICLE_RIGHT,
     //     K4ABT_JOINT_SHOULDER_RIGHT,
     //     K4ABT_JOINT_ELBOW_RIGHT,
     //     K4ABT_JOINT_WRIST_RIGHT,
+    //     K4ABT_JOINT_HAND_RIGHT,
+    //     K4ABT_JOINT_HANDTIP_RIGHT,
+    //     K4ABT_JOINT_THUMB_RIGHT,
     //     K4ABT_JOINT_HIP_LEFT,
     //     K4ABT_JOINT_KNEE_LEFT,
     //     K4ABT_JOINT_ANKLE_LEFT,
@@ -62,6 +68,15 @@
         /// <summary>Left wrist joint.</summary>
         WristLeft,
 
+        /// <summary>Left hand joint.</summary>
+        HandLeft,
+
+        /// <summary>Tip of left hand joint.</summary>
+        HandTipLeft,
+
+        /// <summary>Left thumb joint.</summary>
+        ThumbLeft,
+
         /// <summary>Right clavicle joint.</summary>
         ClavicleRight,
 
@@ -73,6 +88,15 @@
 
         /// <summary>Right wrist joint.</summary>
         WristRight,
+
+        /// <summary>Right hand joint.</summary>
+        HandRight,
+
+        /// <summary>Tip of right hand joint.</summary>
+        HandTipRight,
+
+        /// <summary>Right thumb joint.</summary>
+        ThumbRight,
 
         /// <summary>Left hip joint.</summary>
         HipLeft,

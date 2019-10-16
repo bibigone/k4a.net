@@ -44,7 +44,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                             disableColor: DisableColor,
                             disableDepth: false,
                             doNotPlayFasterThanOriginalFps: DoNotPlayFasterThanOriginalFps);
-                        var viewModel = new TrackerModel(app, readingLoop, SensorOrientation, SmoothingFactor);
+                        var viewModel = new TrackerModel(app, readingLoop, CpuOnlyMode, SensorOrientation, SmoothingFactor);
                         app.ShowWindowForModel(viewModel);
                     }
                 }
@@ -102,7 +102,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 using (app.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
-                    var viewModel = new TrackerModel(app, readingLoop, SensorOrientation, SmoothingFactor);
+                    var viewModel = new TrackerModel(app, readingLoop, CpuOnlyMode, SensorOrientation, SmoothingFactor);
                     app.ShowWindowForModel(viewModel);
                 }
             }
@@ -116,6 +116,13 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         #endregion
 
         #region Settings
+
+        public bool CpuOnlyMode
+        {
+            get => cpuOnlyMode;
+            set => SetPropertyValue(ref cpuOnlyMode, value, nameof(CpuOnlyMode));
+        }
+        private bool cpuOnlyMode;
 
         public float SmoothingFactor
         {

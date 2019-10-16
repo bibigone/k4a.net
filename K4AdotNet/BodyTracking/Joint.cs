@@ -5,8 +5,9 @@ namespace K4AdotNet.BodyTracking
     // Defined in k4abttypes.h:
     // typedef struct _k4abt_joint_t
     // {
-    //     k4a_float3_t position;    /**< The position of the joint specified in millimeters*/
-    //     k4a_quaternion_t orientation; /**< The orientation of the joint specified in normalized quaternion*/
+    //     k4a_float3_t position;
+    //     k4a_quaternion_t orientation;
+    //     k4abt_joint_confidence_level_t confidence_level;
     // } k4abt_joint_t;
     //
     /// <summary>Structure to define a single joint.</summary>
@@ -22,5 +23,8 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>The orientation of the joint specified in normalized quaternion.</summary>
         public Quaternion Orientation;
+
+        /// <summary>The confidence level of the joint.</summary>
+        public JointConfidenceLevel ConfidenceLevel;
     }
 }

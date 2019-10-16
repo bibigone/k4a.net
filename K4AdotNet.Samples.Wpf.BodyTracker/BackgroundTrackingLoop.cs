@@ -11,9 +11,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly Thread backgroundThread;
         private volatile bool isRunning;
 
-        public BackgroundTrackingLoop(ref Calibration calibration, SensorOrientation sensorOrientation, float smoothingFactor)
+        public BackgroundTrackingLoop(ref Calibration calibration, bool cpuOnlyMode, SensorOrientation sensorOrientation, float smoothingFactor)
         {
-            var config = new TrackerConfiguration { SensorOrientation = sensorOrientation };
+            var config = new TrackerConfiguration { SensorOrientation = sensorOrientation, CpuOnlyMode = cpuOnlyMode };
             tracker = new Tracker(ref calibration, config) { TemporalSmoothingFactor = smoothingFactor };
             isRunning = true;
             backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
