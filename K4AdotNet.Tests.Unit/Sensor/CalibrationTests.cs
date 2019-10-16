@@ -1,5 +1,6 @@
 ﻿using K4AdotNet.Sensor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace K4AdotNet.Tests.Unit.Sensor
 {
@@ -186,7 +187,6 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
 
             var depthCenter = new Float2(calibration.DepthCameraCalibration.Intrinsics.Parameters.Cx, calibration.DepthCameraCalibration.Intrinsics.Parameters.Cy);
-            var colorCenter = new Float2(calibration.ColorCameraCalibration.Intrinsics.Parameters.Cx, calibration.ColorCameraCalibration.Intrinsics.Parameters.Cy);
 
             var point2d = calibration.Convert3DTo2D(new Float3(0f, 0f, 1000f), CalibrationGeometry.Depth, CalibrationGeometry.Depth);
             Assert.IsNotNull(point2d);
@@ -218,6 +218,40 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             var point3d = calibration.Convert3DTo3D(testPoint, CalibrationGeometry.Gyro, CalibrationGeometry.Accel);
             Assert.AreEqual(testPoint, point3d);
+        }
+
+        #endregion
+
+        #region ConvertColor2DToDepth2D
+
+        [TestMethod]
+        public void TestConvertColor2DToDepth2D()
+        {
+            TestConvertColor2DToDepth2D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
+            TestConvertColor2DToDepth2D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
+            TestConvertColor2DToDepth2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+            TestConvertColor2DToDepth2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+        }
+
+        private void TestConvertColor2DToDepth2D(DepthMode depthMode, ColorResolution colorResolution)
+        {
+            Calibration.CreateDummy(depthMode, colorResolution, 30, out var calibration);
+
+            var depth2d = new Float2(calibration.DepthCameraCalibration.Intrinsics.Parameters.Cx, calibration.DepthCameraCalibration.Intrinsics.Parameters.Cy);
+            var depthMm = (short)1800;
+            var color2d = calibration.Convert2DTo2D(depth2d, depthMm, CalibrationGeometry.Depth, CalibrationGeometry.Color).Value;
+
+            var depthImageBuffer = new short[depthMode.WidthPixels() * depthMode.HeightPixels()];
+            for (var i = 0; i < depthImageBuffer.Length; i++)
+                depthImageBuffer[i] = depthMm;
+            var depthImage = Image.CreateFromArray(depthImageBuffer, ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
+
+            var point2d = calibration.ConvertColor2DToDepth2D(color2d, depthImage);
+            Assert.IsNotNull(point2d);
+            Assert.IsTrue(Math.Abs(depth2d.X - point2d.Value.X) < 1f);
+            Assert.IsTrue(Math.Abs(depth2d.Y - point2d.Value.Y) < 1f);
+
+            depthImage.Dispose();
         }
 
         #endregion

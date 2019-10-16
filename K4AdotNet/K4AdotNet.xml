@@ -4189,6 +4189,17 @@
             <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
             <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.CreateDummy(K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,System.Single,K4AdotNet.Sensor.Calibration@)">
+            <summary>
+            Creates dummy (no distortions, ideal pin-hole geometry, all sensors are aligned, there is specified distance between depth and color cameras) but valid calibration data.
+            This can be useful for testing and subbing needs.
+            </summary>
+            <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/>.</param>
+            <param name="distanceBetweenDepthAndColorMm">Distance (horizontal) between depth and color cameras.</param>
+            <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="F:K4AdotNet.Sensor.ColorResolution.Off"/>.</param>
+            <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.Calibration.CreateFromRaw(System.Byte[],K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
             <summary>Gets the camera calibration for a device from a raw calibration blob.</summary>
             <param name="rawCalibration">Raw calibration blob obtained from a device or recording. The raw calibration must be <c>0</c>-terminated. Cannot be <see langword="null"/>.</param>
@@ -4219,6 +4230,31 @@
             </para></remarks>
             <exception cref="T:System.ArgumentOutOfRangeException">
             <paramref name="sourceCamera"/> is not a camera or <paramref name="targetCamera"/> is not a camera.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            Cannot perform transformation. Most likely, calibration data is invalid.
+            </exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Calibration.ConvertColor2DToDepth2D(K4AdotNet.Float2,K4AdotNet.Sensor.Image)">
+            <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
+            <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
+            <param name="depthImage">Input depth image. Not <see langword="null"/>.</param>
+            <returns>
+            The 2D pixel in depth camera coordinates or
+            <see langword="null"/> if <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth coordinate system.
+            </returns>
+            <remarks>
+            This function represents an alternative to <see cref="M:K4AdotNet.Sensor.Calibration.Convert2DTo2D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/> if the number of pixels that need to be transformed is small.
+            This function searches along an epipolar line in the depth image to find the corresponding
+            depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
+            <see cref="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)"/>
+            to get correspondence depth values for these color pixels, then call the function <see cref="M:K4AdotNet.Sensor.Calibration.Convert2DTo2D(K4AdotNet.Float2,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry)"/>.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="depthImage"/> cannot be <see langword="null"/>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="depthImage"/> has invalid format and/or resolution.
             </exception>
             <exception cref="T:System.InvalidOperationException">
             Cannot perform transformation. Most likely, calibration data is invalid.
@@ -4448,13 +4484,13 @@
             <summary>Calibration model is unknown.</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationModel.Theta">
-            <summary>Calibration model is Theta (arctan).</summary>
+            <summary>Deprecated (not supported). Calibration model is Theta (arctan).</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationModel.Polynomial3K">
-            <summary>Calibration model Polynomial 3K.</summary>
+            <summary>Deprecated (not supported). Calibration model Polynomial 3K.</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationModel.Rational6KT">
-            <summary>Calibration model Rational 6KT.</summary>
+            <summary>Deprecated (only supported early internal devices). Calibration model Rational 6KT.</summary>
         </member>
         <member name="F:K4AdotNet.Sensor.CalibrationModel.BrownConrady">
             <summary>Calibration model Brown Conrady (compatible with OpenCV).</summary>
@@ -6848,6 +6884,35 @@
             <paramref name="valid"/> is set to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
             The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to 0.
             </remarks>
+        </member>
+        <member name="M:K4AdotNet.Sensor.NativeApi.CalibrationColor2DToDepth2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Float2@,System.Boolean@)">
+             <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
+             <param name="calibration">Camera calibration data.</param>
+             <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
+             <param name="depthImage">Handle to input depth image.</param>
+             <param name="targetPoint2D">The 2D pixel in depth camera coordinates.</param>
+             <param name="valid">
+             The output parameter returns a value of <see langword="true"/> if the <paramref name="sourcePoint2D"/> is a valid coordinate in the depth camera
+             coordinate system, and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
+             </param>
+             <returns>
+             <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
+             <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+             If the function returns <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
+             the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
+             and should be ignored.
+             </returns>
+             <remarks>
+             This function represents an alternative to <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>
+             if the number of pixels that need to be transformed is small. This function searches along an epipolar line in the depth image to find the corresponding
+             depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
+             <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>
+             to get correspondence depth values for these color pixels, then call the function <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>.
+            
+             If <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth camera coordinate system, <paramref name="valid"/> is set
+             to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
+             The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
+             </remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.TransformationCreate(K4AdotNet.Sensor.Calibration@)">
             <summary>Get handle to transformation.</summary>

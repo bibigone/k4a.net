@@ -1,4 +1,6 @@
-﻿namespace K4AdotNet.Sensor
+﻿using System;
+
+namespace K4AdotNet.Sensor
 {
     // Defined in k4atypes.h:
     // typedef enum
@@ -16,13 +18,16 @@
         /// <summary>Calibration model is unknown.</summary>
         Unknown = 0,
 
-        /// <summary>Calibration model is Theta (arctan).</summary>
+        /// <summary>Deprecated (not supported). Calibration model is Theta (arctan).</summary>
+        [Obsolete]
         Theta,
 
-        /// <summary>Calibration model Polynomial 3K.</summary>
+        /// <summary>Deprecated (not supported). Calibration model Polynomial 3K.</summary>
+        [Obsolete]
         Polynomial3K,
 
-        /// <summary>Calibration model Rational 6KT.</summary>
+        /// <summary>Deprecated (only supported early internal devices). Calibration model Rational 6KT.</summary>
+        [Obsolete]
         Rational6KT,
 
         /// <summary>Calibration model Brown Conrady (compatible with OpenCV).</summary>

@@ -118,6 +118,29 @@ namespace K4AdotNet.Sensor
                 InitDummyExtrinsics(ref calibration.Extrinsics[i]);
         }
 
+        /// <summary>
+        /// Creates dummy (no distortions, ideal pin-hole geometry, all sensors are aligned, there is specified distance between depth and color cameras) but valid calibration data.
+        /// This can be useful for testing and subbing needs.
+        /// </summary>
+        /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
+        /// <param name="distanceBetweenDepthAndColorMm">Distance (horizontal) between depth and color cameras.</param>
+        /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
+        /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+        public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, float distanceBetweenDepthAndColorMm,
+            out Calibration calibration)
+        {
+            CreateDummy(depthMode, colorResolution, out calibration);
+
+            var extr = calibration.GetExtrinsics(CalibrationGeometry.Color, CalibrationGeometry.Depth);
+            extr.Translation = new Float3(distanceBetweenDepthAndColorMm, 0, 0);
+            calibration.SetExtrinsics(CalibrationGeometry.Color, CalibrationGeometry.Depth, extr);
+
+            extr = calibration.GetExtrinsics(CalibrationGeometry.Depth, CalibrationGeometry.Color);
+            extr.Translation = new Float3(-distanceBetweenDepthAndColorMm, 0, 0);
+            calibration.SetExtrinsics(CalibrationGeometry.Depth, CalibrationGeometry.Color, extr);
+        }
+
         // Ideal pin-hole camera. No distortions.
         private static void InitDummyCameraCalibration(ref CameraCalibration cameraCalibration, int widthPixels, int heightPixels,
             float hFovDegrees, float vFovDegrees)
@@ -204,6 +227,45 @@ namespace K4AdotNet.Sensor
             var res = NativeApi.Calibration2DTo2D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 2D point to 2D point: invalid calibration data.");
+            if (!valid)
+                return null;
+            return targetPoint2D;
+        }
+
+        /// <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
+        /// <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
+        /// <param name="depthImage">Input depth image. Not <see langword="null"/>.</param>
+        /// <returns>
+        /// The 2D pixel in depth camera coordinates or
+        /// <see langword="null"/> if <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth coordinate system.
+        /// </returns>
+        /// <remarks>
+        /// This function represents an alternative to <see cref="Convert2DTo2D"/> if the number of pixels that need to be transformed is small.
+        /// This function searches along an epipolar line in the depth image to find the corresponding
+        /// depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
+        /// <see cref="Transformation.DepthImageToColorCamera"/>
+        /// to get correspondence depth values for these color pixels, then call the function <see cref="Convert2DTo2D"/>.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="depthImage"/> cannot be <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="depthImage"/> has invalid format and/or resolution.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Cannot perform transformation. Most likely, calibration data is invalid.
+        /// </exception>
+        public Float2? ConvertColor2DToDepth2D(Float2 sourcePoint2D, Image depthImage)
+        {
+            if (depthImage == null)
+                throw new ArgumentNullException(nameof(depthImage));
+            if (depthImage.IsDisposed)
+                throw new ObjectDisposedException(nameof(depthImage));
+            if (depthImage.Format != ImageFormat.Depth16 || depthImage.WidthPixels != DepthMode.WidthPixels() || depthImage.HeightPixels != DepthMode.HeightPixels())
+                throw new ArgumentException($"Invalid format or size of {nameof(depthImage)}", nameof(depthImage));
+            var res = NativeApi.CalibrationColor2DToDepth2D(ref this, ref sourcePoint2D, Image.ToHandle(depthImage), out var targetPoint2D, out var valid);
+            if (res != NativeCallResults.Result.Succeeded)
+                throw new InvalidOperationException("Cannot transform color 2D point to depth 2D point: invalid calibration data.");
             if (!valid)
                 return null;
             return targetPoint2D;

@@ -870,6 +870,46 @@ namespace K4AdotNet.Sensor
             out Float2 targetPoint2D,
             out bool valid);
 
+        // K4A_EXPORT k4a_result_t k4a_calibration_color_2d_to_depth_2d(const k4a_calibration_t* calibration,
+        //                                                     const k4a_float2_t* source_point2d,
+        //                                                     const k4a_image_t depth_image,
+        //                                                     k4a_float2_t *target_point2d,
+        //                                                     int* valid);
+        /// <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
+        /// <param name="calibration">Camera calibration data.</param>
+        /// <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
+        /// <param name="depthImage">Handle to input depth image.</param>
+        /// <param name="targetPoint2D">The 2D pixel in depth camera coordinates.</param>
+        /// <param name="valid">
+        /// The output parameter returns a value of <see langword="true"/> if the <paramref name="sourcePoint2D"/> is a valid coordinate in the depth camera
+        /// coordinate system, and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
+        /// </param>
+        /// <returns>
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
+        /// <see cref="NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+        /// If the function returns <see cref="NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
+        /// the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
+        /// and should be ignored.
+        /// </returns>
+        /// <remarks>
+        /// This function represents an alternative to <see cref="Calibration2DTo2D"/>
+        /// if the number of pixels that need to be transformed is small. This function searches along an epipolar line in the depth image to find the corresponding
+        /// depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
+        /// <see cref="TransformationDepthImageToColorCamera"/>
+        /// to get correspondence depth values for these color pixels, then call the function <see cref="Calibration2DTo2D"/>.
+        ///
+        /// If <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth camera coordinate system, <paramref name="valid"/> is set
+        /// to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
+        /// The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_color_2d_to_depth_2d", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result CalibrationColor2DToDepth2D(
+            [In] ref Calibration calibration,
+            [In] ref Float2 sourcePoint2D,
+            NativeHandles.ImageHandle depthImage,
+            out Float2 targetPoint2D,
+            out bool valid);
+
         // K4A_EXPORT k4a_transformation_t k4a_transformation_create(const k4a_calibration_t *calibration);
         /// <summary>Get handle to transformation.</summary>
         /// <param name="calibration">Camera calibration data.</param>
