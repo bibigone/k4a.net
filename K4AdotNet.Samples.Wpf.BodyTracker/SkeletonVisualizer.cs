@@ -1,7 +1,5 @@
 ﻿using K4AdotNet.BodyTracking;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -20,8 +18,6 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
 
             this.dispatcher = dispatcher;
-            this.widthPixels = widthPixels;
-            this.heightPixels = heightPixels;
             this.jointToImageProjector = jointToImageProjector;
 
             // WPF stuff to draw skeleton
@@ -160,8 +156,6 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         }
 
         private readonly Dispatcher dispatcher;
-        private readonly int widthPixels;
-        private readonly int heightPixels;
         private readonly Func<Joint, Float2?> jointToImageProjector;
         private readonly Rect drawingRect;
         private readonly DrawingGroup drawingGroup;

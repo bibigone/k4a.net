@@ -46,7 +46,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             var capture = new Capture();
             capture.Dispose();
-            var tmp = capture.TemperatureC;     // <- ObjectDisposedException
+            _ = capture.TemperatureC;     // <- ObjectDisposedException
         }
 
         [TestMethod]

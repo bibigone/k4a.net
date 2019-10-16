@@ -24,7 +24,7 @@ namespace K4AdotNet.Samples.Unity
                     ColorResolution = ColorResolution.R720p,
                     ColorFormat = ImageFormat.ColorBgra32,
                     DepthMode = DepthMode.NarrowViewUnbinned,
-                    CameraFps = FrameRate.Fifteen,
+                    CameraFps = FrameRate.Thirty,
                 };
                 _device.GetCalibration(Configuration.DepthMode, Configuration.ColorResolution, out var calibration);
                 Calibration = calibration;

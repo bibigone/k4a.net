@@ -169,7 +169,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             // Force collecting of array
             GC.Collect();
 
-            Assert.IsFalse(weakReferenceToArray.TryGetTarget(out var notUsed));
+            Assert.IsFalse(weakReferenceToArray.TryGetTarget(out _));
 
             // Nothing bad if we call dispose second time
             image.Dispose();
@@ -181,7 +181,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             var image = new Image(ImageFormat.Depth16, testWidth, testHeight);
             image.Dispose();
-            var buffer = image.Buffer;      // <- ObjectDisposedException
+            _ = image.Buffer;      // <- ObjectDisposedException
         }
 
         #endregion
@@ -260,7 +260,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             GC.Collect();
 
             // But array is still alive because refImage keeps it
-            Assert.IsTrue(weakReferenceToArray.TryGetTarget(out var notUsed));
+            Assert.IsTrue(weakReferenceToArray.TryGetTarget(out _));
 
             refImage.Dispose();
         }

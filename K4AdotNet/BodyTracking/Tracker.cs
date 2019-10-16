@@ -47,7 +47,7 @@ namespace K4AdotNet.BodyTracking
         /// </exception>
         /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>
-        public Tracker(ref Calibration calibration, TrackerConfiguration config = default(TrackerConfiguration))
+        public Tracker(ref Calibration calibration, TrackerConfiguration config = default)
         {
             if (!calibration.DepthMode.HasDepth())
                 throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
@@ -180,7 +180,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="DepthMode"/>.</exception>
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
-        public bool TryEnqueueCapture(Capture capture, Timeout timeout = default(Timeout))
+        public bool TryEnqueueCapture(Capture capture, Timeout timeout = default)
         {
             if (capture == null)
                 throw new ArgumentNullException(nameof(capture));
@@ -252,7 +252,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
         /// <seealso cref="PopResult"/>
-        public bool TryPopResult(out BodyFrame bodyFrame, Timeout timeout = default(Timeout))
+        public bool TryPopResult(out BodyFrame bodyFrame, Timeout timeout = default)
         {
             var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
             if (res == NativeCallResults.WaitResult.Timeout)

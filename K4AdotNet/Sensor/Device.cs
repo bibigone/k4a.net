@@ -66,7 +66,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="DeviceConnectionLostException"/>
         public bool IsConnected
             => !handle.IsDisposed
-                && NativeApi.DeviceGetSyncJack(handle.Value, out var notUsed1, out var notUsed2) == NativeCallResults.Result.Succeeded;
+                && NativeApi.DeviceGetSyncJack(handle.Value, out _, out _) == NativeCallResults.Result.Succeeded;
 
         /// <summary>Gets the device jack status for the synchronization in connectors.</summary>
         /// <remarks>
@@ -80,7 +80,7 @@ namespace K4AdotNet.Sensor
         {
             get
             {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnected, out var syncOutConnected));
+                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnected, out _));
                 return syncInConnected;
             }
         }
@@ -100,7 +100,7 @@ namespace K4AdotNet.Sensor
         {
             get
             {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnected, out var syncOutConnected));
+                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out _, out var syncOutConnected));
                 return syncOutConnected;
             }
         }
@@ -191,7 +191,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Camera streaming is not running or has been stopped during this call.</exception>
-        public bool TryGetCapture(out Capture capture, Timeout timeout = default(Timeout))
+        public bool TryGetCapture(out Capture capture, Timeout timeout = default)
         {
             var res = NativeApi.DeviceGetCapture(handle.ValueNotDisposed, out var captureHandle, timeout);
 
@@ -248,7 +248,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">IMU streaming is not running or has been stopped during this call.</exception>
-        public bool TryGetImuSample(out ImuSample imuSample, Timeout timeout = default(Timeout))
+        public bool TryGetImuSample(out ImuSample imuSample, Timeout timeout = default)
         {
             var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out imuSample, timeout);
 

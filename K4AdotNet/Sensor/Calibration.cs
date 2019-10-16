@@ -96,7 +96,7 @@ namespace K4AdotNet.Sensor
             if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
                 throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
 
-            calibration = default(Calibration);
+            calibration = default;
 
             // depth camera
             calibration.DepthMode = depthMode;

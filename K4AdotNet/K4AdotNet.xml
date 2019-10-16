@@ -322,6 +322,15 @@
         <member name="F:K4AdotNet.BodyTracking.JointType.WristLeft">
             <summary>Left wrist joint.</summary>
         </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HandLeft">
+            <summary>Left hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HandTipLeft">
+            <summary>Tip of left hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ThumbLeft">
+            <summary>Left thumb joint.</summary>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.JointType.ClavicleRight">
             <summary>Right clavicle joint.</summary>
         </member>
@@ -333,6 +342,15 @@
         </member>
         <member name="F:K4AdotNet.BodyTracking.JointType.WristRight">
             <summary>Right wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HandRight">
+            <summary>Right hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.HandTipRight">
+            <summary>Tip of right hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.JointType.ThumbRight">
+            <summary>Right thumb joint.</summary>
         </member>
         <member name="F:K4AdotNet.BodyTracking.JointType.HipLeft">
             <summary>Left hip joint.</summary>
@@ -623,6 +641,15 @@
         <member name="F:K4AdotNet.BodyTracking.Skeleton.WristLeft">
             <summary>Left wrist joint.</summary>
         </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HandLeft">
+            <summary>Left hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HandTipLeft">
+            <summary>Tip of left hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ThumbLeft">
+            <summary>Left thumb joint.</summary>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.Skeleton.ClavicleRight">
             <summary>Right clavicle joint.</summary>
         </member>
@@ -634,6 +661,15 @@
         </member>
         <member name="F:K4AdotNet.BodyTracking.Skeleton.WristRight">
             <summary>Right wrist joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HandRight">
+            <summary>Right hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.HandTipRight">
+            <summary>Tip of right hand joint.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.ThumbRight">
+            <summary>Right thumb joint.</summary>
         </member>
         <member name="F:K4AdotNet.BodyTracking.Skeleton.HipLeft">
             <summary>Left hip joint.</summary>

@@ -54,6 +54,8 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 
                 depthImage.Dispose();
                 needUpdateBitmap.Dispose();
+
+                transformation.Dispose();
             }
         }
 

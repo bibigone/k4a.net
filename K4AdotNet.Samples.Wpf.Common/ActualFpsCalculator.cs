@@ -13,9 +13,9 @@ namespace K4AdotNet.Samples.Wpf
         /// <param name="periodCountForAveraging">Count of refresh periods that is used to calculate FPS. Default value is <c>5</c>.</param>
         /// <param name="smoothCoeff">Smoothing coefficient. Default value is <c>0f</c>, which means no smoothing. Value must be in range [0; 1).</param>
         public ActualFpsCalculator(
-            TimeSpan refreshPeriod = default(TimeSpan),
-            int periodCountForAveraging = default(int),
-            float smoothCoeff = default(float))
+            TimeSpan refreshPeriod = default,
+            int periodCountForAveraging = default,
+            float smoothCoeff = default)
         {
             // default values
             if (refreshPeriod <= TimeSpan.Zero)
