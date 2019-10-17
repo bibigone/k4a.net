@@ -99,4 +99,4 @@ See https://github.com/bibigone/k4a.net/releases
   * `K4AdotNet.Samples.Wpf.Viewer` &mdash; sample WPF application to demonstrate usage of Sensor API and Record API.
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
   * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application implementing the background removal effect for color picture with the help of depth data.
-* Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.txt)
+* Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.md).
