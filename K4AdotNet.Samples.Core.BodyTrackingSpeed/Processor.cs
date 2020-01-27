@@ -31,7 +31,9 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             if (processingParameters.StartTime.HasValue)
                 Seek(processingParameters.StartTime.Value);
             var config = BodyTracking.TrackerConfiguration.Default;
-            config.CpuOnlyMode = processingParameters.CpuOnlyMode;
+            config.ProcessingMode = processingParameters.CpuOnlyMode
+                ? BodyTracking.TrackerProcessingMode.Cpu
+                : BodyTracking.TrackerProcessingMode.Gpu;
             tracker = new BodyTracking.Tracker(ref calibration, config);
         }
 

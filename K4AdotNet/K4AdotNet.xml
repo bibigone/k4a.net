@@ -301,8 +301,9 @@
         <member name="F:K4AdotNet.BodyTracking.JointType.Pelvis">
             <summary>Pelvis joint.</summary>
         </member>
-        <member name="F:K4AdotNet.BodyTracking.JointType.SpineNaval">
-            <summary>Naval spine joint.</summary>
+        <member name="F:K4AdotNet.BodyTracking.JointType.SpineNavel">
+            <summary>Navel spine joint.</summary>
+            <summary>Navel spine joint.</summary>
         </member>
         <member name="F:K4AdotNet.BodyTracking.JointType.SpineChest">
             <summary>Chest spine joint.</summary>
@@ -545,7 +546,7 @@
             <returns>Returns the number of detected bodies. 0 if the function fails.</returns>
             <remarks>Called when the user has received a body frame handle and wants to access the data contained in it.</remarks>
         </member>
-        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodySkeleton(K4AdotNet.NativeHandles.BodyFrameHandle,System.UIntPtr,K4AdotNet.BodyTracking.Skeleton@)">
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodySkeleton(K4AdotNet.NativeHandles.BodyFrameHandle,System.UInt32,K4AdotNet.BodyTracking.Skeleton@)">
             <summary>Get the joint information for a particular person index from the <see cref="T:K4AdotNet.NativeHandles.BodyFrameHandle"/>.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
             <param name="index">The index of the body of which the joint information is queried.</param>
@@ -553,7 +554,7 @@
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if a valid body skeleton is returned. All failures will return <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/>.</returns>
             <remarks>Called when the user has received a body frame handle and wants to access the data contained in it.</remarks>
         </member>
-        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodyId(K4AdotNet.NativeHandles.BodyFrameHandle,System.UIntPtr)">
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodyId(K4AdotNet.NativeHandles.BodyFrameHandle,System.UInt32)">
             <summary>Get the body id for a particular person index from the <see cref="T:K4AdotNet.NativeHandles.BodyFrameHandle"/>.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
             <param name="index">The index of the body of which the body id information is queried.</param>
@@ -620,8 +621,8 @@
         <member name="F:K4AdotNet.BodyTracking.Skeleton.Pelvis">
             <summary>Pelvis joint.</summary>
         </member>
-        <member name="F:K4AdotNet.BodyTracking.Skeleton.SpineNaval">
-            <summary>Naval spine joint.</summary>
+        <member name="F:K4AdotNet.BodyTracking.Skeleton.SpineNavel">
+            <summary>Navel spine joint.</summary>
         </member>
         <member name="F:K4AdotNet.BodyTracking.Skeleton.SpineChest">
             <summary>Chest spine joint.</summary>
@@ -765,10 +766,6 @@
             Invalid value of <paramref name="calibration"/>: <see cref="F:K4AdotNet.Sensor.Calibration.DepthMode"/> cannot be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/> and <see cref="F:K4AdotNet.Sensor.DepthMode.PassiveIR"/>.
             Because depth data is required for body tracking.
             </exception>
-            <exception cref="T:System.NotSupportedException">
-            Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
-            previous tracker you created, the constructor call will fail with this exception.
-            </exception>
             <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">
             Unable to find/initialize Body Tracking runtime.
             </exception>
@@ -835,7 +832,7 @@
         </member>
         <member name="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)">
             <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
-            <param name="capture">It should contain the depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+            <param name="capture">It should contain the depth and IR data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
             <param name="timeout">
             Specifies the time the function should block waiting to add the sensor capture to the tracker process queue.
             Default value is <see cref="F:K4AdotNet.Timeout.NoWait"/>, which means checking of the status without blocking.
@@ -846,7 +843,7 @@
             <see langword="false"/> - if the queue is still full (see <see cref="P:K4AdotNet.BodyTracking.Tracker.IsQueueFull"/> property) before the <paramref name="timeout"/> elapses.
             </returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth and/or IR data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
             <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
             <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
         </member>
@@ -854,7 +851,7 @@
             <summary>Equivalent to call of <see cref="M:K4AdotNet.BodyTracking.Tracker.TryEnqueueCapture(K4AdotNet.Sensor.Capture,K4AdotNet.Timeout)"/> with infinite timeout: <see cref="F:K4AdotNet.Timeout.Infinite"/>.</summary>
             <param name="capture">It should contain the depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="capture"/> doesn't contain depth and/or IR data compatible with <see cref="P:K4AdotNet.BodyTracking.Tracker.DepthMode"/>.</exception>
             <exception cref="T:System.ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
             <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
         </member>
@@ -900,16 +897,35 @@
             <summary>The sensor mounting orientation type.</summary>
             <remarks>Setting the correct orientation can help the body tracker to achieve more accurate body tracking results.</remarks>
         </member>
-        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.CpuOnlyMode">
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode">
             <summary>Specify whether to use CPU only mode or GPU mode to run the tracker.</summary>
             <remarks>
             The CPU only mode doesn't require the machine to have a GPU to run this SDK.
             But it will be much slower than the GPU mode.
             </remarks>
         </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.GpuDeviceId">
+            <summary>Specify the GPU device ID to run the tracker.</summary>
+            <remarks>The setting is only effective if the <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode"/> setting is set to <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Gpu"/>.</remarks>
+        </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.Default">
             <summary>Default configuration setting for k4abt tracker.</summary>
             <remarks>Use this setting to initialize a <see cref="T:K4AdotNet.BodyTracking.TrackerConfiguration"/> to a default state.</remarks>
+        </member>
+        <member name="T:K4AdotNet.BodyTracking.TrackerProcessingMode">
+            <summary>Tracker processing mode types.</summary>
+            <remarks>
+            The CPU only mode doesn't require the machine to have a GPU to run this SDK.
+            But it will be much slower than the GPU mode.
+            </remarks>
+            <seealso cref="T:K4AdotNet.BodyTracking.TrackerConfiguration"/>
+            <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Gpu">
+            <summary>SDK will use GPU mode to run the tracker.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Cpu">
+            <summary>SDK will use CPU only mode to run the tracker.</summary>
         </member>
         <member name="T:K4AdotNet.Float2">
             <summary>Two dimensional floating point vector.</summary>
@@ -3756,6 +3772,7 @@
             </para></remarks>
             <exception cref="T:System.ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
+            <exception cref="T:System.NotSupportedException">Color format is not supported for recorded. It is recommended to use <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> for recording.</exception>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.Dispose">
             <summary>

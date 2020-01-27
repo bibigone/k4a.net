@@ -65,7 +65,7 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Gets the number of detected bodies.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public int BodyCount => Helpers.UIntPtrToInt32(NativeApi.FrameGetNumBodies(handle.ValueNotDisposed));
+        public int BodyCount => (int)NativeApi.FrameGetNumBodies(handle.ValueNotDisposed);
 
         /// <summary>Get the original capture that was used to calculate this body frame.</summary>
         /// <remarks><para>
@@ -124,7 +124,7 @@ namespace K4AdotNet.BodyTracking
         {
             if (bodyIndex < 0 || bodyIndex >= BodyCount)
                 throw new ArgumentOutOfRangeException(nameof(bodyIndex));
-            if (NativeApi.FrameGetBodySkeleton(handle.ValueNotDisposed, Helpers.Int32ToUIntPtr(bodyIndex), out skeleton) != NativeCallResults.Result.Succeeded)
+            if (NativeApi.FrameGetBodySkeleton(handle.ValueNotDisposed, (uint)bodyIndex, out skeleton) != NativeCallResults.Result.Succeeded)
                 throw new BodyTrackingException($"Cannot extract skeletal data for body with index {bodyIndex}");
         }
 
@@ -137,7 +137,7 @@ namespace K4AdotNet.BodyTracking
         {
             if (bodyIndex < 0 || bodyIndex >= BodyCount)
                 throw new ArgumentOutOfRangeException(nameof(bodyIndex));
-            return NativeApi.FrameGetBodyId(handle.ValueNotDisposed, Helpers.Int32ToUIntPtr(bodyIndex));
+            return NativeApi.FrameGetBodyId(handle.ValueNotDisposed, (uint)bodyIndex);
         }
 
         internal static BodyFrame Create(NativeHandles.BodyFrameHandle bodyFrameHandle)

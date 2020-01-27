@@ -159,7 +159,7 @@ namespace k4abt
          *
          * \sa k4abt_frame_get_num_bodies
          */
-        size_t get_num_bodies() noexcept
+        uint32_t get_num_bodies() noexcept
         {
             return k4abt_frame_get_num_bodies(m_handle);
         }
@@ -168,7 +168,7 @@ namespace k4abt
          *
          * \sa k4abt_frame_get_body_skeleton
          */
-        k4abt_skeleton_t get_body_skeleton(size_t index)
+        k4abt_skeleton_t get_body_skeleton(uint32_t index)
         {
             k4abt_skeleton_t skeleton;
             get_body_skeleton(index, skeleton);
@@ -179,7 +179,7 @@ namespace k4abt
          *
          * \sa k4abt_frame_get_body_skeleton
          */
-        void get_body_skeleton(size_t index, k4abt_skeleton_t& skeleton)
+        void get_body_skeleton(uint32_t index, k4abt_skeleton_t& skeleton)
         {
             k4a_result_t result = k4abt_frame_get_body_skeleton(m_handle, index, &skeleton);
             if (K4A_RESULT_SUCCEEDED != result)
@@ -192,7 +192,7 @@ namespace k4abt
          *
          * \sa k4abt_frame_get_body_id
          */
-        uint32_t get_body_id(size_t index) noexcept
+        uint32_t get_body_id(uint32_t index) noexcept
         {
             return k4abt_frame_get_body_id(m_handle, index);
         }
@@ -202,7 +202,7 @@ namespace k4abt
          * \sa k4abt_frame_get_body_id
          * \sa k4abt_frame_get_body_skeleton
          */
-        k4abt_body_t get_body(size_t index) noexcept
+        k4abt_body_t get_body(uint32_t index) noexcept
         {
             k4abt_body_t body;
             body.id = k4abt_frame_get_body_id(m_handle, index);

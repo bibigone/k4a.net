@@ -4,7 +4,7 @@
     // typedef enum
     // {
     //     K4ABT_JOINT_PELVIS = 0,
-    //     K4ABT_JOINT_SPINE_NAVAL,
+    //     K4ABT_JOINT_SPINE_NAVEL,
     //     K4ABT_JOINT_SPINE_CHEST,
     //     K4ABT_JOINT_NECK,
     //     K4ABT_JOINT_CLAVICLE_LEFT,
@@ -47,8 +47,9 @@
         /// <summary>Pelvis joint.</summary>
         Pelvis = 0,
 
-        /// <summary>Naval spine joint.</summary>
-        SpineNaval,
+        /// <summary>Navel spine joint.</summary>
+        /// <summary>Navel spine joint.</summary>
+        SpineNavel,
 
         /// <summary>Chest spine joint.</summary>
         SpineChest,

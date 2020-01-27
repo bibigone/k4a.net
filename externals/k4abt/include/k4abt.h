@@ -233,7 +233,7 @@ extern "C" {
  * \remarks Called when the user has received a body frame handle and wants to access the data contained in it.
  *
  */
- K4ABT_EXPORT size_t k4abt_frame_get_num_bodies(k4abt_frame_t body_frame_handle);
+ K4ABT_EXPORT uint32_t k4abt_frame_get_num_bodies(k4abt_frame_t body_frame_handle);
 
 /** Get the joint information for a particular person index from the k4abt_frame_t
  *
@@ -253,7 +253,7 @@ extern "C" {
  * \remarks Called when the user has received a body frame handle and wants to access the data contained in it.
  *
  */
- K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, size_t index, k4abt_skeleton_t* skeleton);
+ K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, uint32_t index, k4abt_skeleton_t* skeleton);
 
 /** Get the body id for a particular person index from the k4abt_frame_t
  *
@@ -271,7 +271,7 @@ extern "C" {
  * particular index.
  *
  */
- K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, size_t index);
+ K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, uint32_t index);
 
 /** Get the body frame's device timestamp in microseconds
  *

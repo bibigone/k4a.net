@@ -12,7 +12,7 @@ namespace K4AdotNet.BodyTracking
         public static readonly IReadOnlyList<JointType> All = new[]
         {
             JointType.Pelvis,
-            JointType.SpineNaval,
+            JointType.SpineNavel,
             JointType.SpineChest,
             JointType.Neck,
             JointType.ClavicleLeft,
@@ -102,8 +102,8 @@ namespace K4AdotNet.BodyTracking
             {
                 // Spine
                 case JointType.Pelvis: return JointType.Pelvis;
-                case JointType.SpineNaval: return JointType.Pelvis;
-                case JointType.SpineChest: return JointType.SpineNaval;
+                case JointType.SpineNavel: return JointType.Pelvis;
+                case JointType.SpineChest: return JointType.SpineNavel;
                 case JointType.Neck: return JointType.SpineChest;
                 // Left arm
                 case JointType.ClavicleLeft: return JointType.SpineChest;

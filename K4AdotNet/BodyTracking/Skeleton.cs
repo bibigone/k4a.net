@@ -23,8 +23,8 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Pelvis joint.</summary>
         public Joint Pelvis;
 
-        /// <summary>Naval spine joint.</summary>
-        public Joint SpineNaval;
+        /// <summary>Navel spine joint.</summary>
+        public Joint SpineNavel;
 
         /// <summary>Chest spine joint.</summary>
         public Joint SpineChest;
@@ -132,7 +132,7 @@ namespace K4AdotNet.BodyTracking
                 switch (index)
                 {
                     case JointType.Pelvis: return Pelvis;
-                    case JointType.SpineNaval: return SpineNaval;
+                    case JointType.SpineNavel: return SpineNavel;
                     case JointType.SpineChest: return SpineChest;
                     case JointType.Neck: return Neck;
                     case JointType.ClavicleLeft: return ClavicleLeft;
@@ -172,7 +172,7 @@ namespace K4AdotNet.BodyTracking
                 switch (index)
                 {
                     case JointType.Pelvis: Pelvis = value; break;
-                    case JointType.SpineNaval: SpineNaval = value; break;
+                    case JointType.SpineNavel: SpineNavel = value; break;
                     case JointType.SpineChest: SpineChest = value; break;
                     case JointType.Neck: Neck = value; break;
                     case JointType.ClavicleLeft: ClavicleLeft = value; break;

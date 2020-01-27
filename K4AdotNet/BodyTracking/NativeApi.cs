@@ -121,15 +121,15 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_shutdown", CallingConvention = CallingConvention.Cdecl)]
         public static extern void TrackerShutdown(NativeHandles.TrackerHandle trackerHandle);
 
-        // K4ABT_EXPORT size_t k4abt_frame_get_num_bodies(k4abt_frame_t body_frame_handle);
+        // K4ABT_EXPORT uint32_t k4abt_frame_get_num_bodies(k4abt_frame_t body_frame_handle);
         /// <summary>Get the number of people from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <returns>Returns the number of detected bodies. 0 if the function fails.</returns>
         /// <remarks>Called when the user has received a body frame handle and wants to access the data contained in it.</remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_num_bodies", CallingConvention = CallingConvention.Cdecl)]
-        public static extern UIntPtr FrameGetNumBodies(NativeHandles.BodyFrameHandle bodyFrameHandle);
+        public static extern uint FrameGetNumBodies(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
-        // K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, size_t index, k4abt_skeleton_t* skeleton);
+        // K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, uint32_t index, k4abt_skeleton_t* skeleton);
         /// <summary>Get the joint information for a particular person index from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <param name="index">The index of the body of which the joint information is queried.</param>
@@ -139,10 +139,10 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_body_skeleton", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result FrameGetBodySkeleton(
             NativeHandles.BodyFrameHandle bodyFrameHandle,
-            UIntPtr index,
+            uint index,
             out Skeleton skeleton);
 
-        // K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, size_t index);
+        // K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, uint32_t index);
         /// <summary>Get the body id for a particular person index from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <param name="index">The index of the body of which the body id information is queried.</param>
@@ -153,7 +153,7 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_body_id", CallingConvention = CallingConvention.Cdecl)]
         public static extern BodyId FrameGetBodyId(
             NativeHandles.BodyFrameHandle bodyFrameHandle,
-            UIntPtr index);
+            uint index);
 
         // K4ABT_EXPORT uint64_t k4abt_frame_get_device_timestamp_usec(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body frame's device timestamp.</summary>

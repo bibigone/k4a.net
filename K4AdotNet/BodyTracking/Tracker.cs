@@ -13,9 +13,6 @@ namespace K4AdotNet.BodyTracking
     /// <seealso cref="BodyFrame"/>
     public sealed class Tracker : IDisposablePlus
     {
-        // Current version of Body Tracking runtime does not support creation of multiple instances.
-        private static volatile int instancesCounter;
-
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;   // this class is an wrapper around this handle
         private volatile int queueSize;                                                     // captures in queue
         private float temporalSmoothingFactor = DefaultSmoothingFactor;
@@ -38,10 +35,6 @@ namespace K4AdotNet.BodyTracking
         /// Invalid value of <paramref name="calibration"/>: <see cref="Calibration.DepthMode"/> cannot be <see cref="DepthMode.Off"/> and <see cref="DepthMode.PassiveIR"/>.
         /// Because depth data is required for body tracking.
         /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// Only one tracker is allowed to exist at the same time in each process. If you call this constructor without destroying the 
-        /// previous tracker you created, the constructor call will fail with this exception.
-        /// </exception>
         /// <exception cref="BodyTrackingException">
         /// Unable to find/initialize Body Tracking runtime.
         /// </exception>
@@ -54,28 +47,15 @@ namespace K4AdotNet.BodyTracking
 
             DepthMode = calibration.DepthMode;
 
-            var incrementedInstanceCounter = Interlocked.Increment(ref instancesCounter);
-            try
-            {
-                if (incrementedInstanceCounter != 1)
-                    throw new NotSupportedException("Oops! Current version of Body Tracking runtime does not support creation of multiple body trackers. Sorry!");
+            if (!Sdk.TryCreateTrackerHandle(ref calibration, config, out var handle, out var message))
+                throw new BodyTrackingException(message);
 
-                if (!Sdk.TryCreateTrackerHandle(ref calibration, config, out var handle, out var message))
-                    throw new BodyTrackingException(message);
-
-                this.handle = handle;
-                this.handle.Disposed += Handle_Disposed;
-            }
-            catch
-            {
-                Interlocked.Decrement(ref instancesCounter);
-                throw;
-            }
+            this.handle = handle;
+            this.handle.Disposed += Handle_Disposed;
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
         {
-            Interlocked.Decrement(ref instancesCounter);
             queueSize = 0;
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);
@@ -166,7 +146,7 @@ namespace K4AdotNet.BodyTracking
         }
 
         /// <summary>Adds a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
-        /// <param name="capture">It should contain the depth data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
+        /// <param name="capture">It should contain the depth and IR data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
         /// <param name="timeout">
         /// Specifies the time the function should block waiting to add the sensor capture to the tracker process queue.
         /// Default value is <see cref="Timeout.NoWait"/>, which means checking of the status without blocking.
@@ -177,7 +157,7 @@ namespace K4AdotNet.BodyTracking
         /// <see langword="false"/> - if the queue is still full (see <see cref="IsQueueFull"/> property) before the <paramref name="timeout"/> elapses.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="DepthMode"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth and/or IR data compatible with <see cref="DepthMode"/>.</exception>
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
         public bool TryEnqueueCapture(Capture capture, Timeout timeout = default)
@@ -214,6 +194,28 @@ namespace K4AdotNet.BodyTracking
                     }
                 }
 
+                using (var irImage = capture.IRImage)
+                {
+                    if (irImage == null)
+                    {
+                        throw new ArgumentException(
+                            "Capture should contain the IR data.",
+                            nameof(capture));
+                    }
+                    if (irImage.Format != ImageFormat.IR16)
+                    {
+                        throw new ArgumentException(
+                            $"Invalid format of IR data in capture: expected {ImageFormat.IR16} but was {irImage.Format}.",
+                            nameof(capture));
+                    }
+                    if (irImage.WidthPixels != DepthMode.WidthPixels() || irImage.HeightPixels != DepthMode.HeightPixels())
+                    {
+                        throw new ArgumentException(
+                            $"Invalid resolution of IR data in capture: expected {DepthMode.WidthPixels()}x{DepthMode.HeightPixels()} pixels but was {irImage.WidthPixels}x{irImage.HeightPixels} pixels.",
+                            nameof(capture));
+                    }
+                }
+
                 throw new BodyTrackingException("Cannot add new capture to body tracking pipeline. See logs for details.");
             }
 
@@ -226,7 +228,7 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Equivalent to call of <see cref="TryEnqueueCapture(Capture, Timeout)"/> with infinite timeout: <see cref="Timeout.Infinite"/>.</summary>
         /// <param name="capture">It should contain the depth data compatible with <see cref="DepthMode"/> for this function to work. Not <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="capture"/> cannot be <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth data compatible with <see cref="DepthMode"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="capture"/> doesn't contain depth and/or IR data compatible with <see cref="DepthMode"/>.</exception>
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
         public void EnqueueCapture(Capture capture)

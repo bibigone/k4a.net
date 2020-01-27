@@ -57,7 +57,7 @@ K4A_DECLARE_HANDLE(k4abt_frame_t);
 typedef enum
 {
     K4ABT_JOINT_PELVIS = 0,
-    K4ABT_JOINT_SPINE_NAVAL,
+    K4ABT_JOINT_SPINE_NAVEL,
     K4ABT_JOINT_SPINE_CHEST,
     K4ABT_JOINT_NECK,
     K4ABT_JOINT_CLAVICLE_LEFT,
@@ -108,6 +108,18 @@ typedef enum
     K4ABT_SENSOR_ORIENTATION_FLIP180,            /**< Mount the sensor upside-down */
 } k4abt_sensor_orientation_t;
 
+/** Tracker processing mode types.
+ *
+ * \remarks
+ * The CPU only mode doesn't require the machine to have a GPU to run this SDK. But it will be much slower
+ * than the GPU mode.
+ */
+typedef enum
+{
+    K4ABT_TRACKER_PROCESSING_MODE_GPU = 0, /**< SDK will use GPU mode to run the tracker */
+    K4ABT_TRACKER_PROCESSING_MODE_CPU,     /**< SDK will use CPU only mode to run the tracker */
+} k4abt_tracker_processing_mode_t;
+
 /** Configuration parameters for a k4abt body tracker
  *
  * \remarks
@@ -123,10 +135,16 @@ typedef struct _k4abt_tracker_configuration_t
 
     /** Specify whether to use CPU only mode or GPU mode to run the tracker.
      *
-     * The CPU only mode doesn't require the machine to have a GPU to run this SDK. But it will be much slower 
+     * The CPU only mode doesn't require the machine to have a GPU to run this SDK. But it will be much slower
      * than the GPU mode.
      */
-    bool cpu_only_mode;
+    k4abt_tracker_processing_mode_t processing_mode;
+
+    /** Specify the GPU device ID to run the tracker.
+     *
+     * The setting is only effective if the processing_mode setting is set to K4ABT_TRACKER_PROCESSING_MODE_GPU.
+     */
+    int32_t gpu_device_id;
 } k4abt_tracker_configuration_t;
 
 /**
@@ -227,8 +245,9 @@ typedef struct _k4abt_body_t
  * \remarks
  * Use this setting to initialize a \ref k4abt_tracker_configuration_t to a default state.
  */
-static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT, // sensor_orientation
-                                                                            false };                          // use_cpu_only_mode
+static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT,  // sensor_orientation
+                                                                            K4ABT_TRACKER_PROCESSING_MODE_GPU, // processing_mode
+                                                                            0 };                               // gpu_device_id
 
 /**
  * @}
