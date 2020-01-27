@@ -103,7 +103,7 @@ namespace K4AdotNet.Samples.Unity
             var bones = new List<Bone>();
 
             // Spine
-            CreateBones(bones, JointType.SpineNaval, JointType.SpineChest, JointType.Neck, JointType.Head);
+            CreateBones(bones, JointType.SpineNavel, JointType.SpineChest, JointType.Neck, JointType.Head);
             // Right arm
             CreateBones(bones, JointType.ClavicleRight, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight);
             // Left arm

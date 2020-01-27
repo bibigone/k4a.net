@@ -95,7 +95,7 @@ namespace K4AdotNet.Samples.Unity
             switch (joint)
             {
                 case JointType.Pelvis: return HumanBodyBones.Hips;
-                case JointType.SpineNaval: return HumanBodyBones.Spine;
+                case JointType.SpineNavel: return HumanBodyBones.Spine;
                 case JointType.SpineChest: return HumanBodyBones.Chest;
                 case JointType.Neck: return HumanBodyBones.Neck;
                 case JointType.Head: return HumanBodyBones.Head;
@@ -129,7 +129,7 @@ namespace K4AdotNet.Samples.Unity
             switch (jointType)
             {
                 case JointType.Pelvis:
-                case JointType.SpineNaval:
+                case JointType.SpineNavel:
                 case JointType.SpineChest:
                 case JointType.Neck:
                 case JointType.Head:
