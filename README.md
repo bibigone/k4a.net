@@ -34,9 +34,8 @@
   * for .NET Core
   * for WPF
   * for Unity
-  * and even more samples will be available soon (stay tuned)
 * Well documented
-* Unit-tested (more tests are awaited)
+* Unit-tested
 * Potentially multi-platform (Windows, Linux)
   * But currently tested only under Windows
   * And most of samples are written using WPF
@@ -49,9 +48,9 @@
 
 | Library "component" | Depends on                                   | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
-| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.3.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Record API          | `k4arecord.dll`                              | 1.3.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 1.0.0          |                                       | no<sup>(3)</sup>
+| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.4.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                              | 1.4.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 1.0.1          |                                       | no<sup>(3)</sup>
 
 Notes:
 * <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.

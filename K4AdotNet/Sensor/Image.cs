@@ -31,7 +31,7 @@ namespace K4AdotNet.Sensor
         /// <remarks>
         /// This version of constructor can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
         /// and cannot be used for other formats. For details see <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.
-        /// For other formats use <see cref="Image.Image(ImageFormat, int, int, int)"/> or <see cref="Image.Image(ImageFormat, int, int, int, int)"/>.
+        /// For other formats use <see cref="Image(ImageFormat, int, int, int)"/> or <see cref="Image(ImageFormat, int, int, int, int)"/>.
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero.
@@ -47,10 +47,13 @@ namespace K4AdotNet.Sensor
         /// <param name="format">Format of image. Cannot be <see cref="ImageFormat.ColorMjpg"/>.</param>
         /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
+        /// <param name="strideBytes">
+        /// Image stride in bytes (the number of bytes per horizontal line of the image). Must be non negative.
+        /// If set to 0, the stride will be set to the minimum size given the <paramref name="format"/> and <paramref name="widthPixels"/>.
+        /// </param>
         /// <remarks>
         /// Don't use this method to create image with unknown/unspecified stride (like MJPEG).
-        /// For such formats, size of image in bytes must be specified to create image: <see cref="Image.Image(ImageFormat, int, int, int, int)"/>.
+        /// For such formats, size of image in bytes must be specified to create image: <see cref="Image(ImageFormat, int, int, int, int)"/>.
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -67,10 +70,11 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(heightPixels));
             if (strideBytes < 0)
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
-            if (strideBytes == 0)
-                throw new InvalidOperationException("Zero stride is used for formats with complex structure like MJPEG. In this case size of image in bytes must be specified to create image.");
             if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
+
+            if (strideBytes == 0 && (format == ImageFormat.ColorMjpg || format == ImageFormat.Custom))
+                throw new InvalidOperationException($"Size of image in bytes must be specified to create {format} image.");
 
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
@@ -84,7 +88,10 @@ namespace K4AdotNet.Sensor
         /// <param name="format">Format of image.</param>
         /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
+        /// <param name="strideBytes">
+        /// Image stride in bytes (the number of bytes per horizontal line of the image). Must be non negative.
+        /// If set to 0, the stride will be set to the minimum size given the <paramref name="format"/> and <paramref name="widthPixels"/>.
+        /// </param>
         /// <param name="sizeBytes">Size of image buffer in size. Non negative. Cannot be less than size calculated from image parameters.</param>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -99,7 +106,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(heightPixels));
             if (strideBytes < 0)
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
-            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             if (sizeBytes <= 0)
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
@@ -123,36 +130,13 @@ namespace K4AdotNet.Sensor
         /// <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
         /// <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
         /// <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
-        /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
-        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
-        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-        /// <returns>Created image. Not <see langword="null"/>.</returns>
-        /// <remarks><para>
-        /// This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
-        /// and cannot be used for other formats. For details see <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.
-        /// For other formats use <see cref="CreateFromArray{T}(T[], ImageFormat, int, int, int)"/>.
-        /// </para><para>
-        /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
-        /// </para></remarks>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
-        /// or <paramref name="buffer"/> array is too small for specified image parameters.
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
-        /// </exception>
-        /// <seealso cref="ImageFormats.StrideBytes(ImageFormat, int)"/>
-        public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels)
-            where T : struct
-            => CreateFromArray(buffer, format, widthPixels, heightPixels, format.StrideBytes(widthPixels));
-
-        /// <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
-        /// <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
-        /// <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
         /// <param name="format">Format of image.</param>
         /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
+        /// <param name="strideBytes">
+        /// Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative.
+        /// If set to 0, the stride will be set to the minimum size given the <paramref name="format"/> and <paramref name="widthPixels"/>.
+        /// </param>
         /// <returns>Created image. Not <see langword="null"/>.</returns>
         /// <remarks><para>
         /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
@@ -162,7 +146,7 @@ namespace K4AdotNet.Sensor
         /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
         /// or <paramref name="buffer"/> array is too small for specified image parameters.
         /// </exception>
-        public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
+        public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes = 0)
             where T: struct
         {
             if (buffer == null)
@@ -173,7 +157,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(heightPixels));
             if (strideBytes < 0)
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
-            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+            if (format.HasKnownBytesPerPixel() && strideBytes > 0 && strideBytes < widthPixels * format.BytesPerPixel())
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
             var sizeBytes = buffer.Length * Marshal.SizeOf<T>();
             if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))

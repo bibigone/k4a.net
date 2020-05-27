@@ -235,13 +235,21 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
                         // Some random heuristic to colorize depth map slightly like height-based colorization of earth maps
                         // (from blue though green to red)
-                        v = v >> 3;
-                        *(dstPtr++) = (byte)(Math.Max(0, 220 - 3 * Math.Abs(150 - v) / 2));
-                        *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(350 - v)));
-                        *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(550 - v)));
-
-                        // Alpha for non-body pixels
-                        *(dstPtr++) = bodyIndex != BodyTracking.BodyFrame.NotABodyIndexMapPixelValue ? byte.MaxValue : nonBodyAlphaValue;
+                        if (bodyIndex == BodyTracking.BodyFrame.NotABodyIndexMapPixelValue)
+                        {
+                            v = v >> 3;
+                            *(dstPtr++) = (byte)(Math.Max(0, 220 - 3 * Math.Abs(150 - v) / 2));
+                            *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(350 - v)));
+                            *(dstPtr++) = (byte)(Math.Max(0, 220 - Math.Abs(550 - v)));
+                            *(dstPtr++) = nonBodyAlphaValue;
+                        }
+                        else
+                        {
+                            *(dstPtr++) = bodyIndex == 0 ? byte.MaxValue : (byte)0;
+                            *(dstPtr++) = bodyIndex == 1 ? byte.MaxValue : (byte)0;
+                            *(dstPtr++) = bodyIndex == 2 ? byte.MaxValue : (byte)0;
+                            *(dstPtr++) = byte.MaxValue;
+                        }
                     }
                 }
             }

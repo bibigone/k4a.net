@@ -5,12 +5,12 @@
 #define K4AVERSION_H
 
 #define K4A_VERSION_MAJOR          1
-#define K4A_VERSION_MINOR          3
+#define K4A_VERSION_MINOR          4
 #define K4A_VERSION_PATCH          0
 #define K4A_VERSION_PRERELEASE     ""
 #define K4A_VERSION_BUILD_METADATA ""
 
-#define K4A_VERSION_STR            "1.3.0"
+#define K4A_VERSION_STR            "1.4.0"
 
 #endif
 

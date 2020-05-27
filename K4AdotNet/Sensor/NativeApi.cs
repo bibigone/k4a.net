@@ -161,7 +161,10 @@ namespace K4AdotNet.Sensor
         /// <param name="format">The format of the image that will be stored in this image container.</param>
         /// <param name="widthPixels">Width in pixels.</param>
         /// <param name="heightPixels">Height in pixels.</param>
-        /// <param name="strideBytes">The number of bytes per horizontal line of the image.</param>
+        /// <param name="strideBytes">
+        /// The number of bytes per horizontal line of the image.
+        /// If set to 0, the stride will be set to the minimum size given the <paramref name="format"/> and <paramref name="widthPixels"/>.
+        /// </param>
         /// <param name="imageHandle">Handle of created image in case of success.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> on success.</returns>
         /// <remarks>This function is used to create images of formats that have consistent stride.

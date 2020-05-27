@@ -30,8 +30,13 @@ namespace K4AdotNet
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         public const string BODY_TRACKING_DLL_NAME = "k4abt";
 
-        /// <summary>Expected version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
-        public static readonly Version BODY_TRACKING_EXPECTED_VERSION = new Version(1, 0, 0);
+        /// <summary>Expected major version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
+        /// <seealso cref="BODY_TRACKING_EXPECTED_VERSION_MINOR"/>
+        public static readonly int BODY_TRACKING_EXPECTED_VERSION_MAJOR = 1;
+
+        /// <summary>Expected minor version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
+        /// <seealso cref="BODY_TRACKING_EXPECTED_VERSION_MAJOR"/>
+        public static readonly int BODY_TRACKING_EXPECTED_VERSION_MINOR = 0;
 
         /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
@@ -224,7 +229,9 @@ namespace K4AdotNet
                 // Do not use FileVersion property as it's not populated under Unity .NET runtime
                 if (fvi != null)
                 {
-                    if (new Version(fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart) == BODY_TRACKING_EXPECTED_VERSION)
+                    // NB! Ignore FileBuildPart: we assume back compatibility withing one and the same major and minor versions
+                    if (fvi.FileMajorPart == BODY_TRACKING_EXPECTED_VERSION_MAJOR
+                        && fvi.FileMinorPart == BODY_TRACKING_EXPECTED_VERSION_MINOR)
                     {
                         message = null;
                         return true;
@@ -232,7 +239,7 @@ namespace K4AdotNet
                 }
             }
 
-            message = $"Version {BODY_TRACKING_EXPECTED_VERSION} of Body Tracking runtime is expected.";
+            message = $"Version {BODY_TRACKING_EXPECTED_VERSION_MAJOR}.{BODY_TRACKING_EXPECTED_VERSION_MINOR}.x of Body Tracking runtime is expected.";
             return false;
         }
 
@@ -270,7 +277,7 @@ namespace K4AdotNet
             if (ProbePathForBodyTrackingRuntime(sdkBinDir))
                 return sdkBinDir;
 
-            message = $"Cannot find Body Tracking {BODY_TRACKING_EXPECTED_VERSION} runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
+            message = $"Cannot find Body Tracking {BODY_TRACKING_EXPECTED_VERSION_MAJOR}.{BODY_TRACKING_EXPECTED_VERSION_MINOR}.x runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
             return null;
         }
 

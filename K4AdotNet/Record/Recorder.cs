@@ -37,7 +37,7 @@ namespace K4AdotNet.Record
                 throw new ArgumentException($"Path \"{filePath}\" contains invalid characters.", nameof(filePath));
             if (!config.IsValid(out var message))
                 throw new ArgumentException(message, nameof(config));
-            if (config.ColorFormat == Sensor.ImageFormat.ColorBgra32)
+            if (config.ColorFormat == Sensor.ImageFormat.ColorBgra32 && config.ColorResolution != Sensor.ColorResolution.Off)
                 throw new NotSupportedException($"Color format {config.ColorFormat} is not supported for recording. Recommended format: {Sensor.ImageFormat.ColorMjpg}.");
 
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
