@@ -157,8 +157,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 lock (innerBuffer)
                 lock (innerBodyIndexBuffer)
                 {
-                    // We use parallelism here to speed up
+#if DO_NOT_USE_PARALLELISM
+                    for (var y = 0; y < HeightPixels; y++)
+                        FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue);
+#else
                     Parallel.For(0, HeightPixels, y => FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue));
+#endif
                 }
 
                 // Inform UI infrastructure that we have updated content of image
@@ -177,7 +181,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         protected readonly WriteableBitmap writeableBitmap;
         protected volatile byte nonBodyAlphaValue = byte.MaxValue;
 
-        #region BGRA
+#region BGRA
 
         private sealed class ColorBgraImageVisualizer : ImageVisualizer
         {
@@ -210,9 +214,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
         }
 
-        #endregion
+#endregion
 
-        #region Depth
+#region Depth
 
         private sealed class DepthImageVisualizer : ImageVisualizer
         {
@@ -255,6 +259,6 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             }
         }
 
-        #endregion
+#endregion
     }
 }

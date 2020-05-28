@@ -82,8 +82,8 @@ See https://github.com/bibigone/k4a.net/releases
 
 ## Roadmap
 
+* More samples (Box-man, 3D view, IMU...)
 * More unit and integration tests
-* More samples (Recording, 3D view, Box-man, IMU...)
 * Find out how to convert MJPEG -> BGRA faster (implementation in `k4a.dll` is very slow)
 * Test under Linux, samples for Linux (using [Avalonia UI Framework](http://avaloniaui.net/)?)
 * Some hosting for HTML documentation ([DocFX](https://dotnet.github.io/docfx/) + [github.io](https://pages.github.com/)?)
@@ -91,10 +91,10 @@ See https://github.com/bibigone/k4a.net/releases
 
 ## How to build
 
-* Open `K4AdotNet.sln` in Visual Studio 2017 or Visual Studio 2019
+* Open `K4AdotNet.sln` in Visual Studio 2019
 * Build solution (`Ctrl+Shift+B`)
 * After that you can run and explore samples:
-  * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core console application to measure speed of Body Tracking.
+  * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core 3.1 console application to measure speed of Body Tracking.
   * `K4AdotNet.Samples.Wpf.Viewer` &mdash; sample WPF application to demonstrate usage of Sensor API and Record API.
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
   * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application implementing the background removal effect for color picture with the help of depth data.

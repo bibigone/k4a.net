@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Wpf.Backg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4AdotNet.Tests.Record", "K4AdotNet.Tests.Record\K4AdotNet.Tests.Record.csproj", "{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4AdotNet.Samples.Core.Recorder", "K4AdotNet.Samples.Core.Recorder\K4AdotNet.Samples.Core.Recorder.csproj", "{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D02E912E-BD4A-412F-81E5-9553BC4B5A5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +94,7 @@ Global
 		{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 		{684CCB9A-758B-4D45-99E9-40758B03603D} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 		{D02E912E-BD4A-412F-81E5-9553BC4B5A5F} = {B227E80C-8E74-486D-887E-AC31D7A70F96}
+		{9231DC9B-2F7A-4EC2-A3D2-A381A5A1E6D5} = {11E945CD-4D46-4856-8467-72CE65DD4DF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2012927-1A97-4801-B3C9-76EBC40D34F4}

@@ -1,13 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="..\Product.props" />
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Platforms>AnyCPU</Platforms>
-    <Description>Core .NET sample console application to measure speed of Body Tracking.</Description>
-    <AssemblyName>K4ABodyTrackingSpeed</AssemblyName>
+    <AssemblyName>K4ARecorder</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +20,10 @@
     <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
   </ItemGroup>
 
 </Project>

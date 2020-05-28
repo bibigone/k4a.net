@@ -3772,7 +3772,6 @@
             </para></remarks>
             <exception cref="T:System.ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
-            <exception cref="T:System.NotSupportedException">Color format is not supported for recorded. It is recommended to use <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> for recording.</exception>
         </member>
         <member name="M:K4AdotNet.Record.Recorder.Dispose">
             <summary>

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main(string[] args)
         {

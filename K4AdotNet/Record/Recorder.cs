@@ -28,7 +28,6 @@ namespace K4AdotNet.Record
         /// </para></remarks>
         /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
         /// <exception cref="ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
-        /// <exception cref="NotSupportedException">Color format is not supported for recorded. It is recommended to use <see cref="Sensor.ImageFormat.ColorMjpg"/> for recording.</exception>
         public Recorder(string filePath, Sensor.Device device, Sensor.DeviceConfiguration config)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -37,8 +36,6 @@ namespace K4AdotNet.Record
                 throw new ArgumentException($"Path \"{filePath}\" contains invalid characters.", nameof(filePath));
             if (!config.IsValid(out var message))
                 throw new ArgumentException(message, nameof(config));
-            if (config.ColorFormat == Sensor.ImageFormat.ColorBgra32 && config.ColorResolution != Sensor.ColorResolution.Off)
-                throw new NotSupportedException($"Color format {config.ColorFormat} is not supported for recording. Recommended format: {Sensor.ImageFormat.ColorMjpg}.");
 
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
