@@ -95,6 +95,7 @@ See https://github.com/bibigone/k4a.net/releases
 * Build solution (`Ctrl+Shift+B`)
 * After that you can run and explore samples:
   * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core 3.1 console application to measure speed of Body Tracking.
+  * `K4AdotNet.Samples.Core.Recorder` &mdash; sample .NET Core 3.1 console application to record data from Azure Kinect device to MKV file.
   * `K4AdotNet.Samples.Wpf.Viewer` &mdash; sample WPF application to demonstrate usage of Sensor API and Record API.
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
   * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application implementing the background removal effect for color picture with the help of depth data.
