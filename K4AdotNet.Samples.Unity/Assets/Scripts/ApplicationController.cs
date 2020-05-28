@@ -34,7 +34,10 @@ namespace K4AdotNet.Samples.Unity
             yield return new WaitUntil(() => skeletonProvider?.IsInitializationComplete != false);
             if (skeletonProvider?.IsAvailable != true)
             {
-                _errorMessage.Show("Cannot initialize Azure Kinect Body Tracking runtime");
+                _errorMessage.Show(
+                    "Cannot initialize Azure Kinect Body Tracking runtime.\n" +
+                    "Make sure that there are the following files in Assets\\Plugins\\K4AdotNet folder:\n" +
+                    "1. k4abt.dll\n2. dnn_model_2_0.onnx\n3. cudnn64_7.dll\n4. cublas64_100.dll\n5. cudart64_100.dll\n6. onnxruntime.dll\n7. vcomp140.dll");
                 yield break;
             }
 
