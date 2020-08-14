@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
 {
@@ -115,7 +116,7 @@ namespace K4AdotNet.Sensor
         /// <see langword="true"/> if configuration is valid and can be used in <see cref="Device.StartCameras(DeviceConfiguration)"/>.
         /// <see langword="false"/> if configuration has some invalid or incompatible parameters.
         /// </returns>
-        public bool IsValid(out string message)
+        public bool IsValid([NotNullWhen(returnValue: false)] out string? message)
         {
             if (!ColorFormat.IsColor())
             {

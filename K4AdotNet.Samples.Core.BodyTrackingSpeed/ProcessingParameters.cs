@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
@@ -26,7 +27,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return true;
         }
 
-        public string MkvPath { get; private set; }
+        public string? MkvPath { get; private set; }
         public bool CpuOnlyMode { get; private set; }
         public ProcessingImplementation Implementation { get; private set; }
         public TimeSpan? StartTime { get; private set; }
@@ -36,7 +37,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             => (!StartTime.HasValue || StartTime.Value <= frameTimestamp)
             && (!EndTime.HasValue || EndTime.Value >= frameTimestamp);
 
-        public bool TrySetMkvPath(string value, out string message)
+        public bool TrySetMkvPath(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -70,7 +71,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return true;
         }
 
-        public bool TrySetCpuOnlyMode(string value, out string message)
+        public bool TrySetCpuOnlyMode(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -96,7 +97,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return false;
         }
 
-        public bool TrySetImplementation(string value, out string message)
+        public bool TrySetImplementation(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -126,7 +127,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return false;
         }
 
-        public bool TrySetStartTime(string value, out string message)
+        public bool TrySetStartTime(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -154,7 +155,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return true;
         }
 
-        public bool TrySetEndTime(string value, out string message)
+        public bool TrySetEndTime(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

@@ -1,5 +1,6 @@
 ﻿using K4AdotNet.Sensor;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace K4AdotNet.BodyTracking
@@ -75,7 +76,7 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Shutdown the tracker so that no further capture can be added to the input queue.</summary>
         /// <remarks><para>
@@ -109,10 +110,10 @@ namespace K4AdotNet.BodyTracking
         public bool IsQueueFull => queueSize >= MaxQueueSize;
 
         /// <summary>Raised on increasing of <see cref="QueueSize"/>.</summary>
-        public event EventHandler QueueSizeIncreased;
+        public event EventHandler? QueueSizeIncreased;
 
         /// <summary>Raised on decreasing of <see cref="QueueSize"/>.</summary>
-        public event EventHandler QueueSizeDecreased;
+        public event EventHandler? QueueSizeDecreased;
 
         /// <summary>Temporal smoothing across frames (0 - 1). Default value is <see cref="DefaultSmoothingFactor"/>.</summary>
         /// <remarks>
@@ -162,7 +163,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="BodyTrackingException">Cannot add capture to the tracker for some unknown reason. See logs for details.</exception>
         public bool TryEnqueueCapture(Capture capture, Timeout timeout = default)
         {
-            if (capture == null)
+            if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
 
             var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Capture.ToHandle(capture), timeout);
@@ -254,7 +255,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="ObjectDisposedException">Object was disposed before this call or has been disposed during this call.</exception>
         /// <exception cref="BodyTrackingException">Cannot get body frame for some unknown reason. See logs for details.</exception>
         /// <seealso cref="PopResult"/>
-        public bool TryPopResult(out BodyFrame bodyFrame, Timeout timeout = default)
+        public bool TryPopResult([NotNullWhen(returnValue: true)] out BodyFrame? bodyFrame, Timeout timeout = default)
         {
             var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
@@ -284,7 +285,7 @@ namespace K4AdotNet.BodyTracking
         {
             var res = TryPopResult(out var bodyFrame, Timeout.Infinite);
             System.Diagnostics.Debug.Assert(res);
-            return bodyFrame;
+            return bodyFrame!;
         }
 
         /// <summary>Max amount of captures that can be simultaneously in processing pipeline.</summary>

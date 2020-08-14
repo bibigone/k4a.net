@@ -111,18 +111,15 @@ namespace K4AdotNet
         /// For details see <see cref="uint.CompareTo(uint)"/>.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
-        public int CompareTo(object obj)
-        {
-            if (obj is null)
-                return 1;
-            if (obj is Timeout)
-                return CompareTo((Timeout)obj);
-            if (obj is TimeSpan)
-                return CompareTo((TimeSpan)obj);
-            if (obj is IConvertible)
-                return CompareTo(Convert.ToInt32(obj));
-            throw new ArgumentException("Object is not a Timeout or TimeSpan or integer number", nameof(obj));
-        }
+        public int CompareTo(object? obj)
+            => obj switch
+            {
+                null => 1,
+                Timeout timeout => CompareTo(timeout),
+                TimeSpan span => CompareTo(span),
+                IConvertible _ => CompareTo(Convert.ToInt32(obj)),
+                _ => throw new ArgumentException("Object is not a Timeout or TimeSpan or integer number", nameof(obj))
+            };
 
         /// <summary>String representation of current instance.</summary>
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
@@ -140,18 +137,15 @@ namespace K4AdotNet
         /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Timeout)"/>.</summary>
         /// <param name="obj">Object to be compared with this instance.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="Microseconds32"/> and result is equal to this one.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-            if (obj is Timeout)
-                return Equals((Timeout)obj);
-            if (obj is TimeSpan)
-                return Equals((TimeSpan)obj);
-            if (obj is IConvertible)
-                return Equals(Convert.ToInt32(obj));
-            return false;
-        }
+        public override bool Equals(object? obj)
+            => obj switch
+            {
+                null => false,
+                Timeout timeout => Equals(timeout),
+                TimeSpan span => Equals(span),
+                IConvertible _ => Equals(Convert.ToInt32(obj)),
+                _ => false
+            };
 
         /// <summary>Calculates hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>

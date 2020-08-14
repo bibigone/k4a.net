@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
@@ -21,7 +22,7 @@ namespace K4AdotNet.Sensor
             this.handle.Disposed += Handle_Disposed;
         }
 
-        internal static Image Create(NativeHandles.ImageHandle handle)
+        internal static Image? Create(NativeHandles.ImageHandle? handle)
             => handle != null && !handle.IsInvalid ? new Image(handle) : null;
 
         /// <summary>Creates new image with specified format and size in pixels.</summary>
@@ -164,7 +165,7 @@ namespace K4AdotNet.Sensor
         public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
             where T: struct
         {
-            if (buffer == null)
+            if (buffer is null)
                 throw new ArgumentNullException(nameof(buffer));
             if (widthPixels <= 0)
                 throw new ArgumentOutOfRangeException(nameof(widthPixels));
@@ -187,7 +188,7 @@ namespace K4AdotNet.Sensor
             if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
 
-            return Create(handle);
+            return Create(handle)!;
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
@@ -217,7 +218,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Creates new reference to the same unmanaged image object.</summary>
         /// <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
@@ -336,7 +337,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(byte[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             if (dst.Length < size)
@@ -353,7 +354,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(short[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(short);
@@ -374,7 +375,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(float[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(float);
@@ -395,7 +396,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(int[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(int);
@@ -415,7 +416,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public void FillFrom(byte[] src)
         {
-            if (src == null)
+            if (src is null)
                 throw new ArgumentNullException(nameof(src));
             if (src.Length != SizeBytes)
                 throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
@@ -429,7 +430,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public void FillFrom(short[] src)
         {
-            if (src == null)
+            if (src is null)
                 throw new ArgumentNullException(nameof(src));
             var size = SizeBytes;
             var elementSize = sizeof(short);
@@ -447,7 +448,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public void FillFrom(float[] src)
         {
-            if (src == null)
+            if (src is null)
                 throw new ArgumentNullException(nameof(src));
             var size = SizeBytes;
             var elementSize = sizeof(float);
@@ -465,7 +466,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public void FillFrom(int[] src)
         {
-            if (src == null)
+            if (src is null)
                 throw new ArgumentNullException(nameof(src));
             var size = SizeBytes;
             var elementSize = sizeof(int);
@@ -479,7 +480,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Extracts handle from <paramref name="image"/>.</summary>
         /// <param name="image">Managed object. Can be <see langword="null"/>.</param>
         /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.ImageHandle.Zero"/>.</returns>
-        internal static NativeHandles.ImageHandle ToHandle(Image image)
+        internal static NativeHandles.ImageHandle ToHandle(Image? image)
             => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
 
         #region Equatable
@@ -487,14 +488,14 @@ namespace K4AdotNet.Sensor
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both images reference to one and the same unmanaged object.</returns>
-        public bool Equals(Image image)
+        public bool Equals(Image? image)
             => !(image is null) && image.handle.Equals(handle);
 
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="Image"/> and they both reference to one and the same unmanaged object.</returns>
-        public override bool Equals(object obj)
-            => obj is Image && Equals((Image)obj);
+        public override bool Equals(object? obj)
+            => obj is Image image && Equals(image);
 
         /// <summary>Uses underlying handle as hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>
@@ -507,7 +508,7 @@ namespace K4AdotNet.Sensor
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Image)"/>
-        public static bool operator ==(Image left, Image right)
+        public static bool operator ==(Image? left, Image? right)
             => (left is null && right is null) || (!(left is null) && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(Image)"/>.</summary>
@@ -515,7 +516,7 @@ namespace K4AdotNet.Sensor
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Image)"/>
-        public static bool operator !=(Image left, Image right)
+        public static bool operator !=(Image? left, Image? right)
             => !(left == right);
 
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>

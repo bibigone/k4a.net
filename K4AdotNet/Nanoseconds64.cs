@@ -92,18 +92,15 @@ namespace K4AdotNet
         /// For details see <see cref="Int64.CompareTo(long)"/>.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="obj"/> is not comparable with this one.</exception>
-        public int CompareTo(object obj)
-        {
-            if (obj is null)
-                return 1;
-            if (obj is Nanoseconds64)
-                return CompareTo((Nanoseconds64)obj);
-            if (obj is TimeSpan)
-                return CompareTo((TimeSpan)obj);
-            if (obj is IConvertible)
-                return CompareTo(Convert.ToInt64(obj));
-            throw new ArgumentException("Object is not a Nanoseconds64 or TimeSpan or 64-bit integer number", nameof(obj));
-        }
+        public int CompareTo(object? obj)
+            => obj switch
+            {
+                null => 1,
+                Nanoseconds64 nanoseconds => CompareTo(nanoseconds),
+                TimeSpan span => CompareTo(span),
+                IConvertible _ => CompareTo(Convert.ToInt64(obj)),
+                _ => throw new ArgumentException("Object is not a Nanoseconds64 or TimeSpan or 64-bit integer number", nameof(obj))
+            };
 
         /// <summary>String representation of current instance.</summary>
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
@@ -115,18 +112,15 @@ namespace K4AdotNet
         /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Nanoseconds64)"/>.</summary>
         /// <param name="obj">Object to be compared with this instance.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="Nanoseconds64"/> and result is equal to this one.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-            if (obj is Nanoseconds64)
-                return Equals((Nanoseconds64)obj);
-            if (obj is TimeSpan)
-                return Equals((TimeSpan)obj);
-            if (obj is IConvertible)
-                return Equals(Convert.ToInt64(obj));
-            return false;
-        }
+        public override bool Equals(object? obj)
+            => obj switch
+            {
+                null => false,
+                Nanoseconds64 nanoseconds => Equals(nanoseconds),
+                TimeSpan span => Equals(span),
+                IConvertible _ => Equals(Convert.ToInt64(obj)),
+                _ => false
+            };
 
         /// <summary>Calculates hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>

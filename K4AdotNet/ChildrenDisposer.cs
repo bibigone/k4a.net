@@ -26,9 +26,9 @@ namespace K4AdotNet
             }
         }
 
-        public T Register<T>(T child) where T : IDisposablePlus
+        public T? Register<T>(T? child) where T : class, IDisposablePlus
         {
-            if (child == null || child.IsDisposed)
+            if (child is null || child.IsDisposed)
                 return child;
 
             lock (trackedChildren)

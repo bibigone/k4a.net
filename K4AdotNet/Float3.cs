@@ -98,7 +98,7 @@ namespace K4AdotNet
         /// <param name="obj">Object to be compared with this vector.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="Float3"/> and is equal to this one.</returns>
         /// <seealso cref="Equals(Float3)"/>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null || !(obj is Float3))
                 return false;

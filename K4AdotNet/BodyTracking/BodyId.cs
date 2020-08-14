@@ -47,16 +47,14 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(BodyId)"/>.</summary>
         /// <param name="obj">Object to be compared with this instance.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> can be cast to <see cref="BodyId"/> and result is equal to this one.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-            if (obj is BodyId)
-                return Equals((BodyId)obj);
-            if (obj is IConvertible)
-                return Equals(Convert.ToInt32(obj));
-            return false;
-        }
+        public override bool Equals(object? obj)
+            => obj switch
+            {
+                null => false,
+                BodyId _ => Equals((BodyId)obj),
+                IConvertible _ => Equals(Convert.ToInt32(obj)),
+                _ => false
+            };
 
         /// <summary>To be consistent with <see cref="Equals(BodyId)"/>.</summary>
         /// <param name="left">Left part of operator.</param>

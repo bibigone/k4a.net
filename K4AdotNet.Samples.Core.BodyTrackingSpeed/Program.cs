@@ -1,6 +1,7 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
@@ -51,11 +52,11 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             Console.Write($"processed: {processor.TotalFrameCount}    with body: {processor.FrameWithBodyCount}    in buffer: {processor.QueueSize}");
         }
 
-        private delegate bool ParameterSetter(string value, out string message);
+        private delegate bool ParameterSetter(string value, [NotNullWhen(returnValue: false)] out string? message);
 
         #region Asking parameters from STDIN
 
-        private static ProcessingParameters AskProcessingParameters()
+        private static ProcessingParameters? AskProcessingParameters()
         {
             Console.WriteLine("No command line arguments specified.");
             Console.WriteLine("Please enter execution parameters:");
@@ -93,7 +94,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 
         #region Parsing parameters from command-line arguments
 
-        private static ProcessingParameters ParseCommandLineArguments(string[] args)
+        private static ProcessingParameters? ParseCommandLineArguments(string[] args)
         {
             var parameters = new ProcessingParameters();
 
@@ -143,7 +144,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             var name = args[argIndex];
             var value = argIndex + 1 < args.Length ? args[argIndex + 1] : null;
 
-            string message = null;
+            string? message = null;
             if (value != null && setter(value, out message))
             {
                 argIndex++;

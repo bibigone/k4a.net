@@ -33,7 +33,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="GetExtrinsics(CalibrationGeometry, CalibrationGeometry)"/>
         /// <seealso cref="SetExtrinsics(CalibrationGeometry, CalibrationGeometry, CalibrationExtrinsics)"/>
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = (int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count)]
-        public CalibrationExtrinsics[] Extrinsics;
+        public CalibrationExtrinsics[]? Extrinsics;
 
         /// <summary>Depth camera mode for which calibration was obtained.</summary>
         public DepthMode DepthMode;
@@ -68,7 +68,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="SetExtrinsics(CalibrationGeometry, CalibrationGeometry, CalibrationExtrinsics)"/>
         /// <seealso cref="Extrinsics"/>
         public CalibrationExtrinsics GetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor)
-            => Extrinsics[(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor];
+            => Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor];
 
         /// <summary>Helper method to set mutual extrinsics parameters for a given couple of sensors in Azure Kinect device.</summary>
         /// <param name="sourceSensor">Source coordinate system for transformation.</param>
@@ -77,7 +77,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="GetExtrinsics(CalibrationGeometry, CalibrationGeometry)"/>
         /// <seealso cref="Extrinsics"/>
         public void SetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor, CalibrationExtrinsics extrinsics)
-            => Extrinsics[(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
+            => Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
 
         #endregion
 
@@ -257,7 +257,7 @@ namespace K4AdotNet.Sensor
         /// </exception>
         public Float2? ConvertColor2DToDepth2D(Float2 sourcePoint2D, Image depthImage)
         {
-            if (depthImage == null)
+            if (depthImage is null)
                 throw new ArgumentNullException(nameof(depthImage));
             if (depthImage.IsDisposed)
                 throw new ObjectDisposedException(nameof(depthImage));

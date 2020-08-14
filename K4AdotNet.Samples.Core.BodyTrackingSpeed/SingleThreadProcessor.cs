@@ -30,7 +30,7 @@
                     return false;
                 }
 
-                tracker.TryEnqueueCapture(capture, Timeout.Infinite);
+                tracker.TryEnqueueCapture(capture!, Timeout.Infinite);
 
                 Pop(wait: false);
             }

@@ -63,7 +63,7 @@ namespace K4AdotNet.NativeHandles
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Checks that object is not disposed.</summary>
         /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
@@ -93,21 +93,21 @@ namespace K4AdotNet.NativeHandles
         /// <summary>Delegates comparison to <see cref="HandleBase.Equals(HandleBase)"/>.</summary>
         /// <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
-        public bool Equals(HandleWrapper<T> other)
+        public bool Equals(HandleWrapper<T>? other)
             => !(other is null) && other.Value.Equals(Value);
 
         /// <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> is <see cref="HandleWrapper{T}"/> and they both reference to one and the same object.</returns>
-        public override bool Equals(object obj)
-            => obj is HandleWrapper<T> && Equals((HandleWrapper<T>)obj);
+        public override bool Equals(object? obj)
+            => obj is HandleWrapper<T> wrapper && Equals(wrapper);
 
         /// <summary>To be consistent with <see cref="Equals(HandleWrapper{T})"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(HandleWrapper{T})"/>
-        public static bool operator ==(HandleWrapper<T> left, HandleWrapper<T> right)
+        public static bool operator ==(HandleWrapper<T>? left, HandleWrapper<T>? right)
             => (left is null && right is null) || (!(left is null) && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(HandleWrapper{T})"/>.</summary>
@@ -115,7 +115,7 @@ namespace K4AdotNet.NativeHandles
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(HandleWrapper{T})"/>
-        public static bool operator !=(HandleWrapper<T> left, HandleWrapper<T> right)
+        public static bool operator !=(HandleWrapper<T>? left, HandleWrapper<T>? right)
             => !(left == right);
 
         #endregion

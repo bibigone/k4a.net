@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,16 +17,16 @@ namespace K4AdotNet
 
         public delegate NativeCallResults.BufferResult GetInByteBufferMethod<T>(T parameter, byte[] data, ref UIntPtr dataSize);
 
-        public static bool TryGetValueInByteBuffer<T>(GetInByteBufferMethod<T> getMethod, T parameter, out byte[] result)
+        public static bool TryGetValueInByteBuffer<T>(GetInByteBufferMethod<T> getMethod, T parameter,
+            [NotNullWhen(returnValue: true)] out byte[]? result)
         {
             var buffer = new byte[0];
             var bufferSize = UIntPtr.Zero;
-            var size = 0;
 
             var res = getMethod(parameter, buffer, ref bufferSize);
             if (res == NativeCallResults.BufferResult.TooSmall)
             {
-                size = UIntPtrToInt32(bufferSize);
+                var size = UIntPtrToInt32(bufferSize);
                 if (size > 1)
                 {
                     buffer = new byte[size];
@@ -44,7 +45,8 @@ namespace K4AdotNet
             return true;
         }
 
-        public static byte[] StringToBytes(string value, Encoding encoding)
+        [return: NotNullIfNotNull(parameterName: "value")]
+        public static byte[]? StringToBytes(string? value, Encoding encoding)
         {
             if (value == null)
                 return null;
@@ -57,7 +59,7 @@ namespace K4AdotNet
             return result;
         }
 
-        public static bool IsAsciiCompatible(string value)
+        public static bool IsAsciiCompatible(string? value)
         {
             if (value == null)
                 return true;
@@ -92,7 +94,7 @@ namespace K4AdotNet
             return -1;
         }
 
-        public static void CheckTagName(string tagName)
+        public static void CheckTagName(string? tagName)
         {
             if (string.IsNullOrEmpty(tagName))
                 throw new ArgumentNullException(tagName);
@@ -100,7 +102,7 @@ namespace K4AdotNet
                 throw new ArgumentException($"Invalid value \"{tagName}\" of {nameof(tagName)}. Tag name must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.", nameof(tagName));
         }
 
-        public static void CheckTrackName(string trackName)
+        public static void CheckTrackName(string? trackName)
         {
             if (string.IsNullOrEmpty(trackName))
                 throw new ArgumentNullException(trackName);
@@ -108,11 +110,10 @@ namespace K4AdotNet
                 throw new ArgumentException($"Invalid value \"{trackName}\" of {nameof(trackName)}. Track name must be ALL CAPS and may only contain A-Z, 0-9, '-' and '_'.", nameof(trackName));
         }
 
-        private static bool IsValidTagOrTrackName(string tagName)
+        private static bool IsValidTagOrTrackName(string? tagName)
             => !string.IsNullOrEmpty(tagName) && tagName.All(chr => IsValidTagOrTrackNameCharacter(chr));
 
         private static bool IsValidTagOrTrackNameCharacter(char chr)
             => (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9') || chr == '-' || chr == '_';
-
     }
 }

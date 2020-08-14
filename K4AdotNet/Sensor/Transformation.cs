@@ -61,7 +61,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Depth mode for which this transformation was created.</summary>
         public DepthMode DepthMode { get; }

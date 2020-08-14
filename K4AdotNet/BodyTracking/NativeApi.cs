@@ -24,7 +24,7 @@ namespace K4AdotNet.BodyTracking
         public static extern NativeCallResults.Result TrackerCreate(
             [In] ref Sensor.Calibration sensorCalibration,
             TrackerConfiguration config,
-            out NativeHandles.TrackerHandle trackerHandle);
+            out NativeHandles.TrackerHandle? trackerHandle);
 
         // K4ABT_EXPORT void k4abt_tracker_set_temporal_smoothing(k4abt_tracker_t tracker_handle, float smoothing_factor);
         /// <summary>Control the temporal smoothing across frames.</summary>
@@ -105,7 +105,7 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_pop_result", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.WaitResult TrackerPopResult(
             NativeHandles.TrackerHandle trackerHandle,
-            out NativeHandles.BodyFrameHandle bodyFrameHandle,
+            out NativeHandles.BodyFrameHandle? bodyFrameHandle,
             Timeout timeout);
 
         //  K4ABT_EXPORT void k4abt_tracker_shutdown(k4abt_tracker_t tracker_handle);

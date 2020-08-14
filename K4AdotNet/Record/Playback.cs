@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -60,7 +61,7 @@ namespace K4AdotNet.Record
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>File system path to recording opened for playback. Not <see langword="null"/>. Not empty.</summary>
         public string FilePath { get; }
@@ -142,7 +143,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentException"><paramref name="name"/> contains non-ASCII characters.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="Recorder.AddTag(string, string)"/>
-        public bool TryGetTag(string name, out string value)
+        public bool TryGetTag(string name, [NotNullWhen(returnValue: true)] out string? value)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
@@ -161,7 +162,7 @@ namespace K4AdotNet.Record
             return true;
         }
 
-        private NativeCallResults.BufferResult GetTag(byte[] name, byte[] value, ref UIntPtr valueSize)
+        private NativeCallResults.BufferResult GetTag(byte[] name, byte[]? value, ref UIntPtr valueSize)
             => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, value, ref valueSize);
 
         /// <summary>Reads an attachment file from a recording.</summary>
@@ -174,7 +175,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentNullException"><paramref name="attachmentName"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="Recorder.AddAttachment(string, byte[])"/>
-        public bool TryGetAttachment(string attachmentName, out byte[] attachmentData)
+        public bool TryGetAttachment(string attachmentName, [NotNullWhen(returnValue: true)] out byte[]? attachmentData)
         {
             if (string.IsNullOrEmpty(attachmentName))
                 throw new ArgumentNullException(nameof(attachmentName));
@@ -183,7 +184,7 @@ namespace K4AdotNet.Record
             return Helpers.TryGetValueInByteBuffer(GetAttachment, attachmentNameAsBytes, out attachmentData);
         }
 
-        private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, byte[] data, ref UIntPtr dataSize)
+        private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, byte[]? data, ref UIntPtr dataSize)
             => NativeApi.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, data, ref dataSize);
 
         /// <summary>
@@ -302,7 +303,7 @@ namespace K4AdotNet.Record
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
-        public bool TryGetNextCapture(out Sensor.Capture capture)
+        public bool TryGetNextCapture([NotNullWhen(returnValue: true)] out Sensor.Capture? capture)
         {
             var res = NativeApi.PlaybackGetNextCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
@@ -341,7 +342,7 @@ namespace K4AdotNet.Record
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
-        public bool TryGetPreviousCapture(out Sensor.Capture capture)
+        public bool TryGetPreviousCapture([NotNullWhen(returnValue: true)] out Sensor.Capture? capture)
         {
             var res = NativeApi.PlaybackGetPreviousCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
@@ -419,7 +420,7 @@ namespace K4AdotNet.Record
                 throw new PlaybackException(FilePath);
         }
 
-        internal static NativeHandles.PlaybackHandle ToHandle(Playback playback)
+        internal static NativeHandles.PlaybackHandle ToHandle(Playback? playback)
             => playback?.handle.ValueNotDisposed ?? NativeHandles.PlaybackHandle.Zero;
     }
 }

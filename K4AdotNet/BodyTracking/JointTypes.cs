@@ -96,98 +96,92 @@ namespace K4AdotNet.BodyTracking
         /// </returns>
         /// <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
         /// <exception cref="ArgumentOutOfRangeException">Unknown joint.</exception>
-        public static JointType GetParent(this JointType jointType)
+        public static JointType GetParent(this JointType jointType) => jointType switch
         {
-            switch (jointType)
-            {
-                // Spine
-                case JointType.Pelvis: return JointType.Pelvis;
-                case JointType.SpineNavel: return JointType.Pelvis;
-                case JointType.SpineChest: return JointType.SpineNavel;
-                case JointType.Neck: return JointType.SpineChest;
-                // Left arm
-                case JointType.ClavicleLeft: return JointType.SpineChest;
-                case JointType.ShoulderLeft: return JointType.ClavicleLeft;
-                case JointType.ElbowLeft: return JointType.ShoulderLeft;
-                case JointType.WristLeft: return JointType.ElbowLeft;
-                // Left hand
-                case JointType.HandLeft: return JointType.WristLeft;
-                case JointType.HandTipLeft: return JointType.HandLeft;
-                case JointType.ThumbLeft: return JointType.WristLeft;
-                // Right arm
-                case JointType.ClavicleRight: return JointType.SpineChest;
-                case JointType.ShoulderRight: return JointType.ClavicleRight;
-                case JointType.ElbowRight: return JointType.ShoulderRight;
-                case JointType.WristRight: return JointType.ElbowRight;
-                // Right hand
-                case JointType.HandRight: return JointType.WristRight;
-                case JointType.HandTipRight: return JointType.HandRight;
-                case JointType.ThumbRight: return JointType.WristRight;
-                // Left leg
-                case JointType.HipLeft: return JointType.Pelvis;
-                case JointType.KneeLeft: return JointType.HipLeft;
-                case JointType.AnkleLeft: return JointType.KneeLeft;
-                case JointType.FootLeft: return JointType.AnkleLeft;
-                // Right leg
-                case JointType.HipRight: return JointType.Pelvis;
-                case JointType.KneeRight: return JointType.HipRight;
-                case JointType.AnkleRight: return JointType.KneeRight;
-                case JointType.FootRight: return JointType.AnkleRight;
-                // Head and face
-                case JointType.Head: return JointType.Neck;
-                case JointType.Nose: return JointType.Head;
-                case JointType.EyeLeft: return JointType.Head;
-                case JointType.EyeRight: return JointType.Head;
-                case JointType.EarLeft: return JointType.Head;
-                case JointType.EarRight: return JointType.Head;
-                // Unknown
-                default: throw new ArgumentOutOfRangeException(nameof(jointType));
-            }
-        }
+            // Spine
+            JointType.Pelvis => JointType.Pelvis,
+            JointType.SpineNavel => JointType.Pelvis,
+            JointType.SpineChest => JointType.SpineNavel,
+            JointType.Neck => JointType.SpineChest,
+            // Left arm
+            JointType.ClavicleLeft => JointType.SpineChest,
+            JointType.ShoulderLeft => JointType.ClavicleLeft,
+            JointType.ElbowLeft => JointType.ShoulderLeft,
+            JointType.WristLeft => JointType.ElbowLeft,
+            // Left hand
+            JointType.HandLeft => JointType.WristLeft,
+            JointType.HandTipLeft => JointType.HandLeft,
+            JointType.ThumbLeft => JointType.WristLeft,
+            // Right arm
+            JointType.ClavicleRight => JointType.SpineChest,
+            JointType.ShoulderRight => JointType.ClavicleRight,
+            JointType.ElbowRight => JointType.ShoulderRight,
+            JointType.WristRight => JointType.ElbowRight,
+            // Right hand
+            JointType.HandRight => JointType.WristRight,
+            JointType.HandTipRight => JointType.HandRight,
+            JointType.ThumbRight => JointType.WristRight,
+            // Left leg
+            JointType.HipLeft => JointType.Pelvis,
+            JointType.KneeLeft => JointType.HipLeft,
+            JointType.AnkleLeft => JointType.KneeLeft,
+            JointType.FootLeft => JointType.AnkleLeft,
+            // Right leg
+            JointType.HipRight => JointType.Pelvis,
+            JointType.KneeRight => JointType.HipRight,
+            JointType.AnkleRight => JointType.KneeRight,
+            JointType.FootRight => JointType.AnkleRight,
+            // Head and face
+            JointType.Head => JointType.Neck,
+            JointType.Nose => JointType.Head,
+            JointType.EyeLeft => JointType.Head,
+            JointType.EyeRight => JointType.Head,
+            JointType.EarLeft => JointType.Head,
+            JointType.EarRight => JointType.Head,
+            // Unknown
+            _ => throw new ArgumentOutOfRangeException(nameof(jointType)),
+        };
 
         /// <summary>Mirrors left joint to appropriate right one and vice versa. Doesn't change central joints like joints of spine, neck, head.</summary>
         /// <param name="jointType">Joint type asked about.</param>
         /// <returns>Mirrored joint type.</returns>
-        public static JointType Mirror(this JointType jointType)
+        public static JointType Mirror(this JointType jointType) => jointType switch
         {
-            switch (jointType)
-            {
-                // Left arm -> Right arm
-                case JointType.ClavicleLeft: return JointType.ClavicleRight;
-                case JointType.ShoulderLeft: return JointType.ShoulderRight;
-                case JointType.ElbowLeft: return JointType.ElbowRight;
-                case JointType.WristLeft: return JointType.WristRight;
-                // Left hand -> Right hand
-                case JointType.HandLeft: return JointType.HandRight;
-                case JointType.HandTipLeft: return JointType.HandTipRight;
-                case JointType.ThumbLeft: return JointType.ThumbRight;
-                // Right arm -> Left arm
-                case JointType.ClavicleRight: return JointType.ClavicleLeft;
-                case JointType.ShoulderRight: return JointType.ShoulderLeft;
-                case JointType.ElbowRight: return JointType.ElbowLeft;
-                case JointType.WristRight: return JointType.WristLeft;
-                // Right hand -> Left hand
-                case JointType.HandRight: return JointType.HandLeft;
-                case JointType.HandTipRight: return JointType.HandTipLeft;
-                case JointType.ThumbRight: return JointType.ThumbLeft;
-                // Left leg -> Right leg
-                case JointType.HipLeft: return JointType.HipRight;
-                case JointType.KneeLeft: return JointType.KneeRight;
-                case JointType.AnkleLeft: return JointType.AnkleRight;
-                case JointType.FootLeft: return JointType.FootRight;
-                case JointType.HipRight: return JointType.HipLeft;
-                // Right leg -> Left leg
-                case JointType.KneeRight: return JointType.KneeLeft;
-                case JointType.AnkleRight: return JointType.AnkleLeft;
-                case JointType.FootRight: return JointType.FootLeft;
-                // Face
-                case JointType.EyeLeft: return JointType.EyeRight;
-                case JointType.EarLeft: return JointType.EarRight;
-                case JointType.EyeRight: return JointType.EyeLeft;
-                case JointType.EarRight: return JointType.EarLeft;
-                // Invariant joints
-                default: return jointType;
-            }
-        }
+            // Left arm -> Right arm
+            JointType.ClavicleLeft => JointType.ClavicleRight,
+            JointType.ShoulderLeft => JointType.ShoulderRight,
+            JointType.ElbowLeft => JointType.ElbowRight,
+            JointType.WristLeft => JointType.WristRight,
+            // Left hand -> Right hand
+            JointType.HandLeft => JointType.HandRight,
+            JointType.HandTipLeft => JointType.HandTipRight,
+            JointType.ThumbLeft => JointType.ThumbRight,
+            // Right arm -> Left arm
+            JointType.ClavicleRight => JointType.ClavicleLeft,
+            JointType.ShoulderRight => JointType.ShoulderLeft,
+            JointType.ElbowRight => JointType.ElbowLeft,
+            JointType.WristRight => JointType.WristLeft,
+            // Right hand -> Left hand
+            JointType.HandRight => JointType.HandLeft,
+            JointType.HandTipRight => JointType.HandTipLeft,
+            JointType.ThumbRight => JointType.ThumbLeft,
+            // Left leg -> Right leg
+            JointType.HipLeft => JointType.HipRight,
+            JointType.KneeLeft => JointType.KneeRight,
+            JointType.AnkleLeft => JointType.AnkleRight,
+            JointType.FootLeft => JointType.FootRight,
+            JointType.HipRight => JointType.HipLeft,
+            // Right leg -> Left leg
+            JointType.KneeRight => JointType.KneeLeft,
+            JointType.AnkleRight => JointType.AnkleLeft,
+            JointType.FootRight => JointType.FootLeft,
+            // Face
+            JointType.EyeLeft => JointType.EyeRight,
+            JointType.EarLeft => JointType.EarRight,
+            JointType.EyeRight => JointType.EyeLeft,
+            JointType.EarRight => JointType.EarLeft,
+            // Invariant joints
+            _ => jointType,
+        };
     }
 }

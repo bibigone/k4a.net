@@ -55,7 +55,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed <see cref="Recorder"/>.</exception>
         public void WriteData(Microseconds64 deviceTimestamp, byte[] customData)
         {
-            if (customData == null)
+            if (customData is null)
                 throw new ArgumentNullException(nameof(customData));
 
             var customDataLength = Helpers.Int32ToUIntPtr(customData.Length);

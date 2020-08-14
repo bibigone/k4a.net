@@ -19,12 +19,12 @@ namespace K4AdotNet.Samples.Core.Recorder
         [Option('c', "color-mode", Required = false, Default = "1080p", HelpText =
             "Set the color sensor mode.\n" +
             "Available options: 3072p, 2160p, 1536p, 1440p, 1080p, 720p, 720p_NV12, 720p_YUY2, OFF")]
-        public string ColorMode { get; set; }
+        public string ColorMode { get; set; } = "1080p";
 
         [Option('d', "depth-mode", Required = false, Default = "NFOV_UNBINNED", HelpText =
             "Set the depth sensor mode.\n" +
             "Available options: NFOV_2X2BINNED, NFOV_UNBINNED, WFOV_2X2BINNED, WFOV_UNBINNED, PASSIVE_IR, OFF")]
-        public string DepthMode { get; set; }
+        public string DepthMode { get; set; } = "NFOV_UNBINNED";
 
         [Option("depth-delay", Required = false, Default = 0, HelpText =
             "Set the time offset between color and depth frames in microseconds.\n" +
@@ -39,7 +39,7 @@ namespace K4AdotNet.Samples.Core.Recorder
 
         [Value(0, Default = null, Required = false, MetaValue = "output.mkv", HelpText =
             "Output file name. Default: 'yyyy-MM-dd H_mm_ss.mkv' file in 'My Videos' folder.")]
-        public string Output { get; set; }
+        public string? Output { get; set; }
 
         public int GetDeviceIndex()
         {

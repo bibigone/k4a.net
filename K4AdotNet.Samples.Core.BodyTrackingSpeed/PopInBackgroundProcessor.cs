@@ -44,7 +44,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                     return false;
                 }
 
-                tracker.TryEnqueueCapture(capture, Timeout.Infinite);
+                tracker.TryEnqueueCapture(capture!, Timeout.Infinite);
             }
 
             return true;

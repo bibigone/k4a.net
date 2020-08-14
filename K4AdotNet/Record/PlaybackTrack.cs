@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace K4AdotNet.Record
@@ -26,12 +27,13 @@ namespace K4AdotNet.Record
 
         private string GetTrackName(out byte[] nameAsBytes)
         {
-            if (!Helpers.TryGetValueInByteBuffer(GetTrackName, Index, out nameAsBytes))
+            if (!Helpers.TryGetValueInByteBuffer(GetTrackName, Index, out var bytes))
                 throw new PlaybackException("Cannot get name of track #" + Index, playback.FilePath);
-            return Encoding.UTF8.GetString(nameAsBytes, 0, nameAsBytes.Length - 1);
+            nameAsBytes = bytes;
+            return Encoding.UTF8.GetString(bytes, 0, bytes.Length - 1);
         }
 
-        private NativeCallResults.BufferResult GetTrackName(int trackIndex, byte[] trackName, ref UIntPtr trackNameSize)
+        private NativeCallResults.BufferResult GetTrackName(int trackIndex, byte[]? trackName, ref UIntPtr trackNameSize)
             => NativeApi.PlaybackGetTrackName(PlaybackHandle, Helpers.Int32ToUIntPtr(trackIndex), trackName, ref trackNameSize);
 
         /// <summary>Zero-based index of track.</summary>
@@ -75,7 +77,7 @@ namespace K4AdotNet.Record
             }
         }
 
-        private NativeCallResults.BufferResult GetCodecId(byte[] trackNameAsBytes, byte[] codecId, ref UIntPtr codecIdSize)
+        private NativeCallResults.BufferResult GetCodecId(byte[] trackNameAsBytes, byte[]? codecId, ref UIntPtr codecIdSize)
             => NativeApi.PlaybackTrackGetCodecId(PlaybackHandle, trackNameAsBytes, codecId, ref codecIdSize);
 
         /// <summary>Gets the codec context for this track.</summary>
@@ -95,7 +97,7 @@ namespace K4AdotNet.Record
             }
         }
 
-        private NativeCallResults.BufferResult GetCodecContext(byte[] trackNameAsBytes, byte[] codecContext, ref UIntPtr codecContextSize)
+        private NativeCallResults.BufferResult GetCodecContext(byte[] trackNameAsBytes, byte[]? codecContext, ref UIntPtr codecContextSize)
             => NativeApi.PlaybackTrackGetCodecContext(PlaybackHandle, trackNameAsBytes, codecContext, ref codecContextSize);
 
         /// <summary>Reads the next data block for this track.</summary>
@@ -120,7 +122,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed playback object.</exception>
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         /// <exception cref="InvalidOperationException">This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...</exception>
-        public bool TryGetNextDataBlock(out PlaybackDataBlock dataBlock)
+        public bool TryGetNextDataBlock([NotNullWhen(returnValue: true)] out PlaybackDataBlock? dataBlock)
         {
             if (IsBuiltIn)
                 throw new InvalidOperationException("This method cannot be called for built-in tracks like COLOR, DEPTH, etc.");
@@ -133,9 +135,9 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle != null && !dataHandle.IsInvalid)
             {
-                dataBlock = PlaybackDataBlock.Create(dataHandle);
+                dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;
             }
 
@@ -164,7 +166,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed playback object.</exception>
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         /// <exception cref="InvalidOperationException">This method cannot be used with the built-in tracks: "COLOR", "DEPTH", etc...</exception>
-        public bool TryGetPreviousDataBlock(out PlaybackDataBlock dataBlock)
+        public bool TryGetPreviousDataBlock([NotNullWhen(returnValue: true)] out PlaybackDataBlock? dataBlock)
         {
             if (IsBuiltIn)
                 throw new InvalidOperationException("This method cannot be called for built-in tracks like COLOR, DEPTH, etc.");
@@ -177,9 +179,9 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle != null && !dataHandle.IsInvalid)
             {
-                dataBlock = PlaybackDataBlock.Create(dataHandle);
+                dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;
             }
 

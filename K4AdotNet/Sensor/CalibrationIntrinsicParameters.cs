@@ -116,28 +116,25 @@ namespace K4AdotNet.Sensor
         /// <exception cref="IndexOutOfRangeException">Index is less than <c>0</c> or is greater or equal to <see cref="ParameterCount"/>.</exception>
         public float this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0: return Cx;
-                    case 1: return Cy;
-                    case 2: return Fx;
-                    case 3: return Fy;
-                    case 4: return K1;
-                    case 5: return K2;
-                    case 6: return K3;
-                    case 7: return K4;
-                    case 8: return K5;
-                    case 9: return K6;
-                    case 10: return Codx;
-                    case 11: return Cody;
-                    case 12: return P2;
-                    case 13: return P1;
-                    case 14: return NotUsed;
-                    default: throw new IndexOutOfRangeException(nameof(index));
-            }
-        }
+                0 => Cx,
+                1 => Cy,
+                2 => Fx,
+                3 => Fy,
+                4 => K1,
+                5 => K2,
+                6 => K3,
+                7 => K4,
+                8 => K5,
+                9 => K6,
+                10 => Codx,
+                11 => Cody,
+                12 => P2,
+                13 => P1,
+                14 => NotUsed,
+                _ => throw new IndexOutOfRangeException(nameof(index)),
+            };
 
             set
             {

@@ -22,7 +22,7 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceHandle">Output parameter which on success will return a handle to the device.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_open", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle deviceHandle);
+        public static extern NativeCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle? deviceHandle);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_capture(k4a_device_t device_handle,
         //                                                     k4a_capture_t *capture_handle,
@@ -48,7 +48,7 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.WaitResult DeviceGetCapture(
             NativeHandles.DeviceHandle deviceHandle,
-            out NativeHandles.CaptureHandle captureHandle,
+            out NativeHandles.CaptureHandle? captureHandle,
             Timeout timeout);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_imu_sample(k4a_device_t device_handle,
@@ -185,7 +185,7 @@ namespace K4AdotNet.Sensor
             int widthPixels,
             int heightPixels,
             int strideBytes,
-            out NativeHandles.ImageHandle imageHandle);
+            out NativeHandles.ImageHandle? imageHandle);
 
         // typedef void(k4a_memory_destroy_cb_t)(void *buffer, void *context);
         /// <summary>Callback function for a memory object being destroyed.</summary>
@@ -230,9 +230,9 @@ namespace K4AdotNet.Sensor
             int strideBytes,
             IntPtr buffer,
             UIntPtr bufferSize,
-            MemoryDestroyCallback bufferReleaseCallback,
+            MemoryDestroyCallback? bufferReleaseCallback,
             IntPtr bufferReleaseCallbackContext,
-            out NativeHandles.ImageHandle imageHandle);
+            out NativeHandles.ImageHandle? imageHandle);
 
         // K4A_EXPORT uint8_t *k4a_image_get_buffer(k4a_image_t image_handle);
         /// <summary>Get the image buffer.</summary>
@@ -499,7 +499,7 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult DeviceGetSerialnum(
             NativeHandles.DeviceHandle deviceHandle,
-            [Out] byte[] serialNumber,
+            [Out] byte[]? serialNumber,
             ref UIntPtr serialNumberSize);
 
         // K4A_EXPORT k4a_result_t k4a_device_get_version(k4a_device_t device_handle, k4a_hardware_version_t *version);
@@ -621,7 +621,7 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult DeviceGetRawCalibration(
             NativeHandles.DeviceHandle deviceHandle,
-            [Out] byte[] data,
+            [Out] byte[]? data,
             ref UIntPtr dataSize);
 
         // K4A_EXPORT k4a_result_t k4a_device_get_calibration(k4a_device_t device_handle,

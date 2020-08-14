@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -76,7 +77,7 @@ namespace K4AdotNet
         /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
         /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
         /// </para></remarks>
-        public static void ConfigureLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
+        public static void ConfigureLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4A_";
             ConfigureLogging(PREFIX, level, logToStdout, logToFile);
@@ -96,7 +97,7 @@ namespace K4AdotNet
         /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
         /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
         /// </para></remarks>
-        public static void ConfigureRecordLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
+        public static void ConfigureRecordLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4A_RECORD_";
             ConfigureLogging(PREFIX, level, logToStdout, logToFile);
@@ -116,13 +117,13 @@ namespace K4AdotNet
         /// Don't use one and the same destination log file for different parts of API (Sensor, Record, Body Tracking).
         /// Each part uses separate logger instance that do not allowed shared access to the file being written to.
         /// </para></remarks>
-        public static void ConfigureBodyTrackingLogging(TraceLevel level, bool logToStdout = false, string logToFile = null)
+        public static void ConfigureBodyTrackingLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4ABT_";
             ConfigureLogging(PREFIX, level, logToStdout, logToFile);
         }
 
-        private static void ConfigureLogging(string variableNamePrefix, TraceLevel level, bool logToStdout, string logToFile)
+        private static void ConfigureLogging(string variableNamePrefix, TraceLevel level, bool logToStdout, string? logToFile)
         {
             Environment.SetEnvironmentVariable(variableNamePrefix + "LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
@@ -166,13 +167,12 @@ namespace K4AdotNet
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
         /// </para></remarks>
         /// <seealso cref="TryInitializeBodyTrackingRuntime(out string)"/>
-        public static bool IsBodyTrackingRuntimeAvailable(out string message)
+        public static bool IsBodyTrackingRuntimeAvailable([NotNullWhen(returnValue: false)] out string? message)
         {
             if (!IsOSCompatibleWithBodyTracking(out message))
                 return false;
 
-            var bodyTrackingRuntimePath = GetBodyTrackingRuntimePath(out message);
-            if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
+            if (!TryGetBodyTrackingRuntimePath(out var bodyTrackingRuntimePath, out message))
                 return false;
 
             if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
@@ -207,7 +207,7 @@ namespace K4AdotNet
         /// </para></remarks>
         /// <seealso cref="IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="BodyTracking.Tracker.Tracker"/>
-        public static bool TryInitializeBodyTrackingRuntime(out string message)
+        public static bool TryInitializeBodyTrackingRuntime([NotNullWhen(returnValue: false)] out string? message)
         {
             Sensor.Calibration.CreateDummy(Sensor.DepthMode.NarrowView2x2Binned, Sensor.ColorResolution.Off, out var calibration);
             if (!TryCreateTrackerHandle(ref calibration, BodyTracking.TrackerConfiguration.Default, out var trackerHandle, out message))
@@ -220,7 +220,7 @@ namespace K4AdotNet
             return true;
         }
 
-        private static bool CheckBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath, out string message)
+        private static bool CheckBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath, [NotNullWhen(returnValue: false)] out string? message)
         {
             var path = Path.Combine(bodyTrackingRuntimePath, BODY_TRACKING_DLL_NAME + DLL_EXTENSION_WIN);
             if (File.Exists(path))
@@ -243,7 +243,9 @@ namespace K4AdotNet
             return false;
         }
 
-        private static string GetBodyTrackingRuntimePath(out string message)
+        private static bool TryGetBodyTrackingRuntimePath(
+            [NotNullWhen(returnValue: true)] out string? path,
+            [NotNullWhen(returnValue: false)] out string? message)
         {
             const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\tools";
 
@@ -252,14 +254,20 @@ namespace K4AdotNet
             // Try current directory
             var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
             if (ProbePathForBodyTrackingRuntime(currentDir))
-                return currentDir;
+            {
+                path = currentDir;
+                return true;
+            }
 
             // Try base directory of current app domain
             var baseDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
             if (!baseDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (ProbePathForBodyTrackingRuntime(baseDir))
-                    return baseDir;
+                {
+                    path = baseDir;
+                    return true;
+                }
             }
 
             // Try location of this assembly
@@ -269,19 +277,26 @@ namespace K4AdotNet
                 && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (ProbePathForBodyTrackingRuntime(asmDir))
-                    return asmDir;
+                {
+                    path = asmDir;
+                    return true;
+                }
             }
 
             // Try standard location of installed Body Tracking SDK
             var sdkBinDir = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), BODY_TRACKING_SDK_BIN_PATH));
             if (ProbePathForBodyTrackingRuntime(sdkBinDir))
-                return sdkBinDir;
+            {
+                path = sdkBinDir;
+                return true;
+            }
 
             message = $"Cannot find Body Tracking {BODY_TRACKING_EXPECTED_VERSION_MAJOR}.{BODY_TRACKING_EXPECTED_VERSION_MINOR}.x runtime or some of its components (neither in application directory, nor in Body Tracking SDK directory).";
-            return null;
+            path = null;
+            return false;
         }
 
-        private static bool IsOSCompatibleWithBodyTracking(out string message)
+        private static bool IsOSCompatibleWithBodyTracking([NotNullWhen(returnValue: false)] out string? message)
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT
                 || Environment.OSVersion.Version < new Version(6, 2)
@@ -301,7 +316,7 @@ namespace K4AdotNet
             return true;
         }
 
-        private static bool IsCudnnAvailableForBodyTracking(string bodyTrackingRuntimePath, out string message)
+        private static bool IsCudnnAvailableForBodyTracking(string bodyTrackingRuntimePath, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (ProbePathForBodyTrackingRuntime(bodyTrackingRuntimePath))
             {
@@ -328,14 +343,14 @@ namespace K4AdotNet
             foreach (var dllName in CUDNN_DLL_NAMES)
             {
                 var fullPath = Path.Combine(path, dllName + DLL_EXTENSION_WIN);
-                if (!File.Exists(dllName))
+                if (!File.Exists(fullPath))
                     return false;
             }
 
             return true;
         }
 
-        private static string GetCudaBinPath()
+        private static string? GetCudaBinPath()
         {
             const string CUDA_PATH_VARIABLE_NAME = "CUDA_PATH";
             const string CUDA_10_0_PATH_VARIABLE_NAME = "CUDA_PATH_V10_0";
@@ -391,7 +406,8 @@ namespace K4AdotNet
         }
 
         internal static bool TryCreateTrackerHandle(ref Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
-            out NativeHandles.TrackerHandle trackerHandle, out string message)
+            [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle? trackerHandle,
+            [NotNullWhen(returnValue: false)] out string? message)
         {
             string runtimePath;
 
@@ -399,8 +415,7 @@ namespace K4AdotNet
             {
                 if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
                 {
-                    bodyTrackingRuntimePath = GetBodyTrackingRuntimePath(out message);
-                    if (string.IsNullOrEmpty(bodyTrackingRuntimePath))
+                    if (!TryGetBodyTrackingRuntimePath(out bodyTrackingRuntimePath, out message))
                     {
                         trackerHandle = null;
                         return false;
@@ -439,7 +454,7 @@ namespace K4AdotNet
             return true;
         }
 
-        private static string bodyTrackingRuntimePath;
+        private static string? bodyTrackingRuntimePath;
         private static readonly object bodyTrackingRuntimeInitializationSync = new object();
 
         #endregion

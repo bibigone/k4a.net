@@ -127,45 +127,42 @@ namespace K4AdotNet.BodyTracking
         /// <seealso cref="JointTypes.All"/>
         public Joint this[JointType index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case JointType.Pelvis: return Pelvis;
-                    case JointType.SpineNavel: return SpineNavel;
-                    case JointType.SpineChest: return SpineChest;
-                    case JointType.Neck: return Neck;
-                    case JointType.ClavicleLeft: return ClavicleLeft;
-                    case JointType.ShoulderLeft: return ShoulderLeft;
-                    case JointType.ElbowLeft: return ElbowLeft;
-                    case JointType.WristLeft: return WristLeft;
-                    case JointType.HandLeft: return HandLeft;
-                    case JointType.HandTipLeft: return HandTipLeft;
-                    case JointType.ThumbLeft: return ThumbLeft;
-                    case JointType.ClavicleRight: return ClavicleRight;
-                    case JointType.ShoulderRight: return ShoulderRight;
-                    case JointType.ElbowRight: return ElbowRight;
-                    case JointType.WristRight: return WristRight;
-                    case JointType.HandRight: return HandRight;
-                    case JointType.HandTipRight: return HandTipRight;
-                    case JointType.ThumbRight: return ThumbRight;
-                    case JointType.HipLeft: return HipLeft;
-                    case JointType.KneeLeft: return KneeLeft;
-                    case JointType.AnkleLeft: return AnkleLeft;
-                    case JointType.FootLeft: return FootLeft;
-                    case JointType.HipRight: return HipRight;
-                    case JointType.KneeRight: return KneeRight;
-                    case JointType.AnkleRight: return AnkleRight;
-                    case JointType.FootRight: return FootRight;
-                    case JointType.Head: return Head;
-                    case JointType.Nose: return Nose;
-                    case JointType.EyeLeft: return EyeLeft;
-                    case JointType.EarLeft: return EarLeft;
-                    case JointType.EyeRight: return EyeRight;
-                    case JointType.EarRight: return EarRight;
-                    default: throw new ArgumentOutOfRangeException(nameof(index));
-                }
-            }
+                JointType.Pelvis => Pelvis,
+                JointType.SpineNavel => SpineNavel,
+                JointType.SpineChest => SpineChest,
+                JointType.Neck => Neck,
+                JointType.ClavicleLeft => ClavicleLeft,
+                JointType.ShoulderLeft => ShoulderLeft,
+                JointType.ElbowLeft => ElbowLeft,
+                JointType.WristLeft => WristLeft,
+                JointType.HandLeft => HandLeft,
+                JointType.HandTipLeft => HandTipLeft,
+                JointType.ThumbLeft => ThumbLeft,
+                JointType.ClavicleRight => ClavicleRight,
+                JointType.ShoulderRight => ShoulderRight,
+                JointType.ElbowRight => ElbowRight,
+                JointType.WristRight => WristRight,
+                JointType.HandRight => HandRight,
+                JointType.HandTipRight => HandTipRight,
+                JointType.ThumbRight => ThumbRight,
+                JointType.HipLeft => HipLeft,
+                JointType.KneeLeft => KneeLeft,
+                JointType.AnkleLeft => AnkleLeft,
+                JointType.FootLeft => FootLeft,
+                JointType.HipRight => HipRight,
+                JointType.KneeRight => KneeRight,
+                JointType.AnkleRight => AnkleRight,
+                JointType.FootRight => FootRight,
+                JointType.Head => Head,
+                JointType.Nose => Nose,
+                JointType.EyeLeft => EyeLeft,
+                JointType.EarLeft => EarLeft,
+                JointType.EyeRight => EyeRight,
+                JointType.EarRight => EarRight,
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
 
             set
             {

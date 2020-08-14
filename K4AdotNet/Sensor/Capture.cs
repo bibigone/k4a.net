@@ -49,7 +49,7 @@ namespace K4AdotNet.Sensor
             this.handle.Disposed += Handle_Disposed;
         }
 
-        internal static Capture Create(NativeHandles.CaptureHandle handle)
+        internal static Capture? Create(NativeHandles.CaptureHandle? handle)
             => handle != null && !handle.IsInvalid ? new Capture(handle) : null;
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Creates new reference to the same unmanaged capture object.</summary>
         /// <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
@@ -108,7 +108,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image ColorImage
+        public Image? ColorImage
         {
             get => children.Register(Image.Create(NativeApi.CaptureGetColorImage(handle.ValueNotDisposed)));
             set => NativeApi.CaptureSetColorImage(handle.ValueNotDisposed, Image.ToHandle(value));
@@ -136,7 +136,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image DepthImage
+        public Image? DepthImage
         {
             get => children.Register(Image.Create(NativeApi.CaptureGetDepthImage(handle.ValueNotDisposed)));
             set => NativeApi.CaptureSetDepthImage(handle.ValueNotDisposed, Image.ToHandle(value));
@@ -164,7 +164,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image IRImage
+        public Image? IRImage
         {
             get => children.Register(Image.Create(NativeApi.CaptureGetIRImage(handle.ValueNotDisposed)));
             set => NativeApi.CaptureSetIRImage(handle.ValueNotDisposed, Image.ToHandle(value));
@@ -185,7 +185,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Extracts handle from <paramref name="capture"/>.</summary>
         /// <param name="capture">Managed object. Can be <see langword="null"/>.</param>
         /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.CaptureHandle.Zero"/>.</returns>
-        internal static NativeHandles.CaptureHandle ToHandle(Capture capture)
+        internal static NativeHandles.CaptureHandle ToHandle(Capture? capture)
             => capture?.handle?.ValueNotDisposed ?? NativeHandles.CaptureHandle.Zero;
 
         #region Equatable
@@ -193,14 +193,14 @@ namespace K4AdotNet.Sensor
         /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="capture">Another captures to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both captures reference to one and the same unmanaged object.</returns>
-        public bool Equals(Capture capture)
+        public bool Equals(Capture? capture)
             => !(capture is null) && capture.handle.Equals(handle);
 
         /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="Capture"/> and they both reference to one and the same unmanaged object.</returns>
-        public override bool Equals(object obj)
-            => obj is Capture && Equals((Capture)obj);
+        public override bool Equals(object? obj)
+            => obj is Capture capture && Equals(capture);
 
         /// <summary>Uses underlying handle as hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>
@@ -213,7 +213,7 @@ namespace K4AdotNet.Sensor
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Capture)"/>
-        public static bool operator ==(Capture left, Capture right)
+        public static bool operator ==(Capture? left, Capture? right)
             => (left is null && right is null) || (!(left is null) && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(Capture)"/>.</summary>
@@ -221,7 +221,7 @@ namespace K4AdotNet.Sensor
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Capture)"/>
-        public static bool operator !=(Capture left, Capture right)
+        public static bool operator !=(Capture? left, Capture? right)
             => !(left == right);
 
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>

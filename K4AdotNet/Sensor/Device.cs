@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace K4AdotNet.Sensor
@@ -49,7 +50,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Zero-based index of this device.</summary>
         /// <seealso cref="Open(int)"/>
@@ -191,7 +192,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Camera streaming is not running or has been stopped during this call.</exception>
-        public bool TryGetCapture(out Capture capture, Timeout timeout = default)
+        public bool TryGetCapture([NotNullWhen(returnValue: true)] out Capture? capture, Timeout timeout = default)
         {
             var res = NativeApi.DeviceGetCapture(handle.ValueNotDisposed, out var captureHandle, timeout);
 
@@ -226,7 +227,7 @@ namespace K4AdotNet.Sensor
         {
             var res = TryGetCapture(out var capture, Timeout.Infinite);
             System.Diagnostics.Debug.Assert(res);
-            return capture;
+            return capture!;
         }
 
         /// <summary>Reads an IMU sample.</summary>
@@ -384,13 +385,14 @@ namespace K4AdotNet.Sensor
         public override string ToString()
             => "Azure Kinect #" + SerialNumber;
 
-        private void CheckResult(NativeCallResults.Result result, string invalidOperationMessage = null)
+        private void CheckResult(NativeCallResults.Result result, string? invalidOperationMessage = null)
         {
             if (result != NativeCallResults.Result.Succeeded)
                 ThrowException(invalidOperationMessage);
         }
 
-        private void ThrowException(string invalidOperationMessage = null)
+        [DoesNotReturn]
+        private void ThrowException(string? invalidOperationMessage = null)
         {
             handle.CheckNotDisposed();
             if (!IsConnected)
@@ -415,7 +417,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.</exception>
         /// <seealso cref="Open(int)"/>
         /// <seealso cref="InstalledCount"/>
-        public static bool TryOpen(out Device device, int index = DefaultDeviceIndex)
+        public static bool TryOpen([NotNullWhen(returnValue: true)] out Device? device, int index = DefaultDeviceIndex)
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
@@ -462,7 +464,7 @@ namespace K4AdotNet.Sensor
             return device;
         }
 
-        private static bool TryGetSerialNumber(NativeHandles.DeviceHandle deviceHandle, out string serialNumber)
+        private static bool TryGetSerialNumber(NativeHandles.DeviceHandle deviceHandle, [NotNullWhen(returnValue: true)] out string? serialNumber)
         {
             if (!Helpers.TryGetValueInByteBuffer(NativeApi.DeviceGetSerialnum, deviceHandle, out var result))
             {
@@ -480,7 +482,7 @@ namespace K4AdotNet.Sensor
         private static bool TryGetHardwareVersion(NativeHandles.DeviceHandle deviceHandle, out HardwareVersion version)
             => NativeApi.DeviceGetVersion(deviceHandle, out version) == NativeCallResults.Result.Succeeded;
 
-        internal static NativeHandles.DeviceHandle ToHandle(Device device)
+        internal static NativeHandles.DeviceHandle ToHandle(Device? device)
             => device?.handle.ValueNotDisposed ?? NativeHandles.DeviceHandle.Zero;
     }
 }

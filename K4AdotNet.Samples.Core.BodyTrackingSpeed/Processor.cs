@@ -4,16 +4,13 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
     internal abstract class Processor : IDisposable
     {
-        public static Processor Create(ProcessingParameters processingParameters)
+        public static Processor Create(ProcessingParameters processingParameters) => processingParameters.Implementation switch
         {
-            switch (processingParameters.Implementation)
-            {
-                case ProcessingImplementation.SingleThread: return new SingleThreadProcessor(processingParameters);
-                case ProcessingImplementation.PopInBackground: return new PopInBackgroundProcessor(processingParameters);
-                case ProcessingImplementation.EnqueueInBackground: return new EnqueueInBackgroundProcessor(processingParameters);
-                default: throw new NotSupportedException();
-            }
-        }
+            ProcessingImplementation.SingleThread => new SingleThreadProcessor(processingParameters),
+            ProcessingImplementation.PopInBackground => new PopInBackgroundProcessor(processingParameters),
+            ProcessingImplementation.EnqueueInBackground => new EnqueueInBackgroundProcessor(processingParameters),
+            _ => throw new NotSupportedException(),
+        };
 
         protected readonly ProcessingParameters processingParameters;
         protected readonly Record.Playback playback;
@@ -24,7 +21,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         protected Processor(ProcessingParameters processingParameters)
         {
             this.processingParameters = processingParameters;
-            playback = new Record.Playback(processingParameters.MkvPath);
+            playback = new Record.Playback(processingParameters.MkvPath!);
             playback.GetRecordConfiguration(out recordConfig);
             RecordLength = playback.RecordLength;
             playback.GetCalibration(out calibration);
@@ -61,7 +58,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 throw new ApplicationException("Cannot seek playback to " + value);
         }
 
-        protected bool IsCaptureInInterval(Sensor.Capture capture)
+        protected bool IsCaptureInInterval(Sensor.Capture? capture)
         {
             if (capture == null)
                 return false;

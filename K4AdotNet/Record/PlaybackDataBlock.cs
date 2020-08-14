@@ -35,7 +35,7 @@ namespace K4AdotNet.Record
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Gets the device timestamp of a data block in microseconds.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
@@ -61,7 +61,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(byte[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             if (dst.Length < size)
@@ -78,7 +78,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(short[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(short);
@@ -99,7 +99,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(float[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(float);
@@ -120,7 +120,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         public int CopyTo(int[] dst)
         {
-            if (dst == null)
+            if (dst is null)
                 throw new ArgumentNullException(nameof(dst));
             var size = SizeBytes;
             var elementSize = sizeof(int);
@@ -133,7 +133,7 @@ namespace K4AdotNet.Record
             return dstCount;
         }
 
-        internal static PlaybackDataBlock Create(NativeHandles.PlaybackDataBlockHandle handle)
+        internal static PlaybackDataBlock? Create(NativeHandles.PlaybackDataBlockHandle? handle)
             => handle != null && !handle.IsInvalid ? new PlaybackDataBlock(handle) : null;
     }
 }

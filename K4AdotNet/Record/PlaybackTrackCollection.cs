@@ -38,7 +38,7 @@ namespace K4AdotNet.Record
         /// <returns>Information about track with a given name or <see langword="null"/> if there is no track with such name in <see cref="Playback"/>.</returns>
         /// <exception cref="ObjectDisposedException">Appropriate <see cref="Playback"/> object was disposed.</exception>
         /// <seealso cref="Exists(string)"/>
-        public PlaybackTrack this[string name]
+        public PlaybackTrack? this[string name]
         {
             get
             {

@@ -86,7 +86,7 @@ namespace K4AdotNet.Record
                 throw new ArgumentNullException(nameof(codecId));
             if (!codecId.StartsWith("V_"))
                 throw new ArgumentException("Video codec ID should start with 'V_'", nameof(codecId));
-            if (codecContext == null)
+            if (codecContext is null)
                 throw new ArgumentNullException(nameof(codecContext));
             if (trackSettings.Width < 0 || trackSettings.Height < 0 || trackSettings.FrameRate < 0)
                 throw new ArgumentException($"Invalid value of {trackSettings}", nameof(trackSettings));
@@ -142,7 +142,7 @@ namespace K4AdotNet.Record
                 throw new ArgumentNullException(nameof(codecId));
             if (!codecId.StartsWith("S_"))
                 throw new ArgumentException("Subtitle codec ID should start with 'S_'", nameof(codecId));
-            if (codecContext == null)
+            if (codecContext is null)
                 throw new ArgumentNullException(nameof(codecContext));
 
             var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.ASCII);

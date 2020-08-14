@@ -3,7 +3,9 @@
   <Import Project="..\Product.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <Platforms>AnyCPU</Platforms>
     <Description>Three-in-one .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later. All required binaries from Azure Kinect Sensor SDK (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</Description>
     <PackageTags>Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking SDK</PackageTags>
@@ -27,6 +29,23 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
+
+  <!-- Disable warnings regarding nullable references which rely on missing attributes -->
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netstandard2.1'">
+    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <NoWarn>$(NoWarn);0618</NoWarn>
+  </PropertyGroup>
+
+  <!-- To support nullable reference types in .NET Standard 2.0 -->
+  <ItemGroup>
+    <PackageReference Include="Nullable" Version="1.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
 
   <ItemGroup>
     <None Include="..\externals\k4a\windows-desktop\amd64\*.dll" Pack="True" PackagePath="\build\">

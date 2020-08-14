@@ -45,7 +45,7 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>Creates new reference to the same unmanaged body frame object.</summary>
         /// <returns>New object that references exactly to the same underlying unmanaged object as original one. Not <see langword="null"/>.</returns>
@@ -85,7 +85,7 @@ namespace K4AdotNet.BodyTracking
         /// use <see cref="Sensor.Capture.DuplicateReference"/> method.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Sensor.Capture Capture => children.Register(Sensor.Capture.Create(NativeApi.FrameGetCapture(handle.ValueNotDisposed)));
+        public Sensor.Capture Capture => children.Register(Sensor.Capture.Create(NativeApi.FrameGetCapture(handle.ValueNotDisposed)))!;
 
         /// <summary>Non-a-body value on index body map.</summary>
         /// <seealso cref="BodyIndexMap"/>
@@ -111,7 +111,7 @@ namespace K4AdotNet.BodyTracking
         /// use <see cref="Sensor.Image.DuplicateReference"/> method.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Sensor.Image BodyIndexMap => children.Register(Sensor.Image.Create(NativeApi.FrameGetBodyIndexMap(handle.ValueNotDisposed)));
+        public Sensor.Image BodyIndexMap => children.Register(Sensor.Image.Create(NativeApi.FrameGetBodyIndexMap(handle.ValueNotDisposed)))!;
 
         /// <summary>Gets the joint information for a particular person index.</summary>
         /// <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="BodyCount"/>.</param>
@@ -140,7 +140,7 @@ namespace K4AdotNet.BodyTracking
             return NativeApi.FrameGetBodyId(handle.ValueNotDisposed, (uint)bodyIndex);
         }
 
-        internal static BodyFrame Create(NativeHandles.BodyFrameHandle bodyFrameHandle)
+        internal static BodyFrame? Create(NativeHandles.BodyFrameHandle? bodyFrameHandle)
             => bodyFrameHandle != null && !bodyFrameHandle.IsInvalid ? new BodyFrame(bodyFrameHandle) : null;
 
         #region Equatable
@@ -148,14 +148,14 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="bodyFrame">Another body frame to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both body frames reference to one and the same unmanaged object.</returns>
-        public bool Equals(BodyFrame bodyFrame)
+        public bool Equals(BodyFrame? bodyFrame)
             => !(bodyFrame is null) && bodyFrame.handle.Equals(handle);
 
         /// <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="obj"/> is also <see cref="BodyFrame"/> and they both reference to one and the same unmanaged object.</returns>
-        public override bool Equals(object obj)
-            => obj is BodyFrame && Equals((BodyFrame)obj);
+        public override bool Equals(object? obj)
+            => obj is BodyFrame frame && Equals(frame);
 
         /// <summary>Uses underlying handle as hash code.</summary>
         /// <returns>Hash code. Consistent with overridden equality.</returns>
@@ -168,7 +168,7 @@ namespace K4AdotNet.BodyTracking
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(BodyFrame)"/>
-        public static bool operator ==(BodyFrame left, BodyFrame right)
+        public static bool operator ==(BodyFrame? left, BodyFrame? right)
             => (left is null && right is null) || (!(left is null) && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(BodyFrame)"/>.</summary>
@@ -176,7 +176,7 @@ namespace K4AdotNet.BodyTracking
         /// <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(BodyFrame)"/>
-        public static bool operator !=(BodyFrame left, BodyFrame right)
+        public static bool operator !=(BodyFrame? left, BodyFrame? right)
             => !(left == right);
 
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>

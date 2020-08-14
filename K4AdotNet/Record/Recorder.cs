@@ -72,7 +72,7 @@ namespace K4AdotNet.Record
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
-        public event EventHandler Disposed;
+        public event EventHandler? Disposed;
 
         /// <summary>File system path to recording. Not <see langword="null"/>. Not empty.</summary>
         public string FilePath { get; }
@@ -108,7 +108,7 @@ namespace K4AdotNet.Record
         public void AddTag(string tagName, string tagValue)
         {
             Helpers.CheckTagName(tagName);
-            if (tagValue == null)
+            if (tagValue is null)
                 throw new ArgumentNullException(tagValue);
 
             var tagNameAsBytes = Helpers.StringToBytes(tagName, Encoding.ASCII);
@@ -145,7 +145,7 @@ namespace K4AdotNet.Record
                 throw new ArgumentNullException(nameof(attachmentName));
             if (attachmentName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 throw new ArgumentException($"Invalid value \"{attachmentName}\" of {nameof(attachmentName)}. This name should be a valid filename with an extension.", nameof(attachmentName));
-            if (attachmentData == null)
+            if (attachmentData is null)
                 throw new ArgumentNullException(nameof(attachmentData));
 
             var attachmentNameAsBytes = Helpers.StringToBytes(attachmentName, Encoding.UTF8);
@@ -179,7 +179,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void WriteCapture(Sensor.Capture capture)
         {
-            if (capture == null)
+            if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
             CheckResult(NativeApi.RecordWriteCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture)));
         }
@@ -215,7 +215,7 @@ namespace K4AdotNet.Record
                 throw new RecordingException(FilePath);
         }
 
-        internal static NativeHandles.RecordHandle ToHandle(Recorder recorder)
+        internal static NativeHandles.RecordHandle ToHandle(Recorder? recorder)
             => recorder?.handle.ValueNotDisposed ?? NativeHandles.RecordHandle.Zero;
     }
 }
