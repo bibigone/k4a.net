@@ -48,8 +48,8 @@
 
 | Library "component" | Depends on                                   | Version in use | Location in repository                | Included in [NuGet package](https://www.nuget.org/packages/K4AdotNet) 
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
-| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.4.0          | `externals/k4a/windows-desktop/amd64` | YES
-| Record API          | `k4arecord.dll`                              | 1.4.0          | `externals/k4a/windows-desktop/amd64` | YES
+| Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
+| Record API          | `k4arecord.dll`                              | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
 | Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 1.0.1          |                                       | no<sup>(3)</sup>
 
 Notes:
