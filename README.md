@@ -19,8 +19,8 @@
 * Written fully on C#
 * No unsafe code in library **K4AdotNet** itself (only `DllImports`)
 * CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
-* Library **K4AdotNet** is compiled against **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
-  * This makes it compatible with **.NET Core 2.0** and later, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
+* Library **K4AdotNet** is compiled against **.NET Standard 2.0, 2.1** and **.NET Framework 4.6.1** target frameworks
+  * This makes it compatible with **.NET Core 2.0/3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
 * Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
 * Plus useful helper methods, additional checks and meaningful exceptions.
