@@ -16,6 +16,7 @@ namespace K4AdotNet.BodyTracking
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;   // this class is an wrapper around this handle
         private volatile int queueSize;                                                     // captures in queue
+        private volatile bool isDisposed;
         private float temporalSmoothingFactor = DefaultSmoothingFactor;
         private readonly object temporalSmoothingFactorSync = new object();
 
@@ -68,11 +69,16 @@ namespace K4AdotNet.BodyTracking
         /// <seealso cref="Disposed"/>
         /// <seealso cref="IsDisposed"/>
         public void Dispose()
-            => handle.Dispose();
+        {
+            isDisposed = true;
+            if (!handle.IsDisposed)
+                Shutdown();
+            handle.Dispose();
+        }
 
         /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
-        public bool IsDisposed => handle.IsDisposed;
+        public bool IsDisposed => isDisposed;
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
@@ -89,11 +95,9 @@ namespace K4AdotNet.BodyTracking
         /// This function may be called while another thread is blocking in <see cref="TryEnqueueCapture(Capture, Timeout)"/> or <see cref="TryPopResult(out BodyFrame, Timeout)"/>.
         /// Calling this function while another thread is in that function will result in that function raising an exception.
         /// </para></remarks>
+        /// <exception cref="ObjectDisposedException">Object was disposed.</exception>
         public void Shutdown()
-        {
-            NativeApi.TrackerShutdown(handle.Value);
-            queueSize = 0;
-        }
+            => NativeApi.TrackerShutdown(handle.ValueNotDisposed);
 
         /// <summary>Depth mode for which this tracker was created.</summary>
         public DepthMode DepthMode { get; }
@@ -166,12 +170,18 @@ namespace K4AdotNet.BodyTracking
             if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
 
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(Tracker));
+
             var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Capture.ToHandle(capture), timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
                 return false;
             if (res == NativeCallResults.WaitResult.Failed)
             {
-                handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
+                // to throw ObjectDisposedException() if failure is a result of disposing
+                if (isDisposed)
+                    throw new ObjectDisposedException(nameof(Tracker));
+                handle.CheckNotDisposed();
 
                 using (var depthImage = capture.DepthImage)
                 {
@@ -257,6 +267,9 @@ namespace K4AdotNet.BodyTracking
         /// <seealso cref="PopResult"/>
         public bool TryPopResult([NotNullWhen(returnValue: true)] out BodyFrame? bodyFrame, Timeout timeout = default)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(Tracker));
+
             var res = NativeApi.TrackerPopResult(handle.ValueNotDisposed, out var bodyFrameHandle, timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
             {
@@ -265,7 +278,11 @@ namespace K4AdotNet.BodyTracking
             }
             if (res == NativeCallResults.WaitResult.Failed)
             {
-                handle.CheckNotDisposed();      // to throw ObjectDisposedException() if failure is a result of disposing
+                // to throw ObjectDisposedException() if failure is a result of disposing
+                if (isDisposed)
+                    throw new ObjectDisposedException(nameof(Tracker));
+                handle.CheckNotDisposed(); 
+
                 throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline. See logs for details.");
             }
 

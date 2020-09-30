@@ -64,11 +64,11 @@ namespace K4AdotNet.Samples.Unity
 
         private void OnDestroy()
         {
+            IsAvailable = false;
+
             var captureManager = FindObjectOfType<CaptureManager>();
             if (captureManager != null) captureManager.CaptureReady -= CaptureManager_CaptureReady;
             _tracker?.Dispose();
-
-            IsAvailable = false;
         }
 
         private void CaptureManager_CaptureReady(object sender, CaptureEventArgs e)
