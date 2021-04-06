@@ -44,7 +44,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                             disableColor: DisableColor,
                             disableDepth: false,
                             doNotPlayFasterThanOriginalFps: DoNotPlayFasterThanOriginalFps);
-                        var viewModel = new TrackerModel(app, readingLoop, CpuOnlyMode, SensorOrientation, SmoothingFactor);
+                        var viewModel = new TrackerModel(app, readingLoop, ProcessingMode, DnnModel, SensorOrientation, SmoothingFactor);
                         app.ShowWindowForModel(viewModel);
                     }
                 }
@@ -102,7 +102,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 using (app.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
-                    var viewModel = new TrackerModel(app, readingLoop, CpuOnlyMode, SensorOrientation, SmoothingFactor);
+                    var viewModel = new TrackerModel(app, readingLoop, ProcessingMode, DnnModel, SensorOrientation, SmoothingFactor);
                     app.ShowWindowForModel(viewModel);
                 }
             }
@@ -117,12 +117,36 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         #region Settings
 
-        public bool CpuOnlyMode
+        public BodyTracking.TrackerProcessingMode ProcessingMode
         {
-            get => cpuOnlyMode;
-            set => SetPropertyValue(ref cpuOnlyMode, value, nameof(CpuOnlyMode));
+            get => processingMode;
+            set => SetPropertyValue(ref processingMode, value, nameof(ProcessingMode));
         }
-        private bool cpuOnlyMode;
+        private BodyTracking.TrackerProcessingMode processingMode = BodyTracking.TrackerProcessingMode.GpuCuda;
+
+        public IReadOnlyList<KeyValuePair<BodyTracking.TrackerProcessingMode, string>> ProcessingModes { get; }
+            = new Dictionary<BodyTracking.TrackerProcessingMode, string>
+            {
+                { BodyTracking.TrackerProcessingMode.Cpu, "CPU" },
+                { BodyTracking.TrackerProcessingMode.Gpu, "GPU auto" },
+                { BodyTracking.TrackerProcessingMode.GpuCuda, "GPU CUDA" },
+                { BodyTracking.TrackerProcessingMode.GpuTensorRT, "GPU TensorRT" },
+                { BodyTracking.TrackerProcessingMode.GpuDirectML, "GPU DirectML" },
+            }.ToList();
+
+        public DnnModel DnnModel
+        {
+            get => dnnModel;
+            set => SetPropertyValue(ref dnnModel, value, nameof(DnnModel));
+        }
+        private DnnModel dnnModel = DnnModel.Default;
+
+        public IReadOnlyList<KeyValuePair<DnnModel, string>> DnnModels { get; }
+            = new Dictionary<DnnModel, string>
+            {
+                { DnnModel.Default, "default (slower)" },
+                { DnnModel.Lite, "lite (faster)" },
+            }.ToList();
 
         public float SmoothingFactor
         {

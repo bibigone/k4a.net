@@ -32,12 +32,13 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             DepthColumnWidth = ColorColumnWidth = new GridLength(1, GridUnitType.Star);
         }
 
-        public TrackerModel(IApp app, BackgroundReadingLoop readingLoop, bool cpuOnlyMode, SensorOrientation sensorOrientation, float smoothingFactor)
+        public TrackerModel(IApp app, BackgroundReadingLoop readingLoop,
+            TrackerProcessingMode processingMode, DnnModel dnnModel, SensorOrientation sensorOrientation, float smoothingFactor)
             : base(app)
         {
             // try to create tracking loop first
             readingLoop.GetCalibration(out calibration);
-            trackingLoop = new BackgroundTrackingLoop(ref calibration, cpuOnlyMode, sensorOrientation, smoothingFactor);
+            trackingLoop = new BackgroundTrackingLoop(in calibration, processingMode, dnnModel, sensorOrientation, smoothingFactor);
             trackingLoop.BodyFrameReady += TrackingLoop_BodyFrameReady;
             trackingLoop.Failed += BackgroundLoop_Failed;
 
@@ -58,7 +59,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             {
                 colorImageVisualizer = ImageVisualizer.CreateForColorBgra(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
                 colorSkeletonVisualizer = new SkeletonVisualizer(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels(), ProjectJointToColorImage);
-                bodyIndexMapTransformation = new BodyIndexMapTransformation(ref calibration);
+                bodyIndexMapTransformation = new BodyIndexMapTransformation(in calibration);
             }
 
             // Proportions between columns

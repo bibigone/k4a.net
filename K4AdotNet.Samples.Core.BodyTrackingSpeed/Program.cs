@@ -15,16 +15,6 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 
             Console.WriteLine("Body tracking speed test on prerecorded video from Kinect for Azure device");
 
-            Console.WriteLine();
-            Console.WriteLine("Initializing body tracking runtime...");
-            if (!Sdk.TryInitializeBodyTrackingRuntime(out var msg))
-            {
-                Console.WriteLine("Body tracking cannot be used!");
-                Console.WriteLine(msg);
-                return;
-            }
-            Console.WriteLine();
-
             var processingParameters = args.Length == 0
                 ? AskProcessingParameters()
                 : ParseCommandLineArguments(args);
@@ -35,6 +25,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 return;
             }
 
+            Console.WriteLine();
             Process(processingParameters);
 
             if (args.Length == 0)
@@ -63,7 +54,9 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             var parameters = new ProcessingParameters();
             if (!AskParameter(ProcessingParameters.MkvPathDescription, parameters.TrySetMkvPath))
                 return null;
-            if (!AskParameter(ProcessingParameters.CpuOnlyModeDescription, parameters.TrySetCpuOnlyMode))
+            if (!AskParameter(ProcessingParameters.ProcessingModeDescription, parameters.TrySetProcessingMode))
+                return null;
+            if (!AskParameter(ProcessingParameters.DnnModelDescription, parameters.TrySetDnnModel))
                 return null;
             if (!AskParameter(ProcessingParameters.ImplementationDescription, parameters.TrySetImplementation))
                 return null;
@@ -105,7 +98,12 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 {
                     case "-m":
                     case "--mode":
-                        if (!ParseArgument(args, ref i, parameters.TrySetCpuOnlyMode))
+                        if (!ParseArgument(args, ref i, parameters.TrySetProcessingMode))
+                            return null;
+                        break;
+                    case "-d":
+                    case "--dnnModel":
+                        if (!ParseArgument(args, ref i, parameters.TrySetDnnModel))
                             return null;
                         break;
                     case "-i":
@@ -176,8 +174,9 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             Console.WriteLine("where: ");
             Console.WriteLine("  <mkvFile> - " + ProcessingParameters.MkvPathDescription);
             Console.WriteLine("  options:");
-            Console.WriteLine("    -m, --mode c|g\t\t" + ProcessingParameters.StartTimeDescription);
-            Console.WriteLine("    -i, --implementation s|p|e\t\t" + ProcessingParameters.StartTimeDescription);
+            Console.WriteLine("    -m, --mode c|g|u|t|d\t\t" + ProcessingParameters.ProcessingModeDescription);
+            Console.WriteLine("    -d, --dnnMode d|l\t\t" + ProcessingParameters.DnnModelDescription);
+            Console.WriteLine("    -i, --implementation s|p|e\t\t" + ProcessingParameters.ImplementationDescription);
             Console.WriteLine("    -s, --startTime <time>\t\t" + ProcessingParameters.StartTimeDescription);
             Console.WriteLine("    -e, --endTime <time>\t\t" + ProcessingParameters.EndTimeDescription);
             Console.WriteLine();

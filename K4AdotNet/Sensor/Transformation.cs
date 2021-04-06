@@ -25,9 +25,9 @@ namespace K4AdotNet.Sensor
         /// </para></remarks>
         /// <exception cref="InvalidOperationException">Something wrong with calibration data or <see cref="Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be loaded.</exception>
         /// <seealso cref="Dispose"/>
-        public Transformation(ref Calibration calibration)
+        public Transformation(in Calibration calibration)
         {
-            var handle = NativeApi.TransformationCreate(ref calibration);
+            var handle = NativeApi.TransformationCreate(in calibration);
             if (handle == null || handle.IsInvalid)
             {
                 throw new InvalidOperationException(

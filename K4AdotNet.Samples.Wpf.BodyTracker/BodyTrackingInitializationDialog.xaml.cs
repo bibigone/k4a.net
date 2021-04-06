@@ -18,7 +18,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             bool isOk = false;
             string message = null;
-            await Task.Run(() => isOk = Sdk.TryInitializeBodyTrackingRuntime(out message))
+            await Task.Run(() => isOk = Sdk.TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode.Cpu, out message))
                 .ConfigureAwait(true);
 
             if (isClosed)

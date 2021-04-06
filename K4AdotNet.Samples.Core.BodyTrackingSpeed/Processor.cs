@@ -28,11 +28,18 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             if (processingParameters.StartTime.HasValue)
                 Seek(processingParameters.StartTime.Value);
             var config = BodyTracking.TrackerConfiguration.Default;
-            config.ProcessingMode = processingParameters.CpuOnlyMode
-                ? BodyTracking.TrackerProcessingMode.Cpu
-                : BodyTracking.TrackerProcessingMode.Gpu;
-            tracker = new BodyTracking.Tracker(ref calibration, config);
+            config.ProcessingMode = processingParameters.ProcessingMode;
+            config.ModelPath = GetModelPath(processingParameters.DnnModel);
+            tracker = new BodyTracking.Tracker(in calibration, config);
         }
+
+        private static string GetModelPath(DnnModel dnnModel)
+            => dnnModel switch
+            {
+                DnnModel.Default => Sdk.BODY_TRACKING_DNN_MODEL_FILE_NAME,
+                DnnModel.Lite => Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME,
+                _ => throw new NotSupportedException(),
+            };
 
         public virtual void Dispose()
         {

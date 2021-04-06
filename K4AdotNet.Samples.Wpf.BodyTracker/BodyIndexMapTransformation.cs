@@ -9,9 +9,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly Image transformedDepthMap;
         private readonly Image transformedBodyIndexMap;
 
-        public BodyIndexMapTransformation(ref Calibration calibration)
+        public BodyIndexMapTransformation(in Calibration calibration)
         {
-            transformation = new Transformation(ref calibration);
+            transformation = new Transformation(in calibration);
             var colorWidth = calibration.ColorResolution.WidthPixels();
             var colorHeight = calibration.ColorResolution.HeightPixels();
             transformedDepthMap = new Image(ImageFormat.Depth16, colorWidth, colorHeight);

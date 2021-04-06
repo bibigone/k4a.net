@@ -17,7 +17,7 @@
 ## Key features
 
 * Written fully on C#
-* No unsafe code in library **K4AdotNet** itself (only `DllImports`)
+* No unsafe code in library **K4AdotNet** itself (only `DllImports` to SDKs)
 * CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
 * Library **K4AdotNet** is compiled against **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
   * This makes it compatible with **.NET Core 2.0** and later, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
@@ -50,18 +50,23 @@
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
 | Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
 | Record API          | `k4arecord.dll`                              | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0.onnx`   | 1.0.1          |                                       | no<sup>(3)</sup>
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0_op11.onnx` and/or `dnn_model_2_0_lite_op11.onnx` | 1.1.0          |                                       | no<sup>(3)</sup>
 
 Notes:
 * <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
-* <sup>(2)</sup> `k4abt.dll` uses [ONNX Runtime](https://github.com/microsoft/onnxruntime) &mdash; `onnxruntime.dll`, which in turn depends on the following [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) and [NVIDIA CUDA 10.0](https://developer.nvidia.com/cuda-10.0-download-archive) libraries: `cudnn64_7.dll`, `cublas64_100.dll`, `cudart64_100.dll`. Also, Visual C++ Redistributable for Visual Studio 2015 is required: `vcomp140.dll`.
+* <sup>(2)</sup> `k4abt.dll` uses [ONNX Runtime](https://github.com/microsoft/onnxruntime) &mdash; `onnxruntime.dll`, which in turn depends on the following [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) and [NVIDIA CUDA 11.2.1](https://developer.nvidia.com/cuda-11.2.1-download-archive) libraries. Also, Visual C++ Redistributable for Visual Studio 2015 is required: `vcomp140.dll`.
 * <sup>(3)</sup> The full list of libraries and data files required for Body Tracking: <br/>
-`k4abt.dll` (3.7 MB), <br/>
-`dnn_model_2_0.onnx` (159 MB), <br/>
-`cudnn64_7.dll` (333 MB), <br/>
-`cublas64_100.dll` (64 MB), <br/>
-`cudart64_100.dll` (0.4 MB), <br/>
+`k4abt.dll` (4.3 MB), <br/>
+`dnn_model_2_0_op11.onnx` (159 MB) and/or `dnn_model_2_0_lite_op11.onnx` (43 MB), <br/>
+`cublas64_11.dll` (108 MB), <br/>
+`cublasLt64_11.dll` (204 MB), <br/>
+`cudart64_110.dll` (0.4 MB), <br/>
+`cudnn_cnn_infer64_8.dll` (673 MB), <br/>
+`cudnn_ops_infer64_8.dll` (308 MB), <br/>
+`cudnn64_8.dll` (0.3 MB), <br/>
+`cufft64_10.dll` (224 MB), <br/>
 `vcomp140.dll` (0.2 MB). <br/>
+(Plus additional libraries for `TensorRT` and `DirectML` tracking modes.)<br/>
 It is mostly unpractical to have such bulky files in repositories. For this reason they are not included to the repository. Also, they are not included to [NuGet package](https://www.nuget.org/packages/K4AdotNet).
 
 How to use Body Tracking runtime:
@@ -72,7 +77,7 @@ How to use Body Tracking runtime:
   * directory with **K4AdotNet** assembly
   * installation directory of **Body Tracking SDK** under `Program Files`
 * Use `bool Sdk.IsBodyTrackingRuntimeAvailable(out string message)` method to check if Body Tracking runtime and all required components are available/installed
-* Also, you can optionally call `bool Sdk.TryInitializeBodyTrackingRuntime(out string message)` method on start of your application to initialize Body Tracking runtime (it can take a few seconds)
+* Also, you can optionally call `bool Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode mode, out string message)` method on start of your application to initialize Body Tracking runtime (it can take a few seconds)
 
 
 ## Versions

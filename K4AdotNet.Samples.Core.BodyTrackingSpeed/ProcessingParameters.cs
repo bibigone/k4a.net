@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 
 namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 {
@@ -9,7 +11,8 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         public const string MKV_FILE_EXTENSION = ".mkv";
 
         public static readonly string MkvPathDescription = "Path to MKV file";
-        public static readonly string CpuOnlyModeDescription = "CPU/GPU mode (C - use only CPU, G - use GPU, default - G)";
+        public static readonly string ProcessingModeDescription = "Processing mode (C - CPU, G - GPU, U - CUDA, T - TensorRT, D - DirectML, default - C)";
+        public static readonly string DnnModelDescription = "DNN model (D - Default, L - Lite, default - D)";
         public static readonly string ImplementationDescription = "Optional implementation type (S - single thread, P - pop in background, E - enqueue in background, default - S)";
         public static readonly string StartTimeDescription = "Optional start time of video interval in seconds (default - beginning of recording)";
         public static readonly string EndTimeDescription = "Optional end time of video interval in seconds (default - end of recording)";
@@ -28,7 +31,8 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         }
 
         public string? MkvPath { get; private set; }
-        public bool CpuOnlyMode { get; private set; }
+        public BodyTracking.TrackerProcessingMode ProcessingMode { get; private set; }
+        public DnnModel DnnModel { get; private set; }
         public ProcessingImplementation Implementation { get; private set; }
         public TimeSpan? StartTime { get; private set; }
         public TimeSpan? EndTime { get; private set; }
@@ -71,31 +75,75 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return true;
         }
 
-        public bool TrySetCpuOnlyMode(string value, [NotNullWhen(returnValue: false)] out string? message)
+        private static readonly IReadOnlyDictionary<string, BodyTracking.TrackerProcessingMode> processingModes
+            = new Dictionary<string, BodyTracking.TrackerProcessingMode>
+            {
+                ["c"] = BodyTracking.TrackerProcessingMode.Cpu,
+                ["g"] = BodyTracking.TrackerProcessingMode.Gpu,
+                ["u"] = BodyTracking.TrackerProcessingMode.GpuCuda,
+                ["t"] = BodyTracking.TrackerProcessingMode.GpuTensorRT,
+                ["d"] = BodyTracking.TrackerProcessingMode.GpuDirectML,
+            };
+
+        public bool TrySetProcessingMode(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                CpuOnlyMode = false;
+                ProcessingMode = BodyTracking.TrackerProcessingMode.Cpu;
                 message = null;
                 return true;
             }
 
             value = value.Trim().ToLowerInvariant();
-            switch (value)
+            if (processingModes.TryGetValue(value, out var mode))
             {
-                case "c":
-                    CpuOnlyMode = true;
-                    message = null;
-                    return true;
-                case "g":
-                    CpuOnlyMode = false;
-                    message = null;
-                    return true;
+                ProcessingMode = mode;
+                message = null;
+                return true;
             }
 
-            message = $"Invalid value. Expected 'C' or 'G'.";
+            message = InvalidValueMessage(processingModes.Keys);
             return false;
         }
+
+        private static string InvalidValueMessage(IEnumerable<string> possibleValues)
+            => "Invalid value. Expected " + string.Join(" or ", possibleValues.Select(s => "'" + s.ToUpperInvariant() + "'")) + " characters.";
+
+        private static readonly IReadOnlyDictionary<string, DnnModel> dnnModels
+            = new Dictionary<string, DnnModel>
+            {
+                ["d"] = DnnModel.Default,
+                ["l"] = DnnModel.Lite,
+            };
+
+        public bool TrySetDnnModel(string value, [NotNullWhen(returnValue: false)] out string? message)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                DnnModel = DnnModel.Default;
+                message = null;
+                return true;
+            }
+
+            value = value.Trim().ToLowerInvariant();
+            if (dnnModels.TryGetValue(value, out var model))
+            {
+                DnnModel = model;
+                message = null;
+                return true;
+            }
+
+            message = InvalidValueMessage(dnnModels.Keys);
+            return false;
+        }
+
+        private static readonly IReadOnlyDictionary<string, ProcessingImplementation> implementations
+            = new Dictionary<string, ProcessingImplementation>
+            {
+                ["s"] = ProcessingImplementation.SingleThread,
+                ["p"] = ProcessingImplementation.PopInBackground,
+                ["e"] = ProcessingImplementation.EnqueueInBackground,
+            };
 
         public bool TrySetImplementation(string value, [NotNullWhen(returnValue: false)] out string? message)
         {
@@ -107,23 +155,14 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             }
 
             value = value.Trim().ToLowerInvariant();
-            switch (value)
+            if (implementations.TryGetValue(value, out var impl))
             {
-                case "s":
-                    Implementation = ProcessingImplementation.SingleThread;
-                    message = null;
-                    return true;
-                case "p":
-                    Implementation = ProcessingImplementation.PopInBackground;
-                    message = null;
-                    return true;
-                case "e":
-                    Implementation = ProcessingImplementation.EnqueueInBackground;
-                    message = null;
-                    return true;
+                Implementation = impl;
+                message = null;
+                return true;
             }
 
-            message = $"Invalid value. Expected 'S' or 'P' or 'E' characters.";
+            message = InvalidValueMessage(implementations.Keys);
             return false;
         }
 

@@ -121,7 +121,7 @@ namespace K4AdotNet.Record
             [In] byte[] codecId,
             [In] byte[] codecContext,
             UIntPtr codecContextSize,
-            [In] ref RecordVideoSettings trackSettings);
+            in RecordVideoSettings trackSettings);
 
         // K4ARECORD_EXPORT k4a_result_t
         // k4a_record_add_custom_subtitle_track(const k4a_record_t recording_handle,
@@ -162,7 +162,7 @@ namespace K4AdotNet.Record
             [In] byte[] codecId,
             [In] byte[] codecContext,
             UIntPtr codecContextSize,
-            [In] ref RecordSubtitleSettings trackSettings);
+            in RecordSubtitleSettings trackSettings);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_write_header(k4a_record_t recording_handle);
         /// <summary>Writes the recording header and metadata to file.</summary>

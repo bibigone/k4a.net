@@ -21,7 +21,7 @@ namespace K4AdotNet.Samples.Unity
 
             var task = Task.Run(() =>
             {
-                var initialized = Sdk.TryInitializeBodyTrackingRuntime(out var message);
+                var initialized = Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode.GpuCuda, out var message);
                 return Tuple.Create(initialized, message);
             });
             yield return new WaitUntil(() => task.IsCompleted);
@@ -48,7 +48,13 @@ namespace K4AdotNet.Samples.Unity
                 if (captureManager?.IsAvailable == true)
                 {
                     var calibration = captureManager.Calibration;
-                    _tracker = new Tracker(ref calibration);
+
+                    var config = TrackerConfiguration.Default;
+                    config.ProcessingMode = TrackerProcessingMode.GpuCuda;
+                    // Use lite version of DNN model for speed (comment next line to use default DNN model)
+                    config.ModelPath = Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME;
+
+                    _tracker = new Tracker(ref calibration, config);
 
                     captureManager.CaptureReady += CaptureManager_CaptureReady;
                 }
@@ -75,7 +81,11 @@ namespace K4AdotNet.Samples.Unity
         {
             if (IsAvailable)
             {
-                _tracker.TryEnqueueCapture(e.Capture);
+                using var capture = e.Capture;
+                using var depthImage = capture.DepthImage;
+                using var irImage = capture.IRImage;
+                if (!(depthImage is null) && !(irImage is null))
+                    _tracker.TryEnqueueCapture(capture);
             }
         }
 

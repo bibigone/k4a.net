@@ -432,13 +432,13 @@ namespace K4AdotNet.Sensor
         /// It is not valid to call this method a second time on the same device until <see cref="DeviceStopCameras(NativeHandles.DeviceHandle)"/> has been called.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_start_cameras", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeCallResults.Result DeviceStartCameras(NativeHandles.DeviceHandle deviceHandle, [In] ref DeviceConfiguration config);
+        public static extern NativeCallResults.Result DeviceStartCameras(NativeHandles.DeviceHandle deviceHandle, in DeviceConfiguration config);
 
         // K4A_EXPORT void k4a_device_stop_cameras(k4a_device_t device_handle);
         /// <summary>Stops the color and depth camera capture.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
         /// <remarks>
-        /// The streaming of individual sensors stops as a result of this call. Once called, <see cref="DeviceStartCameras(NativeHandles.DeviceHandle, ref DeviceConfiguration)"/>
+        /// The streaming of individual sensors stops as a result of this call. Once called, <see cref="DeviceStartCameras(NativeHandles.DeviceHandle, in DeviceConfiguration)"/>
         /// may be called again to resume sensor streaming.
         /// 
         /// This function may be called while another thread is blocking in <see cref="DeviceGetCapture(NativeHandles.DeviceHandle, out NativeHandles.CaptureHandle, Timeout)"/>.
@@ -715,8 +715,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_3d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result Calibration3DTo3D(
-            [In] ref Calibration calibration,
-            [In] ref Float3 sourcePoint3DMm,
+            in Calibration calibration,
+            in Float3 sourcePoint3DMm,
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float3 targetPoint3DMm);
@@ -758,7 +758,7 @@ namespace K4AdotNet.Sensor
         /// This function applies the intrinsic calibration of <paramref name="sourceCamera"/> to compute the 3D ray from the focal point of the
         /// camera through pixel <paramref name="sourcePoint2D"/>.The 3D point on this ray is then found using <paramref name="sourceDepthMm"/>. If
         /// <paramref name="targetCamera"/> is different from <paramref name="sourceCamera"/>, the 3D point is transformed to <paramref name="targetCamera"/> using
-        /// <see cref="Calibration3DTo3D(ref Calibration, ref Float3, CalibrationGeometry, CalibrationGeometry, out Float3)"/>.
+        /// <see cref="Calibration3DTo3D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float3)"/>.
         /// In practice, <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> will often be identical. In this
         /// case, no 3D to 3D transformation is applied.
         /// 
@@ -769,8 +769,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_3d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result Calibration2DTo3D(
-            [In] ref Calibration calibration,
-            [In] ref Float2 sourcePoint2D,
+            in Calibration calibration,
+            in Float2 sourcePoint2D,
             float sourceDepthMm,
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
@@ -802,7 +802,7 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// If <paramref name="targetCamera"/> is different from <paramref name="sourceCamera"/>, <paramref name="sourcePoint3DMm"/> is transformed
-        /// to <paramref name="targetCamera"/> using <see cref="Calibration3DTo3D(ref Calibration, ref Float3, CalibrationGeometry, CalibrationGeometry, out Float3)"/>.
+        /// to <paramref name="targetCamera"/> using <see cref="Calibration3DTo3D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float3)"/>.
         /// In practice, <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> will often be identical.
         /// In this case, no 3D to 3D transformation is applied. The 3D point in the coordinate system of <paramref name="targetCamera"/> is then
         /// projected onto the image plane using the intrinsic calibration of <paramref name="targetCamera"/>.
@@ -813,8 +813,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_3d_to_2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result Calibration3DTo2D(
-            [In] ref Calibration calibration,
-            [In] ref Float3 sourcePoint3DMm,
+            in Calibration calibration,
+            in Float3 sourcePoint3DMm,
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float2 targetPoint2D,
@@ -853,8 +853,8 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
-        /// <see cref="Calibration2DTo3D(ref Calibration, ref Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out bool)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
-        /// <see cref="Calibration3DTo2D(ref Calibration, ref Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out bool)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
+        /// <see cref="Calibration2DTo3D(in Calibration, in Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out bool)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+        /// <see cref="Calibration3DTo2D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out bool)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
         /// 
         /// If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately sets <paramref name="targetPoint2D"/> to
         /// <paramref name="sourcePoint2D"/> and returns without computing any transformations.
@@ -865,8 +865,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_2d_to_2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result Calibration2DTo2D(
-            [In] ref Calibration calibration,
-            [In] ref Float2 sourcePoint2D,
+            in Calibration calibration,
+            in Float2 sourcePoint2D,
             float sourceDepthMm,
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
@@ -907,8 +907,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_calibration_color_2d_to_depth_2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result CalibrationColor2DToDepth2D(
-            [In] ref Calibration calibration,
-            [In] ref Float2 sourcePoint2D,
+            in Calibration calibration,
+            in Float2 sourcePoint2D,
             NativeHandles.ImageHandle depthImage,
             out Float2 targetPoint2D,
             out bool valid);
@@ -923,7 +923,7 @@ namespace K4AdotNet.Sensor
         /// destroyed.
         /// </remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_transformation_create", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeHandles.TransformationHandle TransformationCreate([In] ref Calibration calibration);
+        public static extern NativeHandles.TransformationHandle TransformationCreate(in Calibration calibration);
 
         // K4A_EXPORT k4a_result_t k4a_transformation_depth_image_to_color_camera(k4a_transformation_t transformation_handle,
         //                                                                        const k4a_image_t depth_image,
@@ -942,7 +942,7 @@ namespace K4AdotNet.Sensor
         /// <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="ImageFormat.Depth16"/>.
         /// 
         /// <paramref name="transformedDepthImage"/> must have a width and height matching the width and height of the color camera in the mode
-        /// specified by the <see cref="Calibration"/> used to create the <paramref name="transformationHandle"/> with <see cref="TransformationCreate(ref Calibration)"/>.
+        /// specified by the <see cref="Calibration"/> used to create the <paramref name="transformationHandle"/> with <see cref="TransformationCreate(in Calibration)"/>.
         /// 
         /// The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
         /// camera's coordinate space.
@@ -993,7 +993,7 @@ namespace K4AdotNet.Sensor
         /// 
         /// <paramref name="transformedDepthImage"/> and <paramref name="transformedCustomImage"/> must have a width and height matching the width and
         /// height of the color camera in the mode specified by the <see cref="Calibration"/> used to create the
-        /// <paramref name="transformationHandle"/> with <see cref="TransformationCreate(ref Calibration)"/>.
+        /// <paramref name="transformationHandle"/> with <see cref="TransformationCreate(in Calibration)"/>.
         /// 
         /// <paramref name="customImage"/> must have a width and height matching the width and height of <paramref name="depthImage"/>.
         /// 
@@ -1041,7 +1041,7 @@ namespace K4AdotNet.Sensor
         /// 
         /// <paramref name="transformedColorImage"/> image must be of format <see cref="ImageFormat.ColorBgra32"/>. <paramref name="transformedColorImage"/> must
         /// have the width and height of the depth camera in the mode specified by the <see cref="Calibration"/> used to create
-        /// the <paramref name="transformationHandle"/> with <see cref="TransformationCreate(ref Calibration)"/>.
+        /// the <paramref name="transformationHandle"/> with <see cref="TransformationCreate(in Calibration)"/>.
         /// 
         /// <paramref name="transformedColorImage"/> should be created by the caller using <see cref="ImageCreate(ImageFormat, int, int, int, out NativeHandles.ImageHandle)"/>
         /// or <see cref="ImageCreateFromBuffer(ImageFormat, int, int, int, IntPtr, UIntPtr, MemoryDestroyCallback, IntPtr, out NativeHandles.ImageHandle)"/>.

@@ -22,13 +22,13 @@ namespace K4AdotNet.BodyTracking
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the body tracker handle was created successfully.</returns>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result TrackerCreate(
-            [In] ref Sensor.Calibration sensorCalibration,
+            in Sensor.Calibration sensorCalibration,
             TrackerConfiguration config,
             out NativeHandles.TrackerHandle? trackerHandle);
 
         // K4ABT_EXPORT void k4abt_tracker_set_temporal_smoothing(k4abt_tracker_t tracker_handle, float smoothing_factor);
         /// <summary>Control the temporal smoothing across frames.</summary>
-        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(ref Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
+        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
         /// <param name="smoothingFactor">
         /// Set between 0 for no smoothing and 1 for full smoothing.
         /// Less smoothing will increase the responsiveness of the
@@ -44,7 +44,7 @@ namespace K4AdotNet.BodyTracking
         //                                                              k4a_capture_t sensor_capture_handle,
         //                                                              int32_t timeout_in_ms);
         /// <summary>Add a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
-        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(ref Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
+        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
         /// <param name="sensorCaptureHandle">
         /// Handle to a sensor capture returned by <see cref="Sensor.NativeApi.CaptureCreate(out NativeHandles.CaptureHandle)"/> from Sensor SDK.
         /// It should contain the depth data for this function to work. Otherwise the function will return failure.

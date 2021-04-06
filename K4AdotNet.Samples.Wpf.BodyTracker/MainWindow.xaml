@@ -81,22 +81,34 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <CheckBox Grid.Row="0" Grid.Column="1" Margin="3" IsChecked="{Binding CpuOnlyMode}">CPU only mode</CheckBox>
-                    <Label Grid.Row="1" Grid.Column="0" Margin="3">Orientation:</Label>
+                    <Label Grid.Row="0" Grid.Column="0" Margin="3">Processing mode:</Label>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding ProcessingModes, Mode=OneTime}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding ProcessingMode}"/>
+                    <Label Grid.Row="1" Grid.Column="0" Margin="3">DNN model:</Label>
                     <ComboBox Grid.Row="1" Grid.Column="1" Margin="3"
-                            ItemsSource="{Binding SensorOrientations}"
+                            ItemsSource="{Binding DnnModels, Mode=OneTime}"
+                            DisplayMemberPath="Value"
+                            SelectedValuePath="Key"
+                            SelectedValue="{Binding DnnModel}"/>
+                    <Label Grid.Row="2" Grid.Column="0" Margin="3">Orientation:</Label>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Margin="3"
+                            ItemsSource="{Binding SensorOrientations, Mode=OneTime}"
                             DisplayMemberPath="Value"
                             SelectedValuePath="Key"
                             SelectedValue="{Binding SensorOrientation}"/>
-                    <Label Grid.Row="2" Grid.Column="0" Margin="3,0">Smoothing:</Label>
-                    <Slider Grid.Row="2" Grid.Column="1" Margin="3,0" VerticalAlignment="Bottom"
+                    <Label Grid.Row="3" Grid.Column="0" Margin="3,0">Smoothing:</Label>
+                    <Slider Grid.Row="3" Grid.Column="1" Margin="3,0" VerticalAlignment="Bottom"
                             Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.25"
                             TickPlacement="BottomRight"
                             Value="{Binding SmoothingFactor}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Left" VerticalAlignment="Top">&lt; low</TextBlock>
-                    <TextBlock Grid.Row="3" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Right" VerticalAlignment="Top">high &gt;</TextBlock>
-                    <TextBlock Grid.Row="3" Grid.Column="1" FontSize="14" TextAlignment="Center" VerticalAlignment="Top"><Run Text="{Binding SmoothingFactor, Mode=OneWay, StringFormat=0.00}"/></TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Left" VerticalAlignment="Top">&lt; low</TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="1" FontSize="14" FontWeight="Light" TextAlignment="Right" VerticalAlignment="Top">high &gt;</TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="1" FontSize="14" TextAlignment="Center" VerticalAlignment="Top"><Run Text="{Binding SmoothingFactor, Mode=OneWay, StringFormat=0.00}"/></TextBlock>
                 </Grid>
             </StackPanel>
         </GroupBox>

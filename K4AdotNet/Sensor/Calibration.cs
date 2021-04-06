@@ -224,7 +224,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
             if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
-            var res = NativeApi.Calibration2DTo2D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
+            var res = NativeApi.Calibration2DTo2D(in this, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var valid);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 2D point to 2D point: invalid calibration data.");
             if (!valid)
@@ -263,7 +263,7 @@ namespace K4AdotNet.Sensor
                 throw new ObjectDisposedException(nameof(depthImage));
             if (depthImage.Format != ImageFormat.Depth16 || depthImage.WidthPixels != DepthMode.WidthPixels() || depthImage.HeightPixels != DepthMode.HeightPixels())
                 throw new ArgumentException($"Invalid format or size of {nameof(depthImage)}", nameof(depthImage));
-            var res = NativeApi.CalibrationColor2DToDepth2D(ref this, ref sourcePoint2D, Image.ToHandle(depthImage), out var targetPoint2D, out var valid);
+            var res = NativeApi.CalibrationColor2DToDepth2D(in this, in sourcePoint2D, Image.ToHandle(depthImage), out var targetPoint2D, out var valid);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform color 2D point to depth 2D point: invalid calibration data.");
             if (!valid)
@@ -303,7 +303,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
             if (!targetCameraOrSensor.IsCamera() && !targetCameraOrSensor.IsImuPart())
                 throw new ArgumentOutOfRangeException(nameof(targetCameraOrSensor));
-            var res = NativeApi.Calibration2DTo3D(ref this, ref sourcePoint2D, sourceDepthMm, sourceCamera, targetCameraOrSensor, out var targetPoint3DMm, out var valid);
+            var res = NativeApi.Calibration2DTo3D(in this, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCameraOrSensor, out var targetPoint3DMm, out var valid);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 2D point to 3D point: invalid calibration data.");
             if (!valid)
@@ -338,7 +338,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCameraOrSensor));
             if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
-            var res = NativeApi.Calibration3DTo2D(ref this, ref sourcePoint3DMm, sourceCameraOrSensor, targetCamera, out var targetPoint2D, out var valid);
+            var res = NativeApi.Calibration3DTo2D(in this, in sourcePoint3DMm, sourceCameraOrSensor, targetCamera, out var targetPoint2D, out var valid);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 3D point to 2D point: invalid calibration data.");
             if (!valid)
@@ -366,17 +366,17 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCameraOrSensor));
             if (!targetCameraOrSensor.IsCamera() && !targetCameraOrSensor.IsImuPart())
                 throw new ArgumentOutOfRangeException(nameof(targetCameraOrSensor));
-            var res = NativeApi.Calibration3DTo3D(ref this, ref sourcePoint3DMm, sourceCameraOrSensor, targetCameraOrSensor, out var targetPoint3DMm);
+            var res = NativeApi.Calibration3DTo3D(in this, in sourcePoint3DMm, sourceCameraOrSensor, targetCameraOrSensor, out var targetPoint3DMm);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 3D point to 3D point: invalid calibration data.");
             return targetPoint3DMm;
         }
 
-        /// <summary>Helper method to create <see cref="Transformation"/> object from this calibration data. For details see <see cref="Transformation.Transformation(ref Calibration)"/>.</summary>
+        /// <summary>Helper method to create <see cref="Transformation"/> object from this calibration data. For details see <see cref="Transformation(in Calibration)"/>.</summary>
         /// <returns>Created transformation object. Not <see langword="null"/>.</returns>
-        /// <seealso cref="Transformation.Transformation(ref Calibration)"/>.
+        /// <seealso cref="Transformation(in Calibration)"/>.
         public Transformation CreateTransformation()
-            => new Transformation(ref this);
+            => new Transformation(in this);
 
         #endregion
     }

@@ -61,6 +61,7 @@
     <Compile Include="BodyTrackingInitializationDialog.xaml.cs">
       <DependentUpon>BodyTrackingInitializationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DnnModel.cs" />
     <Compile Include="SkeletonVisualizer.cs" />
     <Compile Include="ImageVisualizer.cs" />
     <Compile Include="TrackerModel.cs" />

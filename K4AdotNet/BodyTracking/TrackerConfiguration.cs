@@ -8,12 +8,13 @@ namespace K4AdotNet.BodyTracking
     //     k4abt_sensor_orientation_t sensor_orientation;
     //     k4abt_tracker_processing_mode_t processing_mode;
     //     int32_t gpu_device_id;
+    //     const char* model_path;
     // } k4abt_tracker_configuration_t;
     //
     /// <summary>Configuration parameters for a k4abt body tracker.</summary>
     /// <remarks>Used by <see cref="Tracker.Tracker"/> to specify the configuration of the k4abt tracker.</remarks>
     /// <seealso cref="Tracker.Tracker"/>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct TrackerConfiguration
     {
         /// <summary>The sensor mounting orientation type.</summary>
@@ -28,8 +29,12 @@ namespace K4AdotNet.BodyTracking
         public TrackerProcessingMode ProcessingMode;
 
         /// <summary>Specify the GPU device ID to run the tracker.</summary>
-        /// <remarks>The setting is only effective if the <see cref="ProcessingMode"/> setting is set to <see cref="TrackerProcessingMode.Gpu"/>.</remarks>
+        /// <remarks>The setting is only effective if the <see cref="ProcessingMode"/> setting is set to <see cref="TrackerProcessingMode.GpuCuda"/>.</remarks>
         public int GpuDeviceId;
+
+        /// <summary>Specify the model file name and location used by the tracker.</summary>
+        /// <remarks>If specified, the tracker will use this model instead of the default one.</remarks>
+        public string? ModelPath;
 
         // static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT,  // sensor_orientation
         //                                                                             K4ABT_TRACKER_PROCESSING_MODE_GPU, // processing_mode
@@ -39,8 +44,9 @@ namespace K4AdotNet.BodyTracking
         /// <remarks>Use this setting to initialize a <see cref="TrackerConfiguration"/> to a default state.</remarks>
         public static readonly TrackerConfiguration Default = new TrackerConfiguration {
                 SensorOrientation = SensorOrientation.Default,
-                ProcessingMode = TrackerProcessingMode.Gpu,
+                ProcessingMode = TrackerProcessingMode.GpuCuda,
                 GpuDeviceId = 0,
+                ModelPath = null,
             };
     }
 }

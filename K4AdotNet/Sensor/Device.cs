@@ -124,7 +124,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentException(message, nameof(config));
 
             CheckResult(
-                NativeApi.DeviceStartCameras(handle.ValueNotDisposed, ref config),
+                NativeApi.DeviceStartCameras(handle.ValueNotDisposed, in config),
                 $"Cameras streaming is already running, or invalid configuration specified, or {Sdk.DEPTHENGINE_DLL_NAME} library cannot be found.");
         }
 

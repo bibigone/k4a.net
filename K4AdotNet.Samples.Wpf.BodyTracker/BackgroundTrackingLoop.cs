@@ -11,20 +11,29 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly Thread backgroundThread;
         private volatile bool isRunning;
 
-        public BackgroundTrackingLoop(ref Calibration calibration, bool cpuOnlyMode, SensorOrientation sensorOrientation, float smoothingFactor)
+        public BackgroundTrackingLoop(in Calibration calibration, TrackerProcessingMode processingMode, DnnModel dnnModel, SensorOrientation sensorOrientation, float smoothingFactor)
         {
             var config = new TrackerConfiguration
             {
                 SensorOrientation = sensorOrientation,
-                ProcessingMode = cpuOnlyMode
-                    ? TrackerProcessingMode.Cpu
-                    : TrackerProcessingMode.Gpu
+                ProcessingMode = processingMode,
+                ModelPath = GetModelPath(dnnModel),
             };
-            tracker = new Tracker(ref calibration, config) { TemporalSmoothingFactor = smoothingFactor };
+            tracker = new Tracker(in calibration, config) { TemporalSmoothingFactor = smoothingFactor };
             isRunning = true;
             backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
             backgroundThread.Start();
         }
+
+        private static string GetModelPath(DnnModel dnnModel)
+        {
+            switch (dnnModel)
+            {
+                case DnnModel.Default: return Sdk.BODY_TRACKING_DNN_MODEL_FILE_NAME;
+                case DnnModel.Lite: return Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME;
+                default: throw new NotSupportedException();
+            }
+    }
 
         public void Dispose()
         {

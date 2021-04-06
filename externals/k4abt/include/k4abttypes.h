@@ -116,8 +116,12 @@ typedef enum
  */
 typedef enum
 {
-    K4ABT_TRACKER_PROCESSING_MODE_GPU = 0, /**< SDK will use GPU mode to run the tracker */
+    K4ABT_TRACKER_PROCESSING_MODE_GPU = 0, /**< SDK will use the most appropriate GPU mode for the operating system to run the tracker */
+    /**< Currently this is ONNX DirectML EP for Windows and ONNX Cuda EP for Linux. ONNX TensorRT EP is experimental */
     K4ABT_TRACKER_PROCESSING_MODE_CPU,     /**< SDK will use CPU only mode to run the tracker */
+    K4ABT_TRACKER_PROCESSING_MODE_GPU_CUDA,     /**< SDK will use ONNX Cuda EP to run the tracker */
+    K4ABT_TRACKER_PROCESSING_MODE_GPU_TENSORRT, /**< SDK will use ONNX TensorRT EP to run the tracker */
+    K4ABT_TRACKER_PROCESSING_MODE_GPU_DIRECTML /**< SDK will use ONNX DirectML EP to run the tracker (Windows only) */
 } k4abt_tracker_processing_mode_t;
 
 /** Configuration parameters for a k4abt body tracker
@@ -145,6 +149,12 @@ typedef struct _k4abt_tracker_configuration_t
      * The setting is only effective if the processing_mode setting is set to K4ABT_TRACKER_PROCESSING_MODE_GPU.
      */
     int32_t gpu_device_id;
+
+    /** Specify the model file name and location used by the tracker.
+     *
+     * If specified, the tracker will use this model instead of the default one.
+     */
+    const char* model_path;
 } k4abt_tracker_configuration_t;
 
 /**
@@ -246,8 +256,13 @@ typedef struct _k4abt_body_t
  * Use this setting to initialize a \ref k4abt_tracker_configuration_t to a default state.
  */
 static const k4abt_tracker_configuration_t K4ABT_TRACKER_CONFIG_DEFAULT = { K4ABT_SENSOR_ORIENTATION_DEFAULT,  // sensor_orientation
-                                                                            K4ABT_TRACKER_PROCESSING_MODE_GPU, // processing_mode
-                                                                            0 };                               // gpu_device_id
+#ifdef _WIN32
+                                                                            K4ABT_TRACKER_PROCESSING_MODE_GPU_DIRECTML, // default processing_mode for Windows
+#else
+                                                                            K4ABT_TRACKER_PROCESSING_MODE_GPU_CUDA, // default processing_mode if not Windows
+#endif
+                                                                            0,                               // gpu_device_id
+                                                                            NULL };                          // model_path
 
 /**
  * @}

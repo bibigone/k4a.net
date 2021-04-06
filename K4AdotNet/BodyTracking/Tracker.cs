@@ -1,6 +1,7 @@
 ﻿using K4AdotNet.Sensor;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
 
 namespace K4AdotNet.BodyTracking
@@ -26,7 +27,7 @@ namespace K4AdotNet.BodyTracking
         /// <remarks><para>
         /// Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
         /// It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
-        /// For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>.
+        /// For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode, out string)"/>.
         /// </para><para>
         /// Also, Body Tracking runtime must be available in one of the following locations:
         /// directory with executable file,
@@ -37,19 +38,25 @@ namespace K4AdotNet.BodyTracking
         /// Invalid value of <paramref name="calibration"/>: <see cref="Calibration.DepthMode"/> cannot be <see cref="DepthMode.Off"/> and <see cref="DepthMode.PassiveIR"/>.
         /// Because depth data is required for body tracking.
         /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Invalid/unsupported characters in <see cref="TrackerConfiguration.ModelPath"/> of <paramref name="config"/>.
+        /// </exception>
         /// <exception cref="BodyTrackingException">
-        /// Unable to find/initialize Body Tracking runtime.
+        /// Unable to find/initialize Body Tracking runtime
+        /// or wrong path to DNN model specified in <paramref name="config"/>.
         /// </exception>
         /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
-        /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(out string)"/>
-        public Tracker(ref Calibration calibration, TrackerConfiguration config = default)
+        /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode, out string)"/>
+        public Tracker(in Calibration calibration, TrackerConfiguration config)
         {
             if (!calibration.DepthMode.HasDepth())
                 throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
+            if (!string.IsNullOrWhiteSpace(config.ModelPath) && (config.ModelPath.IndexOfAny(Path.GetInvalidPathChars()) >= 0 || !Helpers.IsAsciiCompatible(config.ModelPath)))
+                throw new ArgumentException($"Path \"{config.ModelPath}\" contains invalid/unsupported characters.", nameof(config) + "." + nameof(config.ModelPath));
 
             DepthMode = calibration.DepthMode;
 
-            if (!Sdk.TryCreateTrackerHandle(ref calibration, config, out var handle, out var message))
+            if (!Sdk.TryCreateTrackerHandle(in calibration, config, out var handle, out var message))
                 throw new BodyTrackingException(message);
 
             this.handle = handle;

@@ -37,7 +37,7 @@ namespace K4AdotNet.Samples.Unity
                 _errorMessage.Show(
                     "Cannot initialize Azure Kinect Body Tracking runtime.\n" +
                     "Make sure that there are the following files in Assets\\Plugins\\K4AdotNet folder:\n" +
-                    "1. k4abt.dll\n2. dnn_model_2_0.onnx\n3. cudnn64_7.dll\n4. cublas64_100.dll\n5. cudart64_100.dll\n6. onnxruntime.dll\n7. vcomp140.dll");
+                    "1. k4abt.dll\n2. dnn_model_2_0_op11.onnx\n3. cublas64_11.dll\n4. cublasLt64_11.dll\n5. cudart64_110.dll\n6. cudnn_cnn_infer64_8.dll\n7. cudnn_ops_infer64_8.dll\n8. cudnn64_8.dll\n9. cufft64_10.dll\n10. onnxruntime.dll\n11. vcomp140.dll");
                 yield break;
             }
 

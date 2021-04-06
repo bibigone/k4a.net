@@ -13,10 +13,14 @@ The script assumes that **Azure Kinect Body Tracking SDK** is installed into def
 If it doesn't take place or you want to have portable solution which doesn't depend on presence of Body Tracking SDK on local machine
 then copy the following files from `tools` folder of Body Tracking SDK to `Assets\Plugins\K4AdotNet` folder of this plugin:
 * `k4abt.dll`,
-* `dnn_model_2_0.onnx`,
-* `cudnn64_7.dll`,
-* `cublas64_100.dll`,
-* `cudart64_100.dll`,
+* `dnn_model_2_0_op11.onnx`,
+* `cublas64_11.dll`,
+* `cublasLt64_11.dll`,
+* `cudart64_110.dll`,
+* `cudnn_cnn_infer64_8.dll`,
+* `cudnn_ops_infer64_8.dll`,
+* `cudnn64_8.dll`,
+* `cufft64_10.dll`,
 * `onnxruntime.dll`,
 * `vcomp140.dll`.
 
@@ -32,10 +36,14 @@ This plugin depends on the following managed and native libraries and data files
   * `k4arecord.dll`
 * native libraries and ONNX-file from **Azure Kinect Body Tracking SDK 1.0.x** (you can download and install MSI package from [here](https://docs.microsoft.com/en-us/azure/kinect-dk/body-sdk-download) and find required files in `tools` subdirectory of installation destination directory):
   * `k4abt.dll`,
-  * `dnn_model_2_0.onnx`,
-  * `cudnn64_7.dll`,
-  * `cublas64_100.dll`,
-  * `cudart64_100.dll`,
+  * `dnn_model_2_0_op11.onnx`,
+  * `cublas64_11.dll`,
+  * `cublasLt64_11.dll`,
+  * `cudart64_110.dll`,
+  * `cudnn_cnn_infer64_8.dll`,
+  * `cudnn_ops_infer64_8.dll`,
+  * `cudnn64_8.dll`,
+  * `cufft64_10.dll`,
   * `onnxruntime.dll`,
   * `vcomp140.dll`.
 

@@ -755,7 +755,7 @@
             <remarks><para>
             Under the hood Body Tracking runtime will be initialized during the first call of this constructor.
             It is rather time consuming operation: initialization of ONNX runtime, loading and parsing of neural network model, etc.
-            For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>.
+            For this reason, it is recommended to initialize Body Tracking runtime in advance: <see cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(K4AdotNet.BodyTracking.TrackerProcessingMode,System.String@)"/>.
             </para><para>
             Also, Body Tracking runtime must be available in one of the following locations:
             directory with executable file,
@@ -766,11 +766,15 @@
             Invalid value of <paramref name="calibration"/>: <see cref="F:K4AdotNet.Sensor.Calibration.DepthMode"/> cannot be <see cref="F:K4AdotNet.Sensor.DepthMode.Off"/> and <see cref="F:K4AdotNet.Sensor.DepthMode.PassiveIR"/>.
             Because depth data is required for body tracking.
             </exception>
+            <exception cref="T:System.ArgumentException">
+            Invalid/unsupported characters in <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ModelPath"/> of <paramref name="config"/>.
+            </exception>
             <exception cref="T:K4AdotNet.BodyTracking.BodyTrackingException">
-            Unable to find/initialize Body Tracking runtime.
+            Unable to find/initialize Body Tracking runtime
+            or wrong path to DNN model specified in <paramref name="config"/>.
             </exception>
             <seealso cref="M:K4AdotNet.Sdk.IsBodyTrackingRuntimeAvailable(System.String@)"/>
-            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>
+            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(K4AdotNet.BodyTracking.TrackerProcessingMode,System.String@)"/>
         </member>
         <member name="M:K4AdotNet.BodyTracking.Tracker.Dispose">
             <summary>
@@ -907,7 +911,11 @@
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.GpuDeviceId">
             <summary>Specify the GPU device ID to run the tracker.</summary>
-            <remarks>The setting is only effective if the <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode"/> setting is set to <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Gpu"/>.</remarks>
+            <remarks>The setting is only effective if the <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode"/> setting is set to <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuCuda"/>.</remarks>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.ModelPath">
+            <summary>Specify the model file name and location used by the tracker.</summary>
+            <remarks>If specified, the tracker will use this model instead of the default one.</remarks>
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.Default">
             <summary>Default configuration setting for k4abt tracker.</summary>
@@ -923,10 +931,22 @@
             <seealso cref="M:K4AdotNet.BodyTracking.Tracker.#ctor(K4AdotNet.Sensor.Calibration@,K4AdotNet.BodyTracking.TrackerConfiguration)"/>
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Gpu">
-            <summary>SDK will use GPU mode to run the tracker.</summary>
+            <summary>
+            SDK will use the most appropriate GPU mode for the operating system to run the tracker.
+            Currently this is ONNX DirectML EP for Windows and ONNX Cuda EP for Linux. ONNX TensorRT EP is experimental
+            </summary>
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Cpu">
             <summary>SDK will use CPU only mode to run the tracker.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuCuda">
+            <summary>SDK will use ONNX Cuda EP to run the tracker.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuTensorRT">
+            <summary>SDK will use ONNX TensorRT EP to run the tracker.</summary>
+        </member>
+        <member name="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuDirectML">
+            <summary>SDK will use ONNX DirectML EP to run the tracker (Windows only).</summary>
         </member>
         <member name="T:K4AdotNet.Float2">
             <summary>Two dimensional floating point vector.</summary>
@@ -4114,6 +4134,10 @@
             <summary>Name of ONNX file with model of neural network used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
             <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
         </member>
+        <member name="F:K4AdotNet.Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME">
+            <summary>Name of ONNX file with model of lite neural network used by <see cref="F:K4AdotNet.Sdk.BODY_TRACKING_DLL_NAME"/>.</summary>
+            <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
+        </member>
         <member name="F:K4AdotNet.Sdk.CUDNN_DLL_NAMES">
             <summary>ONNX runtime depends on NVIDIA cuDNN library. This list contains all required components for cuDNN under Windows.</summary>
         </member>
@@ -4187,10 +4211,13 @@
             directory with <c>K4AdotNet</c> assembly,
             installation directory of Body Tracking SDK under <c>Program Files</c>.
             </para></remarks>
-            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)"/>
+            <seealso cref="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(K4AdotNet.BodyTracking.TrackerProcessingMode,System.String@)"/>
         </member>
-        <member name="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(System.String@)">
+        <member name="M:K4AdotNet.Sdk.TryInitializeBodyTrackingRuntime(K4AdotNet.BodyTracking.TrackerProcessingMode,System.String@)">
             <summary>Call this method to initialization of Body Tracking runtime.</summary>
+            <param name="mode">
+            Processing mode for which Body Tracking runtime should be initialized.
+            </param>
             <param name="message">
             If Body Tracking runtime was initialized successfully, this parameter is <see langword="null"/>,
             otherwise it contains user-friendly description of failure reason.
@@ -7658,6 +7685,150 @@
         </member>
         <member name="F:K4AdotNet.Timeout.Infinite">
             <summary>Special timeout value: infinite waiting.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>
+                Specifies that <see langword="null"/> is allowed as an input even if the
+                corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.AllowNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>
+                Specifies that <see langword="null"/> is disallowed as an input even if the
+                corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DisallowNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>
+                Specifies that a method that will never return under any circumstance.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.#ctor">
+             <summary>
+                 Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"/> class.
+             </summary>
+            
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>
+                Specifies that the method will not return if the associated <see cref="T:System.Boolean"/>
+                parameter is passed the specified value.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>
+                Gets the condition parameter value.
+                Code after the method is considered unreachable by diagnostics if the argument
+                to the associated parameter matches this value.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute"/>
+                class with the specified parameter value.
+            </summary>
+            <param name="parameterValue">
+                The condition parameter value.
+                Code after the method is considered unreachable by diagnostics if the argument
+                to the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>
+                Specifies that an output may be <see langword="null"/> even if the
+                corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>
+                Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, 
+                the parameter may be <see langword="null"/> even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>
+                Gets the return value condition.
+                If the method returns this value, the associated parameter may be <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+                 Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">
+                The return value condition.
+                If the method returns this value, the associated parameter may be <see langword="null"/>.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>
+                Specifies that an output is not <see langword="null"/> even if the
+                corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.NotNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>
+                Specifies that the output will be non-<see langword="null"/> if the
+                named parameter is non-<see langword="null"/>.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>
+                Gets the associated parameter name.
+                The output will be non-<see langword="null"/> if the argument to the
+                parameter specified is non-<see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>
+                Initializes the attribute with the associated parameter name.
+            </summary>
+            <param name="parameterName">
+                The associated parameter name.
+                The output will be non-<see langword="null"/> if the argument to the
+                parameter specified is non-<see langword="null"/>.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>
+                Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>,
+                the parameter will not be <see langword="null"/> even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>
+                Gets the return value condition.
+                If the method returns this value, the associated parameter will not be <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+                Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">
+                The return value condition.
+                If the method returns this value, the associated parameter will not be <see langword="null"/>.
+            </param>
         </member>
     </members>
 </doc>

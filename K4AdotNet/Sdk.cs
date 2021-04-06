@@ -37,7 +37,7 @@ namespace K4AdotNet
 
         /// <summary>Expected minor version of Body Tracking runtime. This version of K4AdotNet assembly is built and tested against this version of Body Tracking.</summary>
         /// <seealso cref="BODY_TRACKING_EXPECTED_VERSION_MAJOR"/>
-        public static readonly int BODY_TRACKING_EXPECTED_VERSION_MINOR = 0;
+        public static readonly int BODY_TRACKING_EXPECTED_VERSION_MINOR = 1;
 
         /// <summary>Name of ONNX runtime library (DLL) which is used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This library is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
@@ -45,14 +45,22 @@ namespace K4AdotNet
 
         /// <summary>Name of ONNX file with model of neural network used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
         /// <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
-        public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model_2_0.onnx";
+        public const string BODY_TRACKING_DNN_MODEL_FILE_NAME = "dnn_model_2_0_op11.onnx";
+
+        /// <summary>Name of ONNX file with model of lite neural network used by <see cref="BODY_TRACKING_DLL_NAME"/>.</summary>
+        /// <remarks>This data file is required for Body Tracking part of API (see <c>K4AdotNet.BodyTracking</c> namespace).</remarks>
+        public const string BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME = "dnn_model_2_0_lite_op11.onnx";
 
         /// <summary>ONNX runtime depends on NVIDIA cuDNN library. This list contains all required components for cuDNN under Windows.</summary>
         public static readonly IReadOnlyList<string> CUDNN_DLL_NAMES = new[]
         {
-            "cublas64_100.dll",
-            "cudart64_100.dll",
-            "cudnn64_7.dll",
+            "cublas64_11.dll",
+            "cublasLt64_11.dll",
+            "cudart64_110.dll",
+            "cudnn_cnn_infer64_8.dll",
+            "cudnn_ops_infer64_8.dll",
+            "cudnn64_8.dll",
+            "cufft64_10.dll",
             "vcomp140.dll"
         }.ToList().AsReadOnly();
 
@@ -166,7 +174,7 @@ namespace K4AdotNet
         /// directory with <c>K4AdotNet</c> assembly,
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
         /// </para></remarks>
-        /// <seealso cref="TryInitializeBodyTrackingRuntime(out string)"/>
+        /// <seealso cref="TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode, out string)"/>
         public static bool IsBodyTrackingRuntimeAvailable([NotNullWhen(returnValue: false)] out string? message)
         {
             if (!IsOSCompatibleWithBodyTracking(out message))
@@ -186,6 +194,9 @@ namespace K4AdotNet
         }
 
         /// <summary>Call this method to initialization of Body Tracking runtime.</summary>
+        /// <param name="mode">
+        /// Processing mode for which Body Tracking runtime should be initialized.
+        /// </param>
         /// <param name="message">
         /// If Body Tracking runtime was initialized successfully, this parameter is <see langword="null"/>,
         /// otherwise it contains user-friendly description of failure reason.
@@ -207,10 +218,14 @@ namespace K4AdotNet
         /// </para></remarks>
         /// <seealso cref="IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="BodyTracking.Tracker.Tracker"/>
-        public static bool TryInitializeBodyTrackingRuntime([NotNullWhen(returnValue: false)] out string? message)
+        public static bool TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode mode, [NotNullWhen(returnValue: false)] out string? message)
         {
             Sensor.Calibration.CreateDummy(Sensor.DepthMode.NarrowView2x2Binned, Sensor.ColorResolution.Off, out var calibration);
-            if (!TryCreateTrackerHandle(ref calibration, BodyTracking.TrackerConfiguration.Default, out var trackerHandle, out message))
+
+            var config = BodyTracking.TrackerConfiguration.Default;
+            config.ProcessingMode = mode;
+
+            if (!TryCreateTrackerHandle(in calibration, config, out var trackerHandle, out message))
             {
                 return false;
             }
@@ -398,14 +413,10 @@ namespace K4AdotNet
             if (!File.Exists(onnxruntime))
                 return false;
 
-            var dnnmodel = Path.Combine(path, BODY_TRACKING_DNN_MODEL_FILE_NAME);
-            if (!File.Exists(dnnmodel))
-                return false;
-
             return true;
         }
 
-        internal static bool TryCreateTrackerHandle(ref Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
+        internal static bool TryCreateTrackerHandle(in Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
             [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle? trackerHandle,
             [NotNullWhen(returnValue: false)] out string? message)
         {
@@ -419,6 +430,17 @@ namespace K4AdotNet
                     {
                         trackerHandle = null;
                         return false;
+                    }
+
+                    // Append directory with Body Tracking Runtime to PATH environment variable
+                    const string PATH_ENV_NAME = "PATH";
+                    var pathEnvVar = Environment.GetEnvironmentVariable(PATH_ENV_NAME, EnvironmentVariableTarget.Process);
+                    if ((";" + pathEnvVar + ";").IndexOf(";" + bodyTrackingRuntimePath + ";", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        if (!string.IsNullOrWhiteSpace(pathEnvVar) && !pathEnvVar.TrimEnd().EndsWith(";", StringComparison.OrdinalIgnoreCase))
+                            pathEnvVar += ";";
+                        pathEnvVar += bodyTrackingRuntimePath;
+                        Environment.SetEnvironmentVariable(PATH_ENV_NAME, pathEnvVar, EnvironmentVariableTarget.Process);
                     }
                 }
 
@@ -436,18 +458,28 @@ namespace K4AdotNet
             var tmp = new Sensor.Capture();
             tmp.Dispose();
 
-            // We have to change current directory,
-            // because Body Tracking runtime will try to load ONNX file from current directory
-            // (Adding to Path environment variable doesn't work.)
-            using (new CurrentDirectoryOverrider(runtimePath))
+            // Default tracking model
+            if (string.IsNullOrEmpty(config.ModelPath))
+                config.ModelPath = BODY_TRACKING_DNN_MODEL_FILE_NAME;
+
+            // If path is not fully qualified and model file does not exist, try runtime path
+            if (!File.Exists(config.ModelPath) && !Path.IsPathRooted(config.ModelPath))
             {
-                if (BodyTracking.NativeApi.TrackerCreate(ref calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
-                    || trackerHandle == null || trackerHandle.IsInvalid)
+                var fullPath = Path.Combine(runtimePath, config.ModelPath);
+                if (File.Exists(fullPath) && Helpers.IsAsciiCompatible(fullPath))
+                    config.ModelPath = fullPath;
+            }
+
+            if (BodyTracking.NativeApi.TrackerCreate(in calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
+                || trackerHandle == null || trackerHandle.IsInvalid)
+            {
+                if (IsBodyTrackingRuntimeAvailable(out message))
                 {
-                    if (IsBodyTrackingRuntimeAvailable(out message))
-                        message = "Cannot initialize body tracking runtime. See logs for details.";
-                    return false;
+                    message = File.Exists(config.ModelPath) && Helpers.IsAsciiCompatible(config.ModelPath)
+                        ? "Cannot initialize body tracking runtime. See logs for details."
+                        : ("Cannot find ONNX-model: " + config.ModelPath);
                 }
+                return false;
             }
 
             message = null;
