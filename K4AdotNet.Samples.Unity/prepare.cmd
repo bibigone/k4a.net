@@ -25,6 +25,7 @@ copy /y "%ProgramFiles%\Azure Kinect Body Tracking SDK\tools\cufft64_10.dll" Ass
 copy /y "%ProgramFiles%\Azure Kinect Body Tracking SDK\tools\onnxruntime.dll" Assets\Plugins\K4AdotNet\
 copy /y "%ProgramFiles%\Azure Kinect Body Tracking SDK\tools\vcomp140.dll" Assets\Plugins\K4AdotNet\
 
-rem If Body Tracking SDK is installed to another location or you want to have portable solution which does not require installation of Body Tracking SDK
-rem then copy manually the following libraries and data files from "tools" folder of Body Tracking SDK to "Assets\Plugins\K4AdotNet" folder of this plugin:
-rem k4abt.dll, dnn_model_2_0_op11.onnx (or dnn_model_2_0_lite_op11.onnx), cublas64_11.dll, cublasLt64_11.dll, cudart64_110.dll, cudnn_cnn_infer64_8.dll, cudnn_ops_infer64_8.dll, cudnn64_8.dll, cufft64_10.dll, onnxruntime.dll, vcomp140.dll. 
+rem If Body Tracking SDK is installed to another location then copy manually the following libraries and data files
+rem from "tools" folder of Body Tracking SDK to "Assets\Plugins\K4AdotNet" folder of this plugin:
+rem k4abt.dll, dnn_model_2_0_op11.onnx and/or dnn_model_2_0_lite_op11.onnx, cublas64_11.dll, cublasLt64_11.dll, cudart64_110.dll,
+rem cudnn_cnn_infer64_8.dll, cudnn_ops_infer64_8.dll, cudnn64_8.dll, cufft64_10.dll, onnxruntime.dll, vcomp140.dll. 
