@@ -7166,7 +7166,7 @@
             <summary>
             Azure Kinect transformation functionality.
             Can be used to transform images and depth maps between cameras and to reproject depth map to 3D space.
-            It uses <see cref="T:K4AdotNet.Sensor.Calibration"/> data for transformations.
+            It uses <see cref="P:K4AdotNet.Sensor.Transformation.Calibration"/> data for transformations.
             </summary>
         </member>
         <member name="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)">
@@ -7198,6 +7198,9 @@
             <summary>Raised on object disposing (only once).</summary>
             <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
         </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.Calibration">
+            <summary>Calibration data for which this transformation was created.</summary>
+        </member>
         <member name="P:K4AdotNet.Sensor.Transformation.DepthMode">
             <summary>Depth mode for which this transformation was created.</summary>
         </member>
@@ -7206,8 +7209,8 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
             <summary>Transforms the depth map into the geometry of the color camera.</summary>
-            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
-            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
+            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera.</param>
             <remarks>
             This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
             The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
@@ -7220,10 +7223,10 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCameraCustom(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.TransformationInterpolation,System.Int32)">
             <summary>Transforms the depth map into the geometry of the color camera.</summary>
-            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
-            <param name="customImage">Input custom image to be transformed. In <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
-            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
-            <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution and be of the same format as <paramref name="customImage"/>.</param>
+            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+            <param name="customImage">Input custom image to be transformed. In <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+            <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera.</param>
+            <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera and be of the same format as <paramref name="customImage"/>.</param>
             <param name="interpolation">
             Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
             <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Linear"/> if linear interpolation should be used.
@@ -7267,9 +7270,9 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Transformation.ColorImageToDepthCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
             <summary>Transforms a color image into the geometry of the depth camera.</summary>
-            <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
-            <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera in <see cref="P:K4AdotNet.Sensor.Transformation.ColorResolution"/> resolution.</param>
-            <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="P:K4AdotNet.Sensor.Transformation.DepthMode"/> mode.</param>
+            <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+            <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera.</param>
+            <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera.</param>
             <remarks><para>
             This produces a color image for which each pixel matches the corresponding pixel coordinates of the depth camera.
             </para><para>
@@ -7288,7 +7291,7 @@
         </member>
         <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToPointCloud(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.Image)">
             <summary>Transforms the depth image into 3 planar images representing X, Y and Z-coordinates of corresponding 3D points.</summary>
-            <param name="depthImage">Input depth image to be transformed to point cloud. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
+            <param name="depthImage">Input depth image to be transformed to point cloud. Not <see langword="null"/>. Must have resolution.</param>
             <param name="camera">Geometry in which depth map was computed (<see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Depth"/> or <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Color"/>).</param>
             <param name="xyzImage">Output XYZ image for point cloud data. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
             <remarks><para>
@@ -7686,7 +7689,9 @@
         <member name="F:K4AdotNet.Timeout.Infinite">
             <summary>Special timeout value: infinite waiting.</summary>
         </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+    </members>
+</doc>
+System.Diagnostics.CodeAnalysis.AllowNullAttribute">
             <summary>
                 Specifies that <see langword="null"/> is allowed as an input even if the
                 corresponding type disallows it.

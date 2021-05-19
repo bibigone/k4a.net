@@ -12,6 +12,7 @@ namespace K4AdotNet.Sensor
     public sealed class Transformation : IDisposablePlus
     {
         private readonly NativeHandles.HandleWrapper<NativeHandles.TransformationHandle> handle;
+        private readonly Calibration calibration;
 
         /// <summary>
         /// Creates transformation object for a give calibration data.
@@ -37,8 +38,7 @@ namespace K4AdotNet.Sensor
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
 
-            DepthMode = calibration.DepthMode;
-            ColorResolution = calibration.ColorResolution;
+            this.calibration = calibration;
         }
 
         private void Handle_Disposed(object sender, EventArgs e)
@@ -63,15 +63,18 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public event EventHandler? Disposed;
 
+        /// <summary>Calibration data for which this transformation was created.</summary>
+        public Calibration Calibration => calibration;
+
         /// <summary>Depth mode for which this transformation was created.</summary>
-        public DepthMode DepthMode { get; }
+        public DepthMode DepthMode => calibration.DepthMode;
 
         /// <summary>Resolution of color camera for which this transformation was created.</summary>
-        public ColorResolution ColorResolution { get; }
+        public ColorResolution ColorResolution => calibration.ColorResolution;
 
         /// <summary>Transforms the depth map into the geometry of the color camera.</summary>
-        /// <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
-        /// <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution.</param>
+        /// <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+        /// <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera.</param>
         /// <remarks>
         /// This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
         /// The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
@@ -83,8 +86,8 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void DepthImageToColorCamera(Image depthImage, Image transformedDepthImage)
         {
-            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
-            CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, ColorResolution);
+            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.DepthCameraCalibration);
+            CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, calibration.ColorCameraCalibration);
 
             var res = NativeApi.TransformationDepthImageToColorCamera(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(transformedDepthImage));
@@ -93,10 +96,10 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Transforms the depth map into the geometry of the color camera.</summary>
-        /// <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
-        /// <param name="customImage">Input custom image to be transformed. In <see cref="ImageFormat.Custom8"/> or <see cref="ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
-        /// <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution.</param>
-        /// <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution and be of the same format as <paramref name="customImage"/>.</param>
+        /// <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+        /// <param name="customImage">Input custom image to be transformed. In <see cref="ImageFormat.Custom8"/> or <see cref="ImageFormat.Custom16"/> format. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+        /// <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera.</param>
+        /// <param name="transformedCustomImage">Output custom image. Not <see langword="null"/>. Must have resolution of color camera and be of the same format as <paramref name="customImage"/>.</param>
         /// <param name="interpolation">
         /// Parameter that controls how pixels in <paramref name="customImage"/> should be interpolated when transformed to color camera space.
         /// <see cref="TransformationInterpolation.Linear"/> if linear interpolation should be used.
@@ -142,10 +145,10 @@ namespace K4AdotNet.Sensor
             Image transformedDepthImage, Image transformedCustomImage,
             TransformationInterpolation interpolation, int invalidCustomValue)
         {
-            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
-            CheckImageParameter(nameof(customImage), customImage, ImageFormat.Custom8, ImageFormat.Custom16, DepthMode);
-            CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, ColorResolution);
-            CheckImageParameter(nameof(transformedCustomImage), transformedCustomImage, customImage.Format, ColorResolution);
+            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.DepthCameraCalibration);
+            CheckImageParameter(nameof(customImage), customImage, ImageFormat.Custom8, ImageFormat.Custom16, calibration.DepthCameraCalibration);
+            CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, calibration.ColorCameraCalibration);
+            CheckImageParameter(nameof(transformedCustomImage), transformedCustomImage, customImage.Format, calibration.ColorCameraCalibration);
 
             var res = NativeApi.TransformationDepthImageToColorCameraCustom(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(customImage),
@@ -156,9 +159,9 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Transforms a color image into the geometry of the depth camera.</summary>
-        /// <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
-        /// <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera in <see cref="ColorResolution"/> resolution.</param>
-        /// <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera in <see cref="DepthMode"/> mode.</param>
+        /// <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera.</param>
+        /// <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera.</param>
+        /// <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera.</param>
         /// <remarks><para>
         /// This produces a color image for which each pixel matches the corresponding pixel coordinates of the depth camera.
         /// </para><para>
@@ -176,9 +179,9 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void ColorImageToDepthCamera(Image depthImage, Image colorImage, Image transformedColorImage)
         {
-            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
-            CheckImageParameter(nameof(colorImage), colorImage, ImageFormat.ColorBgra32, ColorResolution);
-            CheckImageParameter(nameof(transformedColorImage), transformedColorImage, ImageFormat.ColorBgra32, DepthMode);
+            CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.DepthCameraCalibration);
+            CheckImageParameter(nameof(colorImage), colorImage, ImageFormat.ColorBgra32, calibration.ColorCameraCalibration);
+            CheckImageParameter(nameof(transformedColorImage), transformedColorImage, ImageFormat.ColorBgra32, calibration.DepthCameraCalibration);
 
             var res = NativeApi.TransformationColorImageToDepthCamera(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(colorImage), Image.ToHandle(transformedColorImage));
@@ -187,7 +190,7 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Transforms the depth image into 3 planar images representing X, Y and Z-coordinates of corresponding 3D points.</summary>
-        /// <param name="depthImage">Input depth image to be transformed to point cloud. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
+        /// <param name="depthImage">Input depth image to be transformed to point cloud. Not <see langword="null"/>. Must have resolution.</param>
         /// <param name="camera">Geometry in which depth map was computed (<see cref="CalibrationGeometry.Depth"/> or <see cref="CalibrationGeometry.Color"/>).</param>
         /// <param name="xyzImage">Output XYZ image for point cloud data. Not <see langword="null"/>. Must have resolution of <paramref name="camera"/> camera.</param>
         /// <remarks><para>
@@ -213,13 +216,13 @@ namespace K4AdotNet.Sensor
         {
             if (camera == CalibrationGeometry.Depth)
             {
-                CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, DepthMode);
-                CheckImageParameter(nameof(xyzImage), xyzImage, ImageFormat.Custom, DepthMode);
+                CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.DepthCameraCalibration);
+                CheckImageParameter(nameof(xyzImage), xyzImage, ImageFormat.Custom, calibration.DepthCameraCalibration);
             }
             else if (camera == CalibrationGeometry.Color)
             {
-                CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, ColorResolution);
-                CheckImageParameter(nameof(xyzImage), xyzImage, ImageFormat.Custom, ColorResolution);
+                CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.ColorCameraCalibration);
+                CheckImageParameter(nameof(xyzImage), xyzImage, ImageFormat.Custom, calibration.ColorCameraCalibration);
             }
             else
             {
@@ -252,13 +255,10 @@ namespace K4AdotNet.Sensor
         private static string CombineExpectedFormatsForMessage(ImageFormat format1, ImageFormat format2)
             => format1 == format2 ? format1.ToString() : (format1.ToString() + " or " + format2.ToString());
 
-        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, DepthMode depthMode)
-            => CheckImageParameter(paramName, paramValue, expectedFormat, expectedFormat, depthMode.WidthPixels(), depthMode.HeightPixels());
+        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, CameraCalibration cameraCalibration)
+            => CheckImageParameter(paramName, paramValue, expectedFormat, expectedFormat, cameraCalibration.ResolutionWidth, cameraCalibration.ResolutionHeight);
 
-        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat1, ImageFormat expectedFormat2, DepthMode depthMode)
-            => CheckImageParameter(paramName, paramValue, expectedFormat1, expectedFormat2, depthMode.WidthPixels(), depthMode.HeightPixels());
-
-        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat, ColorResolution colorResolution)
-            => CheckImageParameter(paramName, paramValue, expectedFormat, expectedFormat, colorResolution.WidthPixels(), colorResolution.HeightPixels());
+        private static void CheckImageParameter(string paramName, Image paramValue, ImageFormat expectedFormat1, ImageFormat expectedFormat2, CameraCalibration cameraCalibration)
+            => CheckImageParameter(paramName, paramValue, expectedFormat1, expectedFormat2, cameraCalibration.ResolutionWidth, cameraCalibration.ResolutionHeight);
     }
 }
