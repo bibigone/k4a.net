@@ -71,6 +71,17 @@ namespace K4AdotNet
 
         #region Logging
 
+        /// <summary>
+        /// The K4A.Net can log data to a regular .Net Trace.
+        /// Use this property to choose the level of such logging, or set it to <see cref="TraceLevel.Off"/> to turn it off.
+        /// Default value is <see cref="TraceLevel.Off"/>.
+        /// </summary>
+        public static TraceLevel TraceLevel
+        {
+            get => Logging.LogImpl.TraceLevel;
+            set => Logging.LogImpl.TraceLevel = value;
+        }
+
         /// <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
         /// <param name="level">Level of logging.</param>
         /// <param name="logToStdout">Log messages to STDOUT?</param>
@@ -88,7 +99,7 @@ namespace K4AdotNet
         public static void ConfigureLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4A_";
-            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
+            Logging.LogImpl.ConfigureLogging(PREFIX, level, logToStdout, logToFile);
         }
 
         /// <summary>Record part of Sensor SDK can log data to the console, files, or to a custom handler.</summary>
@@ -108,7 +119,7 @@ namespace K4AdotNet
         public static void ConfigureRecordLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4A_RECORD_";
-            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
+            Logging.LogImpl.ConfigureLogging(PREFIX, level, logToStdout, logToFile);
         }
 
         /// <summary>The Body Tracking SDK can log data to the console, files, or to a custom handler.</summary>
@@ -128,27 +139,7 @@ namespace K4AdotNet
         public static void ConfigureBodyTrackingLogging(TraceLevel level, bool logToStdout = false, string? logToFile = null)
         {
             const string PREFIX = "K4ABT_";
-            ConfigureLogging(PREFIX, level, logToStdout, logToFile);
-        }
-
-        private static void ConfigureLogging(string variableNamePrefix, TraceLevel level, bool logToStdout, string? logToFile)
-        {
-            Environment.SetEnvironmentVariable(variableNamePrefix + "LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_A_FILE", string.IsNullOrWhiteSpace(logToFile) ? "0" : logToFile, EnvironmentVariableTarget.Process);
-        }
-
-        private static string ToSdkLogLevelLetter(this TraceLevel level)
-        {
-            switch (level)
-            {
-                case TraceLevel.Off: return "c";
-                case TraceLevel.Error: return "e";
-                case TraceLevel.Warning: return "w";
-                case TraceLevel.Info: return "i";
-                case TraceLevel.Verbose: return "t";
-                default: throw new ArgumentOutOfRangeException(nameof(level));
-            }
+            Logging.LogImpl.ConfigureLogging(PREFIX, level, logToStdout, logToFile);
         }
 
         #endregion

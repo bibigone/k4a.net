@@ -7,7 +7,15 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
     {
         [STAThread]
         public static void Main()
-            => new App().Run();
+        {
+#if DEBUG
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
+#else
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
+#endif
+
+            new App().Run();
+        }
 
         protected override Window CreateMainWindow(StartupEventArgs e)
         {

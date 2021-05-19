@@ -7,7 +7,15 @@ namespace K4AdotNet.Samples.Wpf.Viewer
     {
         [STAThread]
         public static void Main()
-            => new App().Run();
+        {
+#if DEBUG
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
+#else
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
+#endif
+
+            new App().Run();
+        }
 
         protected override Window CreateMainWindow(StartupEventArgs e)
             => new MainWindow(new MainModel(this));
