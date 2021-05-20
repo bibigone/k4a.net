@@ -54,7 +54,7 @@ namespace K4AdotNet.Samples.Unity
                     // Use lite version of DNN model for speed (comment next line to use default DNN model)
                     config.ModelPath = Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME;
 
-                    _tracker = new Tracker(ref calibration, config);
+                    _tracker = new Tracker(in calibration, config);
 
                     captureManager.CaptureReady += CaptureManager_CaptureReady;
                 }
