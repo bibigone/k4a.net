@@ -191,6 +191,83 @@ namespace K4AdotNet.Sensor
             return Create(handle)!;
         }
 
+#if NETSTANDARD2_1
+
+        /// <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+        /// <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+        /// <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+        /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
+        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+        /// <returns>Created image. Not <see langword="null"/>.</returns>
+        /// <remarks><para>
+        /// This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+        /// and cannot be used for other formats. For details see <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.
+        /// For other formats use <see cref="CreateFromArray{T}(T[], ImageFormat, int, int, int)"/>.
+        /// </para><para>
+        /// <see cref="Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+        /// </para></remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+        /// or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+        /// </exception>
+        /// <seealso cref="ImageFormats.StrideBytes(ImageFormat, int)"/>
+        public static Image CreateFromMemory<T>(System.Buffers.IMemoryOwner<T> memoryOwner, ImageFormat format, int widthPixels, int heightPixels)
+            where T : unmanaged
+            => CreateFromMemory(memoryOwner, format, widthPixels, heightPixels, format.StrideBytes(widthPixels));
+
+
+        /// <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+        /// <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+        /// <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+        /// <param name="format">Format of image.</param>
+        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>        /// <returns>Created image. Not <see langword="null"/>.</returns>
+        /// <remarks><para>
+        /// <see cref="Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+        /// </para></remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+        /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+        /// or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+        /// </exception>
+        public static unsafe Image CreateFromMemory<T>(System.Buffers.IMemoryOwner<T> memoryOwner, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
+            where T : unmanaged
+        {
+            if (memoryOwner is null)
+                throw new ArgumentNullException(nameof(memoryOwner));
+            if (widthPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(widthPixels));
+            if (heightPixels <= 0)
+                throw new ArgumentOutOfRangeException(nameof(heightPixels));
+            if (strideBytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+            if (format.HasKnownBytesPerPixel() && strideBytes < widthPixels * format.BytesPerPixel())
+                throw new ArgumentOutOfRangeException(nameof(strideBytes));
+
+            var memory = memoryOwner.Memory;
+            var sizeBytes = memory.Length * Marshal.SizeOf<T>();
+            if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))
+                throw new ArgumentOutOfRangeException(nameof(memoryOwner) + "." + nameof(memoryOwner.Memory) + nameof(memory.Length));
+
+            var memoryPin = memory.Pin();
+            var memoryPtr = new IntPtr(memoryPin.Pointer);
+
+            var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
+                memoryPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedMemoryReleaseCallback, PinnedMemoryContext.Create(memoryOwner, memoryPin),
+                out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+                throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from memory of size {sizeBytes} bytes.");
+
+            return Create(handle)!;
+        }
+
+#endif
+
         private void Handle_Disposed(object sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
@@ -232,6 +309,16 @@ namespace K4AdotNet.Sensor
         /// <remarks>Use this buffer to access the raw image data.</remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public IntPtr Buffer => NativeApi.ImageGetBuffer(handle.ValueNotDisposed);
+
+#if NETSTANDARD2_1
+
+        /// <summary>Access to the underlying memory buffer via span.</summary>
+        /// <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
+        /// <returns>Span view to the underlying memory buffer.</returns>
+        public unsafe Span<T> GetSpan<T>() where T : unmanaged
+            => new Span<T>(Buffer.ToPointer(), SizeBytes / Marshal.SizeOf<T>());
+
+#endif
 
         /// <summary>Get the image buffer size in bytes.</summary>
         /// <remarks>Use this function to know what the size of the image buffer is returned by <see cref="Buffer"/>.</remarks>
@@ -483,7 +570,7 @@ namespace K4AdotNet.Sensor
         internal static NativeHandles.ImageHandle ToHandle(Image? image)
             => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
 
-        #region Equatable
+#region Equatable
 
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
@@ -524,9 +611,9 @@ namespace K4AdotNet.Sensor
         public override string ToString()
             => handle.ToString();
 
-        #endregion
+#endregion
 
-        #region Memory management
+#region Memory management
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
@@ -542,6 +629,41 @@ namespace K4AdotNet.Sensor
         private static void ReleasePinnedArray(IntPtr buffer, IntPtr context)
             => ((GCHandle)context).Free();
 
+#if NETSTANDARD2_1
+
+        private struct PinnedMemoryContext
+        {
+            private IDisposable memoryOwner;
+            private System.Buffers.MemoryHandle memoryHandle;
+
+            public static IntPtr Create(IDisposable memoryOwner, System.Buffers.MemoryHandle memoryHandle)
+            {
+                var context = new PinnedMemoryContext { memoryOwner = memoryOwner, memoryHandle = memoryHandle };
+                var ptr = Marshal.AllocHGlobal(Marshal.SizeOf<PinnedMemoryContext>());
+                Marshal.StructureToPtr(context, ptr, fDeleteOld: false);
+                return ptr;
+            }
+
+            public static void Destroy(IntPtr ptr)
+            {
+                var context = Marshal.PtrToStructure<PinnedMemoryContext>(ptr);
+                context.memoryHandle.Dispose();
+                context.memoryOwner.Dispose();
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+
+        // This field is required to keep callback delegate in memory
+        private static readonly NativeApi.MemoryDestroyCallback pinnedMemoryReleaseCallback
+            = new NativeApi.MemoryDestroyCallback(ReleasePinnedMemory);
+
+        private static void ReleasePinnedMemory(IntPtr _, IntPtr context)
+            => PinnedMemoryContext.Destroy(context);
+
+#endif
+
         #endregion
+
+
     }
 }

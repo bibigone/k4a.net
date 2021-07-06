@@ -127,6 +127,52 @@ namespace K4AdotNet.Tests.Unit.Sensor
             }
         }
 
+        [TestMethod]
+        public void TestCreationFromMemory()
+        {
+            var format = ImageFormat.Depth16;
+            var strideBytes = format.StrideBytes(testWidth);
+            var lengthElements = testWidth * testHeight;
+            var array = new short[lengthElements];
+            var owner = new TestMemoryOwner(array);
+
+            using (var image = Image.CreateFromMemory(owner, format, testWidth, testHeight, strideBytes))
+            {
+                Assert.AreNotEqual(IntPtr.Zero, image.Buffer);
+                Assert.AreEqual(format, image.Format);
+                Assert.AreEqual(testWidth, image.WidthPixels);
+                Assert.AreEqual(testHeight, image.HeightPixels);
+                Assert.AreEqual(strideBytes, image.StrideBytes);
+                Assert.AreEqual(owner.Memory.Length * sizeof(short), image.SizeBytes);
+
+                // Check that Buffer points to array
+                for (var i = 0; i < array.Length; i++)
+                    array[i] = unchecked((short)i);
+
+                var buffer = image.Buffer;
+                for (var i = 0; i < array.Length; i++)
+                    Assert.AreEqual(array[i], Marshal.ReadInt16(buffer, i * sizeof(short)));
+
+                Marshal.WriteInt16(buffer, ofs: 123 * sizeof(short), val: 2019);
+                Assert.AreEqual(2019, array[123]);
+
+                Assert.IsFalse(owner.IsDisposed);
+            }
+
+            Assert.IsTrue(owner.IsDisposed);
+        }
+
+        private sealed class TestMemoryOwner : System.Buffers.IMemoryOwner<short>
+        {
+            private readonly short[] buffer;
+            private volatile bool isDisposed;
+            public TestMemoryOwner(short[] buffer) => this.buffer = buffer;
+            public Memory<short> Memory => buffer;
+            public bool IsDisposed => isDisposed;
+            public void Dispose() => isDisposed = true;
+            
+        }
+
         #endregion
 
         #region Testing of IsDisposed property, Dispose() method and Disposed event

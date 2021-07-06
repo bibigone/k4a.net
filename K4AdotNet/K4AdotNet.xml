@@ -6083,6 +6083,47 @@
             or <paramref name="buffer"/> array is too small for specified image parameters.
             </exception>
         </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+            and cannot be used for other formats. For details see <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.
+            For other formats use <see cref="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)"/>.
+            </para><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+            </exception>
+            <seealso cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>        /// <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+            </exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.Image.Dispose">
             <summary>
             Call this method to free unmanaged resources associated with current instance.
@@ -6116,6 +6157,11 @@
             <summary>Get the image buffer.</summary>
             <remarks>Use this buffer to access the raw image data.</remarks>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.GetSpan``1">
+            <summary>Access to the underlying memory buffer via span.</summary>
+            <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
+            <returns>Span view to the underlying memory buffer.</returns>
         </member>
         <member name="P:K4AdotNet.Sensor.Image.SizeBytes">
             <summary>Get the image buffer size in bytes.</summary>

@@ -13,6 +13,10 @@
     <PackageIconUrl>https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png</PackageIconUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>K4AdotNet.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -45,7 +49,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
 
   <ItemGroup>
     <None Include="..\externals\k4a\windows-desktop\amd64\*.dll" Pack="True" PackagePath="\build\">
