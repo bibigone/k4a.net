@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
@@ -631,25 +632,39 @@ namespace K4AdotNet.Sensor
 
 #if NETSTANDARD2_1
 
-        private struct PinnedMemoryContext
+        private readonly struct PinnedMemoryContext
         {
-            private IDisposable memoryOwner;
-            private System.Buffers.MemoryHandle memoryHandle;
+            private static readonly ConcurrentDictionary<int, PinnedMemoryContext> contexts
+                = new ConcurrentDictionary<int, PinnedMemoryContext>();
 
-            public static IntPtr Create(IDisposable memoryOwner, System.Buffers.MemoryHandle memoryHandle)
+            private readonly IDisposable memoryOwner;
+            private readonly System.Buffers.MemoryHandle memoryHandle;
+
+            private PinnedMemoryContext(IDisposable memoryOwner, System.Buffers.MemoryHandle memoryHandle)
             {
-                var context = new PinnedMemoryContext { memoryOwner = memoryOwner, memoryHandle = memoryHandle };
-                var ptr = Marshal.AllocHGlobal(Marshal.SizeOf<PinnedMemoryContext>());
-                Marshal.StructureToPtr(context, ptr, fDeleteOld: false);
-                return ptr;
+                this.memoryOwner = memoryOwner;
+                this.memoryHandle = memoryHandle;
+            }
+
+            public static unsafe IntPtr Create(IDisposable memoryOwner, System.Buffers.MemoryHandle memoryHandle)
+            {
+                var context = new PinnedMemoryContext(memoryOwner, memoryHandle);
+                var key = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(memoryOwner);
+                while (!contexts.TryAdd(key, context))
+                    key = key < int.MaxValue ? key + 1 : int.MinValue;
+                return new IntPtr(key);
             }
 
             public static void Destroy(IntPtr ptr)
             {
-                var context = Marshal.PtrToStructure<PinnedMemoryContext>(ptr);
+                var key = ptr.ToInt32();
+                if (!contexts.TryRemove(key, out var context))
+                {
+                    System.Diagnostics.Trace.TraceWarning($"K4AdotNet.{nameof(Image)}: Cannot find {nameof(PinnedMemoryContext)} object for key {key}");
+                    return;
+                }
                 context.memoryHandle.Dispose();
                 context.memoryOwner.Dispose();
-                Marshal.FreeHGlobal(ptr);
             }
         }
 
@@ -663,7 +678,5 @@ namespace K4AdotNet.Sensor
 #endif
 
         #endregion
-
-
     }
 }
