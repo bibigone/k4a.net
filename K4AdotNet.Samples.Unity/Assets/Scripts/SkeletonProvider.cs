@@ -17,6 +17,7 @@ namespace K4AdotNet.Samples.Unity
 
         private IEnumerator Start()
         {
+            //2秒待ってから実行
             yield return new WaitForSeconds(2);
 
             var task = Task.Run(() =>
@@ -24,6 +25,7 @@ namespace K4AdotNet.Samples.Unity
                 var initialized = Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode.GpuCuda, out var message);
                 return Tuple.Create(initialized, message);
             });
+            //WaitUntil = 条件がtrueになったら進む
             yield return new WaitUntil(() => task.IsCompleted);
 
             var isAvailable = false;
@@ -38,6 +40,7 @@ namespace K4AdotNet.Samples.Unity
             }
             catch (Exception ex)
             {
+                //nameof 式を使うと、変数、型、またはメンバーの名前が文字列定数として生成
                 Debug.LogWarning($"Exception on {nameof(Sdk.TryInitializeBodyTrackingRuntime)}\r\n{ex}");
             }
 
@@ -51,7 +54,8 @@ namespace K4AdotNet.Samples.Unity
 
                     var config = TrackerConfiguration.Default;
                     config.ProcessingMode = TrackerProcessingMode.GpuCuda;
-                    // Use lite version of DNN model for speed (comment next line to use default DNN model)
+                    //速度のためにライトバージョンのDNNモデルを使用します
+                    //（デフォルトのDNNモデルを使用するには次の行にコメントしてください）
                     config.ModelPath = Sdk.BODY_TRACKING_DNN_MODEL_LITE_FILE_NAME;
 
                     _tracker = new Tracker(in calibration, config);

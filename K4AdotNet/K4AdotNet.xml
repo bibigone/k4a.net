@@ -7107,49 +7107,44 @@
             <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
             <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
             If the function returns <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
-            the transformation was compf name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth camera coordinate system, <paramref name="valid"/> is set
-             to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
-             The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
-             </remarks>
-        </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.TransformationCreate(K4AdotNet.Sensor.Calibration@)">
-            <summary>Get handle to transformation.</summary>
-            <param name="calibration">Camera calibration data.</param>
-            <returns>A transformation handle. An invalid handle is returned if creation fails.</returns>
-            <remarks>
-            The transformation handle is used to transform images from the coordinate system of one camera into the other. Each
-            transformation handle requires some pre-computed resources to be allocated, which are retained until the handle is
-            destroyed.
-            </remarks>
-        </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)">
-            <summary>Transforms the depth map into the geometry of the color camera.</summary>
-            <param name="transformationHandle">Transformation handle.</param>
-            <param name="depthImage">Handle to input depth image.</param>
-            <param name="transformedDepthImage">Handle to output transformed depth image.</param>
-            <returns>
-            <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="transformedDepthImage"/> was successfully written
-            and <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> otherwise.
+            the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
+            and should be ignored.
             </returns>
             <remarks>
-            This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
+            This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
+            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo3D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float3@,System.Boolean@)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration3DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float3@,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
             
-            <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>.
+            If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately sets <paramref name="targetPoint2D"/> to
+            <paramref name="sourcePoint2D"/> and returns without computing any transformations.
             
-            <paramref name="transformedDepthImage"/> must have a width and height matching the width and height of the color camera in the mode
-            specified by the <see cref="T:K4AdotNet.Sensor.Calibration"/> used to create the <paramref name="transformationHandle"/> with <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationCreate(K4AdotNet.Sensor.Calibration@)"/>.
-            
-            The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
-            camera's coordinate space.
-            
-            <paramref name="transformedDepthImage"/> should be created by the caller using <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
-            or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/>.
+            If <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the <paramref name="targetCamera"/> coordinate system,
+            <paramref name="valid"/> is set to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
+            The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to 0.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCameraCustom(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Sensor.TransformationInterpolation,System.Int32)">
-            <summary>Transforms depth map and a custom image into the geometry of the color camera.</summary>
-            <param name="transformationHandle">Transformation handle.</param>
-            <param name="depthImage">Handle to input depth imhImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>
+        <member name="M:K4AdotNet.Sensor.NativeApi.CalibrationColor2DToDepth2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Float2@,System.Boolean@)">
+             <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
+             <param name="calibration">Camera calibration data.</param>
+             <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
+             <param name="depthImage">Handle to input depth image.</param>
+             <param name="targetPoint2D">The 2D pixel in depth camera coordinates.</param>
+             <param name="valid">
+             The output parameter returns a value of <see langword="true"/> if the <paramref name="sourcePoint2D"/> is a valid coordinate in the depth camera
+             coordinate system, and will return <see langword="false"/> if the coordinate is not valid in the calibration model.
+             </param>
+             <returns>
+             <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> if <paramref name="targetPoint2D"/> was successfully written.
+             <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> if <paramref name="calibration"/> contained invalid transformation parameters.
+             If the function returns <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/>, but <paramref name="valid"/> valid is <see langword="false"/>,
+             the transformation was computed, but the results in <paramref name="targetPoint2D"/> are outside of the range of valid calibration
+             and should be ignored.
+             </returns>
+             <remarks>
+             This function represents an alternative to <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>
+             if the number of pixels that need to be transformed is small. This function searches along an epipolar line in the depth image to find the corresponding
+             depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
+             <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>
              to get correspondence depth values for these color pixels, then call the function <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>.
             
              If <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth camera coordinate system, <paramref name="valid"/> is set
@@ -7279,7 +7274,68 @@
             
             The <paramref name="camera"/> parameter tells the function what the perspective of the <paramref name="depthImage"/> is.
             If the <paramref name="depthImage"/> was captured directly from the depth camera, the value should be <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Depth"/>.
-            If the <paramref name="depthImage"/> is the result of a transformation into the color camera's coordinateNot <see langword="null"/>. Must have resolution of depth camera.</param>
+            If the <paramref name="depthImage"/> is the result of a transformation into the color camera's coordinate space using
+            <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>,
+            the value should be <see cref="F:K4AdotNet.Sensor.CalibrationGeometry.Color"/>.
+            
+            The format of <paramref name="xyzImage"/> must be <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>. The width and height of <paramref name="xyzImage"/> must match the
+            width and height of <paramref name="depthImage"/>. <paramref name="xyzImage"/> must have a stride in bytes of at least 6 times its width in pixels.
+            
+            Each pixel of the <paramref name="xyzImage"/> consists of three <see cref="T:System.Int16"/> values, totaling 6 bytes. The three <see cref="T:System.Int16"/> values are the
+            X, Y, and Z values of the point.
+            
+            <paramref name="xyzImage"/> should be created by the caller using <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreate(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,K4AdotNet.NativeHandles.ImageHandle@)"/>
+            or <see cref="M:K4AdotNet.Sensor.NativeApi.ImageCreateFromBuffer(K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32,System.IntPtr,System.UIntPtr,K4AdotNet.Sensor.NativeApi.MemoryDestroyCallback,System.IntPtr,K4AdotNet.NativeHandles.ImageHandle@)"/>.
+            </remarks>
+        </member>
+        <member name="T:K4AdotNet.Sensor.Transformation">
+            <summary>
+            Azure Kinect transformation functionality.
+            Can be used to transform images and depth maps between cameras and to reproject depth map to 3D space.
+            It uses <see cref="P:K4AdotNet.Sensor.Transformation.Calibration"/> data for transformations.
+            </summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.#ctor(K4AdotNet.Sensor.Calibration@)">
+            <summary>
+            Creates transformation object for a give calibration data.
+            </summary>
+            <param name="calibration">Camera calibration data.</param>
+            <remarks><para>
+            Each transformation instance requires some pre-computed resources to be allocated,
+            which are retained until the call of <see cref="M:K4AdotNet.Sensor.Transformation.Dispose"/> method.
+            </para><para>
+            <see cref="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME"/> library is required for this functionality.
+            </para></remarks>
+            <exception cref="T:System.InvalidOperationException">Something wrong with calibration data or <see cref="F:K4AdotNet.Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be loaded.</exception>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.Dispose">
+            <summary>
+            Call this method to free all unmanaged resources associated with current instance.
+            </summary>
+            <seealso cref="E:K4AdotNet.Sensor.Transformation.Disposed"/>
+            <seealso cref="P:K4AdotNet.Sensor.Transformation.IsDisposed"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.IsDisposed">
+            <summary>Gets a value indicating whether the object has been disposed of.</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="E:K4AdotNet.Sensor.Transformation.Disposed">
+            <summary>Raised on object disposing (only once).</summary>
+            <seealso cref="M:K4AdotNet.Sensor.Transformation.Dispose"/>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.Calibration">
+            <summary>Calibration data for which this transformation was created.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.DepthMode">
+            <summary>Depth mode for which this transformation was created.</summary>
+        </member>
+        <member name="P:K4AdotNet.Sensor.Transformation.ColorResolution">
+            <summary>Resolution of color camera for which this transformation was created.</summary>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToColorCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
+            <summary>Transforms the depth map into the geometry of the color camera.</summary>
+            <param name="depthImage">Input depth map to be transformed. Not <see langword="null"/>. Must have resolution of depth camera.</param>
             <param name="transformedDepthImage">Output depth image. Not <see langword="null"/>. Must have resolution of color camera.</param>
             <remarks>
             This produces a depth image for which each pixel matches the corresponding pixel coordinates of the color camera.
@@ -7313,54 +7369,6 @@
             <paramref name="depthImage"/> and <paramref name="transformedDepthImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>.
             </para><para>
             <paramref name="customImage"/> and <paramref name="transformedCustomImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or
-            <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/>.
-            </para><para>
-            The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
-            camera's coordinate space.
-            </para><para>
-            The contents <paramref name="transformedCustomImage"/> will be filled with the values derived from <paramref name="customImage"/> in the color
-            camera's coordinate space.
-            </para><para>
-            Using linear interpolation could create new values to <paramref name="transformedCustomImage"/> which do no exist in <paramref name="customImage"/>.
-            Setting <paramref name="interpolation"/> to <see cref="F:K4AdotNet.Sensor.TransformationInterpolation.Nearest"/> will prevent this from happening but will result in less
-            smooth image.
-            </para></remarks>
-            <exception cref="T:System.ArgumentNullException">
-            <paramref name="depthImage"/> is <see langword="null"/>
-            or <paramref name="customImage"/> is <see langword="null"/>
-            or <paramref name="transformedDepthImage"/> is <see langword="null"/>
-            or <paramref name="transformedCustomImage"/> is <see langword="null"/>.
-            </exception>
-            <exception cref="T:System.ArgumentException">
-            <paramref name="depthImage"/> or <paramref name="customImage"/> or <paramref name="transformedDepthImage"/> or <paramref name="transformedCustomImage"/>
-            has invalid format or resolution.
-            </exception>
-            <exception cref="T:System.InvalidOperationException">Failed to transform specified depth and custom images to color camera.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
-        <member name="M:K4AdotNet.Sensor.Transformation.ColorImageToDepthCamera(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image,K4AdotNet.Sensor.Image)">
-            <summary>Transforms a color image into the geometry of the depth camera.</summary>
-            <param name="depthImage">Input depth map. Not <see langword="null"/>. Must have resolution of depth camera.</param>
-            <param name="colorImage">Input color image to be transformed. Not <see langword="null"/>. Must have resolution of color camera.</param>
-            <param name="transformedColorImage">Output color image. Not <see langword="null"/>. Must have resolution of depth camera.</param>
-            <remarks><para>
-            This produces a color image for which each pixel matches the corresponding pixel coordinates of the depth camera.
-            </para><para>
-            <paramref name="depthImage"/> and <paramref name="colorImage"/> need to represent the same moment in time. The depth data will be applied to the
-            color image to properly warp the color data to the perspective of the depth camera.
-            </para><para>
-            <paramref name="depthImage"/> must be of type <see cref="F:K4AdotNet.Sensor.ImageFormat.Depth16"/>. <paramref name="colorImage"/> must be of format
-            <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>.
-            </para><para>
-            <paramref name="transformedColorImage"/> image must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorBgra32"/>.
-            </para></remarks>
-            <exception cref="T:System.ArgumentNullException"><paramref name="depthImage"/> is <see langword="null"/> or <paramref name="colorImage"/> is <see langword="null"/> or <paramref name="transformedColorImage"/> is null.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="depthImage"/> or <paramref name="colorImage"/> or <paramref name="transformedColorImage"/> has invalid format or resolution.</exception>
-            <exception cref="T:System.InvalidOperationException">Failed to transform specified color image to depth camera.</exception>
-            <exception cref="T:System.ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        </member>
-        <member name="M:K4AdotNet.Sensor.Transformation.DepthImageToPointCloud(K4AdotNet.Sensor.Image,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.Image)">
-            <summary>Transforms the depth image into 3 planar images representing X, Y and Z-coordinatetransformedCustomImage"/> must be of format <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom8"/> or
             <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom16"/>.
             </para><para>
             The contents <paramref name="transformedDepthImage"/> will be filled with the depth values derived from <paramref name="depthImage"/> in the color
@@ -7443,7 +7451,71 @@
             <summary>Linear interpolation.</summary>
         </member>
         <member name="T:K4AdotNet.Sensor.WiredSyncMode">
-   ues are equal.</returns>
+            <summary>Synchronization mode when connecting two or more devices together.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sensor.WiredSyncMode.Standalone">
+            <summary>Neither 'Sync In' or 'Sync Out' connections are used.</summary>
+        </member>
+        <member name="F:K4AdotNet.Sensor.WiredSyncMode.Master">
+            <summary>The 'Sync Out' jack is enabled and synchronization data it driven out the connected wire.</summary>
+            <remarks>
+            While in master mode the color camera must be enabled as part of the
+            multi device sync signaling logic. Even if the color image is not needed, the color
+            camera must be running.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Sensor.WiredSyncMode.Subordinate">
+            <summary>
+            The 'Sync In' jack is used for synchronization and 'Sync Out' is driven for the
+            next device in the chain. 'Sync Out' is a mirror of 'Sync In' for this mode.
+            </summary>
+        </member>
+        <member name="T:K4AdotNet.Timeout">
+            <summary>32-bit timeout value in milliseconds. Used in API to define timeouts to wait.</summary>
+            <remarks>
+            Actually, this structure is an simple wrapper of <see cref="T:System.Int32"/> type.
+            And <see cref="T:K4AdotNet.Timeout"/> value can be smoothly converted to/from <see cref="T:System.Int32"/> and <see cref="T:System.TimeSpan"/> values for convenience of usage in your code.
+            </remarks>
+        </member>
+        <member name="F:K4AdotNet.Timeout.ValueMs">
+            <summary>Value in milliseconds. Should be of <see cref="T:System.UInt32"/> type but for CLS-compatibility it is declared is <see cref="T:System.Int32"/>.</summary>
+            <remarks><para>
+            There are two special values:
+            0 - means "no wait" (see <see cref="F:K4AdotNet.Timeout.NoWait"/>),
+            -1 (that is <see cref="F:System.UInt32.MaxValue"/>) - means infinite waiting (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).
+            </para><para>
+            This structure is an wrapper around this value.
+            </para></remarks>
+        </member>
+        <member name="M:K4AdotNet.Timeout.#ctor(System.Int32)">
+            <summary>Creates instance from integer value in milliseconds.</summary>
+            <param name="valueMs">Timeout in milliseconds, or -1 for infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="valueMs"/> is less than -1.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.#ctor(System.TimeSpan)">
+            <summary>Creates instance from <see cref="T:System.TimeSpan"/> value.</summary>
+            <param name="value">Timeout specified as <see cref="T:System.TimeSpan"/> value. Use <see cref="F:System.TimeSpan.MaxValue"/> to specify infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>).</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <paramref name="value"/> is negative.</exception>
+        </member>
+        <member name="M:K4AdotNet.Timeout.ToTimeSpan">
+            <summary>Converts timeout to <see cref="T:System.TimeSpan"/> value.</summary>
+            <returns>Corresponding <see cref="T:System.TimeSpan"/> value. For infinite timeout (see <see cref="F:K4AdotNet.Timeout.Infinite"/>) this method returns <see cref="F:System.TimeSpan.MaxValue"/>.</returns>
+        </member>
+        <member name="P:K4AdotNet.Timeout.TotalSeconds">
+            <summary>The total number of seconds represented by this instance.</summary>
+        </member>
+        <member name="P:K4AdotNet.Timeout.TotalMilliseconds">
+            <summary>The total number of milliseconds represented by this instance.</summary>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(K4AdotNet.Timeout)">
+            <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.Equals(System.TimeSpan)">
+            <summary>Equality with another value specified as <see cref="T:System.TimeSpan"/>.</summary>
+            <param name="other">Another value to be compared with this one.</param>
+            <returns><see langword="true"/> if values are equal.</returns>
         </member>
         <member name="M:K4AdotNet.Timeout.Equals(System.Int32)">
             <summary>Equality exactly like <see cref="T:System.Int32"/> type has.</summary>
@@ -7706,65 +7778,6 @@
             <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
         </member>
         <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be 
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(K4AdotNet.Timeout,System.Int32)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="left">Left part of operator.</param>
-            <param name="rightMs">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="rightMs"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_GreaterThan(K4AdotNet.Timeout,System.Int32)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="left">Left part of operator.</param>
-            <param name="rightMs">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="rightMs"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(K4AdotNet.Timeout,System.Int32)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="left">Left part of operator.</param>
-            <param name="rightMs">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="rightMs"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_Equality(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
-            <param name="leftMs">Left part of operator.</param>
-            <param name="right">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="leftMs"/> is equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_Inequality(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>.</summary>
-            <param name="leftMs">Left part of operator.</param>
-            <param name="right">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="leftMs"/> is not equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.Equals(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_LessThan(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="leftMs">Left part of operator.</param>
-            <param name="right">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="leftMs"/> is less than <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_LessThanOrEqual(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="leftMs">Left part of operator.</param>
-            <param name="right">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="leftMs"/> is less than or equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_GreaterThan(System.Int32,K4AdotNet.Timeout)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
-            <param name="leftMs">Left part of operator.</param>
-            <param name="right">Right part of operator.</param>
-            <returns><see langword="true"/> if <paramref name="leftMs"/> is greater than <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Timeout.op_GreaterThanOrEqual(System.Int32,K4AdotNet.Timeout)">
             <summary>To be consistent with <see cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>.</summary>
             <param name="leftMs">Left part of operator.</param>
             <param name="right">Right part of operator.</param>
@@ -7801,6 +7814,66 @@
         </member>
         <member name="F:K4AdotNet.Timeout.Infinite">
             <summary>Special timeout value: infinite waiting.</summary>
+        </member>
+    </members>
+</doc>
+sociated parameter may be <see langword="null"/>.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>
+                Specifies that an output is not <see langword="null"/> even if the
+                corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.NotNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>
+                Specifies that the output will be non-<see langword="null"/> if the
+                named parameter is non-<see langword="null"/>.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>
+                Gets the associated parameter name.
+                The output will be non-<see langword="null"/> if the argument to the
+                parameter specified is non-<see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>
+                Initializes the attribute with the associated parameter name.
+            </summary>
+            <param name="parameterName">
+                The associated parameter name.
+                The output will be non-<see langword="null"/> if the argument to the
+                parameter specified is non-<see langword="null"/>.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>
+                Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>,
+                the parameter will not be <see langword="null"/> even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>
+                Gets the return value condition.
+                If the method returns this value, the associated parameter will not be <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+                Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">
+                The return value condition.
+                If the method returns this value, the associated parameter will not be <see langword="null"/>.
+            </param>
         </member>
     </members>
 </doc>

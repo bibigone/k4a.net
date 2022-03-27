@@ -12,12 +12,16 @@ namespace K4AdotNet.Samples.Unity
 
         private void Awake()
         {
+            //クラス名がわかっているから
             _errorMessage = FindObjectOfType<ErrorMessage>();
+            //自分と子供から探す
             _skeleton = GetComponentInChildren<SkeletonRenderer>(includeInactive: true)?.gameObject;
             _character = GetComponentInChildren<CharacterAnimator>(includeInactive: true)?.gameObject;
+            //一番重たい　ヒエラルキー全て探す
             _modes = GameObject.Find("Modes");
         }
 
+        //非同期
         private IEnumerator Start()
         {
             _modes.SetActive(false);
@@ -31,6 +35,8 @@ namespace K4AdotNet.Samples.Unity
             }
 
             var skeletonProvider = FindObjectOfType<SkeletonProvider>();
+
+            //この条件が満たされるまでここで待つ
             yield return new WaitUntil(() => skeletonProvider?.IsInitializationComplete != false);
             if (skeletonProvider?.IsAvailable != true)
             {

@@ -8,7 +8,7 @@ namespace K4AdotNet.Samples.Unity
     {
         private Texture2D _texture;
 
-        // Start is called before the first frame update
+        //最初のフレーム更新の前にStartが呼び出されます
         void Start()
         {
             var captureManager = FindObjectOfType<CaptureManager>();

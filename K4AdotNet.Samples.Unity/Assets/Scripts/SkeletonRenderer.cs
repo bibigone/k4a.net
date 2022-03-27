@@ -60,9 +60,8 @@ namespace K4AdotNet.Samples.Unity
 
         private void CreateJoints()
         {
-            // Joints are rendered as spheres
-            _joints = JointTypes.All
-                .ToDictionary(
+            //ジョイントは球としてレンダリング
+            _joints = JointTypes.All.ToDictionary(
                     jt => jt,
                     jt =>
                     {
@@ -73,13 +72,13 @@ namespace K4AdotNet.Samples.Unity
                         return joint.transform;
                     });
 
-            // Set green as default color
+            //デフォルトの色として緑を設定
             SetJointColor(Color.green, typeof(JointType).GetEnumValues().Cast<JointType>().ToArray());
 
-            // Set slightly decreased size for some joints
+            //一部のジョイントのサイズを少し小さく設定します
             SetJointScale(0.05f, JointType.Neck, JointType.Head, JointType.ClavicleLeft, JointType.ClavicleRight, JointType.EarLeft, JointType.EarRight);
 
-            // Set greatly decreased size and specific colors for face joints
+            //顔の関節のサイズと特定の色を大幅に縮小して設定します
             SetJointScale(0.033f, JointType.EyeLeft, JointType.EyeRight, JointType.Nose);
             SetJointColor(Color.cyan, JointType.EyeLeft, JointType.EyeRight);
             SetJointColor(Color.magenta, JointType.Nose);
@@ -209,16 +208,17 @@ namespace K4AdotNet.Samples.Unity
 
         private static Vector3 ConvertKinectPos(Float3 pos)
         {
-            // Kinect Y axis points down, so negate Y coordinate
-            // Scale to convert millimeters to meters
-            // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
-            // Other transforms (positioning of the skeleton in the scene, mirroring)
-            // are handled by properties of ascendant GameObject's
+             // Kinect Y軸が下を向いているため、Y座標を反転
+             //ミリメートルをメートルに変換するためのスケール
+             // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
+             //その他の変換（シーン内のスケルトンの配置、ミラーリング）
+             //アセンダントGameObjectのプロパティによって処理
             return 0.001f * new Vector3(pos.X, -pos.Y, pos.Z);
         }
 
         private void HideSkeleton()
         {
+            //親がfalseになったら子供も全てfalseになる
             _root.SetActive(false);
         }
     }

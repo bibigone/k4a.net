@@ -215,12 +215,12 @@ namespace K4AdotNet.Samples.Unity
                 if (data != null)
                 {
                     var orientation = ConvertKinectQ(skeleton[joint].Orientation);
-                    // rotation in character space = rotation rel to T-pose in character space * T-pose in character space
-                    // T-pose in character space = data.TPoseOrientation
-                    // rotation rel to T-pose in character space = Kinect rotation * inv(Kinect T-pose)
-                    // rotation in character space = root.localRotation * ... * localRotation
-                    // local rotation = inv(parent rotation in character space) * rotation in character space
-                    // inv(parent rotation in character space) = inv(parent.localRotation) * ... * inv(root.localRotation)
+                    //文字スペースでの回転=文字スペースでのTポーズへの回転rel*文字スペースでのTポーズ
+                    //文字スペースでのTポーズ=data.TPoseOrientation
+                    //文字空間でのTポーズへの回転rel=Kinect回転*inv（Kinect Tポーズ）
+                    //文字スペースでの回転=root.localRotation* ... * localRotation
+                    //ローカル回転=inv（文字空間での親回転）*文字空間での回転
+                    // inv（文字スペースでの親の回転）= inv（parent.localRotation）* ... * inv（root.localRotation）
                     var rotationRel2TPoseInCharacterSpace = orientation * data.KinectTPoseOrientationInverse;
                     var rotationInCharacterSpace = rotationRel2TPoseInCharacterSpace * data.TPoseOrientation;
                     var invParentRotationInCharacterSpace = Quaternion.identity;
@@ -238,19 +238,19 @@ namespace K4AdotNet.Samples.Unity
 
         private static Vector3 ConvertKinectPos(Float3 pos)
         {
-            // Kinect Y axis points down, so negate Y coordinate
-            // Scale to convert millimeters to meters
+            // Kinect Y軸が下を向いているため、Y座標を無効にします
+            //ミリメートルをメートルに変換するためのスケール
             // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
-            // Other transforms (positioning of the skeleton in the scene, mirroring)
-            // are handled by properties of ascendant GameObject's
+            //その他の変換（シーン内のスケルトンの配置、ミラーリング）
+            //アセンダントGameObjectのプロパティによって処理されます
             return 0.001f * new Vector3(pos.X, -pos.Y, pos.Z);
         }
 
         private static Quaternion ConvertKinectQ(K4AdotNet.Quaternion q)
         {
-            // Kinect coordinate system for rotations seems to be
-            // left-handed Y+ up, Z+ towards camera
-            // So apply 180 rotation around Y to align with Unity coords (Z away from camera)
+            //回転のKinect座標系は
+            //左利きのY+を上に、Z+をカメラに向けて
+            //したがって、Yの周りに180回転を適用して、Unity座標（カメラからZを離して）に合わせます
             return Quaternion.AngleAxis(180, Vector3.up) * new Quaternion(q.X, q.Y, q.Z, q.W);
         }
     }
