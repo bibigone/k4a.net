@@ -38,7 +38,7 @@ namespace K4AdotNet.Samples.Unity.Assets.Scripts
             Destroy(_depthTexture);
             _renderTexture?.Release();
         }
-
+        //
         private void CaptureManager_CaptureReady(object sender, CaptureEventArgs e)
         {
             using (var depthImage = e.Capture.DepthImage)

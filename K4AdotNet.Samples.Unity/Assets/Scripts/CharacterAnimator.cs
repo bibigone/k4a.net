@@ -238,7 +238,7 @@ namespace K4AdotNet.Samples.Unity
 
         private static Vector3 ConvertKinectPos(Float3 pos)
         {
-            // Kinect Y軸が下を向いているため、Y座標を無効にします
+            // Kinect Y軸が下を向いているため、Y座標を反転にする
             //ミリメートルをメートルに変換するためのスケール
             // https://docs.microsoft.com/en-us/azure/Kinect-dk/coordinate-systems
             //その他の変換（シーン内のスケルトンの配置、ミラーリング）

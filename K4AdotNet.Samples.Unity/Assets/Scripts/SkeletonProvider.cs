@@ -25,6 +25,8 @@ namespace K4AdotNet.Samples.Unity
                 var initialized = Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode.GpuCuda, out var message);
                 return Tuple.Create(initialized, message);
             });
+
+
             //WaitUntil = 条件がtrueになったら進む
             yield return new WaitUntil(() => task.IsCompleted);
 
@@ -104,6 +106,7 @@ namespace K4AdotNet.Samples.Unity
                         if (bodyFrame.BodyCount > 0)
                         {
                             bodyFrame.GetBodySkeleton(0, out var skeleton);
+                            //Invoke = 登録されている全てのコールバック
                             SkeletonUpdated?.Invoke(this, new SkeletonEventArgs(skeleton));
                         }
                         else
