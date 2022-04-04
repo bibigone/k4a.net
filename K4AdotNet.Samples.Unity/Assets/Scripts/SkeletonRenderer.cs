@@ -160,7 +160,7 @@ namespace K4AdotNet.Samples.Unity
         {
             if (e.Skeleton == null)
             {
-                HideSkeleton();
+                //HideSkeleton();
             }
             else
             {

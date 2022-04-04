@@ -72,7 +72,7 @@ namespace K4AdotNet.Samples.Unity
 
         private void OnDestroy()
         {
-            // ? = 変数がnullじゃなかったら実行される
+            // ?. = 変数がnullじゃなかったら実行される
             _device?.StopCameras();
             _device?.Dispose();
             _device = null;

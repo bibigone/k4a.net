@@ -8,7 +8,6 @@ namespace K4AdotNet.Samples.Unity
     {
         private Texture2D _texture;
 
-        //最初のフレーム更新の前にStartが呼び出される
         void Start()
         {
             var captureManager = FindObjectOfType<CaptureManager>();

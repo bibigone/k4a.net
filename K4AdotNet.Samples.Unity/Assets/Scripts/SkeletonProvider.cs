@@ -20,6 +20,9 @@ namespace K4AdotNet.Samples.Unity
             //2秒待ってから実行
             yield return new WaitForSeconds(2);
 
+            //() =>と、空の括弧を書けば引数無しという扱い
+            //C#のTaskクラス 非同期処理操作
+            //同期処理をまとめてタスクを作り、別スレッドで実行する
             var task = Task.Run(() =>
             {
                 var initialized = Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode.GpuCuda, out var message);
@@ -28,12 +31,15 @@ namespace K4AdotNet.Samples.Unity
 
 
             //WaitUntil = 条件がtrueになったら進む
+            //c#
             yield return new WaitUntil(() => task.IsCompleted);
 
             var isAvailable = false;
             try
             {
+                //<bool,string>のタプル型
                 var result = task.Result;
+
                 isAvailable = result.Item1;
                 if (!isAvailable)
                 {
@@ -49,12 +55,14 @@ namespace K4AdotNet.Samples.Unity
             if (isAvailable)
             {
                 var captureManager = FindObjectOfType<CaptureManager>();
+
                 yield return new WaitUntil(() => captureManager?.IsInitializationComplete != false);
+
                 if (captureManager?.IsAvailable == true)
                 {
                     var calibration = captureManager.Calibration;
-
                     var config = TrackerConfiguration.Default;
+
                     config.ProcessingMode = TrackerProcessingMode.GpuCuda;
                     //速度のためにライトバージョンのDNNモデルを使用します
                     //（デフォルトのDNNモデルを使用するには次の行にコメントしてください）
@@ -79,6 +87,7 @@ namespace K4AdotNet.Samples.Unity
             IsAvailable = false;
 
             var captureManager = FindObjectOfType<CaptureManager>();
+
             if (captureManager != null) captureManager.CaptureReady -= CaptureManager_CaptureReady;
             _tracker?.Dispose();
         }
@@ -90,6 +99,7 @@ namespace K4AdotNet.Samples.Unity
                 using var capture = e.Capture;
                 using var depthImage = capture.DepthImage;
                 using var irImage = capture.IRImage;
+
                 if (!(depthImage is null) && !(irImage is null))
                     _tracker.TryEnqueueCapture(capture);
             }

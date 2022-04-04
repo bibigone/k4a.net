@@ -17,6 +17,7 @@ namespace K4AdotNet.Samples.Unity
             //自分と子供から探す
             _skeleton = GetComponentInChildren<SkeletonRenderer>(includeInactive: true)?.gameObject;
             _character = GetComponentInChildren<CharacterAnimator>(includeInactive: true)?.gameObject;
+
             //一番重たい　ヒエラルキー全て探す
             _modes = GameObject.Find("Modes");
         }
@@ -28,6 +29,7 @@ namespace K4AdotNet.Samples.Unity
 
             var captureManager = FindObjectOfType<CaptureManager>();
             yield return new WaitUntil(() => captureManager?.IsInitializationComplete != false);
+
             if (captureManager?.IsAvailable != true)
             {
                 _errorMessage.Show("Azure Kinect is not connected or recognized");
@@ -38,6 +40,7 @@ namespace K4AdotNet.Samples.Unity
 
             //この条件が満たされるまでここで待つ
             yield return new WaitUntil(() => skeletonProvider?.IsInitializationComplete != false);
+
             if (skeletonProvider?.IsAvailable != true)
             {
                 _errorMessage.Show(
