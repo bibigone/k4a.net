@@ -201,7 +201,7 @@ namespace K4AdotNet.Record
         /// <see cref="TryGetPreviousCapture(out Sensor.Capture)"/>.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        /// <exception cref="InvalidOperationException">Format <paramref name="format"/> is not supported for color conversion.</exception>
+        /// <exception cref="NotSupportedException">Format <paramref name="format"/> is not supported for color conversion.</exception>
         public void SetColorConversion(Sensor.ImageFormat format)
         {
             var res = NativeApi.PlaybackSetColorConversion(handle.ValueNotDisposed, format);

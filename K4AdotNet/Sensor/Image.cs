@@ -376,7 +376,7 @@ namespace K4AdotNet.Sensor
         /// The system timestamp is captured at the moment host PC finishes receiving the image.
         /// </para><para>
         /// On Linux the system timestamp is read from <c>clock_gettime(CLOCK_MONOTONIC)</c>, which measures realtime and is not
-        /// impacted by adjustments to the system clock.It starts from an arbitrary point in the past. On Windows the system
+        /// impacted by adjustments to the system clock. It starts from an arbitrary point in the past. On Windows the system
         /// timestamp is read from <c>QueryPerformanceCounter()</c>, it also measures realtime and is not impacted by adjustments to the
         /// system clock. It also starts from an arbitrary point in the past.
         /// </para><para>

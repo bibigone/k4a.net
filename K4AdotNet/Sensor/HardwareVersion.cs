@@ -21,7 +21,7 @@ namespace K4AdotNet.Sensor
         public FirmwareVersion ColorCameraFirmwareVersion;
 
         /// <summary>Depth camera firmware version.</summary>
-        public FirmwareVersion DepthCamereFirmwareVersion;
+        public FirmwareVersion DepthCameraFirmwareVersion;
 
         /// <summary>Audio device firmware version.</summary>
         public FirmwareVersion AudioDeviceFirmwareVersion;

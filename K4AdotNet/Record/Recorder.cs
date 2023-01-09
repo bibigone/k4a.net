@@ -28,7 +28,8 @@ namespace K4AdotNet.Record
         /// </para></remarks>
         /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
         /// <exception cref="ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
-        public Recorder(string filePath, Sensor.Device device, Sensor.DeviceConfiguration config)
+        /// <exception cref="RecordingException">Cannot initialize recording to <paramref name="filePath"/>.</exception>
+        public Recorder(string filePath, Sensor.Device? device, Sensor.DeviceConfiguration config)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
