@@ -146,7 +146,17 @@ typedef struct _k4abt_tracker_configuration_t
 
     /** Specify the GPU device ID to run the tracker.
      *
-     * The setting is only effective if the processing_mode setting is set to K4ABT_TRACKER_PROCESSING_MODE_GPU.
+     * The setting is not effective if the processing_mode setting is set to K4ABT_TRACKER_PROCESSING_MODE_CPU.
+     * 
+     * For K4ABT_TRACKER_PROCESSING_MODE_GPU_CUDA and K4ABT_TRACKER_PROCESSING_MODE_GPU_TENSORRT modes,
+     * ID of the graphic card can be retrieved using the CUDA API.
+     * 
+     * In case when processing_mode is K4ABT_TRACKER_PROCESSING_MODE_GPU_DIRECTML,
+     * the device ID corresponds to the enumeration order of hardware adapters as given by IDXGIFactory::EnumAdapters.
+     * 
+     * A device_id of 0 always corresponds to the default adapter, which is typically the primary display GPU installed on the system.
+     * 
+     * More information can be found in the ONNX Runtime Documentation.
      */
     int32_t gpu_device_id;
 

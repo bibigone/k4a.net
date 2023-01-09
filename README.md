@@ -19,7 +19,7 @@
 * Written fully on C#
 * CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
 * Library **K4AdotNet** is compiled against **.NET Standard 2.0, 2.1** and **.NET Framework 4.6.1** target frameworks
-  * This makes it compatible with **.NET 5**, **.NET Core 2.0-3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
+  * This makes it compatible with **.NET 5-7**, **.NET Core 2.0-3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
 * Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
 * Plus useful helper methods, additional checks and meaningful exceptions.
@@ -49,21 +49,21 @@
 |---------------------|----------------------------------------------|----------------|---------------------------------------|--------------------------
 | Sensor API          | `k4a.dll`, `depthengine_2_0.dll`<sup>(1)</sup> | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
 | Record API          | `k4arecord.dll`                              | 1.4.1          | `externals/k4a/windows-desktop/amd64` | YES
-| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0_op11.onnx` and/or `dnn_model_2_0_lite_op11.onnx` | 1.1.0          |                                       | no<sup>(3)</sup>
+| Body Tracking API   | `k4abt.dll`<sup>(2)</sup>, `dnn_model_2_0_op11.onnx` and/or `dnn_model_2_0_lite_op11.onnx` | 1.1.2          |                                       | no<sup>(3)</sup>
 
 Notes:
 * <sup>(1)</sup> `depthengine_2_0.dll` is required only if you are using `Transformation` or `Device` classes. All other Sensor API (types from `K4AdotNet.Sensor` namespace) depends only on `k4a.dll`.
 * <sup>(2)</sup> `k4abt.dll` uses [ONNX Runtime](https://github.com/microsoft/onnxruntime) &mdash; `onnxruntime.dll`, which in turn depends on the following [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) and [NVIDIA CUDA 11.2.1](https://developer.nvidia.com/cuda-11.2.1-download-archive) libraries. Also, Visual C++ Redistributable for Visual Studio 2015 is required: `vcomp140.dll`.
 * <sup>(3)</sup> The full list of libraries and data files required for Body Tracking: <br/>
-`k4abt.dll` (4.3 MB), <br/>
+`k4abt.dll` (4.4 MB), <br/>
 `dnn_model_2_0_op11.onnx` (159 MB) and/or `dnn_model_2_0_lite_op11.onnx` (43 MB), <br/>
-`cublas64_11.dll` (108 MB), <br/>
-`cublasLt64_11.dll` (204 MB), <br/>
-`cudart64_110.dll` (0.4 MB), <br/>
-`cudnn_cnn_infer64_8.dll` (673 MB), <br/>
-`cudnn_ops_infer64_8.dll` (308 MB), <br/>
+`cublas64_11.dll` (136 MB), <br/>
+`cublasLt64_11.dll` (269 MB), <br/>
+`cudart64_110.dll` (0.5 MB), <br/>
+`cudnn_cnn_infer64_8.dll` (600 MB), <br/>
+`cudnn_ops_infer64_8.dll` (346 MB), <br/>
 `cudnn64_8.dll` (0.3 MB), <br/>
-`cufft64_10.dll` (224 MB), <br/>
+`cufft64_10.dll` (345 MB), <br/>
 `vcomp140.dll` (0.2 MB). <br/>
 (Plus additional libraries for `TensorRT` and `DirectML` tracking modes.)<br/>
 It is mostly unpractical to have such bulky files in repositories. For this reason they are not included to the repository. Also, they are not included to [NuGet package](https://www.nuget.org/packages/K4AdotNet).
@@ -86,7 +86,7 @@ See https://github.com/bibigone/k4a.net/releases
 
 ## How to build
 
-* Open `K4AdotNet.sln` in Visual Studio 2019
+* Open `K4AdotNet.sln` in Visual Studio 2019 or 2022
 * Build solution (`Ctrl+Shift+B`)
 * After that you can run and explore samples:
   * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core 3.1 console application to measure speed of Body Tracking.

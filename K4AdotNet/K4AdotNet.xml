@@ -40,6 +40,10 @@
             <summary>Gets the body frame's device timestamp.</summary>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         </member>
+        <member name="P:K4AdotNet.BodyTracking.BodyFrame.SytemTimestamp">
+            <summary>Gets the body frame's system timestamp.</summary>
+            <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
         <member name="P:K4AdotNet.BodyTracking.BodyFrame.Timestamp">
             <summary>Deprecated in version 0.9.2 of Body Tracking SDK. Please use <see cref="P:K4AdotNet.BodyTracking.BodyFrame.DeviceTimestamp"/> property instead of this one.</summary>
         </member>
@@ -567,8 +571,16 @@
             <summary>Get the body frame's device timestamp.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
             <returns>
-            Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
+            Returns the device timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="F:K4AdotNet.Microseconds64.Zero"/>.
             It is also possible for <see cref="F:K4AdotNet.Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+            </returns>
+        </member>
+        <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetSystemTimestamp(K4AdotNet.NativeHandles.BodyFrameHandle)">
+            <summary>Get the body frame's system timestamp in nanoseconds.</summary>
+            <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="M:K4AdotNet.BodyTracking.NativeApi.TrackerPopResult(K4AdotNet.NativeHandles.TrackerHandle,K4AdotNet.NativeHandles.BodyFrameHandle@,K4AdotNet.Timeout)"/> function.</param>
+            <returns>
+            Returns the system timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return 0.
+            It is also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
             </returns>
         </member>
         <member name="M:K4AdotNet.BodyTracking.NativeApi.FrameGetBodyIndexMap(K4AdotNet.NativeHandles.BodyFrameHandle)">
@@ -911,7 +923,19 @@
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.GpuDeviceId">
             <summary>Specify the GPU device ID to run the tracker.</summary>
-            <remarks>The setting is only effective if the <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode"/> setting is set to <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuCuda"/>.</remarks>
+            <remarks><para>
+            The setting is not effective if the <see cref="F:K4AdotNet.BodyTracking.TrackerConfiguration.ProcessingMode"/> setting is set to <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.Cpu"/>.
+            </para><para>
+            For <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuCuda"/> and <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuTensorRT"/> modes,
+            ID of the graphic card can be retrieved using the CUDA API.
+            </para><para>
+            In case when processing_mode is <see cref="F:K4AdotNet.BodyTracking.TrackerProcessingMode.GpuDirectML"/>,
+            the device ID corresponds to the enumeration order of hardware adapters as given by <c>IDXGIFactory::EnumAdapters</c>.
+            </para><para>
+            A device_id of 0 always corresponds to the default adapter, which is typically the primary display GPU installed on the system.
+            </para><para>
+            More information can be found in the ONNX Runtime Documentation.
+            </para></remarks>
         </member>
         <member name="F:K4AdotNet.BodyTracking.TrackerConfiguration.ModelPath">
             <summary>Specify the model file name and location used by the tracker.</summary>
@@ -6084,6 +6108,47 @@
             or <paramref name="buffer"/> array is too small for specified image parameters.
             </exception>
         </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+            and cannot be used for other formats. For details see <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.
+            For other formats use <see cref="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)"/>.
+            </para><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+            </exception>
+            <seealso cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
+            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
+            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
+            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
+            <param name="format">Format of image.</param>
+            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>        /// <returns>Created image. Not <see langword="null"/>.</returns>
+            <remarks><para>
+            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
+            </para></remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+            </exception>
+        </member>
         <member name="M:K4AdotNet.Sensor.Image.Dispose">
             <summary>
             Call this method to free unmanaged resources associated with current instance.
@@ -6117,6 +6182,11 @@
             <summary>Get the image buffer.</summary>
             <remarks>Use this buffer to access the raw image data.</remarks>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+        </member>
+        <member name="M:K4AdotNet.Sensor.Image.GetSpan``1">
+            <summary>Access to the underlying memory buffer via span.</summary>
+            <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
+            <returns>Span view to the underlying memory buffer.</returns>
         </member>
         <member name="P:K4AdotNet.Sensor.Image.SizeBytes">
             <summary>Get the image buffer size in bytes.</summary>
@@ -7770,93 +7840,9 @@
         <member name="F:K4AdotNet.Timeout.Infinite">
             <summary>Special timeout value: infinite waiting.</summary>
         </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
-            <summary>
-                Specifies that <see langword="null"/> is allowed as an input even if the
-                corresponding type disallows it.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.AllowNullAttribute.#ctor">
-            <summary>
-                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute"/> class.
-            </summary>
-        </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
-            <summary>
-                Specifies that <see langword="null"/> is disallowed as an input even if the
-                corresponding type allows it.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.DisallowNullAttribute.#ctor">
-            <summary>
-                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute"/> class.
-            </summary>
-        </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
-            <summary>
-                Specifies that a method that will never return under any circumstance.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.#ctor">
-             <summary>
-                 Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"/> class.
-             </summary>
-            
-        </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
-            <summary>
-                Specifies that the method will not return if the associated <see cref="T:System.Boolean"/>
-                parameter is passed the specified value.
-            </summary>
-        </member>
-        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
-            <summary>
-                Gets the condition parameter value.
-                Code after the method is considered unreachable by diagnostics if the argument
-                to the associated parameter matches this value.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
-            <summary>
-                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute"/>
-                class with the specified parameter value.
-            </summary>
-            <param name="parameterValue">
-                The condition parameter value.
-                Code after the method is considered unreachable by diagnostics if the argument
-                to the associated parameter matches this value.
-            </param>
-        </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
-            <summary>
-                Specifies that an output may be <see langword="null"/> even if the
-                corresponding type disallows it.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullAttribute.#ctor">
-            <summary>
-                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute"/> class.
-            </summary>
-        </member>
-        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
-            <summary>
-                Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, 
-                the parameter may be <see langword="null"/> even if the corresponding type disallows it.
-            </summary>
-        </member>
-        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
-            <summary>
-                Gets the return value condition.
-                If the method returns this value, the associated parameter may be <see langword="null"/>.
-            </summary>
-        </member>
-        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
-            <summary>
-                 Initializes the attribute with the specified return value condition.
-            </summary>
-            <param name="returnValue">
-                The return value condition.
-                If the method returns this value, the associated parameter may be <see langword="null"/>.
+    </members>
+</doc>
+sociated parameter may be <see langword="null"/>.
             </param>
         </member>
         <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">

@@ -59,7 +59,7 @@ THE SOFTWARE.
 
 -------------------------------------------------------------------
 
-azure/azure-c-shared-utility bcf6393b1ce3cecf0fcdf8988621fd6e4d414df3 - MIT
+azure/azure-c-shared-utility 1a27846886a74702d409a8f0e2d77a38163cefc7 - MIT
 Copyright (c) Microsoft Corporation
 
 Microsoft Azure IoT SDKs

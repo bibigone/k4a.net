@@ -279,7 +279,7 @@ extern "C" {
  * Handle to a body frame object returned by k4abt_tracker_pop_result function.
  *
  * \returns
- * Returns the timestamp of the body frame. If the \p body_frame_handle is invalid this function will return 0. It is
+ * Returns the device timestamp of the body frame. If the \p body_frame_handle is invalid this function will return 0. It is
  * also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
  *
  * \relates k4abt_frame_t
@@ -288,6 +288,22 @@ extern "C" {
  *
  */
  K4ABT_EXPORT uint64_t k4abt_frame_get_device_timestamp_usec(k4abt_frame_t body_frame_handle);
+
+/** Get the body frame's system timestamp in nanoseconds
+ *
+ * \param body_frame_handle
+ * Handle to a body frame object returned by k4abt_tracker_pop_result function.
+ *
+ * \returns
+ * Returns the system timestamp of the body frame. If the \p body_frame_handle is invalid this function will return 0. It is
+ * also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+ *
+ * \relates k4abt_frame_t
+ *
+ * \remarks Called when the user has received a body frame handle and wants to access the data contained in it.
+ *
+ */
+ K4ABT_EXPORT uint64_t k4abt_frame_get_system_timestamp_nsec(k4abt_frame_t body_frame_handle);
 
 /** Get the body index map from k4abt_frame_t
  *

@@ -202,7 +202,7 @@ namespace k4abt
          * \sa k4abt_frame_get_body_id
          * \sa k4abt_frame_get_body_skeleton
          */
-        k4abt_body_t get_body(uint32_t index) const noexcept
+        k4abt_body_t get_body(uint32_t index) const
         {
             k4abt_body_t body;
             body.id = k4abt_frame_get_body_id(m_handle, index);
@@ -217,6 +217,15 @@ namespace k4abt
         std::chrono::microseconds get_device_timestamp() const noexcept
         {
             return std::chrono::microseconds(k4abt_frame_get_device_timestamp_usec(m_handle));
+        }
+
+        /** Get the k4abt frame's system timestamp in nanoseconds
+         *
+         * \sa k4a_image_get_system_timestamp_nsec
+         */
+        std::chrono::nanoseconds get_system_timestamp() const noexcept
+        {
+            return std::chrono::nanoseconds(k4abt_frame_get_system_timestamp_nsec(m_handle));
         }
 
         /** Get the body index map associated with the k4abt frame
@@ -331,7 +340,7 @@ namespace k4abt
          *
          * \sa k4abt_tracker_pop_result
          */
-        bool pop_result(k4abt::frame* body_frame, std::chrono::milliseconds timeout = std::chrono::milliseconds(K4A_WAIT_INFINITE))
+        bool pop_result(k4abt::frame* body_frame, std::chrono::milliseconds timeout = std::chrono::milliseconds(K4A_WAIT_INFINITE)) const
         {
             k4abt_frame_t frame_handle = nullptr;
             int32_t timeout_ms = k4a::internal::clamp_cast<int32_t>(timeout.count());
@@ -354,7 +363,7 @@ namespace k4abt
          *
          * \sa k4abt_tracker_pop_result
          */
-        k4abt::frame pop_result(std::chrono::milliseconds timeout = std::chrono::milliseconds(K4A_WAIT_INFINITE))
+        k4abt::frame pop_result(std::chrono::milliseconds timeout = std::chrono::milliseconds(K4A_WAIT_INFINITE)) const
         {
             k4abt::frame body_frame = nullptr;
             if (pop_result(&body_frame, timeout))
@@ -371,7 +380,7 @@ namespace k4abt
          *
          * \sa k4abt_tracker_set_temporal_smoothing
          */
-        void set_temporal_smoothing(float smoothing_factor) noexcept
+        void set_temporal_smoothing(float smoothing_factor) const noexcept
         {
             k4abt_tracker_set_temporal_smoothing(m_handle, smoothing_factor);
         }
@@ -380,9 +389,11 @@ namespace k4abt
          *
          * \sa k4abt_tracker_shutdown
          */
-        void shutdown() noexcept
+        void shutdown() const noexcept
         {
-            k4abt_tracker_shutdown(m_handle);
+            if (m_handle != nullptr) {
+                k4abt_tracker_shutdown(m_handle);
+            }
         }
 
         /** Create a k4abt tracker.

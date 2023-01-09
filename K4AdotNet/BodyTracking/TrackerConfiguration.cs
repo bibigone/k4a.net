@@ -29,7 +29,19 @@ namespace K4AdotNet.BodyTracking
         public TrackerProcessingMode ProcessingMode;
 
         /// <summary>Specify the GPU device ID to run the tracker.</summary>
-        /// <remarks>The setting is only effective if the <see cref="ProcessingMode"/> setting is set to <see cref="TrackerProcessingMode.GpuCuda"/>.</remarks>
+        /// <remarks><para>
+        /// The setting is not effective if the <see cref="ProcessingMode"/> setting is set to <see cref="TrackerProcessingMode.Cpu"/>.
+        /// </para><para>
+        /// For <see cref="TrackerProcessingMode.GpuCuda"/> and <see cref="TrackerProcessingMode.GpuTensorRT"/> modes,
+        /// ID of the graphic card can be retrieved using the CUDA API.
+        /// </para><para>
+        /// In case when processing_mode is <see cref="TrackerProcessingMode.GpuDirectML"/>,
+        /// the device ID corresponds to the enumeration order of hardware adapters as given by <c>IDXGIFactory::EnumAdapters</c>.
+        /// </para><para>
+        /// A device_id of 0 always corresponds to the default adapter, which is typically the primary display GPU installed on the system.
+        /// </para><para>
+        /// More information can be found in the ONNX Runtime Documentation.
+        /// </para></remarks>
         public int GpuDeviceId;
 
         /// <summary>Specify the model file name and location used by the tracker.</summary>

@@ -159,11 +159,21 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Get the body frame's device timestamp.</summary>
         /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
         /// <returns>
-        /// Returns the timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="Microseconds64.Zero"/>.
+        /// Returns the device timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="Microseconds64.Zero"/>.
         /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
         /// </returns>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_device_timestamp_usec", CallingConvention = CallingConvention.Cdecl)]
         public static extern Microseconds64 FrameGetDeviceTimestamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
+
+        // K4ABT_EXPORT uint64_t k4abt_frame_get_system_timestamp_nsec(k4abt_frame_t body_frame_handle);
+        /// <summary>Get the body frame's system timestamp in nanoseconds.</summary>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <returns>
+        /// Returns the system timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return 0.
+        /// It is also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
+        /// </returns>
+        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "uint64_t k4abt_frame_get_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Nanoseconds64 FrameGetSystemTimestamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
         // K4ABT_EXPORT k4a_image_t k4abt_frame_get_body_index_map(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body index map from <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
