@@ -403,6 +403,27 @@ namespace K4AdotNet
         public static bool operator >=(int leftMs, Timeout right)
             => right.CompareTo(leftMs) <= 0;
 
+        /// <summary>Multiplies timeout interval by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        public static Timeout operator *(Timeout left, int right)
+            => left.ValueMs < 0 ? left.ValueMs : (left.ValueMs * right);
+
+        /// <summary>Multiplies timeout by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        public static Timeout operator *(int left, Timeout right)
+            => right.ValueMs < 0 ? right.ValueMs : (left * right.ValueMs);
+
+        /// <summary>Divides timeout by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        public static Timeout operator /(Timeout left, int right)
+            => left.ValueMs < 0 ? left.ValueMs : (left.ValueMs / right);
+
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>
         /// <seealso cref="ToTimeSpan"/>
@@ -438,14 +459,14 @@ namespace K4AdotNet
         {
             if (timeoutMs < 0)
                 throw new ArgumentOutOfRangeException(nameof(timeoutMs));
-            return new Timeout(timeoutMs);
+            return new(timeoutMs);
         }
 
         /// <summary>Special timeout value: non blocking call.</summary>
-        public static readonly Timeout NoWait = new Timeout(0);
+        public static readonly Timeout NoWait = new(0);
 
         /// <summary>Special timeout value: infinite waiting.</summary>
-        public static readonly Timeout Infinite = new Timeout(-1);
+        public static readonly Timeout Infinite = new(-1);
 
         private const string UNIT_POSTFIX = " ms";
     }

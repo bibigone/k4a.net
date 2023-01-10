@@ -1661,6 +1661,48 @@
             <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
             <seealso cref="M:K4AdotNet.Microseconds32.CompareTo(System.Int32)"/>
         </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Addition(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Addition(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Subtraction(K4AdotNet.Microseconds32,K4AdotNet.Microseconds32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Subtraction(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Multiply(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Multiply(System.Int32,K4AdotNet.Microseconds32)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds32.op_Division(K4AdotNet.Microseconds32,System.Int32)">
+            <summary>Divides time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        </member>
         <member name="M:K4AdotNet.Microseconds32.op_Implicit(K4AdotNet.Microseconds32)~System.TimeSpan">
             <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
@@ -1669,10 +1711,6 @@
         <member name="M:K4AdotNet.Microseconds32.op_Implicit(System.TimeSpan)~K4AdotNet.Microseconds32">
             <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:K4AdotNet.Microseconds32"/>.</param>
-        </member>
-        <member name="M:K4AdotNet.Microseconds32.op_Implicit(K4AdotNet.Microseconds32)~System.Int32">
-            <summary>Implicit conversion to <see cref="T:System.Int32"/> value in microseconds.</summary>
-            <param name="value">Value to be converted to <see cref="T:System.Int32"/>.</param>
         </member>
         <member name="M:K4AdotNet.Microseconds32.op_Implicit(System.Int32)~K4AdotNet.Microseconds32">
             <summary>Implicit conversion from <see cref="T:System.Int32"/>.</summary>
@@ -1997,6 +2035,84 @@
             <returns><see langword="true"/> if <paramref name="leftUsec"/> is greater than or equal to <paramref name="right"/>.</returns>
             <seealso cref="M:K4AdotNet.Microseconds64.CompareTo(System.Int64)"/>
         </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Addition(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Addition(K4AdotNet.Microseconds64,K4AdotNet.Microseconds32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Addition(K4AdotNet.Microseconds32,K4AdotNet.Microseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Addition(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Addition(K4AdotNet.Microseconds64,System.Int32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Subtraction(K4AdotNet.Microseconds64,K4AdotNet.Microseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Subtraction(K4AdotNet.Microseconds64,K4AdotNet.Microseconds32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Subtraction(K4AdotNet.Microseconds32,K4AdotNet.Microseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Subtraction(K4AdotNet.Microseconds64,System.Int64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Subtraction(K4AdotNet.Microseconds64,System.Int32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Multiply(K4AdotNet.Microseconds64,System.Int32)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Multiply(System.Int32,K4AdotNet.Microseconds64)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Microseconds64.op_Division(K4AdotNet.Microseconds64,System.Int32)">
+            <summary>Divides time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        </member>
         <member name="M:K4AdotNet.Microseconds64.op_Implicit(K4AdotNet.Microseconds64)~System.TimeSpan">
             <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
@@ -2004,10 +2120,6 @@
         <member name="M:K4AdotNet.Microseconds64.op_Implicit(System.TimeSpan)~K4AdotNet.Microseconds64">
             <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:K4AdotNet.Microseconds64"/>.</param>
-        </member>
-        <member name="M:K4AdotNet.Microseconds64.op_Implicit(K4AdotNet.Microseconds64)~System.Int64">
-            <summary>Implicit conversion to <see cref="T:System.Int64"/> value in microseconds.</summary>
-            <param name="value">Value to be converted to <see cref="T:System.Int64"/>.</param>
         </member>
         <member name="M:K4AdotNet.Microseconds64.op_Implicit(System.Int64)~K4AdotNet.Microseconds64">
             <summary>Implicit conversion from <see cref="T:System.Int64"/>.</summary>
@@ -2335,6 +2447,108 @@
             <returns><see langword="true"/> if <paramref name="leftNsec"/> is greater than or equal to <paramref name="right"/>.</returns>
             <seealso cref="M:K4AdotNet.Nanoseconds64.CompareTo(System.Int64)"/>
         </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Nanoseconds64,K4AdotNet.Microseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Microseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Nanoseconds64,K4AdotNet.Microseconds32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Microseconds32,K4AdotNet.Nanoseconds64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Addition(K4AdotNet.Nanoseconds64,System.Int32)">
+            <summary>Sum of two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Nanoseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Nanoseconds64,K4AdotNet.Microseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Microseconds32,K4AdotNet.Nanoseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Nanoseconds64,K4AdotNet.Microseconds32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Microseconds64,K4AdotNet.Nanoseconds64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Nanoseconds64,System.Int64)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Subtraction(K4AdotNet.Nanoseconds64,System.Int32)">
+            <summary>Difference between two time stamps.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Multiply(K4AdotNet.Nanoseconds64,System.Int32)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Multiply(System.Int32,K4AdotNet.Nanoseconds64)">
+            <summary>Multiplies time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Nanoseconds64.op_Division(K4AdotNet.Nanoseconds64,System.Int32)">
+            <summary>Divides time stamp by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        </member>
         <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(K4AdotNet.Nanoseconds64)~System.TimeSpan">
             <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:System.TimeSpan"/>.</param>
@@ -2342,10 +2556,6 @@
         <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(System.TimeSpan)~K4AdotNet.Nanoseconds64">
             <summary>Implicit conversion from <see cref="T:System.TimeSpan"/>.</summary>
             <param name="value">Value to be converted to <see cref="T:K4AdotNet.Nanoseconds64"/>.</param>
-        </member>
-        <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(K4AdotNet.Nanoseconds64)~System.Int64">
-            <summary>Implicit conversion to <see cref="T:System.Int64"/> value in nanoseconds.</summary>
-            <param name="value">Value to be converted to <see cref="T:System.Int64"/>.</param>
         </member>
         <member name="M:K4AdotNet.Nanoseconds64.op_Implicit(System.Int64)~K4AdotNet.Nanoseconds64">
             <summary>Implicit conversion from <see cref="T:System.Int64"/>.</summary>
@@ -7762,6 +7972,24 @@
             <param name="right">Right part of operator.</param>
             <returns><see langword="true"/> if <paramref name="leftMs"/> is greater than or equal to <paramref name="right"/>.</returns>
             <seealso cref="M:K4AdotNet.Timeout.CompareTo(System.Int32)"/>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Multiply(K4AdotNet.Timeout,System.Int32)">
+            <summary>Multiplies timeout interval by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Multiply(System.Int32,K4AdotNet.Timeout)">
+            <summary>Multiplies timeout by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        </member>
+        <member name="M:K4AdotNet.Timeout.op_Division(K4AdotNet.Timeout,System.Int32)">
+            <summary>Divides timeout by an integer number.</summary>
+            <param name="left">Left value.</param>
+            <param name="right">Right value.</param>
+            <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
         </member>
         <member name="M:K4AdotNet.Timeout.op_Implicit(K4AdotNet.Timeout)~System.TimeSpan">
             <summary>Implicit conversion to <see cref="T:System.TimeSpan"/>.</summary>

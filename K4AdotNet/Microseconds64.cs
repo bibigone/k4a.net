@@ -369,6 +369,97 @@ namespace K4AdotNet
         public static bool operator >=(long leftUsec, Microseconds64 right)
             => right.CompareTo(leftUsec) <= 0;
 
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator +(Microseconds64 left, Microseconds64 right)
+            => left.ValueUsec + right.ValueUsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator +(Microseconds64 left, Microseconds32 right)
+            => left.ValueUsec + right.ValueUsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator +(Microseconds32 left, Microseconds64 right)
+            => left.ValueUsec + right.ValueUsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator +(Microseconds64 left, long right)
+            => left.ValueUsec + right;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator +(Microseconds64 left, int right)
+            => left.ValueUsec + right;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator -(Microseconds64 left, Microseconds64 right)
+            => left.ValueUsec - right.ValueUsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator -(Microseconds64 left, Microseconds32 right)
+            => left.ValueUsec - right.ValueUsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator -(Microseconds32 left, Microseconds64 right)
+            => left.ValueUsec - right.ValueUsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator -(Microseconds64 left, long right)
+            => left.ValueUsec - right;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds64 operator -(Microseconds64 left, int right)
+            => left.ValueUsec - right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        public static Microseconds64 operator *(Microseconds64 left, int right)
+            => left.ValueUsec * right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        public static Microseconds64 operator *(int left, Microseconds64 right)
+            => left * right.ValueUsec;
+
+        /// <summary>Divides time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        public static Microseconds64 operator /(Microseconds64 left, int right)
+            => left.ValueUsec / right;
+
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>
         public static implicit operator TimeSpan(Microseconds64 value)
@@ -378,11 +469,6 @@ namespace K4AdotNet
         /// <param name="value">Value to be converted to <see cref="Microseconds64"/>.</param>
         public static implicit operator Microseconds64(TimeSpan value)
             => new(value);
-
-        /// <summary>Implicit conversion to <see cref="long"/> value in microseconds.</summary>
-        /// <param name="value">Value to be converted to <see cref="long"/>.</param>
-        public static implicit operator long(Microseconds64 value)
-            => value.ValueUsec;
 
         /// <summary>Implicit conversion from <see cref="long"/>.</summary>
         /// <param name="valueUsec">Value in microseconds to be converted to <see cref="Microseconds64"/>.</param>

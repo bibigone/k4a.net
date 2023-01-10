@@ -369,6 +369,55 @@ namespace K4AdotNet
         public static bool operator >=(int leftUsec, Microseconds32 right)
             => right.CompareTo(leftUsec) <= 0;
 
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds32 operator + (Microseconds32 left, Microseconds32 right)
+            => left.ValueUsec + right.ValueUsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds32 operator +(Microseconds32 left, int right)
+            => left.ValueUsec + right;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds32 operator -(Microseconds32 left, Microseconds32 right)
+            => left.ValueUsec - right.ValueUsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Microseconds32 operator -(Microseconds32 left, int right)
+            => left.ValueUsec - right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        public static Microseconds32 operator *(Microseconds32 left, int right)
+            => left.ValueUsec * right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        public static Microseconds32 operator *(int left, Microseconds32 right)
+            => left * right.ValueUsec;
+
+        /// <summary>Divides time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        public static Microseconds32 operator /(Microseconds32 left, int right)
+            => left.ValueUsec / right;
+
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>
         /// <seealso cref="ToTimeSpan"/>
@@ -379,11 +428,6 @@ namespace K4AdotNet
         /// <param name="value">Value to be converted to <see cref="Microseconds32"/>.</param>
         public static implicit operator Microseconds32(TimeSpan value)
             => new(value);
-
-        /// <summary>Implicit conversion to <see cref="int"/> value in microseconds.</summary>
-        /// <param name="value">Value to be converted to <see cref="int"/>.</param>
-        public static implicit operator int(Microseconds32 value)
-            => value.ValueUsec;
 
         /// <summary>Implicit conversion from <see cref="int"/>.</summary>
         /// <param name="valueUsec">Value in microseconds to be converted to <see cref="Microseconds32"/>.</param>

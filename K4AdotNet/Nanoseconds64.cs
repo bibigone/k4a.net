@@ -372,6 +372,125 @@ namespace K4AdotNet
         public static bool operator >=(long leftNsec, Nanoseconds64 right)
             => right.CompareTo(leftNsec) <= 0;
 
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Nanoseconds64 left, Nanoseconds64 right)
+            => left.ValueNsec + right.ValueNsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Nanoseconds64 left, Microseconds64 right)
+            => left.ValueNsec + right.ValueUsec * 1_000L;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Microseconds64 left, Nanoseconds64 right)
+            => left.ValueUsec * 1_000L + right.ValueNsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Nanoseconds64 left, Microseconds32 right)
+            => left.ValueNsec + right.ValueUsec * 1_000L;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Microseconds32 left, Nanoseconds64 right)
+            => left.ValueUsec * 1_000L + right.ValueNsec;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Nanoseconds64 left, long right)
+            => left.ValueNsec + right;
+
+        /// <summary>Sum of two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Sum of <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator +(Nanoseconds64 left, int right)
+            => left.ValueNsec + right;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Nanoseconds64 left, Nanoseconds64 right)
+            => left.ValueNsec - right.ValueNsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Nanoseconds64 left, Microseconds64 right)
+            => left.ValueNsec - right.ValueUsec * 1_000L;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Microseconds32 left, Nanoseconds64 right)
+            => left.ValueUsec * 1_000L - right.ValueNsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Nanoseconds64 left, Microseconds32 right)
+            => left.ValueNsec - right.ValueUsec * 1_000L;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Microseconds64 left, Nanoseconds64 right)
+            => left.ValueUsec * 1_000L - right.ValueNsec;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Nanoseconds64 left, long right)
+            => left.ValueNsec - right;
+
+        /// <summary>Difference between two time stamps.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns>Difference between <paramref name="left"/> and <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator -(Nanoseconds64 left, int right)
+            => left.ValueNsec - right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> times <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator *(Nanoseconds64 left, int right)
+            => left.ValueNsec * right;
+
+        /// <summary>Multiplies time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="right"/> times <paramref name="left"/>.</returns>
+        public static Nanoseconds64 operator *(int left, Nanoseconds64 right)
+            => left * right.ValueNsec;
+
+        /// <summary>Divides time stamp by an integer number.</summary>
+        /// <param name="left">Left value.</param>
+        /// <param name="right">Right value.</param>
+        /// <returns><paramref name="left"/> divided by <paramref name="right"/>.</returns>
+        public static Nanoseconds64 operator /(Nanoseconds64 left, int right)
+            => left.ValueNsec / right;
+
         /// <summary>Implicit conversion to <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="TimeSpan"/>.</param>
         public static implicit operator TimeSpan(Nanoseconds64 value)
@@ -381,11 +500,6 @@ namespace K4AdotNet
         /// <param name="value">Value to be converted to <see cref="Nanoseconds64"/>.</param>
         public static implicit operator Nanoseconds64(TimeSpan value)
             => new(value);
-
-        /// <summary>Implicit conversion to <see cref="long"/> value in nanoseconds.</summary>
-        /// <param name="value">Value to be converted to <see cref="long"/>.</param>
-        public static implicit operator long(Nanoseconds64 value)
-            => value.ValueNsec;
 
         /// <summary>Implicit conversion from <see cref="long"/>.</summary>
         /// <param name="valueNsec">Value in nanoseconds to be converted to <see cref="Nanoseconds64"/>.</param>
