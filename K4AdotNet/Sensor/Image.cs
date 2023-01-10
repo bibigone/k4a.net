@@ -24,7 +24,7 @@ namespace K4AdotNet.Sensor
         }
 
         internal static Image? Create(NativeHandles.ImageHandle? handle)
-            => handle != null && !handle.IsInvalid ? new Image(handle) : null;
+            => handle is not null && !handle.IsInvalid ? new(handle) : null;
 
         /// <summary>Creates new image with specified format and size in pixels.</summary>
         /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
@@ -304,7 +304,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         /// <seealso cref="Dispose"/>
         public Image DuplicateReference()
-            => new Image(handle.ValueNotDisposed.DuplicateReference());
+            => new(handle.ValueNotDisposed.DuplicateReference());
 
         /// <summary>Get the image buffer.</summary>
         /// <remarks>Use this buffer to access the raw image data.</remarks>
@@ -317,7 +317,7 @@ namespace K4AdotNet.Sensor
         /// <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
         /// <returns>Span view to the underlying memory buffer.</returns>
         public unsafe Span<T> GetSpan<T>() where T : unmanaged
-            => new Span<T>(Buffer.ToPointer(), SizeBytes / Marshal.SizeOf<T>());
+            => new(Buffer.ToPointer(), SizeBytes / Marshal.SizeOf<T>());
 
 #endif
 
@@ -577,7 +577,7 @@ namespace K4AdotNet.Sensor
         /// <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both images reference to one and the same unmanaged object.</returns>
         public bool Equals(Image? image)
-            => !(image is null) && image.handle.Equals(handle);
+            => image is not null && image.handle.Equals(handle);
 
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
@@ -597,7 +597,7 @@ namespace K4AdotNet.Sensor
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Image)"/>
         public static bool operator ==(Image? left, Image? right)
-            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+            => (left is null && right is null) || (left is not null && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(Image)"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
@@ -618,14 +618,14 @@ namespace K4AdotNet.Sensor
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
-            = new NativeApi.MemoryDestroyCallback(ReleaseUnmanagedBuffer);
+            = new(ReleaseUnmanagedBuffer);
 
         private static void ReleaseUnmanagedBuffer(IntPtr buffer, IntPtr context)
             => Marshal.FreeHGlobal(buffer);
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback pinnedArrayReleaseCallback
-            = new NativeApi.MemoryDestroyCallback(ReleasePinnedArray);
+            = new(ReleasePinnedArray);
 
         private static void ReleasePinnedArray(IntPtr buffer, IntPtr context)
             => ((GCHandle)context).Free();
@@ -635,7 +635,7 @@ namespace K4AdotNet.Sensor
         private readonly struct PinnedMemoryContext
         {
             private static readonly ConcurrentDictionary<int, PinnedMemoryContext> contexts
-                = new ConcurrentDictionary<int, PinnedMemoryContext>();
+                = new();
 
             private readonly IDisposable memoryOwner;
             private readonly System.Buffers.MemoryHandle memoryHandle;
@@ -652,7 +652,7 @@ namespace K4AdotNet.Sensor
                 var key = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(memoryOwner);
                 while (!contexts.TryAdd(key, context))
                     key = key < int.MaxValue ? key + 1 : int.MinValue;
-                return new IntPtr(key);
+                return new(key);
             }
 
             public static void Destroy(IntPtr ptr)
@@ -670,13 +670,13 @@ namespace K4AdotNet.Sensor
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback pinnedMemoryReleaseCallback
-            = new NativeApi.MemoryDestroyCallback(ReleasePinnedMemory);
+            = new(ReleasePinnedMemory);
 
         private static void ReleasePinnedMemory(IntPtr _, IntPtr context)
             => PinnedMemoryContext.Destroy(context);
 
 #endif
 
-        #endregion
+#endregion
     }
 }

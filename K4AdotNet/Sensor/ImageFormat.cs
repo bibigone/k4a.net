@@ -17,7 +17,7 @@
     /// <summary>Image format type.</summary>
     /// <remarks>Helpful extension methods for this enumeration type can be found in <see cref="ImageFormats"/>.</remarks>
     /// <seealso cref="ImageFormats"/>
-    public enum ImageFormat
+    public enum ImageFormat : int
     {
         /// <summary>
         /// The buffer for each image is encoded as a JPEG and can be decoded by a JPEG decoder.

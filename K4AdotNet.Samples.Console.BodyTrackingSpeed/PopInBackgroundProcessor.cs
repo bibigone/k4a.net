@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
+namespace K4AdotNet.Samples.Console.BodyTrackingSpeed
 {
     internal sealed class PopInBackgroundProcessor : Processor
     {
@@ -13,7 +13,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             : base(processingParameters)
         {
             processing = true;
-            backgroundThread = new Thread(ProcessingLoop) { IsBackground = true };
+            backgroundThread = new(ProcessingLoop) { IsBackground = true };
             backgroundThread.Start();
         }
 

@@ -15,7 +15,7 @@
     /// <seealso cref="CalibrationGeometries"/>
     /// <seealso cref="CalibrationExtrinsics"/>
     /// <seealso cref="Calibration.Extrinsics"/>
-    public enum CalibrationGeometry
+    public enum CalibrationGeometry : int
     {
         /// <summary>Calibration type is unknown.</summary>
         Unknown = -1,

@@ -1,4 +1,4 @@
-﻿namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
+﻿namespace K4AdotNet.Samples.Console.BodyTrackingSpeed
 {
     internal enum DnnModel
     {

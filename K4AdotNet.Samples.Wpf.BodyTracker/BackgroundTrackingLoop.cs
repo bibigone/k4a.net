@@ -19,9 +19,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 ProcessingMode = processingMode,
                 ModelPath = GetModelPath(dnnModel),
             };
-            tracker = new Tracker(in calibration, config) { TemporalSmoothingFactor = smoothingFactor };
+            tracker = new(in calibration, config) { TemporalSmoothingFactor = smoothingFactor };
             isRunning = true;
-            backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
+            backgroundThread = new(BackgroundLoop) { IsBackground = true };
             backgroundThread.Start();
         }
 
@@ -47,9 +47,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             tracker.Dispose();
         }
 
-        public event EventHandler<BodyFrameReadyEventArgs> BodyFrameReady;
+        public event EventHandler<BodyFrameReadyEventArgs>? BodyFrameReady;
 
-        public event EventHandler<FailedEventArgs> Failed;
+        public event EventHandler<FailedEventArgs>? Failed;
 
         public void Enqueue(Capture capture)
             => tracker.EnqueueCapture(capture);

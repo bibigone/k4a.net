@@ -7,22 +7,22 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 {
     internal sealed class ViewerModel : ViewModelBase, IDisposable
     {
-        private readonly BackgroundReadingLoop readingLoop;
+        private readonly BackgroundReadingLoop? readingLoop;
 
         // To transform depth map to color camera plane
-        private readonly Transformation transformation;
-        private readonly Image depthOverColorImage;
+        private readonly Transformation? transformation;
+        private readonly Image? depthOverColorImage;
 
         // To visualize images received from Capture
-        private readonly ImageVisualizer colorImageVisualizer;
-        private readonly ImageVisualizer depthImageVisualizer;
-        private readonly ImageVisualizer depthOverColorImageVisualizer;
-        private readonly ImageVisualizer irImageVisualizer;
+        private readonly ImageVisualizer? colorImageVisualizer;
+        private readonly ImageVisualizer? depthImageVisualizer;
+        private readonly ImageVisualizer? depthOverColorImageVisualizer;
+        private readonly ImageVisualizer? irImageVisualizer;
 
         // To calculate actual fps
-        private readonly ActualFpsCalculator colorFps = new ActualFpsCalculator();
-        private readonly ActualFpsCalculator depthFps = new ActualFpsCalculator();
-        private readonly ActualFpsCalculator irFps = new ActualFpsCalculator();
+        private readonly ActualFpsCalculator colorFps = new();
+        private readonly ActualFpsCalculator depthFps = new();
+        private readonly ActualFpsCalculator irFps = new();
 
         // For designer
         public ViewerModel()
@@ -53,7 +53,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                 {
                     readingLoop.GetCalibration(out var calibration);
                     transformation = calibration.CreateTransformation();
-                    depthOverColorImage = new Image(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
+                    depthOverColorImage = new(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
                     depthOverColorImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
                 }
 
@@ -68,37 +68,37 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             // Proportions between columns
             if (colorRes != ColorResolution.Off && depthMode.HasPassiveIR())
             {
-                IRColumnWidth = new GridLength(irImageVisualizer.WidthPixels, GridUnitType.Star);
+                IRColumnWidth = new(irImageVisualizer!.WidthPixels, GridUnitType.Star);
                 DepthColumnWidth = depthMode.HasDepth() ? IRColumnWidth : new GridLength(0, GridUnitType.Pixel);
-                ColorColumnWidth = new GridLength(
-                    irImageVisualizer.HeightPixels * colorImageVisualizer.WidthPixels / colorImageVisualizer.HeightPixels,
+                ColorColumnWidth = new(
+                    irImageVisualizer.HeightPixels * colorImageVisualizer!.WidthPixels / colorImageVisualizer.HeightPixels,
                     GridUnitType.Star);
             }
             else if (colorRes != ColorResolution.Off)
             {
-                DepthColumnWidth = IRColumnWidth = new GridLength(0, GridUnitType.Pixel);
-                ColorColumnWidth = new GridLength(1, GridUnitType.Star);
+                DepthColumnWidth = IRColumnWidth = new(0, GridUnitType.Pixel);
+                ColorColumnWidth = new(1, GridUnitType.Star);
             }
             else
             {
-                IRColumnWidth = new GridLength(1, GridUnitType.Star);
-                ColorColumnWidth = new GridLength(0, GridUnitType.Pixel);
+                IRColumnWidth = new(1, GridUnitType.Star);
+                ColorColumnWidth = new(0, GridUnitType.Pixel);
                 DepthColumnWidth = depthMode.HasDepth() ? IRColumnWidth : ColorColumnWidth;
             }
         }
 
-        private void ReadingLoop_Failed(object sender, FailedEventArgs e)
-            => dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message)));
+        private void ReadingLoop_Failed(object? sender, FailedEventArgs e)
+            => dispatcher.BeginInvoke(new Action(() => app!.ShowErrorMessage(e.Exception.Message)));
 
-        private void ReadingLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
+        private void ReadingLoop_CaptureReady(object? sender, CaptureReadyEventArgs e)
         {
-            using (var colorImage = e.Capture.ColorImage)
+            using (var colorImage = e.Capture?.ColorImage)
             {
                 var was = colorImageVisualizer?.Update(colorImage);
                 UpdateFpsIfNeeded(was, colorFps, nameof(ColorFps));
             }
 
-            using (var depthImage = e.Capture.DepthImage)
+            using (var depthImage = e.Capture?.DepthImage)
             {
                 var was = depthImageVisualizer?.Update(depthImage);
                 UpdateFpsIfNeeded(was, depthFps, nameof(DepthFps));
@@ -116,7 +116,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                 }
             }
 
-            using (var irImage = e.Capture.IRImage)
+            using (var irImage = e.Capture?.IRImage)
             {
                 var was = irImageVisualizer?.Update(irImage);
                 UpdateFpsIfNeeded(was, irFps, nameof(IRFps));
@@ -139,18 +139,18 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         public void Run()
             => readingLoop?.Run();
 
-        public string Title { get; }
+        public string? Title { get; }
 
-        public BitmapSource ColorImageSource => colorImageVisualizer?.ImageSource;
-        public BitmapSource DepthImageSource => depthImageVisualizer?.ImageSource;
-        public BitmapSource DepthOverColorImageSource => depthOverColorImageVisualizer?.ImageSource;
-        public BitmapSource IRImageSource => irImageVisualizer?.ImageSource;
+        public BitmapSource? ColorImageSource => colorImageVisualizer?.ImageSource;
+        public BitmapSource? DepthImageSource => depthImageVisualizer?.ImageSource;
+        public BitmapSource? DepthOverColorImageSource => depthOverColorImageVisualizer?.ImageSource;
+        public BitmapSource? IRImageSource => irImageVisualizer?.ImageSource;
 
         public string ColorResolutionInfo => FormatResolution(colorImageVisualizer);
         public string DepthResolutionInfo => FormatResolution(depthImageVisualizer);
         public string IRResolutionInfo => FormatResolution(irImageVisualizer);
 
-        private static string FormatResolution(ImageVisualizer imageVisualizer)
+        private static string FormatResolution(ImageVisualizer? imageVisualizer)
             => imageVisualizer != null ? $"{imageVisualizer.WidthPixels}x{imageVisualizer.HeightPixels}" : "0x0";
 
         public string ColorFps => FormatFps(colorFps);

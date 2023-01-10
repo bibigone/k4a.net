@@ -86,22 +86,19 @@ namespace K4AdotNet
         /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         public float this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0: return M11;
-                    case 1: return M12;
-                    case 2: return M13;
-                    case 3: return M21;
-                    case 4: return M22;
-                    case 5: return M23;
-                    case 6: return M31;
-                    case 7: return M32;
-                    case 8: return M33;
-                    default: throw new IndexOutOfRangeException();
-                }
-            }
+                0 => M11,
+                1 => M12,
+                2 => M13,
+                3 => M21,
+                4 => M22,
+                5 => M23,
+                6 => M31,
+                7 => M32,
+                8 => M33,
+                _ => throw new IndexOutOfRangeException(),
+            };
 
             set
             {
@@ -163,9 +160,9 @@ namespace K4AdotNet
         /// <seealso cref="Equals(Float3x3)"/>
         public override bool Equals(object? obj)
         {
-            if (obj is null || !(obj is Float3x3))
+            if (obj is null || obj is not Float3x3 float33)
                 return false;
-            return Equals((Float3x3)obj);
+            return Equals(float33);
         }
 
         /// <summary>To be consistent with <see cref="Equals(Float3x3)"/>.</summary>
@@ -208,9 +205,9 @@ namespace K4AdotNet
                $"{M31}\t{M32}\t{M33}{Environment.NewLine}";
 
         /// <summary>Zero matrix (all elements are 0).</summary>
-        public static readonly Float3x3 Zero = new Float3x3();
+        public static readonly Float3x3 Zero = new();
 
         /// <summary>Identity matrix (diagonal elements are 1, other are 0).</summary>
-        public static readonly Float3x3 Identity = new Float3x3 { M11 = 1f, M22 = 1f, M33 = 1f };
+        public static readonly Float3x3 Identity = new() { M11 = 1f, M22 = 1f, M33 = 1f };
     }
 }

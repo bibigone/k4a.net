@@ -9,7 +9,7 @@
     //
     /// <summary>Transformation interpolation type.</summary>
     /// <seealso cref="Transformation.DepthImageToColorCameraCustom"/>
-    public enum TransformationInterpolation
+    public enum TransformationInterpolation : int
     {
         /// <summary>Nearest neighbor interpolation.</summary>
         Nearest = 0,

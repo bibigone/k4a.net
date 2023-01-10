@@ -16,7 +16,7 @@
     /// </remarks>
     /// <seealso cref="TrackerConfiguration"/>
     /// <seealso cref="Tracker.Tracker"/>
-    public enum SensorOrientation
+    public enum SensorOrientation : int
     {
         /// <summary>Mount the sensor at its default orientation.</summary>
         Default = 0,

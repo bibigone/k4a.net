@@ -8,7 +8,7 @@ namespace K4AdotNet.Samples.Wpf
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        protected readonly IApp app;
+        protected readonly IApp? app;
         protected readonly Dispatcher dispatcher;
 
         protected ViewModelBase()
@@ -20,7 +20,7 @@ namespace K4AdotNet.Samples.Wpf
             dispatcher = app.Dispatcher;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void RaisePropertyChanged(string propertyName)
         {
@@ -48,13 +48,13 @@ namespace K4AdotNet.Samples.Wpf
         {
         }
 
-        protected bool SetPropertyValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null, string dependentPropertyName = null)
+        protected bool SetPropertyValue<T>(ref T field, T value, [CallerMemberName] string? propertyName = null, string? dependentPropertyName = null)
         {
             if (!Equals(field, value))
             {
                 field = value;
 
-                RaisePropertyChanged(propertyName);
+                RaisePropertyChanged(propertyName!);
 
                 if (!string.IsNullOrEmpty(dependentPropertyName))
                     RaisePropertyChanged(dependentPropertyName);

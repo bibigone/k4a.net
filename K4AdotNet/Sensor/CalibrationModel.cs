@@ -13,7 +13,7 @@ namespace K4AdotNet.Sensor
     // } k4a_calibration_model_type_t;
     //
     /// <summary>The model used to interpret the calibration parameters.</summary>
-    public enum CalibrationModel
+    public enum CalibrationModel : int
     {
         /// <summary>Calibration model is unknown.</summary>
         Unknown = 0,

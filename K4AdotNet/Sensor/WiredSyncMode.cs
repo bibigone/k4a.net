@@ -9,7 +9,7 @@
     // } k4a_wired_sync_mode_t;
     //
     /// <summary>Synchronization mode when connecting two or more devices together.</summary>
-    public enum WiredSyncMode
+    public enum WiredSyncMode : int
     {
         /// <summary>Neither 'Sync In' or 'Sync Out' connections are used.</summary>
         Standalone = 0,

@@ -21,14 +21,14 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             this.jointToImageProjector = jointToImageProjector;
 
             // WPF stuff to draw skeleton
-            drawingRect = new Rect(0, 0, widthPixels, heightPixels);
-            drawingGroup = new DrawingGroup { ClipGeometry = new RectangleGeometry(drawingRect) };
+            drawingRect = new(0, 0, widthPixels, heightPixels);
+            drawingGroup = new(){ ClipGeometry = new RectangleGeometry(drawingRect) };
             ImageSource = new DrawingImage(drawingGroup);
 
             // Default visualization settings
             JointCircleRadius = heightPixels / 70;
-            JointBorder = new Pen(Brushes.Black, JointCircleRadius / 4);
-            BonePen = new Pen(Brushes.White, JointCircleRadius * 2 / 3);
+            JointBorder = new(Brushes.Black, JointCircleRadius / 4);
+            BonePen = new(Brushes.White, JointCircleRadius * 2 / 3);
             JointFill = Brushes.LightGreen;
             JointFillLow = Brushes.Yellow;
             JointFillNone = Brushes.OrangeRed;
@@ -61,7 +61,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         #endregion
 
-        public void Update(BodyFrame bodyFrame)
+        public void Update(BodyFrame? bodyFrame)
         {
             // Is compatible?
             if (bodyFrame == null || bodyFrame.IsDisposed)
@@ -123,7 +123,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             var res = jointToImageProjector(joint);
             if (!res.HasValue)
                 return null;
-            return new Point(res.Value.X, res.Value.Y);
+            return new(res.Value.X, res.Value.Y);
         }
 
         // Draws joint as circle
@@ -159,7 +159,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly Func<Joint, Float2?> jointToImageProjector;
         private readonly Rect drawingRect;
         private readonly DrawingGroup drawingGroup;
-        private Skeleton[] skeletons = new Skeleton[0];
-        private readonly object skeletonsSync = new object();
+        private Skeleton[] skeletons = Array.Empty<Skeleton>();
+        private readonly object skeletonsSync = new();
     }
 }

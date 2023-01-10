@@ -93,8 +93,8 @@ namespace K4AdotNet
             => obj switch
             {
                 null => 1,
-                Microseconds32 _ => CompareTo((Microseconds32)obj),
-                TimeSpan _ => CompareTo((TimeSpan)obj),
+                Microseconds32 microseconds => CompareTo(microseconds),
+                TimeSpan span => CompareTo(span),
                 IConvertible _ => CompareTo(Convert.ToInt32(obj)),
                 _ => throw new ArgumentException("Object is not a Microseconds32 or TimeSpan or integer number", nameof(obj))
             };
@@ -113,8 +113,8 @@ namespace K4AdotNet
             => obj switch
             {
                 null => false,
-                Microseconds32 _ => Equals((Microseconds32)obj),
-                TimeSpan _ => Equals((TimeSpan)obj),
+                Microseconds32 microseconds => Equals(microseconds),
+                TimeSpan span => Equals(span),
                 IConvertible _ => Equals(Convert.ToInt32(obj)),
                 _ => false
             };
@@ -378,7 +378,7 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="Microseconds32"/>.</param>
         public static implicit operator Microseconds32(TimeSpan value)
-            => new Microseconds32(value);
+            => new(value);
 
         /// <summary>Implicit conversion to <see cref="int"/> value in microseconds.</summary>
         /// <param name="value">Value to be converted to <see cref="int"/>.</param>
@@ -388,21 +388,21 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="int"/>.</summary>
         /// <param name="valueUsec">Value in microseconds to be converted to <see cref="Microseconds32"/>.</param>
         public static implicit operator Microseconds32(int valueUsec)
-            => new Microseconds32(valueUsec);
+            => new(valueUsec);
 
         /// <summary>Creates instance of <see cref="Microseconds32"/> from seconds.</summary>
         /// <param name="valueSec">Value in seconds.</param>
         /// <returns>Created value.</returns>
         public static Microseconds32 FromSeconds(double valueSec)
-            => new Microseconds32((int)(valueSec * 1_000_000));
+            => new((int)(valueSec * 1_000_000));
 
         /// <summary>Creates instance of <see cref="Microseconds32"/> from milliseconds.</summary>
         /// <param name="valueMs">Value in milliseconds.</param>
         /// <returns>Created value.</returns>
         public static Microseconds32 FromMilliseconds(double valueMs)
-            => new Microseconds32((int)(valueMs * 1_000));
+            => new((int)(valueMs * 1_000));
 
         /// <summary>Zero value.</summary>
-        public static readonly Microseconds32 Zero = new Microseconds32(0);
+        public static readonly Microseconds32 Zero = new(0);
     }
 }

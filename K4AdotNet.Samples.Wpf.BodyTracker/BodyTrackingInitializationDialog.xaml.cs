@@ -10,14 +10,12 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private bool isClosed;
 
         public BodyTrackingInitializationDialog()
-        {
-            InitializeComponent();
-        }
+            => InitializeComponent();
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             bool isOk = false;
-            string message = null;
+            string? message = null;
             await Task.Run(() => isOk = Sdk.TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode.Cpu, out message))
                 .ConfigureAwait(true);
 

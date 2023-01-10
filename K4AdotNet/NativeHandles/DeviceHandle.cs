@@ -15,6 +15,6 @@
             return true;
         }
 
-        public static readonly DeviceHandle Zero = new DeviceHandle();
+        public static readonly DeviceHandle Zero = new();
     }
 }

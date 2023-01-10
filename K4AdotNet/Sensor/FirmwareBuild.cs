@@ -8,7 +8,7 @@
     // } k4a_firmware_build_t;
     //
     /// <summary>Firmware build type.</summary>
-    public enum FirmwareBuild
+    public enum FirmwareBuild : int
     {
         /// <summary>Production firmware.</summary>
         Release = 0,

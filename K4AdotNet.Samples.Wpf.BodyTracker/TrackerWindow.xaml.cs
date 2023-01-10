@@ -16,9 +16,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            (DataContext as TrackerModel)?.Run();
-        }
+            => (DataContext as TrackerModel)?.Run();
 
         protected override void OnClosed(EventArgs e)
         {

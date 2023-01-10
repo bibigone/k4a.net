@@ -14,7 +14,7 @@
         public BodyFrameHandle DuplicateReference()
         {
             NativeApi.FrameReference(handle);
-            return new BodyFrameHandle { handle = handle };
+            return new() { handle = handle };
         }
 
         protected override bool ReleaseHandle()
@@ -23,6 +23,6 @@
             return true;
         }
 
-        public static readonly BodyFrameHandle Zero = new BodyFrameHandle();
+        public static readonly BodyFrameHandle Zero = new();
     }
 }

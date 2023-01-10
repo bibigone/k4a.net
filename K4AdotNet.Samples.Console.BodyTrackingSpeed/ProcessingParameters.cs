@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
-namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
+namespace K4AdotNet.Samples.Console.BodyTrackingSpeed
 {
     internal sealed class ProcessingParameters
     {
@@ -17,7 +17,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         public static readonly string StartTimeDescription = "Optional start time of video interval in seconds (default - beginning of recording)";
         public static readonly string EndTimeDescription = "Optional end time of video interval in seconds (default - end of recording)";
 
-        public static bool IsValueLikeToMkvFilePath(string value)
+        public static bool IsValueLikeToMkvFilePath(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return false;
@@ -41,7 +41,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             => (!StartTime.HasValue || StartTime.Value <= frameTimestamp)
             && (!EndTime.HasValue || EndTime.Value >= frameTimestamp);
 
-        public bool TrySetMkvPath(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetMkvPath(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -85,7 +85,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 ["d"] = BodyTracking.TrackerProcessingMode.GpuDirectML,
             };
 
-        public bool TrySetProcessingMode(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetProcessingMode(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -116,7 +116,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 ["l"] = DnnModel.Lite,
             };
 
-        public bool TrySetDnnModel(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetDnnModel(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -145,7 +145,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 ["e"] = ProcessingImplementation.EnqueueInBackground,
             };
 
-        public bool TrySetImplementation(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetImplementation(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -166,7 +166,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return false;
         }
 
-        public bool TrySetStartTime(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetStartTime(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -194,7 +194,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             return true;
         }
 
-        public bool TrySetEndTime(string value, [NotNullWhen(returnValue: false)] out string? message)
+        public bool TrySetEndTime(string? value, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

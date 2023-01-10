@@ -33,8 +33,8 @@ namespace K4AdotNet.Record
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length - 1);
         }
 
-        private NativeCallResults.BufferResult GetTrackName(int trackIndex, byte[]? trackName, ref UIntPtr trackNameSize)
-            => NativeApi.PlaybackGetTrackName(PlaybackHandle, Helpers.Int32ToUIntPtr(trackIndex), trackName, ref trackNameSize);
+        private NativeCallResults.BufferResult GetTrackName(int trackIndex, IntPtr buffer, ref UIntPtr size)
+            => NativeApi.PlaybackGetTrackName(PlaybackHandle, Helpers.Int32ToUIntPtr(trackIndex), buffer, ref size);
 
         /// <summary>Zero-based index of track.</summary>
         public int Index { get; }
@@ -77,8 +77,8 @@ namespace K4AdotNet.Record
             }
         }
 
-        private NativeCallResults.BufferResult GetCodecId(byte[] trackNameAsBytes, byte[]? codecId, ref UIntPtr codecIdSize)
-            => NativeApi.PlaybackTrackGetCodecId(PlaybackHandle, trackNameAsBytes, codecId, ref codecIdSize);
+        private NativeCallResults.BufferResult GetCodecId(byte[] trackNameAsBytes, IntPtr buffer, ref UIntPtr size)
+            => NativeApi.PlaybackTrackGetCodecId(PlaybackHandle, trackNameAsBytes, buffer, ref size);
 
         /// <summary>Gets the codec context for this track.</summary>
         /// <remarks>
@@ -97,8 +97,8 @@ namespace K4AdotNet.Record
             }
         }
 
-        private NativeCallResults.BufferResult GetCodecContext(byte[] trackNameAsBytes, byte[]? codecContext, ref UIntPtr codecContextSize)
-            => NativeApi.PlaybackTrackGetCodecContext(PlaybackHandle, trackNameAsBytes, codecContext, ref codecContextSize);
+        private NativeCallResults.BufferResult GetCodecContext(byte[] trackNameAsBytes, IntPtr buffer, ref UIntPtr size)
+            => NativeApi.PlaybackTrackGetCodecContext(PlaybackHandle, trackNameAsBytes, buffer, ref size);
 
         /// <summary>Reads the next data block for this track.</summary>
         /// <param name="dataBlock">Output: data block object on success or <see langword="null"/> on EOF. Don't forget to dispose this object after usage.</param>

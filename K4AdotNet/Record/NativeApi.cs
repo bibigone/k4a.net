@@ -260,26 +260,26 @@ namespace K4AdotNet.Record
         //                                                                       size_t *data_size);
         /// <summary>Get the raw calibration blob for the Azure Kinect device used during recording.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
-        /// <param name="data">
+        /// <param name="buffer">
         /// Location to write the calibration data to. This field may optionally be set to <see langword="null"/>
         /// if the caller wants to query for the needed data size.
         /// </param>
-        /// <param name="dataSize">
-        /// On passing <paramref name="dataSize"/> into the function this variable represents the available size to write the raw data to. On
+        /// <param name="size">
+        /// On passing <paramref name="buffer"/> into the function this variable represents the available size to write the raw data to. On
         /// return this variable is updated with the amount of data actually written to the buffer.
         /// </param>
         /// <returns>
-        /// <see cref="NativeCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
-        /// If <paramref name="dataSize"/> points to a buffer size that is too small to hold the output,
-        /// <see cref="NativeCallResults.BufferResult.TooSmall"/> is returned and <paramref name="dataSize"/> is updated to contain the
+        /// <see cref="NativeCallResults.BufferResult.Succeeded"/> if <paramref name="buffer"/> was successfully written.
+        /// If <paramref name="buffer"/> points to a buffer size that is too small to hold the output,
+        /// <see cref="NativeCallResults.BufferResult.TooSmall"/> is returned and <paramref name="size"/> is updated to contain the
         /// minimum buffer size needed to capture the calibration data.
         /// </returns>
         /// <remarks>The raw calibration may not exist if the device was not specified during recording.</remarks>
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult PlaybackGetRawCalibration(
             NativeHandles.PlaybackHandle playbackHandle,
-            [Out] byte[]? data,
-            ref UIntPtr dataSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_playback_get_calibration(k4a_playback_t playback_handle,
         //                                                            k4a_calibration_t* calibration);
@@ -331,18 +331,18 @@ namespace K4AdotNet.Record
         /// <summary>Gets the name of a track at a specific index.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="trackIndex">The index of the track to read the name form.</param>
-        /// <param name="trackName">
+        /// <param name="buffer">
         /// Location to write the track name. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
-        /// <paramref name="trackNameSize"/> will be set to the size of buffer needed to store the string.
+        /// <paramref name="size"/> will be set to the size of buffer needed to store the string.
         /// </param>
-        /// <param name="trackNameSize">
-        /// On input, the size of the <paramref name="trackName"/> buffer. On output, this is set to the length of the <paramref name="trackName"/> value
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> value
         /// (including the 0 terminator).
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="trackName"/> has been filled in.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
         /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
-        /// and the needed size of the <paramref name="trackName"/> buffer is returned in the <paramref name="trackNameSize"/> parameter.
+        /// and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
         /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the track index does not exist.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
@@ -350,8 +350,8 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.BufferResult PlaybackGetTrackName(
             NativeHandles.PlaybackHandle playbackHandle,
             UIntPtr trackIndex,
-            [Out] byte[]? trackName,
-            ref UIntPtr trackNameSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT bool k4a_playback_track_is_builtin(k4a_playback_t playback_handle, const char* track_name);
         /// <summary>Checks whether a track is one of the built-in tracks: "COLOR", "DEPTH", etc...</summary>
@@ -384,18 +384,18 @@ namespace K4AdotNet.Record
         /// <summary>Gets the codec id string for a particular track.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="trackName">The track name to read the codec id from.</param>
-        /// <param name="codecId">
+        /// <param name="buffer">
         /// Location to write the codec id. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
-        /// <paramref name="codecIdSize"/> will be set to the size of buffer needed to store the string.
+        /// <paramref name="size"/> will be set to the size of buffer needed to store the string.
         /// </param>
-        /// <param name="codecIdSize">
-        /// On input, the size of the <paramref name="codecId"/> buffer. On output, this is set to the length of the <paramref name="codecId"/> value
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> value
         /// (including the 0 terminator).
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecId"/> has been filled in.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
         /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
-        /// and the needed size of the <paramref name="codecId"/> buffer is returned in the <paramref name="codecIdSize"/> parameter.
+        /// and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
         /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
@@ -407,8 +407,8 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.BufferResult PlaybackTrackGetCodecId(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] trackName,
-            [Out] byte[]? codecId,
-            ref UIntPtr codecIdSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_track_get_codec_context(k4a_playback_t playback_handle,
         //                                                                           const char* track_name,
@@ -417,17 +417,17 @@ namespace K4AdotNet.Record
         /// <summary>Gets the codec context for a particular track.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="trackName">The track name to read the codec id from.</param>
-        /// <param name="codecContext">
+        /// <param name="buffer">
         /// Location to write the codec context data. If a <see langword="null"/> buffer is specified,
-        /// <paramref name="codecContextSize"/> will be set to the size of buffer needed to store the data.
+        /// <paramref name="size"/> will be set to the size of buffer needed to store the data.
         /// </param>
-        /// <param name="codecContextSize">
-        /// On input, the size of the <paramref name="codecContext"/> buffer. On output, this is set to the length of the <paramref name="codecContext"/> data.
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> data.
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecContext"/> has been filled in.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
         /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
-        /// and the needed size of the <paramref name="codecContext"/> buffer is returned in the <paramref name="codecContextSize"/> parameter.
+        /// and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
         /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
@@ -439,8 +439,8 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.BufferResult PlaybackTrackGetCodecContext(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] trackName,
-            [Out] byte[]? codecContext,
-            ref UIntPtr codecContextSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_tag(k4a_playback_t playback_handle,
         //                                                           const char *name,
@@ -449,18 +449,18 @@ namespace K4AdotNet.Record
         /// <summary>Read the value of a tag from a recording.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="name">The name of the tag to read.</param>
-        /// <param name="value">
-        /// Location to write the tag value. If a <see langword="null"/> buffer is specified,
-        /// <paramref name="valueSize"/> will be set to the size of buffer needed to store the string.
+        /// <param name="buffer">
+        /// Location to write the tag value. If a <see cref="IntPtr.Zero"/> buffer is specified,
+        /// <paramref name="size"/> will be set to the size of buffer needed to store the string.
         /// </param>
-        /// <param name="valueSize">
-        /// On input, the size of the <paramref name="value"/> buffer. On output, this is set to the length of the tag value (including the null
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the tag value (including the null
         /// terminator).
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="value"/> has been filled in.
-        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/> and the needed size of the <paramref name="value"/>
-        /// buffer is returned in the <paramref name="valueSize"/> parameter.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
+        /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/> and the needed size of the <paramref name="buffer"/>
+        /// buffer is returned in the <paramref name="size"/> parameter.
         /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the tag does not exist.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
@@ -472,8 +472,8 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.BufferResult PlaybackGetTag(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] name,
-            [Out] byte[]? value,
-            ref UIntPtr valueSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_playback_set_color_conversion(k4a_playback_t playback_handle,
         //                                                                 k4a_image_format_t target_format);
@@ -504,17 +504,17 @@ namespace K4AdotNet.Record
         /// <summary>Reads an attachment file from a recording.</summary>
         /// <param name="playbackHandle">Handle obtained by <see cref="PlaybackOpen(byte[], out NativeHandles.PlaybackHandle)"/>.</param>
         /// <param name="fileName">Attachment file name.</param>
-        /// <param name="data">
-        /// Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="dataSize"/> will be set to the size of
+        /// <param name="buffer">
+        /// Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="size"/> will be set to the size of
         /// buffer needed to store the data.
         /// </param>
-        /// <param name="dataSize">
-        /// On input, the size of the <paramref name="data"/> buffer. On output, this is set to the length of the attachment data.
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the attachment data.
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="data"/> has been filled in.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
         /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/>
-        /// and the needed size of the <paramref name="data"/> buffer is returned in the <paramref name="dataSize"/> parameter.
+        /// and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
         /// <see cref="NativeCallResults.BufferResult.Failed"/> is returned if the attachment <paramref name="fileName"/> does not exist.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
@@ -522,8 +522,8 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.BufferResult PlaybackGetAttachment(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] fileName,
-            [Out] byte[]? data,
-            ref UIntPtr dataSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_next_capture(k4a_playback_t playback_handle,
         //                                                                    k4a_capture_t* capture_handle);

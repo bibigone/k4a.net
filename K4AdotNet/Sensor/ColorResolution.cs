@@ -18,7 +18,7 @@
     /// for additional details on the field of view, supported frame rates and image formats.
     /// </remarks>
     /// <seealso cref="ColorResolutions"/>
-    public enum ColorResolution
+    public enum ColorResolution : int
     {
         /// <summary>Color camera will be turned off with this setting</summary>
         Off = 0,

@@ -3,14 +3,13 @@
   <Import Project="..\Product.props" />
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
-    <Description></Description>
-    <AssemblyName>K4AdotNet.Samples.Wpf.Common</AssemblyName>
-    <UseWPF>True</UseWPF>
+    <Description>Core .NET sample console application to measure speed of Body Tracking.</Description>
+    <AssemblyName>K4ABodyTrackingSpeed</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

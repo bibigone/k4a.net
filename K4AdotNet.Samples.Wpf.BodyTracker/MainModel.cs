@@ -32,7 +32,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public void Playback()
         {
-            var filePath = app.BrowseFileToOpen("MKV recordings|*.mkv");
+            var filePath = app!.BrowseFileToOpen("MKV recordings|*.mkv");
 
             if (!string.IsNullOrWhiteSpace(filePath))
             {
@@ -50,7 +50,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 }
                 catch (Exception exc)
                 {
-                    app.ShowErrorMessage(exc.Message, "Cannot open file for playback");
+                    app!.ShowErrorMessage(exc.Message, "Cannot open file for playback");
                 }
             }
         }
@@ -93,13 +93,13 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public void OpenDevice()
         {
-            Device device = null;
+            Device? device = null;
 
             try
             {
                 device = Device.Open();
 
-                using (app.IndicateWaiting())
+                using (app!.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
                     var viewModel = new TrackerModel(app, readingLoop, ProcessingMode, DnnModel, SensorOrientation, SmoothingFactor);
@@ -109,7 +109,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             catch (Exception exc)
             {
                 device?.Dispose();
-                app.ShowErrorMessage(exc.Message, "Device Failed");
+                app!.ShowErrorMessage(exc.Message, "Device Failed");
             }
         }
 

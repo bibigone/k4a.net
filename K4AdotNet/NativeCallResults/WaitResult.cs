@@ -9,7 +9,7 @@
     // } k4a_wait_result_t;
     //
     /// <summary>Result code returned by Azure Kinect APIs.</summary>
-    internal enum WaitResult
+    internal enum WaitResult : int
     {
         /// <summary>The result was successful</summary>
         Succeeded = 0,

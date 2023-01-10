@@ -3,7 +3,7 @@ using K4AdotNet.Sensor;
 using System;
 using System.IO;
 
-namespace K4AdotNet.Samples.Core.Recorder
+namespace K4AdotNet.Samples.Console.Recorder
 {
     /// <summary>Command line options.</summary>
     internal sealed class Options

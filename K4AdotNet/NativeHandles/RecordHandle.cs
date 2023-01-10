@@ -15,6 +15,6 @@
             return true;
         }
 
-        public static readonly RecordHandle Zero = new RecordHandle();
+        public static readonly RecordHandle Zero = new();
     }
 }

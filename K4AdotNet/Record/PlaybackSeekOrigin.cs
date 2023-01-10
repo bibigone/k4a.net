@@ -9,7 +9,7 @@
     // } k4a_playback_seek_origin_t;
     //
     /// <summary>Playback seeking positions.</summary>
-    public enum PlaybackSeekOrigin
+    public enum PlaybackSeekOrigin : int
     {
         /// <summary>Seek relative to the beginning of a recording.</summary>
         Begin,

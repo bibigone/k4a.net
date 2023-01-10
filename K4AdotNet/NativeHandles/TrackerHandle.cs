@@ -15,6 +15,6 @@
             return true;
         }
 
-        public static readonly TrackerHandle Zero = new TrackerHandle();
+        public static readonly TrackerHandle Zero = new();
     }
 }

@@ -40,7 +40,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         public void Playback()
         {
-            var filePath = app.BrowseFileToOpen("MKV recordings|*.mkv");
+            var filePath = app!.BrowseFileToOpen("MKV recordings|*.mkv");
 
             if (!string.IsNullOrWhiteSpace(filePath))
             {
@@ -101,12 +101,12 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
         public void OpenDevice()
         {
-            Device device = null;
+            Device? device = null;
 
             try
             {
                 device = Device.Open();
-                using (app.IndicateWaiting())
+                using (app!.IndicateWaiting())
                 {
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
                     var viewModel = new ViewerModel(app, readingLoop);
@@ -116,7 +116,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             catch (Exception exc)
             {
                 device?.Dispose();
-                app.ShowErrorMessage(exc.Message, "Device Failed");
+                app!.ShowErrorMessage(exc.Message, "Device Failed");
             }
         }
 

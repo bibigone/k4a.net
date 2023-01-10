@@ -13,15 +13,15 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         private readonly Queue<FrameData> queue = new Queue<FrameData>();
         private readonly ManualResetEvent enqueued = new ManualResetEvent(false);
         private readonly Image image;
-        private Thread thread;
-        private CancellationTokenSource cancellation;
+        private Thread? thread;
+        private CancellationTokenSource? cancellation;
 
         public Processor(int frameWidth, int frameHeight)
         {
             this.frameWidth = frameWidth;
             this.frameHeight = frameHeight;
 
-            image = new Image(ImageFormat.ColorBgra32, frameWidth, frameHeight);
+            image = new(ImageFormat.ColorBgra32, frameWidth, frameHeight);
         }
 
         public void Dispose()
@@ -54,7 +54,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         private volatile bool _unknownDepthIsBackground;
 
 
-        public event EventHandler ImageUpdated;
+        public event EventHandler? ImageUpdated;
 
 
         public void Start()
@@ -81,7 +81,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             {
                 if (thread != null)
                 {
-                    cancellation.Cancel();
+                    cancellation!.Cancel();
                     try
                     {
                         thread.Join();
@@ -102,7 +102,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 
         private void Process()
         {
-            while (!cancellation.IsCancellationRequested)
+            while (!cancellation!.IsCancellationRequested)
             {
                 WaitHandle.WaitAny(new[] { enqueued, cancellation.Token.WaitHandle });
 

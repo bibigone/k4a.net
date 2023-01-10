@@ -162,8 +162,8 @@ namespace K4AdotNet.Record
             return true;
         }
 
-        private NativeCallResults.BufferResult GetTag(byte[] name, byte[]? value, ref UIntPtr valueSize)
-            => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, value, ref valueSize);
+        private NativeCallResults.BufferResult GetTag(byte[] name, IntPtr buffer, ref UIntPtr size)
+            => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, buffer, ref size);
 
         /// <summary>Reads an attachment file from a recording.</summary>
         /// <param name="attachmentName">Attachment file name. Not <see langword="null"/>, not empty.</param>
@@ -184,8 +184,8 @@ namespace K4AdotNet.Record
             return Helpers.TryGetValueInByteBuffer(GetAttachment, attachmentNameAsBytes, out attachmentData);
         }
 
-        private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, byte[]? data, ref UIntPtr dataSize)
-            => NativeApi.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, data, ref dataSize);
+        private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, IntPtr buffer, ref UIntPtr size)
+            => NativeApi.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, buffer, ref size);
 
         /// <summary>
         /// Sets the image format that color captures will be converted to. By default the conversion format will be the same as

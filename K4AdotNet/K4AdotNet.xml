@@ -2911,21 +2911,21 @@
             <param name="playbackHandle">If successful, this contains a pointer to the recording handle.</param>
             <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetRawCalibration(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetRawCalibration(K4AdotNet.NativeHandles.PlaybackHandle,System.IntPtr,System.UIntPtr@)">
             <summary>Get the raw calibration blob for the Azure Kinect device used during recording.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
-            <param name="data">
+            <param name="buffer">
             Location to write the calibration data to. This field may optionally be set to <see langword="null"/>
             if the caller wants to query for the needed data size.
             </param>
-            <param name="dataSize">
-            On passing <paramref name="dataSize"/> into the function this variable represents the available size to write the raw data to. On
+            <param name="size">
+            On passing <paramref name="buffer"/> into the function this variable represents the available size to write the raw data to. On
             return this variable is updated with the amount of data actually written to the buffer.
             </param>
             <returns>
-            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
-            If <paramref name="dataSize"/> points to a buffer size that is too small to hold the output,
-            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> is returned and <paramref name="dataSize"/> is updated to contain the
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> if <paramref name="buffer"/> was successfully written.
+            If <paramref name="buffer"/> points to a buffer size that is too small to hold the output,
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> is returned and <paramref name="size"/> is updated to contain the
             minimum buffer size needed to capture the calibration data.
             </returns>
             <remarks>The raw calibration may not exist if the device was not specified during recording.</remarks>
@@ -2957,22 +2957,22 @@
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <returns>The number of tracks in the playback file.</returns>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTrackName(K4AdotNet.NativeHandles.PlaybackHandle,System.UIntPtr,System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTrackName(K4AdotNet.NativeHandles.PlaybackHandle,System.UIntPtr,System.IntPtr,System.UIntPtr@)">
             <summary>Gets the name of a track at a specific index.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="trackIndex">The index of the track to read the name form.</param>
-            <param name="trackName">
+            <param name="buffer">
             Location to write the track name. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
-            <paramref name="trackNameSize"/> will be set to the size of buffer needed to store the string.
+            <paramref name="size"/> will be set to the size of buffer needed to store the string.
             </param>
-            <param name="trackNameSize">
-            On input, the size of the <paramref name="trackName"/> buffer. On output, this is set to the length of the <paramref name="trackName"/> value
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> value
             (including the 0 terminator).
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="trackName"/> has been filled in.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
             If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
-            and the needed size of the <paramref name="trackName"/> buffer is returned in the <paramref name="trackNameSize"/> parameter.
+            and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
             <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the track index does not exist.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
@@ -2992,22 +2992,22 @@
             <see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success,
             <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/> is returned if the specified track does not exist or is not a video track.</returns>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecId(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecId(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.IntPtr,System.UIntPtr@)">
             <summary>Gets the codec id string for a particular track.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="trackName">The track name to read the codec id from.</param>
-            <param name="codecId">
+            <param name="buffer">
             Location to write the codec id. This will be a UTF8 null terminated string. If a <see langword="null"/> buffer is specified,
-            <paramref name="codecIdSize"/> will be set to the size of buffer needed to store the string.
+            <paramref name="size"/> will be set to the size of buffer needed to store the string.
             </param>
-            <param name="codecIdSize">
-            On input, the size of the <paramref name="codecId"/> buffer. On output, this is set to the length of the <paramref name="codecId"/> value
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> value
             (including the 0 terminator).
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecId"/> has been filled in.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
             If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
-            and the needed size of the <paramref name="codecId"/> buffer is returned in the <paramref name="codecIdSize"/> parameter.
+            and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
             <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
@@ -3016,21 +3016,21 @@
             here: https://www.matroska.org/technical/specs/codecid/index.html. It can also be custom defined by the user.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecContext(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackTrackGetCodecContext(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.IntPtr,System.UIntPtr@)">
             <summary>Gets the codec context for a particular track.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="trackName">The track name to read the codec id from.</param>
-            <param name="codecContext">
+            <param name="buffer">
             Location to write the codec context data. If a <see langword="null"/> buffer is specified,
-            <paramref name="codecContextSize"/> will be set to the size of buffer needed to store the data.
+            <paramref name="size"/> will be set to the size of buffer needed to store the data.
             </param>
-            <param name="codecContextSize">
-            On input, the size of the <paramref name="codecContext"/> buffer. On output, this is set to the length of the <paramref name="codecContext"/> data.
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the <paramref name="buffer"/> data.
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="codecContext"/> has been filled in.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
             If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
-            and the needed size of the <paramref name="codecContext"/> buffer is returned in the <paramref name="codecContextSize"/> parameter.
+            and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
             <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the <paramref name="trackName"/> does not exist.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
@@ -3039,22 +3039,22 @@
             codec.It is mapped to the matroska Codec Private field.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetTag(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.IntPtr,System.UIntPtr@)">
             <summary>Read the value of a tag from a recording.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="name">The name of the tag to read.</param>
-            <param name="value">
-            Location to write the tag value. If a <see langword="null"/> buffer is specified,
-            <paramref name="valueSize"/> will be set to the size of buffer needed to store the string.
+            <param name="buffer">
+            Location to write the tag value. If a <see cref="F:System.IntPtr.Zero"/> buffer is specified,
+            <paramref name="size"/> will be set to the size of buffer needed to store the string.
             </param>
-            <param name="valueSize">
-            On input, the size of the <paramref name="value"/> buffer. On output, this is set to the length of the tag value (including the null
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the tag value (including the null
             terminator).
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="value"/> has been filled in.
-            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> and the needed size of the <paramref name="value"/>
-            buffer is returned in the <paramref name="valueSize"/> parameter.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
+            If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> and the needed size of the <paramref name="buffer"/>
+            buffer is returned in the <paramref name="size"/> parameter.
             <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the tag does not exist.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
@@ -3080,21 +3080,21 @@
             <see cref="M:K4AdotNet.Record.NativeApi.PlaybackGetPreviousCapture(K4AdotNet.NativeHandles.PlaybackHandle,K4AdotNet.NativeHandles.CaptureHandle@)"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetAttachment(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Record.NativeApi.PlaybackGetAttachment(K4AdotNet.NativeHandles.PlaybackHandle,System.Byte[],System.IntPtr,System.UIntPtr@)">
             <summary>Reads an attachment file from a recording.</summary>
             <param name="playbackHandle">Handle obtained by <see cref="M:K4AdotNet.Record.NativeApi.PlaybackOpen(System.Byte[],K4AdotNet.NativeHandles.PlaybackHandle@)"/>.</param>
             <param name="fileName">Attachment file name.</param>
-            <param name="data">
-            Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="dataSize"/> will be set to the size of
+            <param name="buffer">
+            Location to write the attachment data. If a <see langword="null"/> buffer is specified, <paramref name="size"/> will be set to the size of
             buffer needed to store the data.
             </param>
-            <param name="dataSize">
-            On input, the size of the <paramref name="data"/> buffer. On output, this is set to the length of the attachment data.
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer. On output, this is set to the length of the attachment data.
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="data"/> has been filled in.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
             If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/>
-            and the needed size of the <paramref name="data"/> buffer is returned in the <paramref name="dataSize"/> parameter.
+            and the needed size of the <paramref name="buffer"/> buffer is returned in the <paramref name="size"/> parameter.
             <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/> is returned if the attachment <paramref name="fileName"/> does not exist.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
@@ -6108,47 +6108,6 @@
             or <paramref name="buffer"/> array is too small for specified image parameters.
             </exception>
         </member>
-        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32)">
-            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
-            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
-            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
-            <param name="format">Format of image. Must be format with known stride: <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.</param>
-            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
-            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-            <returns>Created image. Not <see langword="null"/>.</returns>
-            <remarks><para>
-            This version of method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
-            and cannot be used for other formats. For details see <see cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>.
-            For other formats use <see cref="M:K4AdotNet.Sensor.Image.CreateFromArray``1(``0[],K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)"/>.
-            </para><para>
-            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
-            </para></remarks>
-            <exception cref="T:System.ArgumentOutOfRangeException">
-            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
-            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
-            </exception>
-            <exception cref="T:System.ArgumentException">
-            Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
-            </exception>
-            <seealso cref="M:K4AdotNet.Sensor.ImageFormats.StrideBytes(K4AdotNet.Sensor.ImageFormat,System.Int32)"/>
-        </member>
-        <member name="M:K4AdotNet.Sensor.Image.CreateFromMemory``1(System.Buffers.IMemoryOwner{``0},K4AdotNet.Sensor.ImageFormat,System.Int32,System.Int32,System.Int32)">
-            <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
-            <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
-            <param name="memoryOwner">Memory owner of underlying buffer. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
-            <param name="format">Format of image.</param>
-            <param name="widthPixels">Width of image in pixels. Must be positive.</param>
-            <param name="heightPixels">Height of image in pixels. Must be positive.</param>
-            <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="F:K4AdotNet.Sensor.ImageFormat.ColorMjpg"/> and <see cref="F:K4AdotNet.Sensor.ImageFormat.Custom"/>.</param>        /// <returns>Created image. Not <see langword="null"/>.</returns>
-            <remarks><para>
-            <see cref="P:K4AdotNet.Sensor.Image.Buffer"/> points to pinned memory of <paramref name="memoryOwner"/>.
-            </para></remarks>
-            <exception cref="T:System.ArgumentOutOfRangeException">
-            <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
-            or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
-            or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
-            </exception>
-        </member>
         <member name="M:K4AdotNet.Sensor.Image.Dispose">
             <summary>
             Call this method to free unmanaged resources associated with current instance.
@@ -6182,11 +6141,6 @@
             <summary>Get the image buffer.</summary>
             <remarks>Use this buffer to access the raw image data.</remarks>
             <exception cref="T:System.ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        </member>
-        <member name="M:K4AdotNet.Sensor.Image.GetSpan``1">
-            <summary>Access to the underlying memory buffer via span.</summary>
-            <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
-            <returns>Span view to the underlying memory buffer.</returns>
         </member>
         <member name="P:K4AdotNet.Sensor.Image.SizeBytes">
             <summary>Get the image buffer size in bytes.</summary>
@@ -6881,23 +6835,23 @@
             Calling this function while another thread is in that function will result in that function returning a failure.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSerialnum(K4AdotNet.NativeHandles.DeviceHandle,System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSerialnum(K4AdotNet.NativeHandles.DeviceHandle,System.IntPtr,System.UIntPtr@)">
             <summary>Get the Azure Kinect device serial number.</summary>
             <param name="deviceHandle">Handle obtained by <see cref="M:K4AdotNet.Sensor.NativeApi.DeviceOpen(System.UInt32,K4AdotNet.NativeHandles.DeviceHandle@)"/>.</param>
-            <param name="serialNumber">
+            <param name="buffer">
             Location to write the serial number to. If the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/>,
             this will be a NULL-terminated string of ASCII characters.
-            If this input is <see langword="null"/>, <paramref name="serialNumberSize"/> will still be updated to return
+            If this input is <see langword="null"/>, <paramref name="size"/> will still be updated to return
             the size of the buffer needed to store the string.
             </param>
-            <param name="serialNumberSize">
-            On input, the size of the <paramref name="serialNumber"/> buffer if that pointer is not <see langword="null"/>.
+            <param name="size">
+            On input, the size of the <paramref name="buffer"/> buffer if that pointer is not <see langword="null"/>.
             On output, this value is set to the actual number of bytes in the serial number (including the null terminator).
             </param>
             <returns>
-            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="serialNumber"/> has been filled in.
+            A return of <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
             If the buffer is too small the function returns <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> and the size of the serial number is
-            returned in the <paramref name="serialNumberSize"/> parameter.
+            returned in the <paramref name="size"/> parameter.
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Failed"/>.
             </returns>
         </member>
@@ -6910,7 +6864,7 @@
             All other failures return <see cref="F:K4AdotNet.NativeCallResults.Result.Failed"/>.
             </returns>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetColorControlCapabilities(K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.ColorControlCommand,System.Boolean@,System.Int32@,System.Int32@,System.Int32@,System.Int32@,K4AdotNet.Sensor.ColorControlMode@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetColorControlCapabilities(K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.ColorControlCommand,System.Byte@,System.Int32@,System.Int32@,System.Int32@,System.Int32@,K4AdotNet.Sensor.ColorControlMode@)">
             <summary>Get the Azure Kinect color sensor control capabilities.</summary>
             <param name="deviceHandle">Handle obtained by <see cref="M:K4AdotNet.Sensor.NativeApi.DeviceOpen(System.UInt32,K4AdotNet.NativeHandles.DeviceHandle@)"/>.</param>
             <param name="command">Color sensor control command.</param>
@@ -6961,23 +6915,23 @@
             even if the device is closed or the application is restarted.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetRawCalibration(K4AdotNet.NativeHandles.DeviceHandle,System.Byte[],System.UIntPtr@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetRawCalibration(K4AdotNet.NativeHandles.DeviceHandle,System.IntPtr,System.UIntPtr@)">
             <summary>Get the raw calibration blob for the entire Azure Kinect device.</summary>
             <param name="deviceHandle">Handle obtained by <see cref="M:K4AdotNet.Sensor.NativeApi.DeviceOpen(System.UInt32,K4AdotNet.NativeHandles.DeviceHandle@)"/>.</param>
-            <param name="data">
+            <param name="buffer">
             Location to write the calibration data to. This field may optionally be set to <see langword="null"/> for the caller to query for
             the needed data size.
             </param>
-            <param name="dataSize">
-            On passing <paramref name="dataSize"/> into the function this variable represents the available size of the <paramref name="data"/>
+            <param name="size">
+            On passing <paramref name="size"/> into the function this variable represents the available size of the <paramref name="buffer"/>
             buffer. On return this variable is updated with the amount of data actually written to the buffer, or the size
-            required to store the calibration buffer if <paramref name="data"/> is <see langword="null"/>.
+            required to store the calibration buffer if <paramref name="buffer"/> is <see langword="null"/>.
             </param>
             <returns>
-            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
-            If <paramref name="dataSize"/> points to a buffer size that is
-            too small to hold the output or <paramref name="data"/> data is <see langword="null"/>, <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> is returned
-            and <paramref name="dataSize"/> is updated to contain the minimum buffer size needed to capture the calibration data.
+            <see cref="F:K4AdotNet.NativeCallResults.BufferResult.Succeeded"/> if <paramref name="buffer"/> was successfully written.
+            If <paramref name="size"/> points to a buffer size that is
+            too small to hold the output or <paramref name="buffer"/> data is <see langword="null"/>, <see cref="F:K4AdotNet.NativeCallResults.BufferResult.TooSmall"/> is returned
+            and <paramref name="size"/> is updated to contain the minimum buffer size needed to capture the calibration data.
             </returns>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetCalibration(K4AdotNet.NativeHandles.DeviceHandle,K4AdotNet.Sensor.DepthMode,K4AdotNet.Sensor.ColorResolution,K4AdotNet.Sensor.Calibration@)">
@@ -6994,7 +6948,7 @@
             The <paramref name="calibration"/> output is used as input to all calibration and transformation functions.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSyncJack(K4AdotNet.NativeHandles.DeviceHandle,System.Boolean@,System.Boolean@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.DeviceGetSyncJack(K4AdotNet.NativeHandles.DeviceHandle,System.Byte@,System.Byte@)">
             <summary>Get the device jack status for the synchronization in and synchronization out connectors.</summary>
             <param name="deviceHandle">Handle obtained by <see cref="M:K4AdotNet.Sensor.NativeApi.DeviceOpen(System.UInt32,K4AdotNet.NativeHandles.DeviceHandle@)"/>.</param>
             <param name="syncInJackConnected">Upon successful return this value will be set to true if a cable is connected to this sync in jack.</param>
@@ -7039,7 +6993,7 @@
             be identical to <paramref name="sourcePoint3DMm"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo3D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float3@,System.Boolean@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo3D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float3@,System.Byte@)">
             <summary>
             Transform a 2D pixel coordinate with an associated depth value of the source camera
             into a 3D point of the target coordinate system.
@@ -7080,7 +7034,7 @@
             should not use the value of <paramref name="targetPoint3DMm"/> if <paramref name="valid"/> was set to <see langword="false"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration3DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float3@,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration3DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float3@,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Byte@)">
             <summary>Transform a 3D point of a source coordinate system into a 2D pixel coordinate of the target camera.</summary>
             <param name="calibration">Camera calibration data.</param>
             <param name="sourcePoint3DMm">The 3D coordinates in millimeters representing a point in <paramref name="sourceCamera"/>.</param>
@@ -7110,7 +7064,7 @@
             The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to <see langword="false"/>.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Byte@)">
             <summary>
             Transform a 2D pixel coordinate with an associated depth value of the source camera into a 2D pixel coordinate of the target camera.
             </summary>
@@ -7137,8 +7091,8 @@
             </returns>
             <remarks>
             This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
-            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo3D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float3@,System.Boolean@)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
-            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration3DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float3@,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
+            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo3D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float3@,System.Byte@)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+            <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration3DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float3@,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Byte@)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
             
             If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately sets <paramref name="targetPoint2D"/> to
             <paramref name="sourcePoint2D"/> and returns without computing any transformations.
@@ -7148,7 +7102,7 @@
             The user should not use the value of <paramref name="targetPoint2D"/> if <paramref name="valid"/> was set to 0.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.Sensor.NativeApi.CalibrationColor2DToDepth2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Float2@,System.Boolean@)">
+        <member name="M:K4AdotNet.Sensor.NativeApi.CalibrationColor2DToDepth2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.Float2@,System.Byte@)">
              <summary>Transform a 2D pixel coordinate from color camera into a 2D pixel coordinate of the depth camera.</summary>
              <param name="calibration">Camera calibration data.</param>
              <param name="sourcePoint2D">The 2D pixel in color camera coordinates.</param>
@@ -7166,11 +7120,11 @@
              and should be ignored.
              </returns>
              <remarks>
-             This function represents an alternative to <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>
+             This function represents an alternative to <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Byte@)"/>
              if the number of pixels that need to be transformed is small. This function searches along an epipolar line in the depth image to find the corresponding
              depth pixel. If a larger number of pixels need to be transformed, it might be computationally cheaper to call
              <see cref="M:K4AdotNet.Sensor.NativeApi.TransformationDepthImageToColorCamera(K4AdotNet.NativeHandles.TransformationHandle,K4AdotNet.NativeHandles.ImageHandle,K4AdotNet.NativeHandles.ImageHandle)"/>
-             to get correspondence depth values for these color pixels, then call the function <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Boolean@)"/>.
+             to get correspondence depth values for these color pixels, then call the function <see cref="M:K4AdotNet.Sensor.NativeApi.Calibration2DTo2D(K4AdotNet.Sensor.Calibration@,K4AdotNet.Float2@,System.Single,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Sensor.CalibrationGeometry,K4AdotNet.Float2@,System.Byte@)"/>.
             
              If <paramref name="sourcePoint2D"/> does not map to a valid 2D coordinate in the depth camera coordinate system, <paramref name="valid"/> is set
              to <see langword="false"/>. If it is valid, <paramref name="valid"/> will be set to <see langword="true"/>.
@@ -7840,9 +7794,93 @@
         <member name="F:K4AdotNet.Timeout.Infinite">
             <summary>Special timeout value: infinite waiting.</summary>
         </member>
-    </members>
-</doc>
-sociated parameter may be <see langword="null"/>.
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>
+                Specifies that <see langword="null"/> is allowed as an input even if the
+                corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.AllowNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>
+                Specifies that <see langword="null"/> is disallowed as an input even if the
+                corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DisallowNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>
+                Specifies that a method that will never return under any circumstance.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.#ctor">
+             <summary>
+                 Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"/> class.
+             </summary>
+            
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>
+                Specifies that the method will not return if the associated <see cref="T:System.Boolean"/>
+                parameter is passed the specified value.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>
+                Gets the condition parameter value.
+                Code after the method is considered unreachable by diagnostics if the argument
+                to the associated parameter matches this value.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute"/>
+                class with the specified parameter value.
+            </summary>
+            <param name="parameterValue">
+                The condition parameter value.
+                Code after the method is considered unreachable by diagnostics if the argument
+                to the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>
+                Specifies that an output may be <see langword="null"/> even if the
+                corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullAttribute.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>
+                Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, 
+                the parameter may be <see langword="null"/> even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>
+                Gets the return value condition.
+                If the method returns this value, the associated parameter may be <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+                 Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">
+                The return value condition.
+                If the method returns this value, the associated parameter may be <see langword="null"/>.
             </param>
         </member>
         <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">

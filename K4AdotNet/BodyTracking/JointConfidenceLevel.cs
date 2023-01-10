@@ -11,7 +11,7 @@
     // } k4abt_joint_confidence_level_t;
     //
     /// <summary>This enumeration specifies the joint confidence level.</summary>
-    public enum JointConfidenceLevel
+    public enum JointConfidenceLevel : int
     {
         /// <summary>The joint is out of range (too far from depth camera).</summary>
         None = 0,

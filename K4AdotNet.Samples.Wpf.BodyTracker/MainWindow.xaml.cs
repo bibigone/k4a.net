@@ -5,26 +5,18 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
     partial class MainWindow : Window
     {
         public MainWindow()
-        {
-            InitializeComponent();
-        }
+            => InitializeComponent();
 
         public MainWindow(MainModel viewModel)
             : this()
-        {
-            DataContext = viewModel;
-        }
+            => DataContext = viewModel;
 
-        private MainModel ViewModel => DataContext as MainModel;
+        private MainModel? ViewModel => DataContext as MainModel;
 
         private void OpenPlayback(object sender, RoutedEventArgs e)
-        {
-            ViewModel.Playback();
-        }
+            => ViewModel!.Playback();
 
         private void OpenDevice(object sender, RoutedEventArgs e)
-        {
-            ViewModel.OpenDevice();
-        }
+            => ViewModel!.OpenDevice();
     }
 }

@@ -17,7 +17,7 @@
     /// </remarks>
     /// <seealso cref="TrackerConfiguration"/>
     /// <seealso cref="Tracker.Tracker"/>
-    public enum TrackerProcessingMode
+    public enum TrackerProcessingMode : int
     {
         /// <summary>
         /// SDK will use the most appropriate GPU mode for the operating system to run the tracker.

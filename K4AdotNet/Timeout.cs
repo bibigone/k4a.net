@@ -412,12 +412,12 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="Microseconds32"/>.</param>
         public static implicit operator Timeout(TimeSpan value)
-            => new Timeout(value);
+            => new(value);
 
         /// <summary>Implicit conversion from <see cref="int"/>.</summary>
         /// <param name="valueMs">Value in milliseconds to be converted to <see cref="Timeout"/>.</param>
         public static implicit operator Timeout(int valueMs)
-            => new Timeout(valueMs);
+            => new(valueMs);
 
         /// <summary>Creates instance of <see cref="Timeout"/> from seconds.</summary>
         /// <param name="timeoutSec">Value in seconds.</param>
@@ -427,7 +427,7 @@ namespace K4AdotNet
         {
             if (timeoutSec < 0)
                 throw new ArgumentOutOfRangeException(nameof(timeoutSec));
-            return new Timeout((int)(timeoutSec * 1_000));
+            return new((int)(timeoutSec * 1_000));
         }
 
         /// <summary>Creates instance of <see cref="Timeout"/> from milliseconds.</summary>

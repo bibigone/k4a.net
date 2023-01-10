@@ -88,17 +88,14 @@ namespace K4AdotNet
         /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         public float this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0: return W;
-                    case 1: return X;
-                    case 2: return Y;
-                    case 3: return Z;
-                    default: throw new IndexOutOfRangeException();
-                }
-            }
+                0 => W,
+                1 => X,
+                2 => Y,
+                3 => Z,
+                _ => throw new IndexOutOfRangeException(),
+            };
 
             set
             {
@@ -125,9 +122,9 @@ namespace K4AdotNet
         /// <seealso cref="Equals(Quaternion)"/>
         public override bool Equals(object? obj)
         {
-            if (obj is null || !(obj is Quaternion))
+            if (obj is null || obj is not Quaternion q)
                 return false;
-            return Equals((Quaternion)obj);
+            return Equals(q);
         }
 
         /// <summary>To be consistent with <see cref="Equals(Quaternion)"/>.</summary>
@@ -164,9 +161,9 @@ namespace K4AdotNet
             => $"[W:{W} X:{X} Y:{Y} Z:{Z}]";
 
         /// <summary>Zero quaternion (all components are 0).</summary>
-        public static readonly Quaternion Zero = new Quaternion();
+        public static readonly Quaternion Zero = new();
 
         /// <summary>Identity quaternion (represents zero rotation in 3D).</summary>
-        public static readonly Quaternion Identity = new Quaternion(1f, 0f, 0f, 0f);
+        public static readonly Quaternion Identity = new(1f, 0f, 0f, 0f);
     }
 }

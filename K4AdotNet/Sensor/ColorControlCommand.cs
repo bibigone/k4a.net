@@ -22,7 +22,7 @@ namespace K4AdotNet.Sensor
     /// Control values set on a device are reset only when the device is power cycled. The device will retain the settings
     /// even if the device is closed or the application is restarted.
     /// </remarks>
-    public enum ColorControlCommand
+    public enum ColorControlCommand : int
     {
         /// <summary>Exposure time setting.</summary>
         /// <remarks><para>

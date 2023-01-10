@@ -9,7 +9,7 @@
     // } k4a_firmware_signature_t;
     //
     /// <summary>Firmware signature type.</summary>
-    public enum FirmwareSignature
+    public enum FirmwareSignature : int
     {
         /// <summary>Microsoft signed firmware.</summary>
         MicrosoftSignedFirmware = 0,

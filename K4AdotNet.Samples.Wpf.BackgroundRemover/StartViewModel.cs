@@ -22,7 +22,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 
         private void Playback()
         {
-            var filePath = app.BrowseFileToOpen("MKV recordings|*.mkv");
+            var filePath = app!.BrowseFileToOpen("MKV recordings|*.mkv");
 
             if (!string.IsNullOrWhiteSpace(filePath))
             {
@@ -90,7 +90,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         {
             try
             {
-                using (app.IndicateWaiting())
+                using (app!.IndicateWaiting())
                 {
                     var device = Device.Open();
                     var readingLoop = BackgroundReadingLoop.CreateForDevice(device, DepthMode, ColorResolution, FrameRate);
@@ -100,7 +100,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             }
             catch (Exception ex)
             {
-                app.ShowErrorMessage(ex.Message, "Cannot open Azure Kinect device");
+                app!.ShowErrorMessage(ex.Message, "Cannot open Azure Kinect device");
             }
         }
 

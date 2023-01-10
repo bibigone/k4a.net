@@ -480,27 +480,27 @@ namespace K4AdotNet.Sensor
         //                                                         size_t *serial_number_size);
         /// <summary>Get the Azure Kinect device serial number.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
-        /// <param name="serialNumber">
+        /// <param name="buffer">
         /// Location to write the serial number to. If the function returns <see cref="NativeCallResults.BufferResult.Succeeded"/>,
         /// this will be a NULL-terminated string of ASCII characters.
-        /// If this input is <see langword="null"/>, <paramref name="serialNumberSize"/> will still be updated to return
+        /// If this input is <see langword="null"/>, <paramref name="size"/> will still be updated to return
         /// the size of the buffer needed to store the string.
         /// </param>
-        /// <param name="serialNumberSize">
-        /// On input, the size of the <paramref name="serialNumber"/> buffer if that pointer is not <see langword="null"/>.
+        /// <param name="size">
+        /// On input, the size of the <paramref name="buffer"/> buffer if that pointer is not <see langword="null"/>.
         /// On output, this value is set to the actual number of bytes in the serial number (including the null terminator).
         /// </param>
         /// <returns>
-        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="serialNumber"/> has been filled in.
+        /// A return of <see cref="NativeCallResults.BufferResult.Succeeded"/> means that the <paramref name="buffer"/> has been filled in.
         /// If the buffer is too small the function returns <see cref="NativeCallResults.BufferResult.TooSmall"/> and the size of the serial number is
-        /// returned in the <paramref name="serialNumberSize"/> parameter.
+        /// returned in the <paramref name="size"/> parameter.
         /// All other failures return <see cref="NativeCallResults.BufferResult.Failed"/>.
         /// </returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_serialnum", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult DeviceGetSerialnum(
             NativeHandles.DeviceHandle deviceHandle,
-            [Out] byte[]? serialNumber,
-            ref UIntPtr serialNumberSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4A_EXPORT k4a_result_t k4a_device_get_version(k4a_device_t device_handle, k4a_hardware_version_t *version);
         /// <summary>Get the version numbers of the device's subsystems.</summary>
@@ -537,7 +537,7 @@ namespace K4AdotNet.Sensor
         public static extern NativeCallResults.Result DeviceGetColorControlCapabilities(
             NativeHandles.DeviceHandle deviceHandle,
             ColorControlCommand command,
-            out bool supportsAuto,
+            out byte supportsAuto,
             out int minValue,
             out int maxValue,
             out int stepValue,
@@ -603,26 +603,26 @@ namespace K4AdotNet.Sensor
         //                                                               size_t *data_size);
         /// <summary>Get the raw calibration blob for the entire Azure Kinect device.</summary>
         /// <param name="deviceHandle">Handle obtained by <see cref="DeviceOpen(uint, out NativeHandles.DeviceHandle)"/>.</param>
-        /// <param name="data">
+        /// <param name="buffer">
         /// Location to write the calibration data to. This field may optionally be set to <see langword="null"/> for the caller to query for
         /// the needed data size.
         /// </param>
-        /// <param name="dataSize">
-        /// On passing <paramref name="dataSize"/> into the function this variable represents the available size of the <paramref name="data"/>
+        /// <param name="size">
+        /// On passing <paramref name="size"/> into the function this variable represents the available size of the <paramref name="buffer"/>
         /// buffer. On return this variable is updated with the amount of data actually written to the buffer, or the size
-        /// required to store the calibration buffer if <paramref name="data"/> is <see langword="null"/>.
+        /// required to store the calibration buffer if <paramref name="buffer"/> is <see langword="null"/>.
         /// </param>
         /// <returns>
-        /// <see cref="NativeCallResults.BufferResult.Succeeded"/> if <paramref name="data"/> was successfully written.
-        /// If <paramref name="dataSize"/> points to a buffer size that is
-        /// too small to hold the output or <paramref name="data"/> data is <see langword="null"/>, <see cref="NativeCallResults.BufferResult.TooSmall"/> is returned
-        /// and <paramref name="dataSize"/> is updated to contain the minimum buffer size needed to capture the calibration data.
+        /// <see cref="NativeCallResults.BufferResult.Succeeded"/> if <paramref name="buffer"/> was successfully written.
+        /// If <paramref name="size"/> points to a buffer size that is
+        /// too small to hold the output or <paramref name="buffer"/> data is <see langword="null"/>, <see cref="NativeCallResults.BufferResult.TooSmall"/> is returned
+        /// and <paramref name="size"/> is updated to contain the minimum buffer size needed to capture the calibration data.
         /// </returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_raw_calibration", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.BufferResult DeviceGetRawCalibration(
             NativeHandles.DeviceHandle deviceHandle,
-            [Out] byte[]? data,
-            ref UIntPtr dataSize);
+            IntPtr buffer,
+            ref UIntPtr size);
 
         // K4A_EXPORT k4a_result_t k4a_device_get_calibration(k4a_device_t device_handle,
         //                                                    const k4a_depth_mode_t depth_mode,
@@ -663,8 +663,8 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_sync_jack", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result DeviceGetSyncJack(
             NativeHandles.DeviceHandle deviceHandle,
-            out bool syncInJackConnected,
-            out bool syncOutJackConnected);
+            out byte syncInJackConnected,
+            out byte syncOutJackConnected);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_get_from_raw(char *raw_calibration,
         //                                                      size_t raw_calibration_size,
@@ -775,7 +775,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float3 targetPoint3DMm,
-            out bool valid);
+            out byte valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_3d_to_2d(const k4a_calibration_t *calibration,
         //                                                  const k4a_float3_t *source_point3d_mm,
@@ -818,7 +818,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float2 targetPoint2D,
-            out bool valid);
+            out byte valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_2d_to_2d(const k4a_calibration_t *calibration,
         //                                                  const k4a_float2_t *source_point2d,
@@ -853,8 +853,8 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
-        /// <see cref="Calibration2DTo3D(in Calibration, in Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out bool)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
-        /// <see cref="Calibration3DTo2D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out bool)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
+        /// <see cref="Calibration2DTo3D(in Calibration, in Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out byte)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+        /// <see cref="Calibration3DTo2D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out byte)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
         /// 
         /// If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately sets <paramref name="targetPoint2D"/> to
         /// <paramref name="sourcePoint2D"/> and returns without computing any transformations.
@@ -871,7 +871,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float2 targetPoint2D,
-            out bool valid);
+            out byte valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_color_2d_to_depth_2d(const k4a_calibration_t* calibration,
         //                                                     const k4a_float2_t* source_point2d,
@@ -911,7 +911,7 @@ namespace K4AdotNet.Sensor
             in Float2 sourcePoint2D,
             NativeHandles.ImageHandle depthImage,
             out Float2 targetPoint2D,
-            out bool valid);
+            out byte valid);
 
         // K4A_EXPORT k4a_transformation_t k4a_transformation_create(const k4a_calibration_t *calibration);
         /// <summary>Get handle to transformation.</summary>

@@ -18,7 +18,7 @@ namespace K4AdotNet.Samples.Wpf
         protected volatile bool isRunning;
 
         protected BackgroundReadingLoop()
-            => backgroundThread = new Thread(BackgroundLoop) { IsBackground = true };
+            => backgroundThread = new(BackgroundLoop) { IsBackground = true };
 
         public abstract ColorResolution ColorResolution { get; }
 
@@ -46,9 +46,9 @@ namespace K4AdotNet.Samples.Wpf
             backgroundThread.Start();
         }
 
-        public event EventHandler<CaptureReadyEventArgs> CaptureReady;
+        public event EventHandler<CaptureReadyEventArgs>? CaptureReady;
 
-        public event EventHandler<FailedEventArgs> Failed;
+        public event EventHandler<FailedEventArgs>? Failed;
 
         #region Playback
 
@@ -62,7 +62,7 @@ namespace K4AdotNet.Samples.Wpf
             {
                 this.doNotPlayFasterThanOriginalFps = doNotPlayFasterThanOriginalFps;
 
-                playback = new Playback(filePath);
+                playback = new(filePath);
                 playback.GetRecordConfiguration(out var config);
                 frameRateHz = config.CameraFps.ToNumberHz();
                 ColorResolution = disableColor ? ColorResolution.Off : config.ColorResolution;
@@ -188,7 +188,7 @@ namespace K4AdotNet.Samples.Wpf
                         {
                             using (capture)
                             {
-                                CaptureReady?.Invoke(this, new CaptureReadyEventArgs(capture));
+                                CaptureReady?.Invoke(this, new(capture));
                             }
                         }
                         else
@@ -201,7 +201,7 @@ namespace K4AdotNet.Samples.Wpf
                 }
                 catch (Exception exc)
                 {
-                    Failed?.Invoke(this, new FailedEventArgs(exc));
+                    Failed?.Invoke(this, new(exc));
                 }
             }
         }

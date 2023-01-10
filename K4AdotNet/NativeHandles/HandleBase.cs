@@ -38,7 +38,7 @@ namespace K4AdotNet.NativeHandles
         /// <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
         public bool Equals(HandleBase? other)
-            => !(other is null) && other.handle == handle;
+            => other is not null && other.handle == handle;
 
         /// <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
@@ -52,7 +52,7 @@ namespace K4AdotNet.NativeHandles
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(HandleBase)"/>
         public static bool operator ==(HandleBase? left, HandleBase? right)
-            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+            => (left is null && right is null) || (left is not null && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(HandleBase)"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>

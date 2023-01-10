@@ -6,9 +6,9 @@ namespace K4AdotNet.Samples.Wpf
     public interface IApp
     {
         Dispatcher Dispatcher { get; }
-        void ShowErrorMessage(string message, string title = null);
+        void ShowErrorMessage(string message, string? title = null);
         void ShowWindowForModel(object viewModel);
-        string BrowseFileToOpen(string filter, string title = null);
+        string? BrowseFileToOpen(string filter, string? title = null);
         IDisposable IndicateWaiting();
     }
 }

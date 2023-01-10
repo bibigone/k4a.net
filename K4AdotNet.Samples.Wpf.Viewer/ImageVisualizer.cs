@@ -37,7 +37,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             StrideBytes = strideBytes;
 
             innerBuffer = new byte[strideBytes * heightPixels];
-            writeableBitmap = new WriteableBitmap(widthPixels, heightPixels, dpi, dpi, PixelFormats.Bgra32, null);
+            writeableBitmap = new(widthPixels, heightPixels, dpi, dpi, PixelFormats.Bgra32, null);
         }
 
         public Dispatcher Dispatcher { get; }
@@ -63,7 +63,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         /// </summary>
         /// <param name="image">Image received from Kinect Sensor SDK. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> - updated, <see langword="false"/> - not updated (frame is not compatible, or old frame).</returns>
-        public bool Update(Image image)
+        public bool Update(Image? image)
         {
             // Is compatible?
             if (image == null

@@ -5,9 +5,9 @@ namespace K4AdotNet.Samples.Wpf
 {
     public sealed class CaptureReadyEventArgs : EventArgs
     {
-        public CaptureReadyEventArgs(Capture capture)
+        public CaptureReadyEventArgs(Capture? capture)
             => Capture = capture;
 
-        public Capture Capture { get; }
+        public Capture? Capture { get; }
     }
 }

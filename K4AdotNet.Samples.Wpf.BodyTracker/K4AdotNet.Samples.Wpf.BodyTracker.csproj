@@ -1,126 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Product.props" />
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E43631EF-4AF2-4B24-B6D4-7B4CAF0D5103}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>K4AdotNet.Samples.Wpf.BodyTracker</RootNamespace>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
+    <Description>WPF sample application to demonstrate usage of Body Tracking API.</Description>
     <AssemblyName>K4ABodyTracker</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup>
+    <UseWPF>True</UseWPF>
     <ApplicationIcon>..\K4AdotNet.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <ProjectReference Include="..\K4AdotNet\K4AdotNet.csproj" />
+    <ProjectReference Include="..\K4AdotNet.Samples.Wpf.Common\K4AdotNet.Samples.Wpf.Common.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="..\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
-    <Compile Include="BackgroundTrackingLoop.cs" />
-    <Compile Include="BodyFrameReadyEventArgs.cs" />
-    <Compile Include="BodyIndexMapTransformation.cs" />
-    <Compile Include="BodyTrackingInitializationDialog.xaml.cs">
-      <DependentUpon>BodyTrackingInitializationDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="DnnModel.cs" />
-    <Compile Include="SkeletonVisualizer.cs" />
-    <Compile Include="ImageVisualizer.cs" />
-    <Compile Include="TrackerModel.cs" />
-    <Compile Include="TrackerWindow.xaml.cs">
-      <DependentUpon>TrackerWindow.xaml</DependentUpon>
-    </Compile>
-    <Page Include="BodyTrackingInitializationDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.cs" />
-    <Compile Include="MainModel.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="TrackerWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\K4AdotNet.Samples.Wpf.Common\K4AdotNet.Samples.Wpf.Common.csproj">
-      <Project>{496ff115-d576-446a-87d4-c03b60b5dbf7}</Project>
-      <Name>K4AdotNet.Samples.Wpf.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\K4AdotNet\K4AdotNet.csproj">
-      <Project>{0646eaf8-8941-4cbe-9d1a-59c643171f3e}</Project>
-      <Name>K4AdotNet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll">
-      <Link>depthengine_2_0.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Resource Include="..\K4AdotNet.ico" Link="K4AdotNet.ico" />
+    <Content Include="..\K4AdotNet.ico" Link="K4AdotNet.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll">
-      <Link>k4a.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll">
-      <Link>k4arecord.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="..\K4AdotNet.ico">
-      <Link>K4AdotNet.ico</Link>
-    </Resource>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

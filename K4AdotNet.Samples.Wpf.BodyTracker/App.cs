@@ -17,7 +17,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             new App().Run();
         }
 
-        protected override Window CreateMainWindow(StartupEventArgs e)
+        protected override Window? CreateMainWindow(StartupEventArgs e)
         {
             if (new BodyTrackingInitializationDialog().ShowDialog() != true)
                 return null;

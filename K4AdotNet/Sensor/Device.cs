@@ -81,8 +81,8 @@ namespace K4AdotNet.Sensor
         {
             get
             {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnected, out _));
-                return syncInConnected;
+                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnectedFlag, out _));
+                return syncInConnectedFlag != 0;
             }
         }
 
@@ -101,8 +101,8 @@ namespace K4AdotNet.Sensor
         {
             get
             {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out _, out var syncOutConnected));
-                return syncOutConnected;
+                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out _, out var syncOutConnectedFlag));
+                return syncOutConnectedFlag != 0;
             }
         }
 
@@ -338,11 +338,15 @@ namespace K4AdotNet.Sensor
         public void GetColorControlCapabilities(ColorControlCommand command,
                                                 out bool supportsAuto, out int minValue, out int maxValue, out int valueStep,
                                                 out int defaultValue, out ColorControlMode defaultMode)
-            => CheckResult(
+        {
+            byte supportsAutoFlag;
+            CheckResult(
                 NativeApi.DeviceGetColorControlCapabilities(handle.ValueNotDisposed, command,
-                                                            out supportsAuto, out minValue, out maxValue, out valueStep,
+                                                            out supportsAutoFlag, out minValue, out maxValue, out valueStep,
                                                             out defaultValue, out defaultMode),
                 "Not supported command: " + command);
+            supportsAuto = supportsAutoFlag != 0;
+        }
 
         /// <summary>Gets the raw calibration blob for the entire Azure Kinect device.</summary>
         /// <returns>Raw calibration data terminated by <c>0</c> byte. Not <see langword="null"/>.</returns>

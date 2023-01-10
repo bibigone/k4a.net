@@ -16,6 +16,6 @@
             return true;
         }
 
-        public static readonly TransformationHandle Zero = new TransformationHandle();
+        public static readonly TransformationHandle Zero = new();
     }
 }

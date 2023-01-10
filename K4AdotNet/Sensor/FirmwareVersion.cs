@@ -53,7 +53,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Explicitly converts to standard <see cref="Version"/> object.</summary>
         /// <returns>Corresponding <see cref="Version"/> object. Not <see langword="null"/>.</returns>
         public Version ToVersion()
-            => new Version(Major, Minor, Revision);
+            => new(Major, Minor, Revision);
 
         /// <summary>Implicit conversion to <see cref="Version"/>.</summary>
         /// <param name="version">Firmware version to be converted to <see cref="Version"/>.</param>
@@ -65,7 +65,7 @@ namespace K4AdotNet.Sensor
         /// <param name="version">Version to be converted to <see cref="FirmwareVersion"/>. Not <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="version"/> cannot be <see langword="null"/>.</exception>
         public static implicit operator FirmwareVersion(Version version)
-            => new FirmwareVersion(version);
+            => new(version);
 
         /// <summary>Per-component comparison of versions. Implementation of <see cref="IEquatable{FirmwareVersion}"/>.</summary>
         /// <param name="other">Version to be compared with this one.</param>
@@ -77,7 +77,7 @@ namespace K4AdotNet.Sensor
         /// <param name="other">Version to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if versions are the same, <see langword="false"/> - otherwise.</returns>
         public bool Equals(Version? other)
-            => other != null && Equals(new FirmwareVersion(other));
+            => other is not null && Equals(new FirmwareVersion(other));
 
         /// <summary>Per-component comparison of versions.</summary>
         /// <param name="obj">Object to be compared with this one.</param>
@@ -86,8 +86,8 @@ namespace K4AdotNet.Sensor
             => obj switch
             {
                 null => false,
-                FirmwareVersion _ => Equals((FirmwareVersion)obj),
-                Version _ => Equals((Version)obj),
+                FirmwareVersion fv => Equals(fv),
+                Version v => Equals(v),
                 _ => false
             };
 
@@ -184,8 +184,8 @@ namespace K4AdotNet.Sensor
             => obj switch
             {
                 null => 1,
-                FirmwareVersion _ => CompareTo((FirmwareVersion)obj),
-                Version _ => CompareTo((Version)obj),
+                FirmwareVersion fv => CompareTo(fv),
+                Version v => CompareTo(v),
                 _ => throw new ArgumentException("Object is not a FirmwareVersion or Version", nameof(obj))
             };
 

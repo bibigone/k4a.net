@@ -10,26 +10,26 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
     internal sealed class TrackerModel : ViewModelBase, IDisposable
     {
         private readonly Calibration calibration;
-        private readonly BackgroundReadingLoop readingLoop;
-        private readonly BackgroundTrackingLoop trackingLoop;
+        private readonly BackgroundReadingLoop? readingLoop;
+        private readonly BackgroundTrackingLoop? trackingLoop;
 
         // To visualize images received from Capture
-        private readonly ImageVisualizer colorImageVisualizer;
-        private readonly ImageVisualizer depthImageVisualizer;
+        private readonly ImageVisualizer? colorImageVisualizer;
+        private readonly ImageVisualizer? depthImageVisualizer;
         // To visualize skeletons
-        private readonly SkeletonVisualizer depthSkeletonVisualizer;
-        private readonly SkeletonVisualizer colorSkeletonVisualizer;
+        private readonly SkeletonVisualizer? depthSkeletonVisualizer;
+        private readonly SkeletonVisualizer? colorSkeletonVisualizer;
         // To transform body index map from depth camera to color camera
-        private readonly BodyIndexMapTransformation bodyIndexMapTransformation;
+        private readonly BodyIndexMapTransformation? bodyIndexMapTransformation;
 
-        private readonly ActualFpsCalculator actualFps = new ActualFpsCalculator();
+        private readonly ActualFpsCalculator actualFps = new();
 
         // For designer
         public TrackerModel()
             : base()
         {
             Title = "Kinect for Azure #123456";
-            DepthColumnWidth = ColorColumnWidth = new GridLength(1, GridUnitType.Star);
+            DepthColumnWidth = ColorColumnWidth = new(1, GridUnitType.Star);
         }
 
         public TrackerModel(IApp app, BackgroundReadingLoop readingLoop,
@@ -38,7 +38,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             // try to create tracking loop first
             readingLoop.GetCalibration(out calibration);
-            trackingLoop = new BackgroundTrackingLoop(in calibration, processingMode, dnnModel, sensorOrientation, smoothingFactor);
+            trackingLoop = new(in calibration, processingMode, dnnModel, sensorOrientation, smoothingFactor);
             trackingLoop.BodyFrameReady += TrackingLoop_BodyFrameReady;
             trackingLoop.Failed += BackgroundLoop_Failed;
 
@@ -51,29 +51,27 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             // Image and skeleton visualizers for depth
             var depthMode = readingLoop.DepthMode;
             depthImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels());
-            depthSkeletonVisualizer = new SkeletonVisualizer(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels(), ProjectJointToDepthMap);
+            depthSkeletonVisualizer = new(dispatcher, depthMode.WidthPixels(), depthMode.HeightPixels(), ProjectJointToDepthMap);
 
             // Image and skeleton visualizers for color
             var colorRes = readingLoop.ColorResolution;
             if (colorRes != ColorResolution.Off)
             {
                 colorImageVisualizer = ImageVisualizer.CreateForColorBgra(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
-                colorSkeletonVisualizer = new SkeletonVisualizer(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels(), ProjectJointToColorImage);
-                bodyIndexMapTransformation = new BodyIndexMapTransformation(in calibration);
+                colorSkeletonVisualizer = new(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels(), ProjectJointToColorImage);
+                bodyIndexMapTransformation = new(in calibration);
             }
 
             // Proportions between columns
             if (colorRes != ColorResolution.Off)
             {
-                DepthColumnWidth = new GridLength(depthImageVisualizer.WidthPixels, GridUnitType.Star);
-                ColorColumnWidth = new GridLength(
-                    depthImageVisualizer.HeightPixels * colorImageVisualizer.WidthPixels / colorImageVisualizer.HeightPixels,
-                    GridUnitType.Star);
+                DepthColumnWidth = new(depthImageVisualizer.WidthPixels, GridUnitType.Star);
+                ColorColumnWidth = new(depthImageVisualizer.HeightPixels * colorImageVisualizer!.WidthPixels / colorImageVisualizer.HeightPixels, GridUnitType.Star);
             }
             else
             {
-                DepthColumnWidth = new GridLength(1, GridUnitType.Star);
-                ColorColumnWidth = new GridLength(0, GridUnitType.Pixel);
+                DepthColumnWidth = new(1, GridUnitType.Star);
+                ColorColumnWidth = new(0, GridUnitType.Pixel);
             }
         }
 
@@ -83,13 +81,16 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private Float2? ProjectJointToColorImage(Joint joint)
             => calibration.Convert3DTo2D(joint.PositionMm, CalibrationGeometry.Depth, CalibrationGeometry.Color);
 
-        private void BackgroundLoop_Failed(object sender, FailedEventArgs e)
-            => dispatcher.BeginInvoke(new Action(() => app.ShowErrorMessage(e.Exception.Message)));
+        private void BackgroundLoop_Failed(object? sender, FailedEventArgs e)
+            => dispatcher.BeginInvoke(new Action(() => app!.ShowErrorMessage(e.Exception.Message)));
 
-        private void ReadingLoop_CaptureReady(object sender, CaptureReadyEventArgs e)
-            => trackingLoop.Enqueue(e.Capture);
+        private void ReadingLoop_CaptureReady(object? sender, CaptureReadyEventArgs e)
+        {
+            if (e.Capture != null)
+                trackingLoop!.Enqueue(e.Capture);
+        }
 
-        private void TrackingLoop_BodyFrameReady(object sender, BodyFrameReadyEventArgs e)
+        private void TrackingLoop_BodyFrameReady(object? sender, BodyFrameReadyEventArgs e)
         {
             if (actualFps.RegisterFrame())
                 RaisePropertyChanged(nameof(ActualFps));
@@ -109,7 +110,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                         {
                             using (var colorImage = capture.ColorImage)
                             {
-                                using (var transformedBodyIndexMap = bodyIndexMapTransformation.ToColor(depthImage, indexMap))
+                                using (var transformedBodyIndexMap = bodyIndexMapTransformation!.ToColor(depthImage, indexMap))
                                 {
                                     colorImageVisualizer.Update(colorImage, transformedBodyIndexMap);
                                 }
@@ -143,13 +144,13 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         public void Run()
             => readingLoop?.Run();
 
-        public string Title { get; }
+        public string? Title { get; }
 
-        public BitmapSource ColorImageSource => colorImageVisualizer?.ImageSource;
-        public BitmapSource DepthImageSource => depthImageVisualizer?.ImageSource;
+        public BitmapSource? ColorImageSource => colorImageVisualizer?.ImageSource;
+        public BitmapSource? DepthImageSource => depthImageVisualizer?.ImageSource;
 
-        public ImageSource DepthSkeletonImageSource => depthSkeletonVisualizer?.ImageSource;
-        public ImageSource ColorSkeletonImageSource => colorSkeletonVisualizer?.ImageSource;
+        public ImageSource? DepthSkeletonImageSource => depthSkeletonVisualizer?.ImageSource;
+        public ImageSource? ColorSkeletonImageSource => colorSkeletonVisualizer?.ImageSource;
 
         public byte DepthNonBodyPixelsAlpha
         {

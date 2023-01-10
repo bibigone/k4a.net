@@ -18,7 +18,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         }
 
         protected override Window CreateMainWindow(StartupEventArgs e)
-            => new MainWindow(new MainModel(this));
+            => new MainWindow(new(this));
 
         public override void ShowWindowForModel(object viewModel)
         {

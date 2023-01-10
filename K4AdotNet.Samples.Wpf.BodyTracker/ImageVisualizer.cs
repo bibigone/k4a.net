@@ -36,7 +36,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             innerBuffer = new byte[strideBytes * heightPixels];
             innerBodyIndexBuffer = new byte[widthPixels * heightPixels];
             ResetInnerBodyIndexBuffer();
-            writeableBitmap = new WriteableBitmap(widthPixels, heightPixels, dpi, dpi, PixelFormats.Bgra32, null);
+            writeableBitmap = new(widthPixels, heightPixels, dpi, dpi, PixelFormats.Bgra32, null);
         }
 
         public Dispatcher Dispatcher { get; }
@@ -61,7 +61,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         /// </summary>
         /// <param name="image">Image received from Kinect Sensor SDK. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> - updated, <see langword="false"/> - not updated (frame is not compatible, or old frame).</returns>
-        public bool Update(Image image, Image bodyIndexMap)
+        public bool Update(Image? image, Image? bodyIndexMap)
         {
             // Is compatible?
             if (image == null

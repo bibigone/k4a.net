@@ -377,7 +377,7 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="Microseconds64"/>.</param>
         public static implicit operator Microseconds64(TimeSpan value)
-            => new Microseconds64(value);
+            => new(value);
 
         /// <summary>Implicit conversion to <see cref="long"/> value in microseconds.</summary>
         /// <param name="value">Value to be converted to <see cref="long"/>.</param>
@@ -387,22 +387,22 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="long"/>.</summary>
         /// <param name="valueUsec">Value in microseconds to be converted to <see cref="Microseconds64"/>.</param>
         public static implicit operator Microseconds64(long valueUsec)
-            => new Microseconds64(valueUsec);
+            => new(valueUsec);
 
         /// <summary>Creates instance of <see cref="Microseconds64"/> from seconds.</summary>
         /// <param name="valueSec">Value in seconds.</param>
         /// <returns>Created value.</returns>
         public static Microseconds64 FromSeconds(double valueSec)
-            => new Microseconds64((long)(valueSec * 1_000_000));
+            => new((long)(valueSec * 1_000_000));
 
         /// <summary>Creates instance of <see cref="Microseconds64"/> from milliseconds.</summary>
         /// <param name="valueMs">Value in milliseconds.</param>
         /// <returns>Created value.</returns>
         public static Microseconds64 FromMilliseconds(double valueMs)
-            => new Microseconds64((long)(valueMs * 1_000));
+            => new((long)(valueMs * 1_000));
 
         /// <summary>Zero value.</summary>
-        public static readonly Microseconds64 Zero = new Microseconds64(0);
+        public static readonly Microseconds64 Zero = new(0);
 
         internal static readonly long UsecToTimeSpanTicksFactor = TimeSpan.TicksPerSecond / 1_000_000L;
         internal const string UNIT_POSTFIX = " usec";

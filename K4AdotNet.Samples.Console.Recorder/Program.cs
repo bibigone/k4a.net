@@ -3,7 +3,9 @@ using K4AdotNet.Sensor;
 using System;
 using System.Diagnostics;
 
-namespace K4AdotNet.Samples.Core.Recorder
+using static System.Console;
+
+namespace K4AdotNet.Samples.Console.Recorder
 {
     internal static class Program
     {
@@ -26,22 +28,22 @@ namespace K4AdotNet.Samples.Core.Recorder
 
                 using (var device = OpenDevice(deviceIndex))
                 {
-                    Console.WriteLine("Starting cameras...");
+                    WriteLine("Starting cameras...");
                     device.StartCameras(config);
 
-                    Console.WriteLine($"Creating video recorder to {dstFilePath}...");
+                    WriteLine($"Creating video recorder to {dstFilePath}...");
                     using (var recorder = new Record.Recorder(dstFilePath, device, config))
                     {
                         recorder.WriteHeader();
 
-                        Console.WriteLine("Recording... (press any key to stop)");
+                        WriteLine("Recording... (press any key to stop)");
                         var stopwatch = Stopwatch.StartNew();
-                        while (!Console.KeyAvailable && (lengthSeconds <= 0 || stopwatch.Elapsed.TotalSeconds < lengthSeconds))
+                        while (!KeyAvailable && (lengthSeconds <= 0 || stopwatch.Elapsed.TotalSeconds < lengthSeconds))
                         {
-                            Console.Write(new string('\b', 64));
-                            Console.Write("{0:0.00} sec", stopwatch.Elapsed.TotalSeconds);
+                            Write(new string('\b', 64));
+                            Write("{0:0.00} sec", stopwatch.Elapsed.TotalSeconds);
                             if (lengthSeconds > 0)
-                                Console.Write(" of {0} sec", lengthSeconds);
+                                Write(" of {0} sec", lengthSeconds);
                             using (var capture = device.GetCapture())
                             {
                                 if (capture != null)
@@ -50,19 +52,19 @@ namespace K4AdotNet.Samples.Core.Recorder
                                 }
                             }
                         }
-                        if (Console.KeyAvailable)
-                            Console.ReadKey(intercept: true);
-                        Console.WriteLine();
+                        if (KeyAvailable)
+                            ReadKey(intercept: true);
+                        WriteLine();
                     }
                 }
 
-                Console.WriteLine("Done!");
+                WriteLine("Done!");
             }
             catch (Exception exc)
             {
-                Console.WriteLine();
-                Console.Error.WriteLine("ERROR:");
-                Console.Error.WriteLine(exc.Message);
+                WriteLine();
+                System.Console.Error.WriteLine("ERROR:");
+                System.Console.Error.WriteLine(exc.Message);
             }
         }
 
@@ -71,7 +73,7 @@ namespace K4AdotNet.Samples.Core.Recorder
             var deviceName = "Azure Kinect device";
             if (deviceIndex != 0)
                 deviceName += " #" + deviceIndex;
-            Console.WriteLine($"Connecting to {deviceName}...");
+            WriteLine($"Connecting to {deviceName}...");
             if (!Device.TryOpen(out var device, index: deviceIndex))
                 throw new ApplicationException($"Azure {deviceName} is not connected or is occupied by other software");
             return device;

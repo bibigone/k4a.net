@@ -17,7 +17,7 @@
     /// Use extension methods from <see cref="FrameRates"/> class for additional details.
     /// </para></remarks>
     /// <seealso cref="FrameRates"/>
-    public enum FrameRate
+    public enum FrameRate : int
     {
         /// <summary>Five (5) frames per second.</summary>
         Five = 0,

@@ -65,16 +65,13 @@ namespace K4AdotNet
         /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         public float this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0: return X;
-                    case 1: return Y;
-                    case 2: return Z;
-                    default: throw new IndexOutOfRangeException();
-                }
-            }
+                0 => X,
+                1 => Y,
+                2 => Z,
+                _ => throw new IndexOutOfRangeException(),
+            };
 
             set
             {
@@ -100,9 +97,9 @@ namespace K4AdotNet
         /// <seealso cref="Equals(Float3)"/>
         public override bool Equals(object? obj)
         {
-            if (obj is null || !(obj is Float3))
+            if (obj is null || obj is not Float3 float3)
                 return false;
-            return Equals((Float3)obj);
+            return Equals(float3);
         }
 
         /// <summary>To be consistent with <see cref="Equals(Float3)"/>.</summary>
@@ -139,15 +136,15 @@ namespace K4AdotNet
             => $"[{X} {Y} {Z}]";
 
         /// <summary>Zero vector.</summary>
-        public static readonly Float3 Zero = new Float3();
+        public static readonly Float3 Zero = new();
 
         /// <summary>Unit vector in +X direction.</summary>
-        public static readonly Float3 UnitX = new Float3(1f, 0f, 0f);
+        public static readonly Float3 UnitX = new(1f, 0f, 0f);
 
         /// <summary>Unit vector in +Y direction.</summary>
-        public static readonly Float3 UnitY = new Float3(0f, 1f, 0f);
+        public static readonly Float3 UnitY = new(0f, 1f, 0f);
 
         /// <summary>Unit vector in +Z direction.</summary>
-        public static readonly Float3 UnitZ = new Float3(0f, 0f, 1f);
+        public static readonly Float3 UnitZ = new(0f, 0f, 1f);
     }
 }

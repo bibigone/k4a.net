@@ -108,7 +108,7 @@ namespace K4AdotNet.Samples.Wpf
         }
 
         private readonly Tuple<TimeSpan, long>[] buffer;
-        private readonly Stopwatch stopwatch = new Stopwatch();
+        private readonly Stopwatch stopwatch = new();
         private int bufferIndex = 0;
         private TimeSpan nextTimeSpan;
         private long frameCounter;

@@ -6,8 +6,8 @@ namespace K4AdotNet.BodyTracking
     public sealed class BodyFrame
         : IDisposablePlus, IReferenceDuplicatable<BodyFrame>, IEquatable<BodyFrame>
     {
-        private readonly ChildrenDisposer children = new ChildrenDisposer();                    // to track returned Image objects
-        private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;     // this class is an wrapper around this handle
+        private readonly ChildrenDisposer children = new();                                    // to track returned Image objects
+        private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;    // this class is an wrapper around this handle
 
         private BodyFrame(NativeHandles.BodyFrameHandle handle)
         {

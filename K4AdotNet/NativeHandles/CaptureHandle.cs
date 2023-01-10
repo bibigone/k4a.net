@@ -20,7 +20,7 @@
         public CaptureHandle DuplicateReference()
         {
             NativeApi.CaptureReference(handle);
-            return new CaptureHandle { handle = handle };
+            return new() { handle = handle };
         }
 
         protected override bool ReleaseHandle()
@@ -29,6 +29,6 @@
             return true;
         }
 
-        public static readonly CaptureHandle Zero = new CaptureHandle();
+        public static readonly CaptureHandle Zero = new();
     }
 }

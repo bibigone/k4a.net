@@ -58,15 +58,12 @@ namespace K4AdotNet
         /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> has invalid value.</exception>
         public float this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0: return X;
-                    case 1: return Y;
-                    default: throw new IndexOutOfRangeException();
-                }
-            }
+                0 => X,
+                1 => Y,
+                _ => throw new IndexOutOfRangeException(),
+            };
 
             set
             {
@@ -91,9 +88,9 @@ namespace K4AdotNet
         /// <seealso cref="Equals(Float2)"/>
         public override bool Equals(object? obj)
         {
-            if (obj is null || !(obj is Float2))
+            if (obj is null || obj is not Float2 float2)
                 return false;
-            return Equals((Float2)obj);
+            return Equals(float2);
         }
 
         /// <summary>To be consistent with <see cref="Equals(Float2)"/>.</summary>
@@ -130,12 +127,12 @@ namespace K4AdotNet
             => $"[{X} {Y}]";
 
         /// <summary>Zero vector.</summary>
-        public static readonly Float2 Zero = new Float2();
+        public static readonly Float2 Zero = new();
 
         /// <summary>Unit vector in +X direction.</summary>
-        public static readonly Float2 UnitX = new Float2(1f, 0f);
+        public static readonly Float2 UnitX = new(1f, 0f);
 
         /// <summary>Unit vector in +Y direction.</summary>
-        public static readonly Float2 UnitY = new Float2(0f, 1f);
+        public static readonly Float2 UnitY = new(0f, 1f);
     }
 }

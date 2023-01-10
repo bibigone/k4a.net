@@ -15,6 +15,6 @@
             return true;
         }
 
-        public static readonly PlaybackHandle Zero = new PlaybackHandle();
+        public static readonly PlaybackHandle Zero = new();
     }
 }

@@ -8,7 +8,7 @@
     // } k4a_color_control_mode_t;
     //
     /// <summary>Color sensor control mode.</summary>
-    public enum ColorControlMode
+    public enum ColorControlMode : int
     {
         /// <summary>set the associated <see cref="ColorControlCommand"/> to auto mode</summary>
         Auto = 0,

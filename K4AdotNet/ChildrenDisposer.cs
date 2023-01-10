@@ -7,7 +7,7 @@ namespace K4AdotNet
     // Implementation is thread safe.
     internal sealed class ChildrenDisposer : IDisposable
     {
-        private readonly LinkedList<IDisposablePlus> trackedChildren = new LinkedList<IDisposablePlus>();
+        private readonly LinkedList<IDisposablePlus> trackedChildren = new();
 
         public void Dispose()
         {
@@ -43,7 +43,7 @@ namespace K4AdotNet
 
         private void OnChildObjectDisposed(object sender, EventArgs e)
         {
-            if (!(sender is IDisposablePlus child))
+            if (sender is not IDisposablePlus child)
                 throw new ArgumentNullException(nameof(sender));
 
             lock (trackedChildren)

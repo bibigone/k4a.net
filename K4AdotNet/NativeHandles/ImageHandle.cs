@@ -15,7 +15,7 @@
         public ImageHandle DuplicateReference()
         {
             NativeApi.ImageReference(handle);
-            return new ImageHandle { handle = handle };
+            return new() { handle = handle };
         }
 
         protected override bool ReleaseHandle()
@@ -24,6 +24,6 @@
             return true;
         }
 
-        public static readonly ImageHandle Zero = new ImageHandle();
+        public static readonly ImageHandle Zero = new();
     }
 }

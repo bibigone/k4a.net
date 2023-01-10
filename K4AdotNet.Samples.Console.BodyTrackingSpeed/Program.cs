@@ -3,7 +3,9 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
+using static System.Console;
+
+namespace K4AdotNet.Samples.Console.BodyTrackingSpeed
 {
     internal static class Program
     {
@@ -13,7 +15,7 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
             Sdk.ConfigureRecordLogging(TraceLevel.Warning, logToStdout: true);
             Sdk.ConfigureBodyTrackingLogging(TraceLevel.Warning, logToStdout: true);
 
-            Console.WriteLine("Body tracking speed test on prerecorded video from Kinect for Azure device");
+            WriteLine("Body tracking speed test on prerecorded video from Kinect for Azure device");
 
             var processingParameters = args.Length == 0
                 ? AskProcessingParameters()
@@ -25,32 +27,32 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                 return;
             }
 
-            Console.WriteLine();
+            WriteLine();
             Process(processingParameters);
 
             if (args.Length == 0)
             {
-                Console.WriteLine("Press any key to exit");
-                Console.ReadKey();
+                WriteLine("Press any key to exit");
+                ReadKey();
             }
         }
 
         private static void PrintProcessingStatus(Processor processor)
         {
-            Console.Write(new string('\b', 50));
-            Console.Write(new string(' ', 50));
-            Console.Write(new string('\b', 50));
-            Console.Write($"processed: {processor.TotalFrameCount}    with body: {processor.FrameWithBodyCount}    in buffer: {processor.QueueSize}");
+            Write(new string('\b', 50));
+            Write(new string(' ', 50));
+            Write(new string('\b', 50));
+            Write($"processed: {processor.TotalFrameCount}    with body: {processor.FrameWithBodyCount}    in buffer: {processor.QueueSize}");
         }
 
-        private delegate bool ParameterSetter(string value, [NotNullWhen(returnValue: false)] out string? message);
+        private delegate bool ParameterSetter(string? value, [NotNullWhen(returnValue: false)] out string? message);
 
         #region Asking parameters from STDIN
 
         private static ProcessingParameters? AskProcessingParameters()
         {
-            Console.WriteLine("No command line arguments specified.");
-            Console.WriteLine("Please enter execution parameters:");
+            WriteLine("No command line arguments specified.");
+            WriteLine("Please enter execution parameters:");
             var parameters = new ProcessingParameters();
             if (!AskParameter(ProcessingParameters.MkvPathDescription, parameters.TrySetMkvPath))
                 return null;
@@ -73,12 +75,12 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         {
             for (var attempt = 0; attempt < MAX_ASK_ATTEMPTS; attempt++)
             {
-                Console.Write(prompt+ ": ");
-                var str = Console.ReadLine();
+                Write(prompt+ ": ");
+                var str = ReadLine();
                 if (setter(str, out var message))
                     return true;
-                Console.WriteLine(message);
-                Console.Beep();
+                WriteLine(message);
+                Beep();
             }
             return false;
         }
@@ -124,10 +126,10 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                     default:
                         if (!parameters.TrySetMkvPath(arg, out var message))
                         {
-                            Console.WriteLine($"Invalid command-line argument \"{arg}\":");
+                            WriteLine($"Invalid command-line argument \"{arg}\":");
                             if (arg.StartsWith("-") && !ProcessingParameters.IsValueLikeToMkvFilePath(arg))
                                 message = "Unknown option " + arg;
-                            Console.WriteLine(message);
+                            WriteLine(message);
                             return null;
                         }
                         break;
@@ -151,14 +153,14 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 
             if (value == null || value.StartsWith("-") || ProcessingParameters.IsValueLikeToMkvFilePath(value))
             {
-                Console.WriteLine("Invalid command-line arguments:");
-                Console.WriteLine($"Option {name} must be followed by its value");
+                WriteLine("Invalid command-line arguments:");
+                WriteLine($"Option {name} must be followed by its value");
                 return false;
             }
 
             argIndex++;
-            Console.WriteLine($"Invalid value \"{value}\" of command-line option {name}:");
-            Console.WriteLine(message);
+            WriteLine($"Invalid value \"{value}\" of command-line option {name}:");
+            WriteLine(message);
             return false;
         }
 
@@ -168,20 +170,20 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
 
         private static void PrintHowToUse()
         {
-            Console.WriteLine();
-            Console.WriteLine("Usage: ");
-            Console.WriteLine("dotnet K4AdotNet.Samples.BodyTrackingSpeedTest.dll [options] <mkvFile>");
-            Console.WriteLine("where: ");
-            Console.WriteLine("  <mkvFile> - " + ProcessingParameters.MkvPathDescription);
-            Console.WriteLine("  options:");
-            Console.WriteLine("    -m, --mode c|g|u|t|d\t\t" + ProcessingParameters.ProcessingModeDescription);
-            Console.WriteLine("    -d, --dnnMode d|l\t\t" + ProcessingParameters.DnnModelDescription);
-            Console.WriteLine("    -i, --implementation s|p|e\t\t" + ProcessingParameters.ImplementationDescription);
-            Console.WriteLine("    -s, --startTime <time>\t\t" + ProcessingParameters.StartTimeDescription);
-            Console.WriteLine("    -e, --endTime <time>\t\t" + ProcessingParameters.EndTimeDescription);
-            Console.WriteLine();
-            Console.WriteLine("When no command-line arguments specified, STDIN and STDOUT are used to ask parameters");
-            Console.WriteLine();
+            WriteLine();
+            WriteLine("Usage: ");
+            WriteLine("dotnet K4AdotNet.Samples.BodyTrackingSpeedTest.dll [options] <mkvFile>");
+            WriteLine("where: ");
+            WriteLine("  <mkvFile> - " + ProcessingParameters.MkvPathDescription);
+            WriteLine("  options:");
+            WriteLine("    -m, --mode c|g|u|t|d\t\t" + ProcessingParameters.ProcessingModeDescription);
+            WriteLine("    -d, --dnnMode d|l\t\t" + ProcessingParameters.DnnModelDescription);
+            WriteLine("    -i, --implementation s|p|e\t\t" + ProcessingParameters.ImplementationDescription);
+            WriteLine("    -s, --startTime <time>\t\t" + ProcessingParameters.StartTimeDescription);
+            WriteLine("    -e, --endTime <time>\t\t" + ProcessingParameters.EndTimeDescription);
+            WriteLine();
+            WriteLine("When no command-line arguments specified, STDIN and STDOUT are used to ask parameters");
+            WriteLine();
         }
 
         #endregion
@@ -192,15 +194,15 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
         {
             try
             {
-                Console.WriteLine();
-                Console.WriteLine("opening recording and creating body tracking pipeline...");
+                WriteLine();
+                WriteLine("opening recording and creating body tracking pipeline...");
                 using (var processor = Processor.Create(processingParameters))
                 {
-                    Console.WriteLine("opened:");
-                    Console.WriteLine("  depth mode = " + processor.RecordConfig.DepthMode);
-                    Console.WriteLine("  camera frame rate = " + processor.RecordConfig.CameraFps.ToNumberHz());
-                    Console.WriteLine("  record length = " + processor.RecordLength);
-                    Console.WriteLine("processing frames:");
+                    WriteLine("opened:");
+                    WriteLine("  depth mode = " + processor.RecordConfig.DepthMode);
+                    WriteLine("  camera frame rate = " + processor.RecordConfig.CameraFps.ToNumberHz());
+                    WriteLine("  record length = " + processor.RecordLength);
+                    WriteLine("processing frames:");
                     var sw = Stopwatch.StartNew();
                     while (processor.NextFrame())
                     {
@@ -208,20 +210,20 @@ namespace K4AdotNet.Samples.Core.BodyTrackingSpeed
                     }
                     sw.Stop();
                     PrintProcessingStatus(processor);
-                    Console.WriteLine();
-                    Console.WriteLine("done!");
+                    WriteLine();
+                    WriteLine("done!");
                     if (sw.Elapsed.TotalSeconds > 0)
                     {
                         var trackingSpeed = processor.TotalFrameCount / sw.Elapsed.TotalSeconds;
-                        Console.WriteLine($"tracking speed = {trackingSpeed} FPS");
+                        WriteLine($"tracking speed = {trackingSpeed} FPS");
                     }
                 }
             }
             catch (Exception exc)
             {
-                Console.WriteLine();
-                Console.WriteLine("ERROR!");
-                Console.WriteLine(exc.ToString());
+                WriteLine();
+                WriteLine("ERROR!");
+                WriteLine(exc.ToString());
             }
         }
 

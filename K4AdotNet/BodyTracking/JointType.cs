@@ -42,7 +42,7 @@
     /// <remarks>See https://docs.microsoft.com/en-us/azure/Kinect-dk/body-joints#joint-hierarchy for details.</remarks>
     /// <seealso cref="JointTypes"/>
     /// <seealso cref="Skeleton"/>
-    public enum JointType
+    public enum JointType : int
     {
         /// <summary>Pelvis joint.</summary>
         Pelvis = 0,

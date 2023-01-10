@@ -21,7 +21,7 @@ namespace K4AdotNet.Sensor
     public sealed class Capture
         : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
     {
-        private readonly ChildrenDisposer children = new ChildrenDisposer();                // to track returned Image objects
+        private readonly ChildrenDisposer children = new();                                 // to track returned Image objects
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
 
         /// <summary>Creates an empty capture object.</summary>
@@ -84,7 +84,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         /// <seealso cref="Dispose"/>
         public Capture DuplicateReference()
-            => new Capture(handle.ValueNotDisposed.DuplicateReference());
+            => new(handle.ValueNotDisposed.DuplicateReference());
 
         /// <summary>Get and set the color image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have color data.</summary>
         /// <remarks><para>
@@ -194,7 +194,7 @@ namespace K4AdotNet.Sensor
         /// <param name="capture">Another captures to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both captures reference to one and the same unmanaged object.</returns>
         public bool Equals(Capture? capture)
-            => !(capture is null) && capture.handle.Equals(handle);
+            => capture is not null && capture.handle.Equals(handle);
 
         /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
@@ -214,7 +214,7 @@ namespace K4AdotNet.Sensor
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(Capture)"/>
         public static bool operator ==(Capture? left, Capture? right)
-            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+            => (left is null && right is null) || (left is not null && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(Capture)"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>

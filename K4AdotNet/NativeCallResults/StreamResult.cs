@@ -9,7 +9,7 @@
     // } k4a_stream_result_t;
     //
     /// <summary>Return codes returned by Azure Kinect playback API.</summary>
-    internal enum StreamResult
+    internal enum StreamResult : int
     {
         /// <summary>The result was successful</summary>
         Succeeded = 0,

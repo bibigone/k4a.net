@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace K4AdotNet
@@ -13,36 +14,47 @@ namespace K4AdotNet
             => checked((int)value.ToUInt32());
 
         public static UIntPtr Int32ToUIntPtr(int value)
-            => new UIntPtr((ulong)value);
+            => new((ulong)value);
 
-        public delegate NativeCallResults.BufferResult GetInByteBufferMethod<T>(T parameter, byte[] data, ref UIntPtr dataSize);
+        public delegate NativeCallResults.BufferResult GetInByteBufferMethod<T>(T parameter, IntPtr buffer, ref UIntPtr size);
 
         public static bool TryGetValueInByteBuffer<T>(GetInByteBufferMethod<T> getMethod, T parameter,
             [NotNullWhen(returnValue: true)] out byte[]? result)
         {
-            var buffer = new byte[0];
             var bufferSize = UIntPtr.Zero;
-
-            var res = getMethod(parameter, buffer, ref bufferSize);
+            var res = getMethod(parameter, IntPtr.Zero, ref bufferSize);
             if (res == NativeCallResults.BufferResult.TooSmall)
             {
                 var size = UIntPtrToInt32(bufferSize);
                 if (size > 1)
                 {
-                    buffer = new byte[size];
-                    bufferSize = Int32ToUIntPtr(size);
-                    res = getMethod(parameter, buffer, ref bufferSize);
+                    IntPtr buffer = Marshal.AllocHGlobal(size);
+                    try
+                    {
+                        res = getMethod(parameter, buffer, ref bufferSize);
+                        if (res == NativeCallResults.BufferResult.Succeeded)
+                        {
+                            size = UIntPtrToInt32(bufferSize);
+                            result = new byte[size];
+                            Marshal.Copy(buffer, result, 0, size);
+                            return true;
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(buffer);
+                    }
                 }
             }
 
-            if (res != NativeCallResults.BufferResult.Succeeded)
+            if (res == NativeCallResults.BufferResult.Succeeded)
             {
-                result = null;
-                return false;
+                result = Array.Empty<byte>();
+                return true;
             }
 
-            result = buffer;
-            return true;
+            result = null;
+            return false;
         }
 
         [return: NotNullIfNotNull(parameterName: "value")]

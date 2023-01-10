@@ -2,7 +2,7 @@
 {
     // k4a_log_level_t
     /// <summary>Verbosity levels of debug messaging.</summary>
-    internal enum LogLevel
+    internal enum LogLevel :int
     {
         // K4A_LOG_LEVEL_CRITICAL
         /// <summary>The most severe level of debug messaging.</summary>

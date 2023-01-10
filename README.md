@@ -30,9 +30,9 @@
   * Native libraries from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) are included to repository (see `externals` directory) and [NuGet package](https://www.nuget.org/packages/K4AdotNet)
   * But native libraries from [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) are *not* included to repository. It is recommended to install [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download) separately. For details see below
 * Plenty of powerful samples:
-  * for .NET Core
-  * for WPF
-  * for Unity
+  * .NET 7 Console Application
+  * .NET 7 WPF Application (Windows only)
+  * Unity Project
 * Well documented
 * Unit-tested
 * Potentially multi-platform (Windows, Linux)
@@ -86,12 +86,12 @@ See https://github.com/bibigone/k4a.net/releases
 
 ## How to build
 
-* Open `K4AdotNet.sln` in Visual Studio 2019 or 2022
+* Open `K4AdotNet.sln` in Visual Studio 2022
 * Build solution (`Ctrl+Shift+B`)
 * After that you can run and explore samples:
-  * `K4AdotNet.Samples.Core.BodyTrackingSpeed` &mdash; sample .NET Core 3.1 console application to measure speed of Body Tracking.
-  * `K4AdotNet.Samples.Core.Recorder` &mdash; sample .NET Core 3.1 console application to record data from Azure Kinect device to MKV file.
+  * `K4AdotNet.Samples.Console.BodyTrackingSpeed` &mdash; sample .NET 7 console application to measure speed of Body Tracking.
+  * `K4AdotNet.Samples.Console.Recorder` &mdash; sample .NET 7 console application to record data from Azure Kinect device to MKV file.
   * `K4AdotNet.Samples.Wpf.Viewer` &mdash; sample WPF application to demonstrate usage of Sensor API and Record API.
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
-  * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application implementing the background removal effect for color picture with the help of depth data.
+  * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application which implements the background removal effect for color picture with the help of depth data.
 * Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.md).

@@ -9,9 +9,7 @@ namespace K4AdotNet.Samples.Wpf
     public abstract class AppBase : Application, IApp
     {
         protected AppBase()
-        {
-            SetDefaultCulture();
-        }
+            => SetDefaultCulture();
 
         protected static void SetDefaultCulture()
         {
@@ -23,7 +21,7 @@ namespace K4AdotNet.Samples.Wpf
             CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
         }
 
-        protected abstract Window CreateMainWindow(StartupEventArgs e);
+        protected abstract Window? CreateMainWindow(StartupEventArgs e);
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -46,12 +44,12 @@ namespace K4AdotNet.Samples.Wpf
         public IDisposable IndicateWaiting()
             => new MouseCursorOverrider(System.Windows.Input.Cursors.Wait);
 
-        public void ShowErrorMessage(string message, string title = null)
+        public void ShowErrorMessage(string message, string? title = null)
             => MessageBox.Show(CurrentWindow, message, title ?? "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         public abstract void ShowWindowForModel(object viewModel);
 
-        public string BrowseFileToOpen(string filter, string title = null)
+        public string? BrowseFileToOpen(string filter, string? title = null)
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {

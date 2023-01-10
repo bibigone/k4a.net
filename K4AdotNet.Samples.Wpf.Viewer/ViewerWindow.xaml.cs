@@ -16,9 +16,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            (DataContext as ViewerModel)?.Run();
-        }
+            => (DataContext as ViewerModel)?.Run();
 
         protected override void OnClosed(EventArgs e)
         {

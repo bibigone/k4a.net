@@ -15,6 +15,6 @@
             return true;
         }
 
-        public static readonly PlaybackDataBlockHandle Zero = new PlaybackDataBlockHandle();
+        public static readonly PlaybackDataBlockHandle Zero = new();
     }
 }

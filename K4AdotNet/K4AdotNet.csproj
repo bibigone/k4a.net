@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU</Platforms>
     <Description>Three-in-one .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later. All required binaries from Azure Kinect Sensor SDK (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</Description>
@@ -17,21 +17,31 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <DocumentationFile>K4AdotNet.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <NoWarn>1701;1702;1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>K4AdotNet.xml</DocumentationFile>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="k4arecord.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
   </ItemGroup>
 
   <!-- Disable warnings regarding nullable references which rely on missing attributes -->
@@ -51,9 +61,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\externals\k4a\windows-desktop\amd64\*.dll" Pack="True" PackagePath="\build\">
-      <Link>package\%(FileName)%(Extension)</Link>
-    </None>
     <None Include="package\k4adotnet.targets" Pack="True" PackagePath="\build\" />
   </ItemGroup>
 

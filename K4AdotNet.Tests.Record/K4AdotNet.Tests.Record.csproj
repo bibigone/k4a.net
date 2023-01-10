@@ -3,20 +3,11 @@
   <Import Project="..\Product.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>x64</Platforms>
     <Description>Integration tests on Record API from K4AdotNet library</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="k4arecord.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
 
   <ItemGroup>

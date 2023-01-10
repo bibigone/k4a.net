@@ -129,10 +129,10 @@ namespace K4AdotNet.BodyTracking
         /// <summary>Implicit conversion from <see cref="int"/>.</summary>
         /// <param name="id">Value to be converted to <see cref="BodyId"/>.</param>
         public static implicit operator BodyId(int id)
-            => new BodyId(id);
+            => new(id);
 
         // #define K4ABT_INVALID_BODY_ID 0xFFFFFFFF
         /// <summary>The invalid body id value.</summary>
-        public static BodyId Invalid = new BodyId(-1);
+        public static BodyId Invalid = new(-1);
     }
 }

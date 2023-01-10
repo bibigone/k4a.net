@@ -380,7 +380,7 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="TimeSpan"/>.</summary>
         /// <param name="value">Value to be converted to <see cref="Nanoseconds64"/>.</param>
         public static implicit operator Nanoseconds64(TimeSpan value)
-            => new Nanoseconds64(value);
+            => new(value);
 
         /// <summary>Implicit conversion to <see cref="long"/> value in nanoseconds.</summary>
         /// <param name="value">Value to be converted to <see cref="long"/>.</param>
@@ -390,28 +390,28 @@ namespace K4AdotNet
         /// <summary>Implicit conversion from <see cref="long"/>.</summary>
         /// <param name="valueNsec">Value in nanoseconds to be converted to <see cref="Nanoseconds64"/>.</param>
         public static implicit operator Nanoseconds64(long valueNsec)
-            => new Nanoseconds64(valueNsec);
+            => new(valueNsec);
 
         /// <summary>Creates instance of <see cref="Nanoseconds64"/> from seconds.</summary>
         /// <param name="valueSec">Value in seconds.</param>
         /// <returns>Created value.</returns>
         public static Nanoseconds64 FromSeconds(double valueSec)
-            => new Nanoseconds64((long)(valueSec * 1_000_000_000));
+            => new((long)(valueSec * 1_000_000_000));
 
         /// <summary>Creates instance of <see cref="Nanoseconds64"/> from milliseconds.</summary>
         /// <param name="valueMs">Value in milliseconds.</param>
         /// <returns>Created value.</returns>
         public static Nanoseconds64 FromMilliseconds(double valueMs)
-            => new Nanoseconds64((long)(valueMs * 1_000_000));
+            => new((long)(valueMs * 1_000_000));
 
         /// <summary>Creates instance of <see cref="Nanoseconds64"/> from microseconds.</summary>
         /// <param name="valueUs">Value in microseconds.</param>
         /// <returns>Created value.</returns>
         public static Nanoseconds64 FromMicroseconds(double valueUs)
-            => new Nanoseconds64((long)(valueUs * 1_000));
+            => new((long)(valueUs * 1_000));
 
         /// <summary>Zero value.</summary>
-        public static readonly Nanoseconds64 Zero = new Nanoseconds64(0);
+        public static readonly Nanoseconds64 Zero = new(0);
 
         private static readonly long NsecToTimeSpanTicksFactor = 1_000_000_000L / TimeSpan.TicksPerSecond;
         private const string UNIT_POSTFIX = " nsec";

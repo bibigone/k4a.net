@@ -11,11 +11,11 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public BodyIndexMapTransformation(in Calibration calibration)
         {
-            transformation = new Transformation(in calibration);
+            transformation = new(in calibration);
             var colorWidth = calibration.ColorResolution.WidthPixels();
             var colorHeight = calibration.ColorResolution.HeightPixels();
-            transformedDepthMap = new Image(ImageFormat.Depth16, colorWidth, colorHeight);
-            transformedBodyIndexMap = new Image(ImageFormat.Custom8, colorWidth, colorHeight, strideBytes: colorWidth, sizeBytes: colorWidth * colorHeight);
+            transformedDepthMap = new(ImageFormat.Depth16, colorWidth, colorHeight);
+            transformedBodyIndexMap = new(ImageFormat.Custom8, colorWidth, colorHeight, strideBytes: colorWidth, sizeBytes: colorWidth * colorHeight);
         }
 
         public void Dispose()
@@ -25,7 +25,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             transformedBodyIndexMap.Dispose();
         }
 
-        public unsafe Image ToColor(Image depthMap, Image bodyIndexMap)
+        public unsafe Image? ToColor(Image? depthMap, Image? bodyIndexMap)
         {
             if (bodyIndexMap == null || depthMap == null)
                 return null;

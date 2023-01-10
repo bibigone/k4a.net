@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Logging
 {
@@ -10,7 +11,7 @@ namespace K4AdotNet.Logging
     {
         private static readonly NativeApi.LoggingMessageCallback debugMessageHandler = OnDebugMessage;
         private static TraceLevel traceLevel = TraceLevel.Off;
-        private static readonly object traceLevelSync = new object();
+        private static readonly object traceLevelSync = new();
 
         public static TraceLevel TraceLevel
         {
@@ -38,6 +39,7 @@ namespace K4AdotNet.Logging
                         var res = NativeApi.SetDebugMessageHandler(debugMessageHandler, IntPtr.Zero, value.ToLogLevel());
                         if (res != NativeCallResults.Result.Succeeded)
                             throw new InvalidOperationException("Failed to set the debug message handler.");
+
                         if (traceLevel == TraceLevel.Off)
                         {
                             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_Exit;
