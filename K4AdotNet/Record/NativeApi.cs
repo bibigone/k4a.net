@@ -17,7 +17,7 @@ namespace K4AdotNet.Record
         /// </summary>
         /// <param name="path">File system path for the new recording.</param>
         /// <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
-        /// number information. May be <see cref="NativeHandles.DeviceHandle.Zero"/> if recording user-generated data.</param>
+        /// number information. May be <see cref="IntPtr.Zero"/> if recording user-generated data.</param>
         /// <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
         /// <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
@@ -35,7 +35,7 @@ namespace K4AdotNet.Record
             [In] byte[] path,
             NativeHandles.DeviceHandle device,
             Sensor.DeviceConfiguration deviceConfiguration,
-            out NativeHandles.RecordHandle? recordingHandle);
+            out NativeHandles.RecordHandle recordingHandle);
 
         // K4ARECORD_EXPORT k4a_result_t k4a_record_add_tag(k4a_record_t recording_handle, const char *name, const char *value);
         /// <summary>Adds a tag to the recording.</summary>
@@ -253,7 +253,7 @@ namespace K4AdotNet.Record
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_open", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result PlaybackOpen(
             [In] byte[] path,
-            out NativeHandles.PlaybackHandle? playbackHandle);
+            out NativeHandles.PlaybackHandle playbackHandle);
 
         // K4ARECORD_EXPORT k4a_buffer_result_t k4a_playback_get_raw_calibration(k4a_playback_t playback_handle,
         //                                                                       uint8_t* data,
@@ -551,7 +551,7 @@ namespace K4AdotNet.Record
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_next_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetNextCapture(
             NativeHandles.PlaybackHandle playbackHandle,
-            out NativeHandles.CaptureHandle? captureHandle);
+            out NativeHandles.CaptureHandle captureHandle);
 
         // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_previous_capture(k4a_playback_t playback_handle,
         //                                                                        k4a_capture_t* capture_handle);
@@ -579,7 +579,7 @@ namespace K4AdotNet.Record
         [DllImport(Sdk.RECORD_DLL_NAME, EntryPoint = "k4a_playback_get_previous_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.StreamResult PlaybackGetPreviousCapture(
             NativeHandles.PlaybackHandle playbackHandle,
-            out NativeHandles.CaptureHandle? captureHandle);
+            out NativeHandles.CaptureHandle captureHandle);
 
         // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_next_imu_sample(k4a_playback_t playback_handle,
         //                                                                       k4a_imu_sample_t* imu_sample);
@@ -656,7 +656,7 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.StreamResult PlaybackGetNextDataBlock(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] trackName,
-            out NativeHandles.PlaybackDataBlockHandle? dataHandle);
+            out NativeHandles.PlaybackDataBlockHandle dataHandle);
 
         // K4ARECORD_EXPORT k4a_stream_result_t k4a_playback_get_previous_data_block(k4a_playback_t playback_handle,
         //                                                                           const char* track_name,
@@ -687,7 +687,7 @@ namespace K4AdotNet.Record
         public static extern NativeCallResults.StreamResult PlaybackGetPreviousDataBlock(
             NativeHandles.PlaybackHandle playbackHandle,
             [In] byte[] trackName,
-            out NativeHandles.PlaybackDataBlockHandle? dataHandle);
+            out NativeHandles.PlaybackDataBlockHandle dataHandle);
 
         // K4ARECORD_EXPORT uint64_t k4a_playback_data_block_get_device_timestamp_usec(k4a_playback_data_block_t data_block_handle);
         /// <summary>Get the device timestamp of a data block in microseconds.</summary>

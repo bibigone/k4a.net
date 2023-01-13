@@ -22,7 +22,7 @@ namespace K4AdotNet.Sensor
         /// <param name="deviceHandle">Output parameter which on success will return a handle to the device.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the device was opened successfully.</returns>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_open", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle? deviceHandle);
+        public static extern NativeCallResults.Result DeviceOpen(uint index, out NativeHandles.DeviceHandle deviceHandle);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_capture(k4a_device_t device_handle,
         //                                                     k4a_capture_t *capture_handle,
@@ -48,7 +48,7 @@ namespace K4AdotNet.Sensor
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_capture", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.WaitResult DeviceGetCapture(
             NativeHandles.DeviceHandle deviceHandle,
-            out NativeHandles.CaptureHandle? captureHandle,
+            out NativeHandles.CaptureHandle captureHandle,
             Timeout timeout);
 
         // K4A_EXPORT k4a_wait_result_t k4a_device_get_imu_sample(k4a_device_t device_handle,
@@ -112,7 +112,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_color_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a color image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove color image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="IntPtr.Zero"/> to remove color image from a given capture if any.</param>
         /// <remarks>If there is already a color image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_color_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetColorImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -120,7 +120,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_depth_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a depth image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove depth image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="IntPtr.Zero"/> to remove depth image from a given capture if any.</param>
         /// <remarks>If there is already a depth image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_depth_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetDepthImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -128,7 +128,7 @@ namespace K4AdotNet.Sensor
         // K4A_EXPORT void k4a_capture_set_ir_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
         /// <summary>Set or add a IR image to the associated capture.</summary>
         /// <param name="captureHandle">Capture handle to hold the image.</param>
-        /// <param name="imageHandle">Image handle containing the image or <see cref="NativeHandles.ImageHandle.Zero"/> to remove IR image from a given capture if any.</param>
+        /// <param name="imageHandle">Image handle containing the image or <see cref="IntPtr.Zero"/> to remove IR image from a given capture if any.</param>
         /// <remarks>If there is already a IR image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_set_ir_image", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CaptureSetIRImage(NativeHandles.CaptureHandle captureHandle, NativeHandles.ImageHandle imageHandle);
@@ -185,7 +185,7 @@ namespace K4AdotNet.Sensor
             int widthPixels,
             int heightPixels,
             int strideBytes,
-            out NativeHandles.ImageHandle? imageHandle);
+            out NativeHandles.ImageHandle imageHandle);
 
         // typedef void(k4a_memory_destroy_cb_t)(void *buffer, void *context);
         /// <summary>Callback function for a memory object being destroyed.</summary>
@@ -232,7 +232,7 @@ namespace K4AdotNet.Sensor
             UIntPtr bufferSize,
             MemoryDestroyCallback? bufferReleaseCallback,
             IntPtr bufferReleaseCallbackContext,
-            out NativeHandles.ImageHandle? imageHandle);
+            out NativeHandles.ImageHandle imageHandle);
 
         // K4A_EXPORT uint8_t *k4a_image_get_buffer(k4a_image_t image_handle);
         /// <summary>Get the image buffer.</summary>

@@ -427,7 +427,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(index));
 
             var res = NativeApi.DeviceOpen(checked((uint)index), out var deviceHandle);
-            if (res != NativeCallResults.Result.Succeeded || deviceHandle == null || deviceHandle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !deviceHandle.IsValid)
             {
                 device = null;
                 return false;
@@ -436,7 +436,7 @@ namespace K4AdotNet.Sensor
             if (!TryGetSerialNumber(deviceHandle, out var serialNumber)
                 || !TryGetHardwareVersion(deviceHandle, out var version))
             {
-                deviceHandle.Dispose();
+                deviceHandle.Release();
                 device = null;
                 return false;
             }
@@ -487,6 +487,6 @@ namespace K4AdotNet.Sensor
             => NativeApi.DeviceGetVersion(deviceHandle, out version) == NativeCallResults.Result.Succeeded;
 
         internal static NativeHandles.DeviceHandle ToHandle(Device? device)
-            => device?.handle.ValueNotDisposed ?? NativeHandles.DeviceHandle.Zero;
+            => device?.handle.ValueNotDisposed ?? default;
     }
 }

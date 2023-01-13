@@ -135,7 +135,7 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle != null && !dataHandle.IsInvalid)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle.IsValid)
             {
                 dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;
@@ -179,7 +179,7 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle != null && !dataHandle.IsInvalid)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle.IsValid)
             {
                 dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;

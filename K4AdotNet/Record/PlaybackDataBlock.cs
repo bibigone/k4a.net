@@ -133,7 +133,7 @@ namespace K4AdotNet.Record
             return dstCount;
         }
 
-        internal static PlaybackDataBlock? Create(NativeHandles.PlaybackDataBlockHandle? handle)
-            => handle != null && !handle.IsInvalid ? new PlaybackDataBlock(handle) : null;
+        internal static PlaybackDataBlock? Create(NativeHandles.PlaybackDataBlockHandle handle)
+            => handle.IsValid ? new(handle) : null;
     }
 }

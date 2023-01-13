@@ -31,7 +31,7 @@ namespace K4AdotNet.Sensor
         public Capture()
         {
             var res = NativeApi.CaptureCreate(out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new InvalidOperationException("Failed to create blank capture instance");
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
@@ -49,8 +49,8 @@ namespace K4AdotNet.Sensor
             this.handle.Disposed += Handle_Disposed;
         }
 
-        internal static Capture? Create(NativeHandles.CaptureHandle? handle)
-            => handle != null && !handle.IsInvalid ? new Capture(handle) : null;
+        internal static Capture? Create(NativeHandles.CaptureHandle handle)
+            => handle.IsValid ? new(handle) : null;
 
         /// <summary>
         /// Call this method to free unmanaged resources associated with current instance.
@@ -184,9 +184,9 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Extracts handle from <paramref name="capture"/>.</summary>
         /// <param name="capture">Managed object. Can be <see langword="null"/>.</param>
-        /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.CaptureHandle.Zero"/>.</returns>
+        /// <returns>Appropriate unmanaged handle. Can be <see cref="IntPtr.Zero"/>.</returns>
         internal static NativeHandles.CaptureHandle ToHandle(Capture? capture)
-            => capture?.handle?.ValueNotDisposed ?? NativeHandles.CaptureHandle.Zero;
+            => capture?.handle?.ValueNotDisposed ?? default;
 
         #region Equatable
 

@@ -221,7 +221,7 @@ namespace K4AdotNet
                 return false;
             }
 
-            trackerHandle.Dispose();
+            trackerHandle.Release();
             message = null;
             return true;
         }
@@ -408,7 +408,7 @@ namespace K4AdotNet
         }
 
         internal static bool TryCreateTrackerHandle(in Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
-            [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle? trackerHandle,
+            [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle trackerHandle,
             [NotNullWhen(returnValue: false)] out string? message)
         {
             string runtimePath;
@@ -419,7 +419,7 @@ namespace K4AdotNet
                 {
                     if (!TryGetBodyTrackingRuntimePath(out bodyTrackingRuntimePath, out message))
                     {
-                        trackerHandle = null;
+                        trackerHandle = default;
                         return false;
                     }
 
@@ -440,7 +440,7 @@ namespace K4AdotNet
 
             if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
             {
-                trackerHandle = null;
+                trackerHandle = default;
                 return false;
             }
 
@@ -462,7 +462,7 @@ namespace K4AdotNet
             }
 
             if (BodyTracking.NativeApi.TrackerCreate(in calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
-                || trackerHandle == null || trackerHandle.IsInvalid)
+                || !trackerHandle.IsValid)
             {
                 if (IsBodyTrackingRuntimeAvailable(out message))
                 {
@@ -478,7 +478,7 @@ namespace K4AdotNet
         }
 
         private static string? bodyTrackingRuntimePath;
-        private static readonly object bodyTrackingRuntimeInitializationSync = new object();
+        private static readonly object bodyTrackingRuntimeInitializationSync = new();
 
         #endregion
     }

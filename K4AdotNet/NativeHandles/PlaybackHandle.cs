@@ -1,20 +1,28 @@
-﻿namespace K4AdotNet.NativeHandles
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace K4AdotNet.NativeHandles
 {
     // Defined in record/types.h:
     // K4A_DECLARE_HANDLE(k4a_record_t);
     //
     /// <summary>Handle to a Kinect for Azure recording opened for playback.</summary>
-    internal sealed class PlaybackHandle : HandleBase
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct PlaybackHandle : INativeHandle
     {
-        private PlaybackHandle()
-        { }
+        private readonly IntPtr value;
 
-        protected override bool ReleaseHandle()
+        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
+        IntPtr INativeHandle.UnsafeValue => value;
+
+        /// <inheritdoc cref="INativeHandle.IsValid"/>
+        public bool IsValid => value != IntPtr.Zero;
+
+        /// <inheritdoc cref="INativeHandle.Release"/>
+        public void Release()
         {
-            NativeApi.PlaybackClose(handle);
-            return true;
+            if (IsValid)
+                NativeApi.PlaybackClose(this);
         }
-
-        public static readonly PlaybackHandle Zero = new();
     }
 }

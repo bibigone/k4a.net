@@ -59,7 +59,7 @@ namespace K4AdotNet.Logging
         /// default behavior when using this function.By default, when \p k4a_set_debug_message_handler() has not been used to
         /// register a message callback, the default for environmental variable controls is to send debug messages as if
         /// <c>K4A_ENABLE_LOG_TO_STDOUT= 1</c> were set. If this method registers a callback function before
-        /// <see cref="Sensor.NativeApi.DeviceOpen(uint, out NativeHandles.DeviceHandle?)"/> is called, then the default for environmental controls
+        /// <see cref="Sensor.NativeApi.DeviceOpen(uint, out NativeHandles.DeviceHandle)"/> is called, then the default for environmental controls
         /// is as if <c>K4A_ENABLE_LOG_TO_STDOUT= 0</c> was specified. Physically specifying the environmental control will override the default.
         /// </para></remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_set_debug_message_handler", CallingConvention = CallingConvention.Cdecl)]

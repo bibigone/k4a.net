@@ -41,7 +41,7 @@ namespace K4AdotNet.Record
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
             var res = NativeApi.RecordCreate(pathAsBytes, Sensor.Device.ToHandle(device), config, out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new RecordingException($"Cannot initialize recording to file \"{filePath}\".", filePath);
 
             this.handle = handle;
@@ -217,6 +217,6 @@ namespace K4AdotNet.Record
         }
 
         internal static NativeHandles.RecordHandle ToHandle(Recorder? recorder)
-            => recorder?.handle.ValueNotDisposed ?? NativeHandles.RecordHandle.Zero;
+            => recorder?.handle.ValueNotDisposed ?? default;
     }
 }

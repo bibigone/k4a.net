@@ -1,20 +1,28 @@
-﻿namespace K4AdotNet.NativeHandles
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace K4AdotNet.NativeHandles
 {
     // Defined in k4abttypes.h:
     // K4A_DECLARE_HANDLE(k4abt_tracker_t);
     //
     /// <summary>Handle to Azure Kinect body tracking component.</summary>
-    internal sealed class TrackerHandle : HandleBase
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct TrackerHandle : INativeHandle
     {
-        private TrackerHandle()
-        { }
+        private readonly IntPtr value;
 
-        protected override bool ReleaseHandle()
+        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
+        IntPtr INativeHandle.UnsafeValue => value;
+
+        /// <inheritdoc cref="INativeHandle.IsValid"/>
+        public bool IsValid => value != IntPtr.Zero;
+
+        /// <inheritdoc cref="INativeHandle.Release"/>
+        public void Release()
         {
-            NativeApi.TrackerDestroy(handle);
-            return true;
+            if (IsValid)
+                NativeApi.TrackerDestroy(this);
         }
-
-        public static readonly TrackerHandle Zero = new();
     }
 }

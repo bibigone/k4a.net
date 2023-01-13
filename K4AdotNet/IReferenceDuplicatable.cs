@@ -7,7 +7,7 @@ namespace K4AdotNet
     /// </summary>
     /// <typeparam name="T">Type implemented this interface.</typeparam>
     public interface IReferenceDuplicatable<T>
-        where T: class, IReferenceDuplicatable<T>
+        where T: class, IDisposable, IReferenceDuplicatable<T>
     {
         /// <summary>
         /// Creates new managed object that references exactly the same unmanaged object as original one.

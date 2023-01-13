@@ -1,28 +1,38 @@
-﻿namespace K4AdotNet.NativeHandles
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace K4AdotNet.NativeHandles
 {
     // Defined in k4abttypes.h:
     // K4A_DECLARE_HANDLE(k4abt_frame_t);
     //
     /// <summary>Handle to an Azure Kinect body tracking frame.</summary>
-    internal sealed class BodyFrameHandle : HandleBase, IReferenceDuplicatable<BodyFrameHandle>
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct BodyFrameHandle : INativeHandle
     {
-        private BodyFrameHandle()
-        { }
+        private readonly IntPtr value;
+
+        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
+        IntPtr INativeHandle.UnsafeValue => value;
+
+        /// <inheritdoc cref="INativeHandle.IsValid"/>
+        public bool IsValid => value != IntPtr.Zero;
 
         /// <summary>Call this method if you want to have one more reference to the same body frame.</summary>
-        /// <returns>Additional reference to the same body frame. Don't forget to call <see cref="System.IDisposable.Dispose"/> method for object returned.</returns>
+        /// <remarks>Returns the same handle.</remarks>
         public BodyFrameHandle DuplicateReference()
         {
-            NativeApi.FrameReference(handle);
-            return new() { handle = handle };
+            if (!IsValid)
+                throw new InvalidOperationException("Invalid handle");
+            NativeApi.FrameReference(this);
+            return this;
         }
 
-        protected override bool ReleaseHandle()
+        /// <inheritdoc cref="INativeHandle.Release"/>
+        public void Release()
         {
-            NativeApi.FrameRelease(handle);
-            return true;
+            if (IsValid)
+                NativeApi.FrameRelease(this);
         }
-
-        public static readonly BodyFrameHandle Zero = new();
     }
 }

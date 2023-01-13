@@ -2627,9 +2627,18 @@
         <member name="T:K4AdotNet.NativeHandles.BodyFrameHandle">
             <summary>Handle to an Azure Kinect body tracking frame.</summary>
         </member>
+        <member name="P:K4AdotNet.NativeHandles.BodyFrameHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.BodyFrameHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
         <member name="M:K4AdotNet.NativeHandles.BodyFrameHandle.DuplicateReference">
             <summary>Call this method if you want to have one more reference to the same body frame.</summary>
-            <returns>Additional reference to the same body frame. Don't forget to call <see cref="M:System.IDisposable.Dispose"/> method for object returned.</returns>
+            <remarks>Returns the same handle.</remarks>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.BodyFrameHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.CaptureHandle">
             <summary>Handle to an Azure Kinect capture.</summary>
@@ -2638,74 +2647,45 @@
             Captures can be obtained from a device using <c>k4a_device_get_capture()</c>.
             </remarks>
         </member>
+        <member name="P:K4AdotNet.NativeHandles.CaptureHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.CaptureHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
         <member name="M:K4AdotNet.NativeHandles.CaptureHandle.DuplicateReference">
             <summary>
             Call this method if you want to have one more reference to the same capture.
             </summary>
-            <returns>Additional reference to the same capture. Don't forget to call <see cref="M:System.IDisposable.Dispose"/> method for object returned.</returns>
+            <remarks>Returns the same handle.</remarks>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.CaptureHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.DeviceHandle">
             <summary>Handle to an Azure Kinect device.</summary>
         </member>
-        <member name="T:K4AdotNet.NativeHandles.HandleBase">
-            <summary>Base class for all native handles declared it Sensor SDK.</summary>
-            <remarks>
-            Handles represent object instances in Sensor SDK.
-            Handles are opaque pointers returned by the SDK which represent an object.
-            Invalid handles are set to 0 (<c>IntPtr.Zero</c>).
-            </remarks>
+        <member name="P:K4AdotNet.NativeHandles.DeviceHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.#ctor">
-            <summary>Instances always own handles they store.</summary>
+        <member name="P:K4AdotNet.NativeHandles.DeviceHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
         </member>
-        <member name="P:K4AdotNet.NativeHandles.HandleBase.IsInvalid">
-            <summary>Invalid handle is <see cref="F:System.IntPtr.Zero"/>.</summary>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.ToString">
-            <summary>Convenient (for debugging needs, first of all) string representation of object.</summary>
-            <returns><c>{TypeName}#{Address}</c></returns>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.GetHashCode">
-            <summary>Uses underlying value of handle as hash code.</summary>
-            <returns>Hash code. Consistent with overridden equality.</returns>
-            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)">
-            <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
-            <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
-            <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.Equals(System.Object)">
-            <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
-            <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
-            <returns><see langword="true"/> if <paramref name="obj"/> is <see cref="T:K4AdotNet.NativeHandles.HandleBase"/> and they both reference to one and the same object.</returns>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.op_Equality(K4AdotNet.NativeHandles.HandleBase,K4AdotNet.NativeHandles.HandleBase)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
-            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
-            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
-            <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
-        </member>
-        <member name="M:K4AdotNet.NativeHandles.HandleBase.op_Inequality(K4AdotNet.NativeHandles.HandleBase,K4AdotNet.NativeHandles.HandleBase)">
-            <summary>To be consistent with <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
-            <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
-            <param name="right">Right part of operator. Can be <see langword="null"/>.</param>
-            <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.</returns>
-            <seealso cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>
+        <member name="M:K4AdotNet.NativeHandles.DeviceHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.HandleWrapper`1">
             <summary>
-            Helper wrapper around <see cref="T:K4AdotNet.NativeHandles.HandleBase"/> objects.
+            Helper wrapper around native handle structures that implement <see cref="T:K4AdotNet.NativeHandles.INativeHandle"/> interface.
             Implements <see cref="T:K4AdotNet.IDisposablePlus"/> interface, which is really helpful in implementation of public classes.
+            Plus this class has a finalyzer that calls <see cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/> for objects that were not disposed in an explicit manner.
             </summary>
             <typeparam name="T">Type of handle.</typeparam>
         </member>
         <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.#ctor(`0)">
             <summary>Creates <see cref="T:K4AdotNet.IDisposablePlus"/>-wrapper around specified handle.</summary>
-            <param name="handle">Handle to be wrapped. Not <see langword="null"/>. And must be valid and not closed.</param>
-            <exception cref="T:System.ArgumentNullException">If <paramref name="handle"/> is null.</exception>
-            <exception cref="T:System.ArgumentException">If <paramref name="handle"/> is invalid or closed.</exception>
+            <param name="handle">Handle to be wrapped. Must be valid.</param>
+            <exception cref="T:System.ArgumentException">If <paramref name="handle"/> is invalid.</exception>
         </member>
         <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.Value">
             <summary>Direct access to the underlying handle object.</summary>
@@ -2715,12 +2695,19 @@
             <exception cref="T:System.ObjectDisposedException">If object is disposed.</exception>
             <seealso cref="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed"/>
         </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Finalize">
+            <summary>Calls <see cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/> for objects that were not disposed in an explicit manner.</summary>
+        </member>
         <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Dispose">
             <summary>
             Disposes underlying handle
-            plus raises <see cref="E:K4AdotNet.NativeHandles.HandleWrapper`1.Disposed"/> event if it is first call of this method for object.
+            plus raises <see cref="E:K4AdotNet.NativeHandles.HandleWrapper`1.Disposed"/> event if it is the first call of this method for the object.
             </summary>
             <seealso cref="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.ReleaseHandle">
+            <summary>Releases handle only once.</summary>
+            <returns><see langword="true"/> - handle was release.</returns>
         </member>
         <member name="P:K4AdotNet.NativeHandles.HandleWrapper`1.IsDisposed">
             <summary>Gets a value indicating whether the object has been disposed of.</summary>
@@ -2739,15 +2726,15 @@
             <param name="handle">Handle to be wrapped.</param>
         </member>
         <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.ToString">
-            <summary>String representation exactly as handle object has.</summary>
-            <returns><see cref="M:K4AdotNet.NativeHandles.HandleBase.ToString"/></returns>
+            <summary>String representation of underlying native handle.</summary>
+            <returns><c>{HandleTypeName}#{Address}</c></returns>
         </member>
         <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.GetHashCode">
-            <summary>Delegates hash code calculation to <see cref="M:K4AdotNet.NativeHandles.HandleBase.GetHashCode"/> implementation.</summary>
+            <summary>Delegates hash code calculation to handle implementation.</summary>
             <returns>Hash code consistent with <see cref="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})"/>.</returns>
         </member>
         <member name="M:K4AdotNet.NativeHandles.HandleWrapper`1.Equals(K4AdotNet.NativeHandles.HandleWrapper{`0})">
-            <summary>Delegates comparison to <see cref="M:K4AdotNet.NativeHandles.HandleBase.Equals(K4AdotNet.NativeHandles.HandleBase)"/>.</summary>
+            <summary>Delegates comparison to handle.</summary>
             <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
             <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
         </member>
@@ -2774,25 +2761,51 @@
             <summary>Handle to an Azure Kinect image.</summary>
             <remarks>Images from a device are retrieved through a <c>k4a_capture_t</c> object returned by <c>k4a_device_get_capture()</c>.</remarks>
         </member>
+        <member name="P:K4AdotNet.NativeHandles.ImageHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.ImageHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
         <member name="M:K4AdotNet.NativeHandles.ImageHandle.DuplicateReference">
             <summary>Call this method if you want to have one more reference to the same image.</summary>
-            <returns>Additional reference to the same image. Don't forget to call <see cref="M:System.IDisposable.Dispose"/> method for object returned.</returns>
+            <remarks>Returns the same handle.</remarks>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.ImageHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
+        </member>
+        <member name="T:K4AdotNet.NativeHandles.INativeHandle">
+            <summary>
+            Base interface for all structures that wrap native handle value.
+            Such structures are used instead of <see cref="T:System.IntPtr"/> for better type safety in native API.
+            </summary>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue">
+            <summary>Raw value of native handle. Use accurately.</summary>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.INativeHandle.IsValid">
+            <summary>Is handle valid.</summary>
+            <remarks>Zero handle (that is <see cref="F:System.IntPtr.Zero"/>) is treated as invalid one.</remarks>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.INativeHandle.Release">
+            <summary>Release of handle.</summary>
+            <remarks>Can be called for invalid handle. In this case this method does nothing.</remarks>
         </member>
         <member name="T:K4AdotNet.NativeHandles.NativeApi">
             <summary>DLL imports of some native functions from <c>k4a.h</c>, <c>record.h</c>, <c>playback.h</c> and <c>k4abt.h</c> header files.</summary>
             <remarks>These functions are required for implementation of <c>XxxHandle</c> classes.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(K4AdotNet.NativeHandles.CaptureHandle)">
             <summary>Add a reference to a capture.</summary>
             <param name="captureHandle">Capture to add a reference to.</param>
             <remarks>Call this function to add an additional reference to a capture.
-                This reference must be removed with <see cref="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(System.IntPtr)"/>.</remarks>
+                This reference must be removed with <see cref="M:K4AdotNet.NativeHandles.NativeApi.CaptureReference(K4AdotNet.NativeHandles.CaptureHandle)"/>.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureRelease(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.CaptureRelease(K4AdotNet.NativeHandles.CaptureHandle)">
             <summary>Release a capture.</summary>
             <param name="captureHandle">Capture to release.</param>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.ImageReference(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.ImageReference(K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Add a reference to the image.</summary>
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <remarks>
@@ -2800,7 +2813,7 @@
             not access the object after its reference is released.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.ImageRelease(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.ImageRelease(K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Remove a reference from the image.</summary>
             <param name="imageHandle">Handle of the image for which the get operation is performed on.</param>
             <remarks>
@@ -2808,40 +2821,40 @@
             not access the object after its reference is released.
             </remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.TransformationDestroy(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.TransformationDestroy(K4AdotNet.NativeHandles.TransformationHandle)">
             <summary>Destroy transformation handle.</summary>
             <param name="transformationHandle">Transformation handle to destroy.</param>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.DeviceClose(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.DeviceClose(K4AdotNet.NativeHandles.DeviceHandle)">
             <summary>Closes an Azure Kinect device.</summary>
             <param name="deviceHandle">Handle of device for which the get operation is performed on.</param>
             <remarks>Once closed, the handle is no longer valid.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.TrackerDestroy(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.TrackerDestroy(K4AdotNet.NativeHandles.TrackerHandle)">
             <summary>Releases a body tracker handle. </summary>
             <param name="trackerHandle">Tracker to be destroyed.</param>
             <remarks>Once destroyed, the handle is no longer valid.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.FrameRelease(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.FrameRelease(K4AdotNet.NativeHandles.BodyFrameHandle)">
             <summary>Release a body frame back to the SDK.</summary>
             <param name="bodyFrameHandle">Handle to a body frame object to return to SDK.</param>
             <remarks>Once released, the handle is no longer valid.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.FrameReference(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.FrameReference(K4AdotNet.NativeHandles.BodyFrameHandle)">
             <summary>Add a reference to a body frame.</summary>
             <param name="bodyFrameHandle">Body frame to add a reference to.</param>
             <remarks>Call this function to add an additional reference to a body frame.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.RecordClose(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.RecordClose(K4AdotNet.NativeHandles.RecordHandle)">
             <summary>Closes a recording handle.</summary>
             <param name="recordingHandle">Recording handle to be closed.</param>
             <remarks>If there is any unwritten data it will be flushed to disk before closing the recording.</remarks>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.PlaybackClose(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.PlaybackClose(K4AdotNet.NativeHandles.PlaybackHandle)">
             <summary>Closes a recording playback handle.</summary>
             <param name="recordingHandle">Recording playback handle to be closed.</param>
         </member>
-        <member name="M:K4AdotNet.NativeHandles.NativeApi.PlaybackDataBlockRelease(System.IntPtr)">
+        <member name="M:K4AdotNet.NativeHandles.NativeApi.PlaybackDataBlockRelease(K4AdotNet.NativeHandles.PlaybackDataBlockHandle)">
             <summary>Release a data block handle.</summary>
             <param name="dataBlockHandle">Handle obtained by k4a_playback_get_next_data_block() or k4a_playback_get_previous_data_block().</param>
             <remarks>Release the memory of a data block. The caller must not access the object after it is released.</remarks>
@@ -2849,18 +2862,63 @@
         <member name="T:K4AdotNet.NativeHandles.PlaybackDataBlockHandle">
             <summary>Handle to a block of data read from a <see cref="T:K4AdotNet.NativeHandles.PlaybackHandle"/> custom track.</summary>
         </member>
+        <member name="P:K4AdotNet.NativeHandles.PlaybackDataBlockHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.PlaybackDataBlockHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.PlaybackDataBlockHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
+        </member>
         <member name="T:K4AdotNet.NativeHandles.PlaybackHandle">
             <summary>Handle to a Kinect for Azure recording opened for playback.</summary>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.PlaybackHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.PlaybackHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.PlaybackHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.RecordHandle">
             <summary>Handle to a Kinect for Azure recording opened for writing.</summary>
         </member>
+        <member name="P:K4AdotNet.NativeHandles.RecordHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.RecordHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.RecordHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
+        </member>
         <member name="T:K4AdotNet.NativeHandles.TrackerHandle">
             <summary>Handle to Azure Kinect body tracking component.</summary>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.TrackerHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.TrackerHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.TrackerHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.NativeHandles.TransformationHandle">
             <summary>Handle to an Azure Kinect transformation context.</summary>
             <remarks>Handles are created with <c>k4a_transformation_create()</c>.</remarks>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.TransformationHandle.K4AdotNet#NativeHandles#INativeHandle#UnsafeValue">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.UnsafeValue"/>
+        </member>
+        <member name="P:K4AdotNet.NativeHandles.TransformationHandle.IsValid">
+            <inheritdoc cref="P:K4AdotNet.NativeHandles.INativeHandle.IsValid"/>
+        </member>
+        <member name="M:K4AdotNet.NativeHandles.TransformationHandle.Release">
+            <inheritdoc cref="M:K4AdotNet.NativeHandles.INativeHandle.Release"/>
         </member>
         <member name="T:K4AdotNet.Quaternion">
             <summary>WXYZ representation of quaternion. Quaternions are used to represent rotations in 3D.</summary>
@@ -2959,7 +3017,7 @@
              </summary>
              <param name="path">File system path for the new recording.</param>
              <param name="device">The Azure Kinect device that is being recorded. The device handle is used to store device calibration and serial
-             number information. May be <see cref="F:K4AdotNet.NativeHandles.DeviceHandle.Zero"/> if recording user-generated data.</param>
+             number information. May be <see cref="F:System.IntPtr.Zero"/> if recording user-generated data.</param>
              <param name="deviceConfiguration">The configuration the Azure Kinect device was started with.</param>
              <param name="recordingHandle">If successful, this contains a pointer to the new recording handle.</param>
              <returns><see cref="F:K4AdotNet.NativeCallResults.Result.Succeeded"/> is returned on success.</returns>
@@ -5072,7 +5130,7 @@
         <member name="M:K4AdotNet.Sensor.Capture.ToHandle(K4AdotNet.Sensor.Capture)">
             <summary>Extracts handle from <paramref name="capture"/>.</summary>
             <param name="capture">Managed object. Can be <see langword="null"/>.</param>
-            <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.CaptureHandle.Zero"/>.</returns>
+            <returns>Appropriate unmanaged handle. Can be <see cref="F:System.IntPtr.Zero"/>.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.Capture.Equals(K4AdotNet.Sensor.Capture)">
             <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
@@ -6486,7 +6544,7 @@
         <member name="M:K4AdotNet.Sensor.Image.ToHandle(K4AdotNet.Sensor.Image)">
             <summary>Extracts handle from <paramref name="image"/>.</summary>
             <param name="image">Managed object. Can be <see langword="null"/>.</param>
-            <returns>Appropriate unmanaged handle. Can be <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/>.</returns>
+            <returns>Appropriate unmanaged handle. Can be <see cref="F:System.IntPtr.Zero"/>.</returns>
         </member>
         <member name="M:K4AdotNet.Sensor.Image.Equals(K4AdotNet.Sensor.Image)">
             <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
@@ -6764,19 +6822,19 @@
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetColorImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a color image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove color image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:System.IntPtr.Zero"/> to remove color image from a given capture if any.</param>
             <remarks>If there is already a color image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetDepthImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a depth image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove depth image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:System.IntPtr.Zero"/> to remove depth image from a given capture if any.</param>
             <remarks>If there is already a depth image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetIRImage(K4AdotNet.NativeHandles.CaptureHandle,K4AdotNet.NativeHandles.ImageHandle)">
             <summary>Set or add a IR image to the associated capture.</summary>
             <param name="captureHandle">Capture handle to hold the image.</param>
-            <param name="imageHandle">Image handle containing the image or <see cref="F:K4AdotNet.NativeHandles.ImageHandle.Zero"/> to remove IR image from a given capture if any.</param>
+            <param name="imageHandle">Image handle containing the image or <see cref="F:System.IntPtr.Zero"/> to remove IR image from a given capture if any.</param>
             <remarks>If there is already a IR image contained in the capture, the existing image will be dereferenced and replaced with the new image.</remarks>
         </member>
         <member name="M:K4AdotNet.Sensor.NativeApi.CaptureSetTemperatureC(K4AdotNet.NativeHandles.CaptureHandle,System.Single)">

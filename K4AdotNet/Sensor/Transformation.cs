@@ -29,7 +29,7 @@ namespace K4AdotNet.Sensor
         public Transformation(in Calibration calibration)
         {
             var handle = NativeApi.TransformationCreate(in calibration);
-            if (handle == null || handle.IsInvalid)
+            if (!handle.IsValid)
             {
                 throw new InvalidOperationException(
                     $"Cannot create transformation object from specified calibration data or {Sdk.DEPTHENGINE_DLL_NAME} library cannot be found).");

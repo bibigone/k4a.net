@@ -53,7 +53,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         /// <seealso cref="Dispose"/>
         public BodyFrame DuplicateReference()
-            => new BodyFrame(handle.ValueNotDisposed.DuplicateReference());
+            => new(handle.ValueNotDisposed.DuplicateReference());
 
         /// <summary>Gets the body frame's device timestamp.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
@@ -144,8 +144,8 @@ namespace K4AdotNet.BodyTracking
             return NativeApi.FrameGetBodyId(handle.ValueNotDisposed, (uint)bodyIndex);
         }
 
-        internal static BodyFrame? Create(NativeHandles.BodyFrameHandle? bodyFrameHandle)
-            => bodyFrameHandle != null && !bodyFrameHandle.IsInvalid ? new BodyFrame(bodyFrameHandle) : null;
+        internal static BodyFrame? Create(NativeHandles.BodyFrameHandle bodyFrameHandle)
+            => bodyFrameHandle.IsValid ? new(bodyFrameHandle) : null;
 
         #region Equatable
 
@@ -153,7 +153,7 @@ namespace K4AdotNet.BodyTracking
         /// <param name="bodyFrame">Another body frame to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both body frames reference to one and the same unmanaged object.</returns>
         public bool Equals(BodyFrame? bodyFrame)
-            => !(bodyFrame is null) && bodyFrame.handle.Equals(handle);
+            => bodyFrame is not null && bodyFrame.handle.Equals(handle);
 
         /// <summary>Two body frames are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
@@ -173,7 +173,7 @@ namespace K4AdotNet.BodyTracking
         /// <returns><see langword="true"/> if <paramref name="left"/> equals to <paramref name="right"/>.</returns>
         /// <seealso cref="Equals(BodyFrame)"/>
         public static bool operator ==(BodyFrame? left, BodyFrame? right)
-            => (left is null && right is null) || (!(left is null) && left.Equals(right));
+            => (left is null && right is null) || (left is not null && left.Equals(right));
 
         /// <summary>To be consistent with <see cref="Equals(BodyFrame)"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>

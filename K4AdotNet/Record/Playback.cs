@@ -30,7 +30,7 @@ namespace K4AdotNet.Record
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
             var res = NativeApi.PlaybackOpen(pathAsBytes, out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new PlaybackException($"Cannot open file \"{filePath}\" for playback.", filePath);
 
             this.handle = handle;
@@ -421,6 +421,6 @@ namespace K4AdotNet.Record
         }
 
         internal static NativeHandles.PlaybackHandle ToHandle(Playback? playback)
-            => playback?.handle.ValueNotDisposed ?? NativeHandles.PlaybackHandle.Zero;
+            => playback?.handle.ValueNotDisposed ?? default;
     }
 }

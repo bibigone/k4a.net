@@ -23,8 +23,8 @@ namespace K4AdotNet.Sensor
             this.handle.Disposed += Handle_Disposed;
         }
 
-        internal static Image? Create(NativeHandles.ImageHandle? handle)
-            => handle is not null && !handle.IsInvalid ? new(handle) : null;
+        internal static Image? Create(NativeHandles.ImageHandle handle)
+            => handle.IsValid ? new(handle) : null;
 
         /// <summary>Creates new image with specified format and size in pixels.</summary>
         /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
@@ -75,7 +75,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(strideBytes));
 
             var res = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels and stride {strideBytes} bytes.");
 
             this.handle = handle;
@@ -115,7 +115,7 @@ namespace K4AdotNet.Sensor
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
                 buffer, Helpers.Int32ToUIntPtr(sizeBytes), unmanagedBufferReleaseCallback, IntPtr.Zero,
                 out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
 
             this.handle = handle;
@@ -186,7 +186,7 @@ namespace K4AdotNet.Sensor
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
                 bufferPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedArrayReleaseCallback, (IntPtr)bufferPin,
                 out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
 
             return Create(handle)!;
@@ -261,7 +261,7 @@ namespace K4AdotNet.Sensor
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
                 memoryPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedMemoryReleaseCallback, PinnedMemoryContext.Create(memoryOwner, memoryPin),
                 out var handle);
-            if (res != NativeCallResults.Result.Succeeded || handle == null || handle.IsInvalid)
+            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from memory of size {sizeBytes} bytes.");
 
             return Create(handle)!;
@@ -567,9 +567,9 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Extracts handle from <paramref name="image"/>.</summary>
         /// <param name="image">Managed object. Can be <see langword="null"/>.</param>
-        /// <returns>Appropriate unmanaged handle. Can be <see cref="NativeHandles.ImageHandle.Zero"/>.</returns>
+        /// <returns>Appropriate unmanaged handle. Can be <see cref="IntPtr.Zero"/>.</returns>
         internal static NativeHandles.ImageHandle ToHandle(Image? image)
-            => image?.handle?.ValueNotDisposed ?? NativeHandles.ImageHandle.Zero;
+            => image?.handle?.ValueNotDisposed ?? default;
 
 #region Equatable
 
