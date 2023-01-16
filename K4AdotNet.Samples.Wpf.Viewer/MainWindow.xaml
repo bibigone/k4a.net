@@ -11,7 +11,8 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Icon="K4AdotNet.ico"
-        d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}">
+        d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}"
+        Loaded="Window_Loaded">
     <Window.Resources>
         <Style x:Key="Option" TargetType="CheckBox">
             <Setter Property="Margin" Value="3"/>
@@ -46,26 +47,37 @@
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Margin="3">Depth:</Label>
-                <ComboBox Grid.Row="0" Grid.Column="1" Margin="3"
+                <Label Grid.Row="0" Grid.Column="0" Margin="3">Device index:</Label>
+                <DockPanel Grid.Row="0" Grid.Column="1">
+                    <Button DockPanel.Dock="Right"
+                            Margin="3" Padding="4,0"
+                            Click="RefreshDevices"
+                            Content="refresh"/>
+                    <ComboBox Margin="3"
+                            ItemsSource="{Binding DeviceIndicies}"
+                            SelectedValue="{Binding DeviceIndex}"/>
+                </DockPanel>
+                <Label Grid.Row="1" Grid.Column="0" Margin="3">Depth:</Label>
+                <ComboBox Grid.Row="1" Grid.Column="1" Margin="3"
                             ItemsSource="{Binding DepthModes}"
                             DisplayMemberPath="Value"
                             SelectedValuePath="Key"
                             SelectedValue="{Binding DepthMode}"/>
-                <Label Grid.Row="1" Grid.Column="0" Margin="3">Color:</Label>
-                <ComboBox Grid.Row="1" Grid.Column="1" Margin="3"
+                <Label Grid.Row="2" Grid.Column="0" Margin="3">Color:</Label>
+                <ComboBox Grid.Row="2" Grid.Column="1" Margin="3"
                             ItemsSource="{Binding ColorResolutions}"
                             DisplayMemberPath="Value"
                             SelectedValuePath="Key"
                             SelectedValue="{Binding ColorResolution}"/>
-                <Label Grid.Row="2" Grid.Column="0" Margin="3">Frame rate:</Label>
-                <ComboBox Grid.Row="2" Grid.Column="1" Margin="3"
+                <Label Grid.Row="3" Grid.Column="0" Margin="3">Frame rate:</Label>
+                <ComboBox Grid.Row="3" Grid.Column="1" Margin="3"
                             ItemsSource="{Binding FrameRates}"
                             DisplayMemberPath="Value"
                             SelectedValuePath="Key"
                             SelectedValue="{Binding FrameRate}"/>
-                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Command}"
+                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Command}"
                         Content="Open device" Click="OpenDevice" IsEnabled="{Binding IsOpenDeviceEnabled}"/>
             </Grid>
         </GroupBox>

@@ -11,6 +11,9 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             : this()
             => DataContext = viewModel;
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+            => ViewModel?.RefreshDevices();
+
         private MainModel? ViewModel => DataContext as MainModel;
 
         private void OpenPlayback(object sender, RoutedEventArgs e)
@@ -18,5 +21,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         private void OpenDevice(object sender, RoutedEventArgs e)
             => ViewModel!.OpenDevice();
+
+        private void RefreshDevices(object sender, RoutedEventArgs e)
+            => ViewModel!.RefreshDevices();
     }
 }

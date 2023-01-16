@@ -59,6 +59,43 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         #region Kinect device
 
+        public int DeviceIndex
+        {
+            get => deviceIndex;
+            set => SetPropertyValue(ref deviceIndex, value, nameof(DeviceIndex), nameof(IsOpenDeviceEnabled));
+        }
+        private int deviceIndex = Device.DefaultDeviceIndex;
+
+        public IReadOnlyList<int> DeviceIndicies
+        {
+            get => deviceIndicies;
+            set => SetPropertyValue(ref deviceIndicies, value, nameof(DeviceIndicies), nameof(IsOpenDeviceEnabled));
+        }
+        private IReadOnlyList<int> deviceIndicies = Array.Empty<int>();
+
+        public void RefreshDevices()
+        {
+            try
+            {
+                var count = Device.InstalledCount;
+                if (count > 0)
+                {
+                    DeviceIndicies = Enumerable.Range(0, count).ToList();
+                    if (DeviceIndex >= count || DeviceIndex < 0)
+                        DeviceIndex = Device.DefaultDeviceIndex;
+                }
+                else
+                {
+                    DeviceIndicies = Array.Empty<int>();
+                    DeviceIndex = Device.DefaultDeviceIndex;
+                }
+            }
+            catch (Exception exc)
+            {
+                app!.ShowErrorMessage(exc.Message);
+            }
+        }
+
         public IReadOnlyList<KeyValuePair<DepthMode, string>> DepthModes { get; }
             = Helpers.AllDepthModes.Where(pair => pair.Key.HasDepth()).ToList();
 
@@ -89,7 +126,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public bool IsOpenDeviceEnabled
             => ColorResolution.IsCompatibleWith(FrameRate)
-            && DepthMode.IsCompatibleWith(FrameRate);
+            && DepthMode.IsCompatibleWith(FrameRate)
+            && DeviceIndex >= 0 && DeviceIndex < DeviceIndicies.Count;
 
         public void OpenDevice()
         {
@@ -97,7 +135,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
             try
             {
-                device = Device.Open();
+                device = Device.Open(DeviceIndex);
 
                 using (app!.IndicateWaiting())
                 {
