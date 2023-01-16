@@ -127,7 +127,7 @@ namespace K4AdotNet
         /// <param name="format">Format string for each individual component in string representation.</param>
         /// <param name="formatProvider">Culture for formatting numbers to strings.</param>
         /// <returns>String representation of vector in a given Culture.</returns>
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
             => $"[{X.ToString(format, formatProvider)} {Y.ToString(format, formatProvider)} {Z.ToString(format, formatProvider)}]";
 
         /// <summary>Formats vector as <c>[X Y Z]</c> string.</summary>

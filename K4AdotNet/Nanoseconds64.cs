@@ -106,7 +106,7 @@ namespace K4AdotNet
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
         /// <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
         /// <returns><c>{value} nsec</c></returns>
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
             => ValueNsec.ToString(format, formatProvider) + UNIT_POSTFIX;
 
         /// <summary>Overloads <see cref="Object.Equals(object)"/> to be consistent with <see cref="Equals(Nanoseconds64)"/>.</summary>

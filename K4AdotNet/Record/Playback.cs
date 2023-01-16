@@ -41,7 +41,7 @@ namespace K4AdotNet.Record
             tracks = new Lazy<PlaybackTrackCollection>(() => new PlaybackTrackCollection(this), isThreadSafe: true);
         }
 
-        private void Handle_Disposed(object sender, EventArgs e)
+        private void Handle_Disposed(object? sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);

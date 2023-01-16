@@ -192,7 +192,7 @@ namespace K4AdotNet.Sensor
             return Create(handle)!;
         }
 
-#if NETSTANDARD2_1
+#if !(NETSTANDARD2_0 || NET461)
 
         /// <summary>Creates new image for specified underlying memory owner with specified format and size in pixels.</summary>
         /// <typeparam name="T">Type of elements in underlying memory buffer. Must be value type.</typeparam>
@@ -269,7 +269,7 @@ namespace K4AdotNet.Sensor
 
 #endif
 
-        private void Handle_Disposed(object sender, EventArgs e)
+        private void Handle_Disposed(object? sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);
@@ -311,7 +311,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public IntPtr Buffer => NativeApi.ImageGetBuffer(handle.ValueNotDisposed);
 
-#if NETSTANDARD2_1
+#if !(NETSTANDARD2_0 || NET461)
 
         /// <summary>Access to the underlying memory buffer via span.</summary>
         /// <typeparam name="T">Unmanaged type that is going to use for memory access.</typeparam>
@@ -630,7 +630,7 @@ namespace K4AdotNet.Sensor
         private static void ReleasePinnedArray(IntPtr buffer, IntPtr context)
             => ((GCHandle)context).Free();
 
-#if NETSTANDARD2_1
+#if !(NETSTANDARD2_0 || NET461)
 
         private readonly struct PinnedMemoryContext
         {

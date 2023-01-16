@@ -15,7 +15,7 @@ namespace K4AdotNet.Record
     public sealed class RecorderCustomTrackCollection : IReadOnlyList<RecorderCustomTrack>
     {
         private readonly Recorder recorder;
-        private readonly List<RecorderCustomTrack> tracks = new List<RecorderCustomTrack>();
+        private readonly List<RecorderCustomTrack> tracks = new();
 
         internal RecorderCustomTrackCollection(Recorder recorder)
             => this.recorder = recorder;
@@ -37,7 +37,7 @@ namespace K4AdotNet.Record
         /// Use <see cref="AddVideoTrack(string, string, byte[], RecordVideoSettings)"/> and <see cref="AddCustomSubtitleTrack(string, string, byte[], RecordSubtitleSettings)"/>
         /// to add new custom tracks to recording.
         /// </remarks>
-        public RecorderCustomTrack this[string name] => tracks.Find(t => t.Name == name);
+        public RecorderCustomTrack? this[string name] => tracks.Find(t => t.Name == name);
 
         /// <summary>Count of added custom tracks.</summary>
         public int Count => tracks.Count;

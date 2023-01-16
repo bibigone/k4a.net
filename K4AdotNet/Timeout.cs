@@ -125,7 +125,7 @@ namespace K4AdotNet
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
         /// <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
         /// <returns><c>{value} ms</c> or <c>Infinite</c> string or <c>NoWait</c> string.</returns>
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
         {
             if (ValueMs < 0)
                 return nameof(Infinite);

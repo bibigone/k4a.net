@@ -192,7 +192,7 @@ namespace K4AdotNet
         /// <param name="format">Format string for each individual component in string representation.</param>
         /// <param name="formatProvider">Culture for formatting numbers to strings.</param>
         /// <returns>String representation of matrix in a given Culture.</returns>
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
             => $"{M11.ToString(format, formatProvider)}\t{M12.ToString(format, formatProvider)}\t{M13.ToString(format, formatProvider)}{Environment.NewLine}" +
                $"{M21.ToString(format, formatProvider)}\t{M22.ToString(format, formatProvider)}\t{M23.ToString(format, formatProvider)}{Environment.NewLine}" +
                $"{M31.ToString(format, formatProvider)}\t{M32.ToString(format, formatProvider)}\t{M33.ToString(format, formatProvider)}{Environment.NewLine}";

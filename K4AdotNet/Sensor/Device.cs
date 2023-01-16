@@ -30,7 +30,7 @@ namespace K4AdotNet.Sensor
             Version = version;
         }
 
-        private void Handle_Disposed(object sender, EventArgs e)
+        private void Handle_Disposed(object? sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);

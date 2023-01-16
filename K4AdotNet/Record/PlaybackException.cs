@@ -27,7 +27,7 @@ namespace K4AdotNet.Record
         /// <param name="info">Serialization info.</param>
         /// <param name="context">Streaming context.</param>
         protected PlaybackException(SerializationInfo info, StreamingContext context) : base(info, context)
-            => FilePath = info.GetString(nameof(FilePath));
+            => FilePath = info.GetString(nameof(FilePath)) ?? string.Empty;
 
         /// <summary>For serialization needs.</summary>
         /// <param name="info">Serialization info.</param>

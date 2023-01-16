@@ -63,7 +63,7 @@ namespace K4AdotNet.BodyTracking
             this.handle.Disposed += Handle_Disposed;
         }
 
-        private void Handle_Disposed(object sender, EventArgs e)
+        private void Handle_Disposed(object? sender, EventArgs e)
         {
             queueSize = 0;
             handle.Disposed -= Handle_Disposed;

@@ -113,7 +113,7 @@ namespace K4AdotNet.BodyTracking
         /// <param name="format">The format to use or <see langword="null"/> for default format.</param>
         /// <param name="formatProvider">The provider to use to format the value or <see langword="null"/> to obtain the numeric format information from the current locale setting.</param>
         /// <returns><c>{value}</c> or <c>INVALID</c> string.</returns>
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
             => IsValid ? Value.ToString(format, formatProvider) : "INVALID";
 
         /// <summary>String representation of current instance.</summary>

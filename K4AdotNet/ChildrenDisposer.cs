@@ -41,7 +41,7 @@ namespace K4AdotNet
             return child;
         }
 
-        private void OnChildObjectDisposed(object sender, EventArgs e)
+        private void OnChildObjectDisposed(object? sender, EventArgs e)
         {
             if (sender is not IDisposablePlus child)
                 throw new ArgumentNullException(nameof(sender));

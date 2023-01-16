@@ -276,9 +276,10 @@ namespace K4AdotNet
                 }
             }
 
+#if NET461 || NETSTANDARD2_0
             // Try location of this assembly
             var asm = Assembly.GetExecutingAssembly();
-            var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase).LocalPath));
+            var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase!).LocalPath)!);
             if (!asmDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase)
                 && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -288,6 +289,7 @@ namespace K4AdotNet
                     return true;
                 }
             }
+#endif
 
             // Try standard location of installed Body Tracking SDK
             var sdkBinDir = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), BODY_TRACKING_SDK_BIN_PATH));

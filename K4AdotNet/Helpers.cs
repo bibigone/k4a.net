@@ -92,8 +92,8 @@ namespace K4AdotNet
 
         public static bool IsSubdirOf(DirectoryInfo subdir, DirectoryInfo parentDir)
         {
-            for (; subdir != null; subdir = subdir.Parent)
-                if (subdir.FullName.Equals(parentDir.FullName, StringComparison.InvariantCultureIgnoreCase))
+            for (DirectoryInfo? di = subdir; di != null; di = di.Parent)
+                if (di.FullName.Equals(parentDir.FullName, StringComparison.InvariantCultureIgnoreCase))
                     return true;
             return false;
         }

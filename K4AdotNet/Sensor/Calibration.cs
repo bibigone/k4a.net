@@ -32,7 +32,9 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         /// <seealso cref="GetExtrinsics(CalibrationGeometry, CalibrationGeometry)"/>
         /// <seealso cref="SetExtrinsics(CalibrationGeometry, CalibrationGeometry, CalibrationExtrinsics)"/>
+#pragma warning disable CS0618 // Type or member is obsolete: UnmanagedType.Struct is obsolete in .NET Standard 2.1
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = (int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count)]
+#pragma warning restore CS0618 // Type or member is obsolete
         public CalibrationExtrinsics[]? Extrinsics;
 
         /// <summary>Depth camera mode for which calibration was obtained.</summary>

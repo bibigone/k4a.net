@@ -15,7 +15,7 @@ namespace K4AdotNet.BodyTracking
             this.handle.Disposed += Handle_Disposed;
         }
 
-        private void Handle_Disposed(object sender, EventArgs e)
+        private void Handle_Disposed(object? sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);

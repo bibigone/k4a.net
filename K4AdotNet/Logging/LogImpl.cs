@@ -79,7 +79,7 @@ namespace K4AdotNet.Logging
             }
         }
 
-        private static void CurrentDomain_Exit(object sender, EventArgs e)
+        private static void CurrentDomain_Exit(object? sender, EventArgs e)
         {
             var res = NativeApi.SetDebugMessageHandler(null, IntPtr.Zero, traceLevel.ToLogLevel());
             if (res != NativeCallResults.Result.Succeeded)
