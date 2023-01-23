@@ -6,17 +6,13 @@
     <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <Platforms>AnyCPU</Platforms>
-    <Description>Three-in-one .NET library to work with Azure Kinect devices. It includes sensor API, recording and playback API, body tracking API. Compatible with .NET Standard 2.0 and .NET Framework 4.6.1 and later. All required binaries from Azure Kinect Sensor SDK (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</Description>
-    <PackageTags>Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking SDK</PackageTags>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageIconUrl>https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png</PackageIconUrl>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DocumentationFile>K4AdotNet.xml</DocumentationFile>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <IsPublishable>False</IsPublishable>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
@@ -25,7 +21,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
     <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
@@ -38,10 +34,41 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\msvcp140.dll" Link="msvcp140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140.dll" Link="vcruntime140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x86'">
+    <Content Include="..\externals\k4a\windows-desktop\x86\k4a.dll" Link="k4a.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\x86\k4arecord.dll" Link="k4arecord.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\x86\depthengine_2_0.dll" Link="depthengine_2_0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x86\msvcp140.dll" Link="msvcp140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x86\vcruntime140.dll" Link="vcruntime140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
   </ItemGroup>
 
   <!-- Disable warnings regarding nullable references which rely on missing attributes -->
-  <PropertyGroup Condition="'$(TargetFramework)' != 'netstandard2.1'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461'">
     <NoWarn>$(NoWarn);8600;8601;8602;8603;8604</NoWarn>
   </PropertyGroup>
 
@@ -51,10 +78,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="package\k4adotnet.targets" Pack="True" PackagePath="\build\" />
   </ItemGroup>
 
 </Project>

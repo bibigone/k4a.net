@@ -8,7 +8,7 @@ namespace K4AdotNet.NativeHandles
     /// Implements <see cref="IDisposablePlus"/> interface, which is really helpful in implementation of public classes.
     /// Plus this class has a finalyzer that calls <see cref="INativeHandle.Release"/> for objects that were not disposed in an explicit manner.
     /// </summary>
-    /// <typeparam name="T">Type of handle.</typeparam>
+    /// <typeparam name="T">Type of native handle.</typeparam>
     internal sealed class HandleWrapper<T> : IDisposablePlus, IEquatable<HandleWrapper<T>>
         where T : struct, INativeHandle
     {

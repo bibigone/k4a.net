@@ -12,7 +12,7 @@ namespace K4AdotNet.NativeHandles
         IntPtr UnsafeValue { get; }
 
         /// <summary>Is handle valid.</summary>
-        /// <remarks>Zero handle (that is <see cref="IntPtr.Zero"/>) is treated as invalid one.</remarks>
+        /// <remarks>Zero handle (that is <see cref="IntPtr.Zero"/>) is treated as an invalid one.</remarks>
         bool IsValid { get; }
 
         /// <summary>Release of handle.</summary>

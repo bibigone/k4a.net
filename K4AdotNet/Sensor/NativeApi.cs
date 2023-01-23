@@ -191,6 +191,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Callback function for a memory object being destroyed.</summary>
         /// <param name="buffer">The buffer pointer that was supplied by the caller.</param>
         /// <param name="context">The context for the memory object that needs to be destroyed that was supplied by the caller.</param>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void MemoryDestroyCallback(IntPtr buffer, IntPtr context);
 
         // K4A_EXPORT k4a_result_t k4a_image_create_from_buffer(k4a_image_format_t format,

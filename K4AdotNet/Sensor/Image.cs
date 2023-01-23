@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
@@ -113,7 +112,8 @@ namespace K4AdotNet.Sensor
                 throw new OutOfMemoryException($"Cannot allocate buffer of {sizeBytes} bytes.");
 
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
-                buffer, Helpers.Int32ToUIntPtr(sizeBytes), unmanagedBufferReleaseCallback, IntPtr.Zero,
+                buffer, Helpers.Int32ToUIntPtr(sizeBytes),
+                unmanagedBufferReleaseCallback, IntPtr.Zero,
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
@@ -184,7 +184,8 @@ namespace K4AdotNet.Sensor
             var bufferPtr = bufferPin.AddrOfPinnedObject();
 
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
-                bufferPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedArrayReleaseCallback, (IntPtr)bufferPin,
+                bufferPtr, Helpers.Int32ToUIntPtr(sizeBytes),
+                pinnedArrayReleaseCallback, (IntPtr)bufferPin,
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
@@ -259,7 +260,8 @@ namespace K4AdotNet.Sensor
             var memoryPtr = new IntPtr(memoryPin.Pointer);
 
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
-                memoryPtr, Helpers.Int32ToUIntPtr(sizeBytes), pinnedMemoryReleaseCallback, PinnedMemoryContext.Create(memoryOwner, memoryPin),
+                memoryPtr, Helpers.Int32ToUIntPtr(sizeBytes),
+                pinnedMemoryReleaseCallback, PinnedMemoryContext.Create(memoryOwner, memoryPin),
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from memory of size {sizeBytes} bytes.");

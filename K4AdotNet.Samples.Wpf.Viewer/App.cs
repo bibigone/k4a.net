@@ -8,13 +8,20 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         [STAThread]
         public static void Main()
         {
+            try
+            {
 #if DEBUG
-            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
+                Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
 #else
-            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
+                Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
 #endif
 
-            new App().Run();
+                new App().Run();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERROR");
+            }
         }
 
         protected override Window CreateMainWindow(StartupEventArgs e)

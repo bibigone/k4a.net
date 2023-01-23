@@ -7,7 +7,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;x86</Platforms>
     <Description>WPF sample application to demonstrate usage of Sensor API and Record API.</Description>
     <AssemblyName>K4AViewer</AssemblyName>
     <UseWPF>True</UseWPF>

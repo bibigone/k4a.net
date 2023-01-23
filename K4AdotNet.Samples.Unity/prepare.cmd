@@ -3,7 +3,7 @@ rem It will build K4AdotNet project and copy necessary binaries to Unity project
 rem You may run it again anytime to update binaries with changes made to K4AdotNet library
 
 rem Build fresh K4AdotNet binaries (requires path to msbuild.exe set by Developer Command Prompt)
-msbuild ..\K4AdotNet -p:Configuration=Debug
+msbuild ..\K4AdotNet -p:Configuration=Debug -p:Platform="Any CPU"
 
 rem Copy K4AdotNet binaries to "Assets\Plugins\K4AdotNet" folder
 xcopy ..\K4AdotNet\bin\Debug\netstandard2.0\* Assets\Plugins\K4AdotNet\ /A /Y

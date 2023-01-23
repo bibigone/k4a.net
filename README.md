@@ -18,7 +18,7 @@
 
 * Written fully on C#
 * CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
-* Library **K4AdotNet** is compiled against **.NET Standard 2.0, 2.1** and **.NET Framework 4.6.1** target frameworks
+* Library **K4AdotNet** is compiled against **NET 6.0**, **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
   * This makes it compatible with **.NET 5-7**, **.NET Core 2.0-3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
 * Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
@@ -35,9 +35,8 @@
   * Unity Project
 * Well documented
 * Unit-tested
-* Potentially multi-platform (Windows, Linux)
-  * But currently tested only under Windows
-  * And most of samples are written using WPF
+* Multi-platform (Windows, Linux)
+  * But most of samples are written using WPF
 * Available as NuGet package: https://www.nuget.org/packages/K4AdotNet
 
 
