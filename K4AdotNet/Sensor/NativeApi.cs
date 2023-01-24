@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
@@ -187,12 +188,50 @@ namespace K4AdotNet.Sensor
             int strideBytes,
             out NativeHandles.ImageHandle imageHandle);
 
+        // typedef uint8_t *(k4a_memory_allocate_cb_t)(int size, void **context);
+        /// <summary>Callback function for a memory allocation.</summary>
+        /// <param name="size">Minimum size in bytes needed for the buffer.</param>
+        /// <param name="context">Output parameter for a context that will be provided in the subsequent call to the <see cref="MemoryDestroyCallback"/> callback.</param>
+        /// <returns>A pointer to the newly allocated memory.</returns>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr MemoryAllocateCallback(int size, out IntPtr context);
+
+
         // typedef void(k4a_memory_destroy_cb_t)(void *buffer, void *context);
         /// <summary>Callback function for a memory object being destroyed.</summary>
         /// <param name="buffer">The buffer pointer that was supplied by the caller.</param>
         /// <param name="context">The context for the memory object that needs to be destroyed that was supplied by the caller.</param>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void MemoryDestroyCallback(IntPtr buffer, IntPtr context);
+
+        // K4A_EXPORT k4a_result_t k4a_set_allocator(k4a_memory_allocate_cb_t allocate, k4a_memory_destroy_cb_t free);
+        /// <summary>Sets the callback functions for the SDK allocator</summary>
+        /// <param name="allocate">
+        /// The callback function to allocate memory. When the SDK requires memory allocation this callback will be
+        /// called and the application can provide a buffer and a context.
+        /// </param>
+        /// <param name="free">
+        /// The callback function to free memory.
+        /// The SDK will call this function when memory allocated by <paramref name="allocate"/> is no longer needed.</param>
+        /// <returns>
+        /// <see cref="NativeCallResults.Result.Succeeded"/> if the callback function was set or cleared successfully.
+        /// <see cref="NativeCallResults.Result.Failed"/> if an error is encountered or the callback function has already been set.
+        /// </returns>
+        /// <remarks>
+        /// Call this function to hook memory allocation by the SDK. Calling with both <paramref name="allocate"/> and <paramref name="free"/>
+        /// as <see langword="null"/> will clear the hook and reset to the default allocator.
+        /// 
+        /// If this function is called after memory has been allocated, the previous version of <paramref name="free"/> function may still be
+        /// called in the future. The SDK will always call the <paramref name="free"/> function that was set at the time that the memory
+        /// was allocated.
+        /// 
+        /// Not all memory allocation by the SDK is performed by this allocate function.
+        /// Small allocations or allocations from special pools may come from other sources.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_set_allocator", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result SetAllocator(
+            MemoryAllocateCallback? allocate,
+            MemoryDestroyCallback? free);
 
         // K4A_EXPORT k4a_result_t k4a_image_create_from_buffer(k4a_image_format_t format,
         //                                                      int width_pixels,

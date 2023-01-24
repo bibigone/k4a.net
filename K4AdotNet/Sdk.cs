@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 [assembly: CLSCompliant(isCompliant: true)]
 
@@ -144,6 +144,48 @@ namespace K4AdotNet
 
         #endregion
 
+        #region Custom memory allocation
+
+        // to keep callbacks alive
+        private static readonly ConcurrentBag<Sensor.NativeApi.MemoryAllocateCallback> allocateCallbacks = new();
+        private static readonly ConcurrentBag<Sensor.NativeApi.MemoryDestroyCallback> destroyCallbacks = new();
+
+        /// <summary>
+        /// Sets or clears custom memory allocator to be use by internals of Azure Kinect SDK.
+        /// </summary>
+        /// <param name="allocator">
+        /// Instance of <see cref="ICustomMemoryAllocator"/> to allocate and free memory in internals of Azure Kinect SDK
+        /// or <see langword="null"/> to "clear" custom memory allocator (that is, to switch to standard built-in SDK's allocator).
+        /// </param>
+        /// <exception cref="InvalidOperationException">Setting or clearing of custom memory allocator was failed. See log for details.</exception>
+        /// <remarks>
+        /// All instances of <paramref name="allocator"/> will be keeping alive forever because they can be used
+        /// to free memory even after setting custom allocator to <see langword="null"/>.
+        /// </remarks>
+        public static void SetCustomMemoryAllocator(ICustomMemoryAllocator? allocator)
+        {
+            if (allocator is null)
+            {
+                var res = Sensor.NativeApi.SetAllocator(null, null);
+                if (res != NativeCallResults.Result.Succeeded)
+                    throw new InvalidOperationException("Cannot clear custom memory allocator");
+                return;
+            }
+
+            var allocateCallback = new Sensor.NativeApi.MemoryAllocateCallback(allocator.Allocate);
+            var destroyCallback = new Sensor.NativeApi.MemoryDestroyCallback(allocator.Free);
+
+            // to keep callbacks alive
+            allocateCallbacks.Add(allocateCallback);
+            destroyCallbacks.Add(destroyCallback);
+
+            var rs = Sensor.NativeApi.SetAllocator(allocateCallback, destroyCallback);
+            if (rs != NativeCallResults.Result.Succeeded)
+                throw new InvalidOperationException("Cannot set custom memory allocator");
+        }
+
+        #endregion
+
         #region Body tracking SDK availability and initialization
 
         /// <summary>URL to step-by-step instruction "How to set up Body Tracking SDK". Helpful for UI and user messages.</summary>
@@ -278,7 +320,7 @@ namespace K4AdotNet
 
 #if NET461 || NETSTANDARD2_0
             // Try location of this assembly
-            var asm = Assembly.GetExecutingAssembly();
+            var asm = System.Reflection.Assembly.GetExecutingAssembly();
             var asmDir = Path.GetFullPath(Path.GetDirectoryName(new Uri(asm.GetName().CodeBase!).LocalPath)!);
             if (!asmDir.Equals(currentDir, StringComparison.InvariantCultureIgnoreCase)
                 && !asmDir.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))

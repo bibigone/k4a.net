@@ -426,5 +426,95 @@ namespace K4AdotNet.Tests.Unit.Sensor
         }
 
         #endregion
+
+        #region Test custom memory management
+
+        private sealed class TestMemoryAllocator : ICustomMemoryAllocator
+        {
+            public int AllocateCount { get; private set; }
+            public nint AllocContextValue { get; set; }
+            public int LastAllocSizeValue { get; private set; }
+            public nint LastAllocReturnValue { get; private set; }
+
+            public int FreeCount { get; private set; }
+            public nint LastFreeContextValue { get; private set; }
+
+            nint ICustomMemoryAllocator.Allocate(int size, out nint context)
+            {
+                AllocateCount++;
+                context = AllocContextValue;
+                LastAllocSizeValue = size;
+                return LastAllocReturnValue = Marshal.AllocHGlobal(size);
+            }
+
+            void ICustomMemoryAllocator.Free(nint buffer, nint context)
+            {
+                FreeCount++;
+                LastFreeContextValue = context;
+                Marshal.FreeHGlobal(buffer);
+            }
+        }
+
+        [TestMethod]
+        public void TestCustomMemoryManagement()
+        {
+            // Set our test custom allocator
+            var testAllocator = new TestMemoryAllocator();
+            Sdk.SetCustomMemoryAllocator(testAllocator);
+            // Check initial state
+            Assert.AreEqual(0, testAllocator.AllocateCount);
+            Assert.AreEqual(0, testAllocator.FreeCount);
+
+            // The first test image - should result in one memory allocation
+            var testContextA = testAllocator.AllocContextValue = 12345;
+            var testImageA = new Image(ImageFormat.Depth16, 1, 1);
+            // One allocation but no calls of Free
+            Assert.AreEqual(1, testAllocator.AllocateCount);    // 0 -> 1 !
+            Assert.AreEqual(0, testAllocator.FreeCount);        // unchanged
+            // SDK can request bigger buffer and place actual image buffer somewhere inside allocated one
+            Assert.IsTrue(testAllocator.LastAllocSizeValue >= 2);
+            Assert.IsTrue(testAllocator.LastAllocReturnValue <= testImageA.Buffer);
+            Assert.IsTrue(testAllocator.LastAllocReturnValue + testAllocator.LastAllocSizeValue >= testImageA.Buffer + 2);
+
+            // The second test image - should result in one more memory allocation
+            var testContextB = testAllocator.AllocContextValue = 98765;
+            var testImageB = new Image(ImageFormat.ColorBgra32, 1, 1);
+            // Two allocations but still no calls of Free
+            Assert.AreEqual(2, testAllocator.AllocateCount);    // 1 -> 2 !
+            Assert.AreEqual(0, testAllocator.FreeCount);        // unchanged
+            // SDK can request bigger buffer and place actual image buffer somewhere inside allocated one
+            Assert.IsTrue(testAllocator.LastAllocSizeValue >= 4);
+            Assert.IsTrue(testAllocator.LastAllocReturnValue <= testImageB.Buffer);
+            Assert.IsTrue(testAllocator.LastAllocReturnValue + testAllocator.LastAllocSizeValue >= testImageB.Buffer + 4);
+
+            // Disposing of the first test image - should result in appropriate call of Free method
+            testImageA.Dispose();
+            // Now, one call to Free
+            Assert.AreEqual(2, testAllocator.AllocateCount);    // unchanged
+            Assert.AreEqual(1, testAllocator.FreeCount);        // 0 -> 1 !
+            Assert.AreEqual(testContextA, testAllocator.LastFreeContextValue);
+
+            // Clear custom allocator
+            Sdk.SetCustomMemoryAllocator(null);
+
+            // Now creation of test image does not result in calls to our testAllocator instance
+            var testImageC = new Image(ImageFormat.ColorYUY2, testWidth, testHeight);
+            Assert.AreEqual(2, testAllocator.AllocateCount);
+            Assert.AreEqual(1, testAllocator.FreeCount);
+
+            // The second test image was created with the aid of out test allocator,
+            // this why it should be releasing using the same allocator in spite of the fact that this allocator is not active anymore
+            testImageB.Dispose();
+            Assert.AreEqual(2, testAllocator.AllocateCount);    // unchanged
+            Assert.AreEqual(2, testAllocator.FreeCount);        // 1 -> 2 !
+            Assert.AreEqual(testContextB, testAllocator.LastFreeContextValue);
+
+            // But for the testImageC our testAllocator shouldn't be called on releasing either
+            testImageC.Dispose();
+            Assert.AreEqual(2, testAllocator.AllocateCount);    // unchanged
+            Assert.AreEqual(2, testAllocator.FreeCount);        // unchanged value!
+        }
+
+        #endregion
     }
 }
