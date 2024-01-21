@@ -1,4 +1,6 @@
-﻿namespace K4AdotNet.Sensor
+﻿using System;
+
+namespace K4AdotNet.Sensor
 {
     // Defined in k4atypes.h:
     // typedef enum
@@ -33,12 +35,20 @@
         R1440p,
 
         /// <summary>2048x1536 4:3</summary>
+        /// <remarks>Not supported by ORBBEC</remarks>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         R1536p,
 
         /// <summary>3840x2160 16:9</summary>
         R2160p,
 
         /// <summary>4096x3072 4:3</summary>
+        /// <remarks>Not supported by ORBBEC</remarks>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         R3072p,
     }
 }

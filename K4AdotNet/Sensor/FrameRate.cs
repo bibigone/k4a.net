@@ -6,6 +6,8 @@
     //     K4A_FRAMES_PER_SECOND_5 = 0,
     //     K4A_FRAMES_PER_SECOND_15,
     //     K4A_FRAMES_PER_SECOND_30,
+    //     // add by orbbec
+    //     K4A_FRAMES_PER_SECOND_25,
     // } k4a_fps_t;
     //
     /// <summary>Color and depth sensor frame rate.</summary>
@@ -27,5 +29,10 @@
 
         /// <summary>Thirty (30) frames per second.</summary>
         Thirty,
+
+#if ORBBECSDK_K4A_WRAPPER
+        /// <summary>Twenty five (25) frames per second. Only for ORBBEC devices.</summary>
+        TwentyFive,
+#endif
     }
 }

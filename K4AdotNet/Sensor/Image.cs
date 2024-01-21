@@ -397,6 +397,9 @@ namespace K4AdotNet.Sensor
         /// <see cref="Microseconds64"/> supports implicit conversion to/from <see cref="TimeSpan"/>.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public Microseconds64 Exposure
         {
             get => NativeApi.ImageGetExposure(handle.ValueNotDisposed);
@@ -405,6 +408,9 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Get and set the image white balance in degrees Kelvin. This is only supported on color image formats.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public int WhiteBalance
         {
             get => checked((int)NativeApi.ImageGetWhiteBalance(handle.ValueNotDisposed));
@@ -413,6 +419,9 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Get and set the image ISO speed. This is only supported on color image formats.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public int IsoSpeed
         {
             get => checked((int)NativeApi.ImageGetIsoSpeed(handle.ValueNotDisposed));
@@ -573,13 +582,25 @@ namespace K4AdotNet.Sensor
         internal static NativeHandles.ImageHandle ToHandle(Image? image)
             => image?.handle?.ValueNotDisposed ?? default;
 
-#region Equatable
+        #region Equatable
 
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="image">Another image to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both images reference to one and the same unmanaged object.</returns>
         public bool Equals(Image? image)
-            => image is not null && image.handle.Equals(handle);
+        {
+            if (image is null)
+                return false;
+            if (ReferenceEquals(image, this))
+                return true;
+            if (handle.Equals(image.handle))
+                return true;
+            return image.Buffer == Buffer
+                && image.SizeBytes == SizeBytes
+                && image.Format == Format
+                && image.WidthPixels == WidthPixels
+                && image.HeightPixels == HeightPixels;
+        }
 
         /// <summary>Two images are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Some object to be compared with this one. Can be <see langword="null"/>.</param>
@@ -591,7 +612,7 @@ namespace K4AdotNet.Sensor
         /// <returns>Hash code. Consistent with overridden equality.</returns>
         /// <seealso cref="Equals(Image)"/>
         public override int GetHashCode()
-            => handle.GetHashCode();
+            => Buffer.GetHashCode();
 
         /// <summary>To be consistent with <see cref="Equals(Image)"/>.</summary>
         /// <param name="left">Left part of operator. Can be <see langword="null"/>.</param>
@@ -610,9 +631,9 @@ namespace K4AdotNet.Sensor
             => !(left == right);
 
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
-        /// <returns><c>{HandleTypeName}#{Address}</c></returns>
+        /// <returns><c>{Width}x{Height}@{Format}#{Address}</c></returns>
         public override string ToString()
-            => handle.ToString();
+            => $"{WidthPixels}x{HeightPixels}@{Format}#{Buffer:X}";
 
 #endregion
 

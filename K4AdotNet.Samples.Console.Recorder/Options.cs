@@ -72,6 +72,7 @@ namespace K4AdotNet.Samples.Console.Recorder
         private (ColorResolution resolution, ImageFormat format) GetColorResolutionAndFormat()
             => (ColorMode.ToUpperInvariant()) switch
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     "3072P" => (ColorResolution.R3072p, ImageFormat.ColorMjpg),
                     "2160P" => (ColorResolution.R2160p, ImageFormat.ColorMjpg),
                     "1536P" => (ColorResolution.R1536p, ImageFormat.ColorMjpg),
@@ -82,6 +83,7 @@ namespace K4AdotNet.Samples.Console.Recorder
                     "720P_YUY2" => (ColorResolution.R720p, ImageFormat.ColorYUY2),
                     "OFF" => (ColorResolution.Off, ImageFormat.ColorMjpg),
                     _ => throw new ApplicationException($"Invalid value {ColorMode} of parameter --color-mode (-c)"),
+#pragma warning restore CS0618 // Type or member is obsolete
                 };
 
         private DepthMode GetDepthMode()

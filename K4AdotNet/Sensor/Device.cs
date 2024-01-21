@@ -67,7 +67,11 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="DeviceConnectionLostException"/>
         public bool IsConnected
             => !handle.IsDisposed
+#if ORBBECSDK_K4A_WRAPPER
+                && NativeApi.DeviceGetVersion(handle.Value, out _) == NativeCallResults.Result.Succeeded;
+#else
                 && NativeApi.DeviceGetSyncJack(handle.Value, out _, out _) == NativeCallResults.Result.Succeeded;
+#endif
 
         /// <summary>Gets the device jack status for the synchronization in connectors.</summary>
         /// <remarks>
@@ -77,6 +81,9 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public bool IsSyncInConnected
         {
             get
@@ -97,6 +104,9 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public bool IsSyncOutConnected
         {
             get

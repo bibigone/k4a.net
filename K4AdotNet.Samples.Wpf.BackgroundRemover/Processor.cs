@@ -152,9 +152,11 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             lock (image)
             {
                 image.DeviceTimestamp = frameData.ColorFrame.DeviceTimestamp;
+#pragma warning disable CS0618 // Type or member is obsolete
                 image.Exposure = frameData.ColorFrame.Exposure;
                 image.IsoSpeed = frameData.ColorFrame.IsoSpeed;
                 image.WhiteBalance = frameData.ColorFrame.WhiteBalance;
+#pragma warning restore CS0618 // Type or member is obsolete
                 Buffer.MemoryCopy((void*)frameData.ColorFrame.Buffer, (void*)image.Buffer, image.SizeBytes, frameData.ColorFrame.SizeBytes);
             }
         }

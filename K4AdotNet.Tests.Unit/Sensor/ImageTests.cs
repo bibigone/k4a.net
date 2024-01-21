@@ -12,8 +12,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         private static readonly int testHeight = 16;
         private static readonly Microseconds64 testDeviceTimestamp = Microseconds64.FromSeconds(1.5);
         private static readonly Nanoseconds64 testSystemTimestamp = Nanoseconds64.FromSeconds(1.5001);
+
+#if !ORBBECSDK_K4A_WRAPPER
         private static readonly int testWhiteBalance = 300;
         private static readonly int testIsoSpeed = 100;
+#endif
 
         #region Testing image creation without size specifying
 
@@ -71,11 +74,13 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(format, image.Format);
             Assert.AreEqual(testWidth, image.WidthPixels);
             Assert.AreEqual(testHeight, image.HeightPixels);
+#if !ORBBECSDK_K4A_WRAPPER
             Assert.AreEqual(stride, image.StrideBytes);
+#endif
             Assert.AreEqual(expectedSize, image.SizeBytes);
         }
 
-        #endregion
+#endregion
 
         #region Testing of image creation with size specified and from array
 
@@ -100,7 +105,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCreationFromArray()
         {
+#if ORBBECSDK_K4A_WRAPPER
+            var format = ImageFormat.Custom16;
+#else
             var format = ImageFormat.Depth16;
+#endif
             var strideBytes = format.StrideBytes(testWidth);
             var lengthElements = testWidth * testHeight;
             var array = new short[lengthElements];
@@ -130,7 +139,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCreationFromMemory()
         {
+#if ORBBECSDK_K4A_WRAPPER
+            var format = ImageFormat.Custom16;
+#else
             var format = ImageFormat.Depth16;
+#endif
             var strideBytes = format.StrideBytes(testWidth);
             var lengthElements = testWidth * testHeight;
             var array = new short[lengthElements];
@@ -173,7 +186,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             
         }
 
-        #endregion
+#endregion
 
         #region Testing of IsDisposed property, Dispose() method and Disposed event
 
@@ -249,6 +262,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 image.SystemTimestamp = testSystemTimestamp;
                 Assert.AreEqual(testSystemTimestamp, image.SystemTimestamp);
 
+#if !ORBBECSDK_K4A_WRAPPER
                 // Check WhiteBalance property
                 Assert.AreEqual(0, image.WhiteBalance);
                 image.WhiteBalance = testWhiteBalance;
@@ -258,10 +272,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 Assert.AreEqual(0, image.IsoSpeed);
                 image.IsoSpeed = testIsoSpeed;
                 Assert.AreEqual(testIsoSpeed, image.IsoSpeed);
+#endif
             }
         }
 
-        #endregion
+#endregion
 
         #region Test duplicate reference
 
@@ -287,6 +302,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             image.DeviceTimestamp = testDeviceTimestamp;
             Assert.AreEqual(testDeviceTimestamp, refImage.DeviceTimestamp);
 
+#if !ORBBECSDK_K4A_WRAPPER
             // And vice versa
             refImage.WhiteBalance = testWhiteBalance;
             Assert.AreEqual(testWhiteBalance, image.WhiteBalance);
@@ -294,6 +310,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             // And for one more property
             image.IsoSpeed = testIsoSpeed;
             Assert.AreEqual(testIsoSpeed, refImage.IsoSpeed);
+#endif
 
             // Dispose source image
             image.Dispose();
@@ -311,7 +328,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             refImage.Dispose();
         }
 
-        #endregion
+#endregion
 
         #region Testing of CopyTo and FillFrom
 
@@ -415,6 +432,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             }
         }
 
+#if !ORBBECSDK_K4A_WRAPPER
         [TestMethod]
         public void TestImageSizeCalculationCustom()
         {
@@ -424,8 +442,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Custom.ImageSizeBytes(image.StrideBytes, 720));
             }
         }
+#endif
 
-        #endregion
+#endregion
+
+#if !ORBBECSDK_K4A_WRAPPER
 
         #region Test custom memory management
 
@@ -516,5 +537,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         }
 
         #endregion
+
+#endif
     }
 }

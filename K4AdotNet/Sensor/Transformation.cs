@@ -229,7 +229,11 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(camera));
             }
 
-            if (xyzImage.StrideBytes < 3 * sizeof(short) * xyzImage.WidthPixels)
+            var minStride = 3 * sizeof(short) * xyzImage.WidthPixels;
+            var actualStride = xyzImage.StrideBytes;
+            if (actualStride == 0)
+                actualStride = xyzImage.SizeBytes / xyzImage.HeightPixels;
+            if (actualStride < minStride)
             {
                 throw new ArgumentException($"{xyzImage} must have a stride in bytes of at least 6 times its width in pixels.");
             }

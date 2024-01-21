@@ -13,6 +13,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <!--DefineConstants>ORBBECSDK_K4A_WRAPPER</DefineConstants-->
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
@@ -21,7 +22,42 @@
     <Reference Include="System.Core" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x64'">
+  <ItemGroup Condition="'$(Platform)' == 'x64' And $(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\OrbbecSDK.dll" Link="OrbbecSDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\k4a.dll" Link="k4a.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\k4arecord.dll" Link="k4arecord.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\msvcp140.dll" Link="msvcp140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcomp140.dll" Link="vcomp140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140.dll" Link="vcruntime140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140_1.dll" Link="vcruntime140_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x64' And !$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
     <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
@@ -44,7 +80,7 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x86'">
+  <ItemGroup Condition="'$(Platform)' == 'x86' And !$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
     <Content Include="..\externals\k4a\windows-desktop\x86\k4a.dll" Link="k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>

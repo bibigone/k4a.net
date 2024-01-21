@@ -162,6 +162,9 @@ namespace K4AdotNet
         /// All instances of <paramref name="allocator"/> will be keeping alive forever because they can be used
         /// to free memory even after setting custom allocator to <see langword="null"/>.
         /// </remarks>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public static void SetCustomMemoryAllocator(ICustomMemoryAllocator? allocator)
         {
             if (allocator is null)
@@ -184,7 +187,7 @@ namespace K4AdotNet
                 throw new InvalidOperationException("Cannot set custom memory allocator");
         }
 
-        #endregion
+#endregion
 
         #region Body tracking SDK availability and initialization
 

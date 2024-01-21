@@ -46,6 +46,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.IsFalse(config.IsValid(out var message));
             Assert.IsNotNull(message);
 
+#if !ORBBECSDK_K4A_WRAPPER
             config = new DeviceConfiguration
             {
                 CameraFps = FrameRate.Thirty,
@@ -57,6 +58,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             Assert.IsFalse(config.IsValid(out message));
             Assert.IsNotNull(message);
+#endif
 
             config = new DeviceConfiguration
             {

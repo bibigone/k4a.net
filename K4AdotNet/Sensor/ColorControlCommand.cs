@@ -50,7 +50,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Brightness setting.</summary>
         /// <remarks>
         /// May only be set to <see cref="ColorControlMode.Manual"/>.
-        /// The valid range is 0 to 255. The default value is 128.
+        /// The valid range is 0 to 255 for K4A and 100 for ORBBEC. The default value is 128 for K4A and 50 for ORBBEC.
         /// </remarks>
         Brightness,
 

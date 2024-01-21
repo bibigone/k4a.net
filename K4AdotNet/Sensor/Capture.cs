@@ -19,7 +19,10 @@ namespace K4AdotNet.Sensor
     /// <seealso cref="Device.GetCapture"/>
     /// <seealso cref="Device.TryGetCapture(out Capture, Timeout)"/>
     public sealed class Capture
-        : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
+        : IDisposablePlus, IReferenceDuplicatable<Capture>
+#if !ORBBECSDK_K4A_WRAPPER
+        , IEquatable<Capture>
+#endif
     {
         private readonly ChildrenDisposer children = new();                                 // to track returned Image objects
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
@@ -176,6 +179,9 @@ namespace K4AdotNet.Sensor
         /// the temperature is unavailable, the function will return <see cref="float.NaN"/>.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
+#if ORBBECSDK_K4A_WRAPPER
+        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
+#endif
         public float TemperatureC
         {
             get => NativeApi.CaptureGetTemperatureC(handle.ValueNotDisposed);
@@ -187,6 +193,8 @@ namespace K4AdotNet.Sensor
         /// <returns>Appropriate unmanaged handle. Can be <see cref="IntPtr.Zero"/>.</returns>
         internal static NativeHandles.CaptureHandle ToHandle(Capture? capture)
             => capture?.handle?.ValueNotDisposed ?? default;
+
+#if !ORBBECSDK_K4A_WRAPPER
 
         #region Equatable
 
@@ -224,11 +232,13 @@ namespace K4AdotNet.Sensor
         public static bool operator !=(Capture? left, Capture? right)
             => !(left == right);
 
+        #endregion
+
+#endif
+
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
         /// <returns><c>{HandleTypeName}#{Address}</c></returns>
         public override string ToString()
             => handle.ToString();
-
-        #endregion
     }
 }

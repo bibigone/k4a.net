@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace K4AdotNet.Sensor
 {
@@ -7,9 +8,17 @@ namespace K4AdotNet.Sensor
     public static class ColorResolutions
     {
         private static readonly int[] heights = new[] { 0, 720, 1080, 1440, 1536, 2160, 3072 };
-        private const float NOMINAL_HFOV_DEGREES = 90f;
+#if ORBBECSDK_K4A_WRAPPER
+        private const float NOMINAL_HFOV_4_3_DEGREES = 65f;
+        private const float NOMINAL_HFOV_16_9_DEGREES = 80f;
+        private const float NOMINAL_VFOV_4_3_DEGREES = 51f;
+        private const float NOMINAL_VFOV_16_9_DEGREES = 51f;
+#else
+        private const float NOMINAL_HFOV_4_3_DEGREES = 90f;
+        private const float NOMINAL_HFOV_16_9_DEGREES = 90f;
         private const float NOMINAL_VFOV_4_3_DEGREES = 74.3f;
         private const float NOMINAL_VFOV_16_9_DEGREES = 59f;
+#endif
 
         /// <summary>
         /// All possible <see cref="ColorResolution"/>s including <see cref="ColorResolution.Off"/>.
@@ -21,9 +30,13 @@ namespace K4AdotNet.Sensor
             ColorResolution.R720p,
             ColorResolution.R1080p,
             ColorResolution.R1440p,
+#if !ORBBECSDK_K4A_WRAPPER
             ColorResolution.R1536p,
+#endif
             ColorResolution.R2160p,
+#if !ORBBECSDK_K4A_WRAPPER
             ColorResolution.R3072p,
+#endif
         };
 
         /// <summary>Checks that resolution is compatible with a given frame rate.</summary>
@@ -39,7 +52,13 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution)"/>
         public static bool IsCompatibleWith(this ColorResolution colorResolution, FrameRate frameRate)
+#if ORBBECSDK_K4A_WRAPPER
+#pragma warning disable CS0618 // Type or member is obsolete
+            => colorResolution != ColorResolution.R1536p && colorResolution != ColorResolution.R3072p;
+#pragma warning restore CS0618 // Type or member is obsolete
+#else
             => !(colorResolution == ColorResolution.R3072p && frameRate == FrameRate.Thirty);
+#endif
 
         /// <summary>Checks that resolution is compatible with a given image format.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="imageFormat"/>.</param>
@@ -83,12 +102,12 @@ namespace K4AdotNet.Sensor
         {
             if (resolution.IsAspectRatio16to9())
             {
-                horizontalDegrees = NOMINAL_HFOV_DEGREES;
+                horizontalDegrees = NOMINAL_HFOV_16_9_DEGREES;
                 verticalDegrees = NOMINAL_VFOV_16_9_DEGREES;
             }
             else if (resolution.IsAspectRatio4to3())
             {
-                horizontalDegrees = NOMINAL_HFOV_DEGREES;
+                horizontalDegrees = NOMINAL_HFOV_4_3_DEGREES;
                 verticalDegrees = NOMINAL_VFOV_4_3_DEGREES;
             }
             else
@@ -109,7 +128,9 @@ namespace K4AdotNet.Sensor
         /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         public static bool IsAspectRatio4to3(this ColorResolution resolution)
+#pragma warning disable CS0618 // Type or member is obsolete
             => resolution == ColorResolution.R1536p || resolution == ColorResolution.R3072p;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>Aspect ratio of a given resolution: is it 16:9?</summary>
         /// <param name="resolution">Element of enumeration.</param>

@@ -16,7 +16,9 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 Assert.IsNull(capture.ColorImage);
                 Assert.IsNull(capture.DepthImage);
                 Assert.IsNull(capture.IRImage);
+#if !ORBBECSDK_K4A_WRAPPER
                 Assert.IsTrue(float.IsNaN(capture.TemperatureC));
+#endif
             }
         }
 
@@ -46,7 +48,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             var capture = new Capture();
             capture.Dispose();
-            _ = capture.TemperatureC;     // <- ObjectDisposedException
+            _ = capture.DepthImage;     // <- ObjectDisposedException
         }
 
         [TestMethod]
@@ -76,9 +78,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
                     Assert.AreEqual(imageBuffer, retImage.Buffer);
                 }
 
+#if !ORBBECSDK_K4A_WRAPPER
                 // Clear
                 capture.ColorImage = null;
                 Assert.IsNull(capture.ColorImage);
+#endif
             }
         }
 
@@ -109,9 +113,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
                     Assert.AreEqual(imageBuffer, retImage.Buffer);
                 }
 
+#if !ORBBECSDK_K4A_WRAPPER
                 // Clear
                 capture.DepthImage = null;
                 Assert.IsNull(capture.DepthImage);
+#endif
             }
         }
 
@@ -142,12 +148,15 @@ namespace K4AdotNet.Tests.Unit.Sensor
                     Assert.AreEqual(imageBuffer, retImage.Buffer);
                 }
 
+#if !ORBBECSDK_K4A_WRAPPER
                 // Clear
                 capture.IRImage = null;
                 Assert.IsNull(capture.IRImage);
+#endif
             }
         }
 
+#if !ORBBECSDK_K4A_WRAPPER
         [TestMethod]
         public void TestSettingOfTemperature()
         {
@@ -159,18 +168,20 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 Assert.AreEqual(testTemperatureC, capture.TemperatureC);
             }
         }
+#endif
 
         [TestMethod]
         public void TestDuplicateReference()
         {
-            var testTemperatureC = 48.3f;
-
             var capture = new Capture();
             var refCapture = capture.DuplicateReference();
 
+#if !ORBBECSDK_K4A_WRAPPER
             Assert.AreEqual(capture, refCapture);
             Assert.IsTrue(capture == refCapture);
             Assert.IsFalse(capture != refCapture);
+
+            var testTemperatureC = 48.3f;
 
             // Check that when we change property of source capture,
             // then property of refCapture is also synchronously changed
@@ -180,6 +191,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             // And vice versa
             refCapture.TemperatureC = -testTemperatureC;
             Assert.AreEqual(-testTemperatureC, capture.TemperatureC);
+#endif
 
             // And for image properties
             using (var depthMap = new Image(ImageFormat.Depth16, 2, 2))

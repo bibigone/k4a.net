@@ -20,6 +20,7 @@ namespace K4AdotNet.Samples.Wpf
         public static readonly IReadOnlyList<KeyValuePair<ColorResolution, string>> AllColorResolutions
             = new Dictionary<ColorResolution, string>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 { ColorResolution.Off, "OFF" },
                 { ColorResolution.R720p, "1280x720 (16:9)" },
                 { ColorResolution.R1080p, "1920x1080 (16:9)" },
@@ -27,6 +28,7 @@ namespace K4AdotNet.Samples.Wpf
                 { ColorResolution.R1536p, "2048x1536 (4:3)" },
                 { ColorResolution.R2160p, "3840x2160 (16:9)" },
                 { ColorResolution.R3072p, "4096x3072 (4:3)" },
+#pragma warning restore CS0618 // Type or member is obsolete
             }.ToList();
 
         public static readonly IReadOnlyList<KeyValuePair<FrameRate, string>> AllFrameRates

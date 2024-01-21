@@ -15,6 +15,9 @@ namespace K4AdotNet.Sensor
         {
             FrameRate.Five,
             FrameRate.Fifteen,
+#if ORBBECSDK_K4A_WRAPPER
+            FrameRate.TwentyFive,
+#endif
             FrameRate.Thirty,
         };
 
@@ -32,6 +35,9 @@ namespace K4AdotNet.Sensor
                 case FrameRate.Five: return 5;
                 case FrameRate.Fifteen: return 15;
                 case FrameRate.Thirty: return 30;
+#if ORBBECSDK_K4A_WRAPPER
+                case FrameRate.TwentyFive: return 25;
+#endif
                 default: throw new ArgumentOutOfRangeException(nameof(frameRate));
             }
         }
@@ -47,6 +53,9 @@ namespace K4AdotNet.Sensor
                 case 5: return FrameRate.Five;
                 case 15: return FrameRate.Fifteen;
                 case 30: return FrameRate.Thirty;
+#if ORBBECSDK_K4A_WRAPPER
+                case 25: return FrameRate.TwentyFive;
+#endif
                 default: throw new ArgumentOutOfRangeException(nameof(frameRateHz));
             }
         }
@@ -64,7 +73,8 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         /// <seealso cref="DepthModes.IsCompatibleWith(DepthMode, FrameRate)"/>
         public static bool IsCompatibleWith(this FrameRate frameRate, DepthMode depthMode)
-            => !(frameRate == FrameRate.Thirty && depthMode == DepthMode.WideViewUnbinned);
+            => depthMode != DepthMode.WideViewUnbinned
+                || depthMode == DepthMode.WideViewUnbinned && (frameRate == FrameRate.Five || frameRate == FrameRate.Fifteen);
 
         /// <summary>Checks compatibility of a given frame rate with particular resolution of color camera.</summary>
         /// <param name="frameRate">Frame rate under test.</param>
@@ -79,6 +89,12 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         /// <seealso cref="ColorResolutions.IsCompatibleWith(ColorResolution, FrameRate)"/>
         public static bool IsCompatibleWith(this FrameRate frameRate, ColorResolution colorResolution)
+#if ORBBECSDK_K4A_WRAPPER
+#pragma warning disable CS0618 // Type or member is obsolete
+            => colorResolution != ColorResolution.R3072p && colorResolution != ColorResolution.R1536p;
+#pragma warning restore CS0618 // Type or member is obsolete
+#else
             => !(frameRate == FrameRate.Thirty && colorResolution == ColorResolution.R3072p);
+#endif
     }
 }

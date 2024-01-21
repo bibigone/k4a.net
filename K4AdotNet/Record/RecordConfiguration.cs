@@ -70,6 +70,10 @@ namespace K4AdotNet.Record
         /// The timestamp offset of the start of the recording. All recorded timestamps are offset by this value such that
         /// the recording starts at timestamp <see cref="Microseconds32.Zero"/>. This value can be used to synchronize timestamps between two recording files.
         /// </summary>
+#if ORBBECSDK_K4A_WRAPPER
+        public Microseconds64 StartTimeOffset;
+#else
         public Microseconds32 StartTimeOffset;
+#endif
     }
 }
