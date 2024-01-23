@@ -176,11 +176,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var capture = new Capture();
             var refCapture = capture.DuplicateReference();
 
-#if !ORBBECSDK_K4A_WRAPPER
             Assert.AreEqual(capture, refCapture);
             Assert.IsTrue(capture == refCapture);
             Assert.IsFalse(capture != refCapture);
 
+#if !ORBBECSDK_K4A_WRAPPER
             var testTemperatureC = 48.3f;
 
             // Check that when we change property of source capture,

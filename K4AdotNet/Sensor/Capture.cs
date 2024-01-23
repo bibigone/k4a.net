@@ -19,10 +19,7 @@ namespace K4AdotNet.Sensor
     /// <seealso cref="Device.GetCapture"/>
     /// <seealso cref="Device.TryGetCapture(out Capture, Timeout)"/>
     public sealed class Capture
-        : IDisposablePlus, IReferenceDuplicatable<Capture>
-#if !ORBBECSDK_K4A_WRAPPER
-        , IEquatable<Capture>
-#endif
+        : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
     {
         private readonly ChildrenDisposer children = new();                                 // to track returned Image objects
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
@@ -194,8 +191,6 @@ namespace K4AdotNet.Sensor
         internal static NativeHandles.CaptureHandle ToHandle(Capture? capture)
             => capture?.handle?.ValueNotDisposed ?? default;
 
-#if !ORBBECSDK_K4A_WRAPPER
-
         #region Equatable
 
         /// <summary>Two captures are equal when they reference to one and the same unmanaged object.</summary>
@@ -233,8 +228,6 @@ namespace K4AdotNet.Sensor
             => !(left == right);
 
         #endregion
-
-#endif
 
         /// <summary>Convenient (for debugging needs, first of all) string representation of object as an address of unmanaged object in memory.</summary>
         /// <returns><c>{HandleTypeName}#{Address}</c></returns>
