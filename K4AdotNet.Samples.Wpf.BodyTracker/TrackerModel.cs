@@ -1,4 +1,5 @@
 ﻿using K4AdotNet.BodyTracking;
+using K4AdotNet.Samples.Wpf.Common;
 using K4AdotNet.Sensor;
 using System;
 using System.Windows;

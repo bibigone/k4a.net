@@ -11,7 +11,12 @@
     <Description></Description>
     <AssemblyName>K4AdotNet.Samples.Wpf.Common</AssemblyName>
     <UseWPF>True</UseWPF>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\K4AdotNet\K4AdotNet.csproj" />

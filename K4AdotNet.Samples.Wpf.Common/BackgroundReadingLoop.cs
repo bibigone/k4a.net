@@ -8,11 +8,25 @@ namespace K4AdotNet.Samples.Wpf
 {
     public abstract class BackgroundReadingLoop : IDisposable
     {
-        public static BackgroundReadingLoop CreateForPlayback(string filePath, bool disableColor, bool disableDepth, bool doNotPlayFasterThanOriginalFps)
-            => new PlaybackReadingLoop(filePath, disableColor, disableDepth, doNotPlayFasterThanOriginalFps);
+        public const ImageFormat DefaultColorFormat =
+#if ORBBECSDK_K4A_WRAPPER
+            ImageFormat.ColorMjpg;          // It looks like that OrbbecSDK-K4A-Wrapper does not support BGRA
+#else
+            ImageFormat.ColorBgra32;        // Allow Azure Kinect SDK to convert color images to BGRA internally
+#endif
 
-        public static BackgroundReadingLoop CreateForDevice(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
-            => new DeviceReadingLoop(device, depthMode, colorResolution, frameRate);
+        public static BackgroundReadingLoop CreateForPlayback(
+            string filePath,
+            bool disableColor, bool disableDepth,
+            bool doNotPlayFasterThanOriginalFps,
+            ImageFormat colorFormat = DefaultColorFormat)
+            => new PlaybackReadingLoop(filePath, disableColor, disableDepth, doNotPlayFasterThanOriginalFps, colorFormat);
+
+        public static BackgroundReadingLoop CreateForDevice(
+            Device device,
+            DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate,
+            ImageFormat colorFormat = DefaultColorFormat)
+            => new DeviceReadingLoop(device, depthMode, colorResolution, frameRate, colorFormat);
 
         protected readonly Thread backgroundThread;
         protected volatile bool isRunning;
@@ -21,6 +35,8 @@ namespace K4AdotNet.Samples.Wpf
             => backgroundThread = new(BackgroundLoop) { IsBackground = true };
 
         public abstract ColorResolution ColorResolution { get; }
+
+        public abstract ImageFormat ColorFormat { get; }
 
         public abstract DepthMode DepthMode { get; }
 
@@ -58,7 +74,11 @@ namespace K4AdotNet.Samples.Wpf
             private readonly Playback playback;
             private readonly int frameRateHz;
 
-            public PlaybackReadingLoop(string filePath, bool disableColor, bool disableDepth, bool doNotPlayFasterThanOriginalFps)
+            public PlaybackReadingLoop(
+                string filePath,
+                bool disableColor, bool disableDepth,
+                bool doNotPlayFasterThanOriginalFps,
+                ImageFormat colorFormat)
             {
                 this.doNotPlayFasterThanOriginalFps = doNotPlayFasterThanOriginalFps;
 
@@ -70,9 +90,10 @@ namespace K4AdotNet.Samples.Wpf
                     ? (config.DepthMode == DepthMode.PassiveIR || config.DepthMode == DepthMode.WideViewUnbinned)
                         ? DepthMode.PassiveIR : DepthMode.Off
                     : config.DepthMode;
+                ColorFormat = colorFormat;
 
                 if (ColorResolution != ColorResolution.Off)
-                    playback.SetColorConversion(ImageFormat.ColorBgra32);   // NB! This results in very-very expensive operation during data extraction!..
+                    playback.SetColorConversion(colorFormat);
             }
 
             public override void Dispose()
@@ -82,6 +103,8 @@ namespace K4AdotNet.Samples.Wpf
             }
 
             public override ColorResolution ColorResolution { get; }
+
+            public override ImageFormat ColorFormat { get; }
 
             public override DepthMode DepthMode { get; }
 
@@ -142,12 +165,16 @@ namespace K4AdotNet.Samples.Wpf
         {
             private readonly Device device;
 
-            public DeviceReadingLoop(Device device, DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate)
+            public DeviceReadingLoop(
+                Device device,
+                DepthMode depthMode, ColorResolution colorResolution, FrameRate frameRate,
+                ImageFormat colorFormat)
             {
                 this.device = device;
                 DepthMode = depthMode;
                 ColorResolution = colorResolution;
                 FrameRate = frameRate;
+                ColorFormat = colorFormat;
             }
 
             public override void Dispose()
@@ -162,6 +189,8 @@ namespace K4AdotNet.Samples.Wpf
 
             public FrameRate FrameRate { get; }
 
+            public override ImageFormat ColorFormat { get; }
+
             public override void GetCalibration(out Calibration calibration)
                 => device.GetCalibration(DepthMode, ColorResolution, out calibration);
 
@@ -175,7 +204,7 @@ namespace K4AdotNet.Samples.Wpf
                     device.StartCameras(new DeviceConfiguration
                     {
                         CameraFps = FrameRate,
-                        ColorFormat = ImageFormat.ColorBgra32,
+                        ColorFormat = ColorFormat,
                         ColorResolution = ColorResolution,
                         DepthMode = DepthMode,
                         WiredSyncMode = WiredSyncMode.Standalone,

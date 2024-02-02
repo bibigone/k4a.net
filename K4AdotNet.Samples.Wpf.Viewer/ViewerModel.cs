@@ -1,4 +1,5 @@
-﻿using K4AdotNet.Sensor;
+﻿using K4AdotNet.Samples.Wpf.Common;
+using K4AdotNet.Sensor;
 using System;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -196,7 +197,10 @@ namespace K4AdotNet.Samples.Wpf.Viewer
             {
                 if (DepthMaxVisibleDistance != value && depthImageVisualizer != null)
                 {
-                    depthImageVisualizer.VisualizationParameter = (int)(value * 1000);
+                    depthImageVisualizer.VisualizationParameter 
+                        = (int)(value * 1000);
+                    if (depthOverColorImageVisualizer != null)
+                        depthOverColorImageVisualizer.VisualizationParameter = depthImageVisualizer.VisualizationParameter;
                     RaisePropertyChanged(nameof(DepthMaxVisibleDistance));
                 }
             }

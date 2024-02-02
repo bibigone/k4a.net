@@ -1,5 +1,7 @@
-﻿using K4AdotNet.Sensor;
+﻿using K4AdotNet.Samples.Wpf.Common;
+using K4AdotNet.Sensor;
 using System;
+using System.Buffers;
 
 namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 {
@@ -13,8 +15,8 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
     {
         public FrameData(Image colorFrame, Image depthFrame)
         {
-            ColorFrame = colorFrame ?? throw new ArgumentNullException(nameof(colorFrame));
-            DepthFrame = depthFrame ?? throw new ArgumentNullException(nameof(depthFrame));
+            ColorFrame = DecodeColorImageIfNeeded(colorFrame) ?? throw new ArgumentNullException(nameof(colorFrame));
+            DepthFrame = depthFrame?.DuplicateReference() ?? throw new ArgumentNullException(nameof(depthFrame));
         }
 
         public void Dispose()
@@ -25,5 +27,30 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
 
         public Image ColorFrame { get; }
         public Image DepthFrame { get; }
+
+        private static Image? DecodeColorImageIfNeeded(Image? colorFrame)
+        {
+            if (colorFrame == null)
+                return null;
+
+            if (colorFrame.Format == ImageFormat.ColorMjpg)
+            {
+                var bgraImageSize = ImageFormat.ColorBgra32.StrideBytes(colorFrame.WidthPixels) * colorFrame.HeightPixels;
+                var bgraBuffer = ArrayPool<byte>.Shared.Rent(bgraImageSize);
+                try
+                {
+                    ImageConverters.DecodeMjpegToBgra(colorFrame, bgraBuffer);
+                    var res = new Image(ImageFormat.ColorBgra32, colorFrame.WidthPixels, colorFrame.HeightPixels);
+                    res.FillFrom(bgraBuffer);
+                    return res;
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(bgraBuffer);
+                }
+            }
+
+            return colorFrame.DuplicateReference();
+        }
     }
 }

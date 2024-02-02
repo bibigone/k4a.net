@@ -104,7 +104,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
                 if (e.Capture != null && e.Capture.ColorImage != null && e.Capture.DepthImage != null)
                 {
                     transformation.DepthImageToColorCamera(e.Capture.DepthImage, depthImage);
-                    var frameData = new FrameData(e.Capture.ColorImage.DuplicateReference(), depthImage.DuplicateReference());
+                    var frameData = new FrameData(e.Capture.ColorImage, depthImage);
                     processor.Enqueue(frameData);
                 }
             }

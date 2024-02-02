@@ -517,9 +517,9 @@ namespace K4AdotNet.Sensor
         {
             if (src is null)
                 throw new ArgumentNullException(nameof(src));
-            if (src.Length != SizeBytes)
+            if (src.Length < SizeBytes)
                 throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
-            Marshal.Copy(src, 0, Buffer, src.Length);
+            Marshal.Copy(src, 0, Buffer, SizeBytes);
         }
 
         /// <summary>Fills data in image buffer from specified managed array.</summary>
@@ -535,9 +535,10 @@ namespace K4AdotNet.Sensor
             var elementSize = sizeof(short);
             if (size % elementSize != 0)
                 throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
-            if (src.Length * elementSize != size)
+            size /= elementSize;
+            if (src.Length  < size)
                 throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
-            Marshal.Copy(src, 0, Buffer, src.Length);
+            Marshal.Copy(src, 0, Buffer, size);
         }
 
         /// <summary>Fills data in image buffer from specified managed array.</summary>
@@ -553,9 +554,10 @@ namespace K4AdotNet.Sensor
             var elementSize = sizeof(float);
             if (size % elementSize != 0)
                 throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
-            if (src.Length * elementSize != size)
+            size /= elementSize;
+            if (src.Length < size)
                 throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
-            Marshal.Copy(src, 0, Buffer, src.Length);
+            Marshal.Copy(src, 0, Buffer, size);
         }
 
         /// <summary>Fills data in image buffer from specified managed array.</summary>
@@ -571,9 +573,10 @@ namespace K4AdotNet.Sensor
             var elementSize = sizeof(int);
             if (size % elementSize != 0)
                 throw new InvalidOperationException($"Size of image {size} is not divisible by element size {elementSize}.");
-            if (src.Length * elementSize != size)
+            size /= elementSize;
+            if (src.Length < size)
                 throw new ArgumentOutOfRangeException(nameof(src) + "." + nameof(src.Length));
-            Marshal.Copy(src, 0, Buffer, src.Length);
+            Marshal.Copy(src, 0, Buffer, size);
         }
 
         /// <summary>Extracts handle from <paramref name="image"/>.</summary>
@@ -637,7 +640,7 @@ namespace K4AdotNet.Sensor
 
 #endregion
 
-#region Memory management
+        #region Memory management
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
@@ -700,6 +703,6 @@ namespace K4AdotNet.Sensor
 
 #endif
 
-#endregion
+        #endregion
     }
 }

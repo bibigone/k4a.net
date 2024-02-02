@@ -53,9 +53,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         }
         private volatile bool _unknownDepthIsBackground;
 
-
         public event EventHandler? ImageUpdated;
-
 
         public void Start()
         {
