@@ -22,19 +22,19 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'x64' And $(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\OrbbecSDK.dll" Link="OrbbecSDK.dll">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" Link="OrbbecSDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\k4a.dll" Link="k4a.dll">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll" Link="k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\k4arecord.dll" Link="k4arecord.dll">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll" Link="k4arecord.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win_x64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>

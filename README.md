@@ -2,7 +2,7 @@
 
 <img align="right" width="64" height="64" src="https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-64.png">
 
-**K4A.Net** &mdash; *Three-in-one* managed .NET library to work with [Azure Kinect](https://azure.microsoft.com/en-us/services/kinect-dk/) devices (also known as Kinect for Azure, K4A, Kinect v4). It consists of the following "components":
+**K4A.Net** &mdash; *Three-in-one* managed .NET library to work with [Azure Kinect](https://azure.microsoft.com/en-us/services/kinect-dk/) depth sensors (also known as Kinect for Azure, K4A, Kinect v4). Also it can be used to work with [Orbbec Femto Bolt](https://www.orbbec.com/products/tof-camera/femto-bolt/) and [Mega](https://www.orbbec.com/products/tof-camera/femto-mega/) depth sensors via [Orbbec SDK K4A Wrapper](https://github.com/orbbec/OrbbecSDK-K4A-Wrapper). It consists of the following "components":
 1. `Sensor API` &mdash; access to depth camera, RGB camera, accelerometer and gyroscope, plus device-calibration data and synchronization control
    * Corresponding namespace: `K4AdotNet.Sensor`
    * Corresponding native API: [`k4a.h`](https://github.com/bibigone/k4a.net/blob/master/externals/k4a/include/k4a/k4a.h)
@@ -19,9 +19,9 @@
 * Written fully on C#
 * CLS-compliant (can be used from any .Net-compatible language, including C#, F#, VB.Net)
 * Library **K4AdotNet** is compiled against **NET 6.0**, **.NET Standard 2.0** and **.NET Framework 4.6.1** target frameworks
-  * This makes it compatible with **.NET 5-7**, **.NET Core 2.0-3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
+  * This makes it compatible with **.NET 5-8**, **.NET Core 2.0-3.1**, **.NET Framework 4.6.1** and later, **Unity 2018.1** and later, etc.
   * See https://docs.microsoft.com/en-us/dotnet/standard/net-standard for details
-* Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
+* Clean API, which is close to C/C++ native API from [Azure Kinect Sensor SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/sensor-sdk-download) (or [Orbbec SDK K4A Wrapper](https://github.com/orbbec/OrbbecSDK-K4A-Wrapper)) and [Azure Kinect Body Tracking SDK](https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-download).
 * Plus useful helper methods, additional checks and meaningful exceptions.
 * Full feature set (all API provided by native SDKs are available in this C# wrapper)
 * Up-to-date with the latest versions of native SDKs
@@ -37,7 +37,9 @@
 * Unit-tested
 * Multi-platform (Windows, Linux)
   * But most of samples are written using WPF
-* Available as NuGet package: https://www.nuget.org/packages/K4AdotNet
+* Available as NuGet packages:
+  * Azure Kinect version: https://www.nuget.org/packages/K4AdotNet
+  * Orbbec Femto Bolt/Mega version: https://www.nuget.org/packages/K4AdotNet-Femto
 
 
 ## Dependencies
@@ -94,3 +96,13 @@ See https://github.com/bibigone/k4a.net/releases
   * `K4AdotNet.Samples.Wpf.BodyTracker` &mdash; sample WPF application to demonstrate usage of Body Tracking API.
   * `K4AdotNet.Samples.Wpf.BackgroundRemover` &mdash; sample WPF application which implements the background removal effect for color picture with the help of depth data.
 * Instruction on building Unity sample can be found [here](https://github.com/bibigone/k4a.net/blob/master/K4AdotNet.Samples.Unity/readme.md).
+
+## Orbbec Femto Bolt/Mega support
+
+<img align="right" width="64" height="64" src="https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-Femto-64.png">
+
+This library is compatible with [Orbbec Femto Bolt](https://www.orbbec.com/products/tof-camera/femto-bolt/) and [Mega](https://www.orbbec.com/products/tof-camera/femto-mega/) depth sensors. It is possible due to [Orbbec SDK K4A Wrapper](https://github.com/orbbec/OrbbecSDK-K4A-Wrapper) that implements the API of original native [K4A library](https://github.com/microsoft/Azure-Kinect-Sensor-SDK) via [Orbbec SDK](https://github.com/orbbec/OrbbecSDK).
+
+`ORBBECSDK_K4A_WRAPPER` constant must be defined to compile the Orbbec-compatible version of the library. See `Product.props` file for details.
+
+**Note.** There is no full compatibility between [Orbbec SDK K4A Wrapper](https://github.com/orbbec/OrbbecSDK-K4A-Wrapper) and original [K4A library](https://github.com/microsoft/Azure-Kinect-Sensor-SDK). Major differences between them are described [here](https://www.orbbec.com/documentation/comparison-with-azure-kinect-dk/). But actually there are much more inconsistencies. Check value of the `Sdk.IsOrbbecSdkK4AWrapper` property in client code to determine what version of library is in use.

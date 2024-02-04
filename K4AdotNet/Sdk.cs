@@ -13,6 +13,19 @@ namespace K4AdotNet
     /// <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
     public static class Sdk
     {
+        /// <summary>Is underlying level the OrbbecSDK K4A Wrapper rather than original Kinect for Azure SDK?</summary>
+        /// <remarks>
+        /// K4A.Net library can be compiled in version that supports Orbbec Femto depth sensors via Orbbec SDK K4A Wrapper.
+        /// There is no full compatibility between original Kinect for Azure SDK and OrbbecSDK-K4A-Wrapper.
+        /// To distinguish between them in client code, one can use this property.
+        /// </remarks>
+        public static bool IsOrbbecSdkK4AWrapper
+#if ORBBECSDK_K4A_WRAPPER
+            => true;
+#else
+            => false;
+#endif
+
         #region Dependencies
 
         /// <summary>Name of main library (DLL) from Azure Kinect Sensor SDK.</summary>

@@ -20,9 +20,16 @@
     <ProjectReference Include="..\K4AdotNet.Samples.Wpf.Common\K4AdotNet.Samples.Wpf.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="!$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
     <Resource Include="..\K4AdotNet.ico" Link="K4AdotNet.ico" />
     <Content Include="..\K4AdotNet.ico" Link="K4AdotNet.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
+    <Resource Include="..\K4AdotNet-Femto.ico" Link="K4AdotNet.ico" />
+    <Content Include="..\K4AdotNet-Femto.ico" Link="K4AdotNet.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
