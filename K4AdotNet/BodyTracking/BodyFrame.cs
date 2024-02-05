@@ -61,7 +61,7 @@ namespace K4AdotNet.BodyTracking
 
         /// <summary>Gets the body frame's system timestamp.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Nanoseconds64 SytemTimestamp => NativeApi.FrameGetSystemTimestamp(handle.ValueNotDisposed);
+        public Nanoseconds64 SystemTimestamp => NativeApi.FrameGetSystemTimestamp(handle.ValueNotDisposed);
 
         /// <summary>Deprecated in version 0.9.2 of Body Tracking SDK. Please use <see cref="DeviceTimestamp"/> property instead of this one.</summary>
         [Obsolete("Deprecated in version 0.9.2 of Body Tracking SDK. Please use DeviceTimestamp property instead of this one.")]

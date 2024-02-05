@@ -7,6 +7,12 @@ cd ..
 package\nuget.exe restore
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
+%MSBUILD_PATH% K4AdotNet.sln /t:Clean /p:Configuration=Release /p:Platform="x64" /p:Devices=Femto /v:m
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+%MSBUILD_PATH% K4AdotNet.sln /t:Rebuild /p:Configuration=Release /p:Platform="x64" /p:Devices=Femto /v:m
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
 %MSBUILD_PATH% K4AdotNet.sln /t:Clean /p:Configuration=Release /p:Platform="Any CPU" /p:Devices=Femto /v:m
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 

@@ -172,7 +172,7 @@ namespace K4AdotNet.BodyTracking
         /// Returns the system timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return 0.
         /// It is also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
         /// </returns>
-        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "uint64_t k4abt_frame_get_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
         public static extern Nanoseconds64 FrameGetSystemTimestamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
         // K4ABT_EXPORT k4a_image_t k4abt_frame_get_body_index_map(k4abt_frame_t body_frame_handle);
