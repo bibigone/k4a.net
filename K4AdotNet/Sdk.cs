@@ -74,7 +74,6 @@ namespace K4AdotNet
             "cudnn_ops_infer64_8.dll",
             "cudnn64_8.dll",
             "cufft64_10.dll",
-            "vcomp140.dll"
         }.ToList().AsReadOnly();
 
         /// <summary>Extension of Dynamic Link Libraries (DLL) under Windows.</summary>
@@ -200,13 +199,69 @@ namespace K4AdotNet
                 throw new InvalidOperationException("Cannot set custom memory allocator");
         }
 
-#endregion
+        #endregion
 
         #region Body tracking SDK availability and initialization
 
         /// <summary>URL to step-by-step instruction "How to set up Body Tracking SDK". Helpful for UI and user messages.</summary>
         public static readonly string BodyTrackingSdkInstallationGuideUrl
             = "https://docs.microsoft.com/en-us/azure/Kinect-dk/body-sdk-setup";
+
+        /// <summary>
+        /// Path to runtime with body tracking libraries and DNN-models.
+        /// <see langword="null"/> on get means that body tracking runtime cannot be found.
+        /// <see langword="null"/> on set means "please, try to find body tracking runtime automatically.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">
+        /// Specified path does not contain body tracking runtime.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Value of this property cannot be changed after successful initialization of Body tracking runtime.
+        /// </exception>
+        /// <seealso cref="IsBodyTrackingRuntimeAvailable(out string?)"/>
+        /// <seealso cref="TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode, out string?)"/>
+        public static string? BodyTrackingRuntimePath
+        {
+            get
+            {
+                lock (bodyTrackingRuntimeInitializationSync)
+                {
+                    if (bodyTrackingRuntimePath == null)
+                        TryGetBodyTrackingRuntimePath(out bodyTrackingRuntimePath, out _);
+                    return bodyTrackingRuntimePath;
+                }
+            }
+
+            set
+            {
+                lock (bodyTrackingRuntimeInitializationSync)
+                {
+                    if (value == bodyTrackingRuntimePath)
+                        return;
+                    if (bodyTrackingRuntimeInitialized)
+                        throw new InvalidOperationException($"{nameof(BodyTrackingRuntimePath)} cannot be changed after successful initialization of Body tracking runtime.");
+                    if (!string.IsNullOrEmpty(value) && !ProbePathForBodyTrackingRuntime(value))
+                        throw new FileNotFoundException("Body tracking runtime cannot be found in the path specified: " + value);
+                    bodyTrackingRuntimePath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines version of body tracking runtime in use
+        /// or returns <see langword="null"/> in case when body tracking runtime cannot be found.
+        /// </summary>
+        /// <seealso cref="BodyTrackingRuntimePath"/>
+        public static Version? BodyTrackingRuntimeVersion
+        {
+            get
+            {
+                var path = BodyTrackingRuntimePath;
+                if (string.IsNullOrEmpty(path))
+                    return null;
+                return GetBodyTrackingRuntimeVersion(path);
+            }
+        }
 
         /// <summary>Checks that Body Tracking runtime is available.</summary>
         /// <param name="message">
@@ -219,13 +274,21 @@ namespace K4AdotNet
         /// </returns>
         /// <remarks><para>
         /// This method tries to find Body Tracking runtime in one of the following locations:
+        /// directory specified in <see cref="BodyTrackingRuntimePath"/> property (if not <see langword="null"/>),
         /// directory with executable file,
         /// directory with <c>K4AdotNet</c> assembly,
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
         /// </para></remarks>
+        /// <seealso cref="BodyTrackingRuntimePath"/>
         /// <seealso cref="TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode, out string)"/>
         public static bool IsBodyTrackingRuntimeAvailable([NotNullWhen(returnValue: false)] out string? message)
         {
+            if (bodyTrackingRuntimeInitialized)
+            {
+                message = null;
+                return true;
+            }
+
             if (!IsOSCompatibleWithBodyTracking(out message))
                 return false;
 
@@ -261,6 +324,7 @@ namespace K4AdotNet
         /// <see cref="BodyTracking.Tracker"/> object.
         /// </para><para>
         /// This method tries to find Body Tracking runtime in one of the following locations:
+        /// directory <see cref="BodyTrackingRuntimePath"/> if specified,
         /// directory with executable file,
         /// directory with <c>K4AdotNet</c> assembly,
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
@@ -284,7 +348,7 @@ namespace K4AdotNet
             return true;
         }
 
-        private static bool CheckBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath, [NotNullWhen(returnValue: false)] out string? message)
+        private static Version? GetBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath)
         {
             var path = Path.Combine(bodyTrackingRuntimePath, BODY_TRACKING_DLL_NAME + DLL_EXTENSION_WIN);
             if (File.Exists(path))
@@ -292,15 +356,22 @@ namespace K4AdotNet
                 var fvi = FileVersionInfo.GetVersionInfo(path);
                 // Do not use FileVersion property as it's not populated under Unity .NET runtime
                 if (fvi != null)
-                {
-                    // NB! Ignore FileBuildPart: we assume back compatibility withing one and the same major and minor versions
-                    if (fvi.FileMajorPart == BODY_TRACKING_EXPECTED_VERSION_MAJOR
-                        && fvi.FileMinorPart == BODY_TRACKING_EXPECTED_VERSION_MINOR)
-                    {
-                        message = null;
-                        return true;
-                    }
-                }
+                    return new Version(fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart, fvi.FilePrivatePart);
+            }
+
+            return null;
+        }
+
+        private static bool CheckBodyTrackingRuntimeVersion(string bodyTrackingRuntimePath, [NotNullWhen(returnValue: false)] out string? message)
+        {
+            var version = GetBodyTrackingRuntimeVersion(bodyTrackingRuntimePath);
+            // NB! Ignore Build part: we assume back compatibility withing one and the same major and minor versions
+            if (version != null
+                && version.Major == BODY_TRACKING_EXPECTED_VERSION_MAJOR
+                && version.Minor == BODY_TRACKING_EXPECTED_VERSION_MINOR)
+            {
+                message = null;
+                return true;
             }
 
             message = $"Version {BODY_TRACKING_EXPECTED_VERSION_MAJOR}.{BODY_TRACKING_EXPECTED_VERSION_MINOR}.x of Body Tracking runtime is expected.";
@@ -314,6 +385,16 @@ namespace K4AdotNet
             const string BODY_TRACKING_SDK_BIN_PATH = @"Azure Kinect Body Tracking SDK\tools";
 
             message = null;
+
+            // Try bodyTrackingRuntimePath if specified
+            lock (bodyTrackingRuntimeInitializationSync)
+            {
+                if (!string.IsNullOrEmpty(bodyTrackingRuntimePath) && ProbePathForBodyTrackingRuntime(bodyTrackingRuntimePath))
+                {
+                    path = bodyTrackingRuntimePath;
+                    return true;
+                }
+            }
 
             // Try current directory
             var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
@@ -384,7 +465,7 @@ namespace K4AdotNet
 
         private static bool IsCudnnAvailableForBodyTracking(string bodyTrackingRuntimePath, [NotNullWhen(returnValue: false)] out string? message)
         {
-            if (ProbePathForBodyTrackingRuntime(bodyTrackingRuntimePath))
+            if (ProbePathForCudnn(bodyTrackingRuntimePath))
             {
                 message = null;
                 return true;
@@ -472,6 +553,7 @@ namespace K4AdotNet
             [NotNullWhen(returnValue: false)] out string? message)
         {
             string runtimePath;
+            bool alreadyInitialized;
 
             lock (bodyTrackingRuntimeInitializationSync)
             {
@@ -482,32 +564,37 @@ namespace K4AdotNet
                         trackerHandle = default;
                         return false;
                     }
-
-                    // Append directory with Body Tracking Runtime to PATH environment variable
-                    const string PATH_ENV_NAME = "PATH";
-                    var pathEnvVar = Environment.GetEnvironmentVariable(PATH_ENV_NAME, EnvironmentVariableTarget.Process);
-                    if ((";" + pathEnvVar + ";").IndexOf(";" + bodyTrackingRuntimePath + ";", StringComparison.OrdinalIgnoreCase) < 0)
-                    {
-                        if (!string.IsNullOrWhiteSpace(pathEnvVar) && !pathEnvVar.TrimEnd().EndsWith(";", StringComparison.OrdinalIgnoreCase))
-                            pathEnvVar += ";";
-                        pathEnvVar += bodyTrackingRuntimePath;
-                        Environment.SetEnvironmentVariable(PATH_ENV_NAME, pathEnvVar, EnvironmentVariableTarget.Process);
-                    }
                 }
 
                 runtimePath = bodyTrackingRuntimePath;
+                alreadyInitialized = bodyTrackingRuntimeInitialized;
             }
 
-            if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
+            if (!alreadyInitialized)
             {
-                trackerHandle = default;
-                return false;
-            }
+                // Check version of Body tracking runtime
+                if (!CheckBodyTrackingRuntimeVersion(bodyTrackingRuntimePath, out message))
+                {
+                    trackerHandle = default;
+                    return false;
+                }
 
-            // Force loading of k4a.dll,
-            // because k4abt.dll depends on it
-            var tmp = new Sensor.Capture();
-            tmp.Dispose();
+                // Force loading of k4a.dll,
+                // because k4abt.dll depends on it
+                var tmp = new Sensor.Capture();
+                tmp.Dispose();
+
+                // Append directory with Body Tracking Runtime to PATH environment variable
+                const string PATH_ENV_NAME = "PATH";
+                var pathEnvVar = Environment.GetEnvironmentVariable(PATH_ENV_NAME, EnvironmentVariableTarget.Process);
+                if ((";" + pathEnvVar + ";").IndexOf(";" + bodyTrackingRuntimePath + ";", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(pathEnvVar) && !pathEnvVar.TrimStart().StartsWith(";", StringComparison.OrdinalIgnoreCase))
+                        pathEnvVar = ";" + pathEnvVar;
+                    pathEnvVar = bodyTrackingRuntimePath + pathEnvVar;
+                    Environment.SetEnvironmentVariable(PATH_ENV_NAME, pathEnvVar, EnvironmentVariableTarget.Process);
+                }
+            }
 
             // Default tracking model
             if (string.IsNullOrEmpty(config.ModelPath))
@@ -521,9 +608,11 @@ namespace K4AdotNet
                     config.ModelPath = fullPath;
             }
 
+            // Try to create body tracker instance
             if (BodyTracking.NativeApi.TrackerCreate(in calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
                 || !trackerHandle.IsValid)
             {
+                // Why we failed?
                 if (IsBodyTrackingRuntimeAvailable(out message))
                 {
                     message = File.Exists(config.ModelPath) && Helpers.IsAsciiCompatible(config.ModelPath)
@@ -533,10 +622,17 @@ namespace K4AdotNet
                 return false;
             }
 
+            // Set the flag that body tracking already initialized
+            lock (bodyTrackingRuntimeInitializationSync)
+            {
+                bodyTrackingRuntimeInitialized = true;
+            }
+
             message = null;
             return true;
         }
 
+        private static volatile bool bodyTrackingRuntimeInitialized;
         private static string? bodyTrackingRuntimePath;
         private static readonly object bodyTrackingRuntimeInitializationSync = new();
 
