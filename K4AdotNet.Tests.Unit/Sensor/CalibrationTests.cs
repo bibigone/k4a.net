@@ -268,7 +268,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             depthImage.Dispose();
         }
 
-#endregion
+        #endregion
 
         #region Transform tests
 

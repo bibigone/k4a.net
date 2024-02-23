@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 #define WRAPPER_VERSION_MAJOR 1
-#define WRAPPER_VERSION_MINOR 8
+#define WRAPPER_VERSION_MINOR 9
 #define WRAPPER_VERSION_PATCH 1
 
 /**
@@ -32,6 +32,34 @@ extern "C" {
  *
  * @{
  */
+
+/** create depthengine helper
+ *
+ * \remarks This API is currently mainly used to initialize depthengine, This function only needs to be called when on the Linux platform
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4a.h (include k4a/k4a.h)</requirement>
+ *   <requirement name="Library">k4a.lib</requirement>
+ *   <requirement name="DLL">k4a.dll</requirement>
+ * </requirements>
+ * \endxmlonly
+*/
+K4A_EXPORT k4a_result_t k4a_depth_engine_helper_create(k4a_depthengine_t* handle);
+
+/** release depthengine helper
+ *
+ * \remarks This API is currently mainly used to release depthengine
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4a.h (include k4a/k4a.h)</requirement>
+ *   <requirement name="Library">k4a.lib</requirement>
+ *   <requirement name="DLL">k4a.dll</requirement>
+ * </requirements>
+ * \endxmlonly
+*/
+K4A_EXPORT void k4a_depth_engine_helper_release(k4a_depthengine_t handle);
 
 /** Gets the number of connected devices
  *

@@ -56,6 +56,14 @@ namespace K4AdotNet.NativeHandles
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_close", CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeviceClose(DeviceHandle deviceHandle);
 
+#if ORBBECSDK_K4A_WRAPPER
+        // K4A_EXPORT void k4a_depth_engine_helper_release(k4a_depthengine_t handle);
+        /// <summary>This API is currently mainly used to release depthengine (OrbbecSDK-K4A-Wrapper only)</summary>
+        /// <param name="depthEngineHandle">Handle of depthengine</param>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_depth_engine_helper_release", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DepthEngineHelperRelease(DepthEngineHandle depthEngineHandle);
+#endif
+
         #endregion
 
         #region k4abt.h

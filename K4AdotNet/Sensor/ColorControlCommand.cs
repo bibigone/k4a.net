@@ -14,7 +14,8 @@ namespace K4AdotNet.Sensor
     //      K4A_COLOR_CONTROL_WHITEBALANCE,
     //      K4A_COLOR_CONTROL_BACKLIGHT_COMPENSATION,
     //      K4A_COLOR_CONTROL_GAIN,
-    //      K4A_COLOR_CONTROL_POWERLINE_FREQUENCY
+    //      K4A_COLOR_CONTROL_POWERLINE_FREQUENCY,
+    //      K4A_COLOR_CONTROL_HDR  // OrbbecSDK-K4A-Wrapper only
     // } k4a_color_control_command_t;
     //
     /// <summary>Color sensor control commands.</summary>
@@ -98,5 +99,16 @@ namespace K4AdotNet.Sensor
         /// Value of <c>1</c> sets the powerline compensation to 50 Hz. Value of <c>2</c> sets the powerline compensation to 60 Hz.
         /// </remarks>
         PowerlineFrequency,
+
+#if ORBBECSDK_K4A_WRAPPER
+        /// <summary>HDR setting (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <remarks><para>
+        /// May only be set to <see cref="ColorControlMode.Manual"/>.
+        /// Must stop color camera before setting HDR mode.
+        /// </para><para>
+        /// Value of 0 means HDR is disabled. Value of 1 means HDR is enabled.
+        /// </para></remarks>
+        Hdr,
+#endif
     }
 }

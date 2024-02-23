@@ -65,6 +65,34 @@ extern "C" {
  */
 K4A_DECLARE_HANDLE(k4a_device_t);
 
+/**
+ * \defgroup csdk C Reference
+ *
+ */
+/**
+ * \defgroup Handles Handles
+ * \ingroup csdk
+ * Handles represent object instances.
+ *
+ * Handles are opaque pointers returned by the SDK which represent an object.
+ *
+ * @{
+ */
+
+/** \class k4a_depthengine_t k4a.h <k4a/k4a.h>
+ * Handle to an depthengine instance.
+ *
+ * \remarks
+ * Handles are created with k4a_depth_engine_helper_create(k4a_depthengine_t* handle) and closed with k4a_depth_engine_helper_release(). Invalid handles are set to 0.
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4atypes.h (include k4a/k4a.h)</requirement>
+ * </requirements>
+ * \endxmlonly
+ */
+K4A_DECLARE_HANDLE(k4a_depthengine_t);
+
 /** \class k4a_capture_t k4a.h <k4a/k4a.h>
  * Handle to an Azure Kinect capture.
  *
@@ -605,7 +633,18 @@ typedef enum
      * \details
      * Value of 1 sets the powerline compensation to 50 Hz. Value of 2 sets the powerline compensation to 60 Hz.
      */
-    K4A_COLOR_CONTROL_POWERLINE_FREQUENCY
+    K4A_COLOR_CONTROL_POWERLINE_FREQUENCY,
+
+    /** HDR setting.
+     *
+     * \details
+     * May only be set to ::K4A_COLOR_CONTROL_MODE_MANUAL.
+     * Must stop color camera before setting HDR mode.
+     *
+     * \details
+     * Value of 0 means HDR is disabled. Value of 1 means HDR is enabled.
+     */
+    K4A_COLOR_CONTROL_HDR,
 } k4a_color_control_command_t;
 
 /** Color sensor control mode

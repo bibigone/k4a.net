@@ -1130,5 +1130,15 @@ namespace K4AdotNet.Sensor
                 NativeHandles.ImageHandle depthImage,
                 CalibrationGeometry camera,
                 NativeHandles.ImageHandle xyzImage);
+
+#if ORBBECSDK_K4A_WRAPPER
+        // K4A_EXPORT k4a_result_t k4a_depth_engine_helper_create(k4a_depthengine_t* handle);
+        /// <summary>Create depthengine helper (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <param name="depthEngineHandle"></param>
+        /// <returns></returns>
+        /// <remarks>This API is currently mainly used to initialize depthengine, This function only needs to be called when on the Linux platform</remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_depth_engine_helper_create", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result DepthEngineHelperCreate(out NativeHandles.DepthEngineHandle depthEngineHandle);
+#endif
     }
 }

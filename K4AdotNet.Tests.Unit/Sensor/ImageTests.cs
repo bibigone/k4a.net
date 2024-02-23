@@ -33,6 +33,9 @@ namespace K4AdotNet.Tests.Unit.Sensor
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorBgra32);
 
         [TestMethod]
+#if ORBBECSDK_K4A_WRAPPER
+        [Ignore("OrbbecSDK-K4A-Wrapper does not support stride and size calculation for NV12 format")]
+#endif
         public void TestColorNV12ImageCreation()
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorNV12);
 
@@ -260,7 +263,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 // Check SystemTimestamp property
                 Assert.AreEqual(Nanoseconds64.Zero, image.SystemTimestamp);
                 image.SystemTimestamp = testSystemTimestamp;
+#if !ORBBECSDK_K4A_WRAPPER
                 Assert.AreEqual(testSystemTimestamp, image.SystemTimestamp);
+#else
+                Assert.AreEqual(testSystemTimestamp.ValueNsec / 1_000_000L, image.SystemTimestamp.ValueNsec / 1_000_000L);
+#endif
 
 #if !ORBBECSDK_K4A_WRAPPER
                 // Check WhiteBalance property
@@ -393,6 +400,9 @@ namespace K4AdotNet.Tests.Unit.Sensor
         #region Test image size calculations
 
         [TestMethod]
+#if ORBBECSDK_K4A_WRAPPER
+        [Ignore("OrbbecSDK-K4A-Wrapper does not support stride and size calculation for NV12 format")]
+#endif
         public void TestImageSizeCalculationNV12()
         {
             using (var image = new Image(ImageFormat.ColorNV12, 1280, 720))
