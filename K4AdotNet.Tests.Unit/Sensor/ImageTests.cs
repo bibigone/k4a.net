@@ -491,7 +491,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             // Set our test custom allocator
             var testAllocator = new TestMemoryAllocator();
-            Sdk.SetCustomMemoryAllocator(testAllocator);
+            Sdk.CustomMemoryAllocator = testAllocator;
             // Check initial state
             Assert.AreEqual(0, testAllocator.AllocateCount);
             Assert.AreEqual(0, testAllocator.FreeCount);
@@ -526,7 +526,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(testContextA, testAllocator.LastFreeContextValue);
 
             // Clear custom allocator
-            Sdk.SetCustomMemoryAllocator(null);
+            Sdk.CustomMemoryAllocator = null;
 
             // Now creation of test image does not result in calls to our testAllocator instance
             var testImageC = new Image(ImageFormat.ColorYUY2, testWidth, testHeight);

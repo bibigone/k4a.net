@@ -107,13 +107,22 @@ namespace K4AdotNet.Sensor
             if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
 
-            var buffer = Marshal.AllocHGlobal(sizeBytes);
+            // Gets current memory allocator
+            Sdk.GetCustomMemoryAllocator(out var memoryAllocator, out var memoryDestroyCallback);
+            // If not set, use HGlobal
+            if (memoryAllocator is null || memoryDestroyCallback is null)
+            {
+                memoryAllocator = HGlobalMemoryAllocator.Instance;
+                memoryDestroyCallback = HGlobalMemoryAllocator.MemoryDestroyCallback;
+            }
+
+            var buffer = memoryAllocator.Allocate(sizeBytes, out var memoryContext);
             if (buffer == IntPtr.Zero)
                 throw new OutOfMemoryException($"Cannot allocate buffer of {sizeBytes} bytes.");
 
             var res = NativeApi.ImageCreateFromBuffer(format, widthPixels, heightPixels, strideBytes,
                 buffer, Helpers.Int32ToUIntPtr(sizeBytes),
-                unmanagedBufferReleaseCallback, IntPtr.Zero,
+                memoryDestroyCallback, memoryContext,
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
@@ -641,13 +650,6 @@ namespace K4AdotNet.Sensor
 #endregion
 
         #region Memory management
-
-        // This field is required to keep callback delegate in memory
-        private static readonly NativeApi.MemoryDestroyCallback unmanagedBufferReleaseCallback
-            = new(ReleaseUnmanagedBuffer);
-
-        private static void ReleaseUnmanagedBuffer(IntPtr buffer, IntPtr context)
-            => Marshal.FreeHGlobal(buffer);
 
         // This field is required to keep callback delegate in memory
         private static readonly NativeApi.MemoryDestroyCallback pinnedArrayReleaseCallback

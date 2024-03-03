@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -158,45 +157,77 @@ namespace K4AdotNet
 
         #region Custom memory allocation
 
+        private static volatile ICustomMemoryAllocator? customMemoryAllocator;
+        private static readonly object customMemoryAllocatorSync = new object();
         // to keep callbacks alive
-        private static readonly ConcurrentBag<Sensor.NativeApi.MemoryAllocateCallback> allocateCallbacks = new();
-        private static readonly ConcurrentBag<Sensor.NativeApi.MemoryDestroyCallback> destroyCallbacks = new();
+        private static readonly LinkedList<Sensor.NativeApi.MemoryAllocateCallback> allocateCallbacks = new();
+        private static readonly LinkedList<Sensor.NativeApi.MemoryDestroyCallback> destroyCallbacks = new();
 
         /// <summary>
         /// Sets or clears custom memory allocator to be use by internals of Azure Kinect SDK.
         /// </summary>
-        /// <param name="allocator">
-        /// Instance of <see cref="ICustomMemoryAllocator"/> to allocate and free memory in internals of Azure Kinect SDK
-        /// or <see langword="null"/> to "clear" custom memory allocator (that is, to switch to standard built-in SDK's allocator).
-        /// </param>
         /// <exception cref="InvalidOperationException">Setting or clearing of custom memory allocator was failed. See log for details.</exception>
-        /// <remarks>
-        /// All instances of <paramref name="allocator"/> will be keeping alive forever because they can be used
+        /// <remarks><para>
+        /// Assigning <see langword="null"/> means the clearing of custom memory allocator (that is, to switch to standard built-in SDK's allocator).
+        /// </para><para>
+        /// All instances of <see cref="ICustomMemoryAllocator"/> will be keeping alive forever because they can be used
         /// to free memory even after setting custom allocator to <see langword="null"/>.
-        /// </remarks>
+        /// </para></remarks>
 #if ORBBECSDK_K4A_WRAPPER
         [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
 #endif
-        public static void SetCustomMemoryAllocator(ICustomMemoryAllocator? allocator)
+        public static ICustomMemoryAllocator? CustomMemoryAllocator
         {
-            if (allocator is null)
+            get => customMemoryAllocator;
+
+            set
             {
-                var res = Sensor.NativeApi.SetAllocator(null, null);
-                if (res != NativeCallResults.Result.Succeeded)
-                    throw new InvalidOperationException("Cannot clear custom memory allocator");
-                return;
+                lock (customMemoryAllocatorSync)
+                {
+                    if (customMemoryAllocator == value)
+                        return;
+
+                    if (value is null)
+                    {
+                        var res = Sensor.NativeApi.SetAllocator(null, null);
+                        if (res != NativeCallResults.Result.Succeeded)
+                            throw new InvalidOperationException("Cannot clear custom memory allocator");
+                        customMemoryAllocator = null;
+                        return;
+                    }
+
+                    var allocateCallback = new Sensor.NativeApi.MemoryAllocateCallback(value.Allocate);
+                    var destroyCallback = new Sensor.NativeApi.MemoryDestroyCallback(value.Free);
+
+                    // to keep callbacks alive
+                    allocateCallbacks.AddFirst(allocateCallback);
+                    destroyCallbacks.AddFirst(destroyCallback);
+
+                    var rs = Sensor.NativeApi.SetAllocator(allocateCallback, destroyCallback);
+                    if (rs != NativeCallResults.Result.Succeeded)
+                    {
+                        allocateCallbacks.RemoveFirst();
+                        destroyCallbacks.RemoveFirst();
+                        throw new InvalidOperationException("Cannot set custom memory allocator");
+                    }
+
+                    customMemoryAllocator = value;
+                }
             }
+        }
 
-            var allocateCallback = new Sensor.NativeApi.MemoryAllocateCallback(allocator.Allocate);
-            var destroyCallback = new Sensor.NativeApi.MemoryDestroyCallback(allocator.Free);
-
-            // to keep callbacks alive
-            allocateCallbacks.Add(allocateCallback);
-            destroyCallbacks.Add(destroyCallback);
-
-            var rs = Sensor.NativeApi.SetAllocator(allocateCallback, destroyCallback);
-            if (rs != NativeCallResults.Result.Succeeded)
-                throw new InvalidOperationException("Cannot set custom memory allocator");
+        /// <summary>Gets information about current memory allocator in use. For internal needs.</summary>
+        /// <param name="memoryAllocator">Instance of memory allocator.</param>
+        /// <param name="memoryDestroyCallback">Reference to native callback to destroy memory.</param>
+        internal static void GetCustomMemoryAllocator(
+            out ICustomMemoryAllocator? memoryAllocator,
+            out Sensor.NativeApi.MemoryDestroyCallback? memoryDestroyCallback)
+        {
+            lock (customMemoryAllocatorSync)
+            {
+                memoryAllocator = customMemoryAllocator;
+                memoryDestroyCallback = destroyCallbacks.FirstOrDefault();
+            }
         }
 
         #endregion

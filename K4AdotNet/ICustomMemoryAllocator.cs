@@ -5,7 +5,7 @@ namespace K4AdotNet
     /// <summary>
     /// Base interface for custom memory manager that can be used to allocate and free memory used by images.
     /// </summary>
-    /// <seealso cref="Sdk.SetCustomMemoryAllocator(ICustomMemoryAllocator?)"/>
+    /// <seealso cref="Sdk.CustomMemoryAllocator"/>
     public interface ICustomMemoryAllocator
     {
         /// <summary>Function for a memory allocation. Will be called by internals of Azure Kinect SDK.</summary>
