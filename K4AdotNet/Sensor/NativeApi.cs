@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
@@ -1132,6 +1131,7 @@ namespace K4AdotNet.Sensor
                 NativeHandles.ImageHandle xyzImage);
 
 #if ORBBECSDK_K4A_WRAPPER
+
         // K4A_EXPORT k4a_result_t k4a_depth_engine_helper_create(k4a_depthengine_t* handle);
         /// <summary>Create depthengine helper (OrbbecSDK-K4A-Wrapper only).</summary>
         /// <param name="depthEngineHandle"></param>
@@ -1139,6 +1139,41 @@ namespace K4AdotNet.Sensor
         /// <remarks>This API is currently mainly used to initialize depthengine, This function only needs to be called when on the Linux platform</remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_depth_engine_helper_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result DepthEngineHelperCreate(out NativeHandles.DepthEngineHandle depthEngineHandle);
+
+        // K4A_EXPORT k4a_wired_sync_mode_t k4a_device_get_wired_sync_mode(k4a_device_t device);
+        /// <summary>get device sync mode (OrbbecSDK-K4A-Wrapper only)</summary>
+        /// <param name="device">Device handle</param>
+        /// <returns>Current sync mode</returns>
+        /// <remarks>
+        /// This API is currently mainly used to get device sync mode.
+        /// The device synchronization mode will change according to the mode configured in the start_cameras function.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_get_wired_sync_mode", CallingConvention = CallingConvention.Cdecl)]
+        public static extern WiredSyncMode DeviceGetWiredSyncMode(NativeHandles.DeviceHandle device);
+
+        // K4A_EXPORT k4a_result_t k4a_device_enable_soft_filter(k4a_device_t device_handle, bool enable);
+        /// <summary>enable/disable soft filter for depth camera (OrbbecSDK-K4A-Wrapper only)</summary>
+        /// <param name="deviceHandle">Device handle</param>
+        /// <param name="enable">Device software filtering switch</param>
+        /// <returns></returns>
+        /// <remarks>This API is used to set filtering.</remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_enable_soft_filter", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result DeviceEnableSoftFilter(NativeHandles.DeviceHandle deviceHandle, byte enable);
+
+        // K4A_EXPORT k4a_result_t k4a_device_switch_device_clock_sync_mode(k4a_device_t device_handle, k4a_device_clock_sync_mode_t timestamp_mode, uint32_t param);
+        /// <summary>switch device clock sync mode (OrbbecSDK-K4A-Wrapper only)</summary>
+        /// <param name="deviceHandle">Device handle</param>
+        /// <param name="timestampMode">Device clock synchronization mode</param>
+        /// <param name="param">
+        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Reset"/>: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
+        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Sync"/>: The interval for auto-repeated synchronization, in microseconds. If the value is 0, synchronization is performed only once.
+        /// </param>
+        /// <remarks>
+        /// This API is used for device clock synchronization mode switching.
+        /// </remarks>
+        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_switch_device_clock_sync_mode", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NativeCallResults.Result DeviceSwitchDeviceClockSyncMode(NativeHandles.DeviceHandle deviceHandle, DeviceClockSyncMode timestampMode, uint param);
+
 #endif
     }
 }

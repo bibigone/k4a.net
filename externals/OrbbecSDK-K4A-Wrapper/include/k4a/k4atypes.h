@@ -234,6 +234,20 @@ K4A_DECLARE_HANDLE(k4a_transformation_t);
  * @{
  */
 
+/** Device clock synchronization mode type.
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4atypes.h (include k4a/k4a.h)</requirement>
+ * </requirements>
+ * \endxmlonly
+ */
+typedef enum
+{
+    K4A_DEVICE_CLOCK_SYNC_MODE_RESET = 0,  /**< device clock sync mode is reset */
+    K4A_DEVICE_CLOCK_SYNC_MODE_SYNC        /**< device clock sync mode is asynchronous timinng */
+} k4a_device_clock_sync_mode_t;
+
 /** Result code returned by Azure Kinect APIs.
  *
  * \xmlonly

@@ -1523,6 +1523,26 @@ public:
     {
         return k4a_device_get_installed_count();
     }
+    /**
+     * @brief switch the device clock sync mode object
+     *
+     * \sa k4a_device_switch_device_clock_sync_mode
+     */
+    void switch_device_clock_sync_mode(k4a_device_clock_sync_mode_t timestamp_mode, int param){
+        k4a_result_t result =  k4a_device_switch_device_clock_sync_mode(m_handle, timestamp_mode, param);
+        if (K4A_RESULT_SUCCEEDED != result)
+        {
+            throw error("Failed to switch device clock sync mode!");
+        }
+    }
+
+    void set_soft_filter(bool filter_switch){
+        k4a_device_enable_soft_filter(m_handle, filter_switch);
+    }
+
+    k4a_wired_sync_mode_t get_wired_sync_mode(){
+        return k4a_device_get_wired_sync_mode(m_handle);
+    }
 
 private:
     k4a_device_t m_handle;

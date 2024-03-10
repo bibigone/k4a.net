@@ -22,7 +22,7 @@ extern "C" {
 
 #define WRAPPER_VERSION_MAJOR 1
 #define WRAPPER_VERSION_MINOR 9
-#define WRAPPER_VERSION_PATCH 1
+#define WRAPPER_VERSION_PATCH 2
 
 /**
  * \defgroup Functions Functions
@@ -32,6 +32,66 @@ extern "C" {
  *
  * @{
  */
+
+/** get device sync mode
+ *
+ * \remarks This API is currently mainly used to get device sync mode
+ *
+ * \remarks The device synchronization mode will change according to the mode configured in the start_cameras function
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4a.h (include k4a/k4a.h)</requirement>
+ *   <requirement name="Library">k4a.lib</requirement>
+ *   <requirement name="DLL">k4a.dll</requirement>
+ * </requirements>
+ * \endxmlonly
+*/
+K4A_EXPORT k4a_wired_sync_mode_t k4a_device_get_wired_sync_mode(k4a_device_t device);
+
+/** enable/disable soft filter for depth camera
+ *
+ * \param device_handle
+ * Output parameter which on success will return a handle to the device.
+ *
+ * \param enable
+ * Device software filtering switch
+ *
+ * \remarks This API is used to set filtering.
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4a.h (include k4a/k4a.h)</requirement>
+ *   <requirement name="Library">k4a.lib</requirement>
+ *   <requirement name="DLL">k4a.dll</requirement>
+ * </requirements>
+ * \endxmlonly
+*/
+K4A_EXPORT k4a_result_t k4a_device_enable_soft_filter(k4a_device_t device_handle, bool enable);
+
+/** switch device clock sync mode
+ *
+ * \param device_handle
+ * Output parameter which on success will return a handle to the device.
+ *
+ * \param timestamp_mode
+ * Device clock synchronization mode
+ *
+ * \param param
+ * If timestamp_mode is K4A_DEVICE_CLOCK_SYNC_MODE_RESET: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
+ * If timestamp_mode is K4A_DEVICE_CLOCK_SYNC_MODE_SYNC: The interval for auto-repeated synchronization, in microseconds. If the value is 0, synchronization is performed only once.
+ *
+ * \remarks This API is used for device clock synchronization mode switching.
+ *
+ * \xmlonly
+ * <requirements>
+ *   <requirement name="Header">k4a.h (include k4a/k4a.h)</requirement>
+ *   <requirement name="Library">k4a.lib</requirement>
+ *   <requirement name="DLL">k4a.dll</requirement>
+ * </requirements>
+ * \endxmlonly
+*/
+K4A_EXPORT k4a_result_t k4a_device_switch_device_clock_sync_mode(k4a_device_t device_handle, k4a_device_clock_sync_mode_t timestamp_mode, uint32_t param);
 
 /** create depthengine helper
  *

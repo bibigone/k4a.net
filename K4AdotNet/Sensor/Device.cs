@@ -395,9 +395,49 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Convenient string representation of object.</summary>
-        /// <returns><c>Azure Kinect #{SerialNumber}</c></returns>
+        /// <returns><c>Azure Kinect #{SerialNumber}</c> or <c>"Orbbec Femto #{SerialNumber}</c>.</returns>
         public override string ToString()
+#if ORBBECSDK_K4A_WRAPPER
+            => "Orbbec Femto #" + SerialNumber;
+#else
             => "Azure Kinect #" + SerialNumber;
+#endif
+
+#if ORBBECSDK_K4A_WRAPPER
+        /// <summary>Switches device clock sync mode (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <param name="timestampMode">Device clock synchronization mode</param>
+        /// <param name="interval">
+        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Reset"/>: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
+        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Sync"/>: The interval for auto-repeated synchronization, in microseconds. If the value is <see cref="Microseconds32.Zero"/>, synchronization is performed only once.
+        /// </param>
+        /// <remarks>
+        /// This API is used for device clock synchronization mode switching.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="interval"/> cannot be negative.</exception>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        /// <exception cref="DeviceConnectionLostException">Connection with the device has been lost.</exception>
+        public void SwitchDeviceClockSyncMode(DeviceClockSyncMode timestampMode, Microseconds32 interval)
+        {
+            if (interval.ValueUsec < 0)
+                throw new ArgumentOutOfRangeException(nameof(interval));
+            CheckResult(NativeApi.DeviceSwitchDeviceClockSyncMode(handle.ValueNotDisposed, timestampMode, (uint)interval.ValueUsec));
+        }
+
+        /// <summary>Enables/disables soft filter for depth camera (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <param name="filterSwitch">Device software filtering switch: <see langword="true"/> - enable software filtering; <see langword="false"/> - disable software filtering.</param>
+        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
+        /// <exception cref="DeviceConnectionLostException">Connection with the device has been lost.</exception>
+        public void SetSoftFilter(bool filterSwitch)
+            => CheckResult(NativeApi.DeviceEnableSoftFilter(handle.ValueNotDisposed, filterSwitch ? (byte)1 : (byte)0));
+
+        /// <summary>Gets device sync mode (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <remarks>The device synchronization mode will change according to the mode configured in the <see cref="StartCameras(DeviceConfiguration)"/> method.</remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed object.</exception>
+        /// <seealso cref="DeviceConfiguration.WiredSyncMode"/>
+        /// <seealso cref="StartCameras(DeviceConfiguration)"/>
+        public WiredSyncMode WiredSyncMode
+            => NativeApi.DeviceGetWiredSyncMode(handle.ValueNotDisposed);
+#endif
 
         private void CheckResult(NativeCallResults.Result result, string? invalidOperationMessage = null)
         {
