@@ -50,8 +50,7 @@ namespace K4AdotNet.Sensor
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
         /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
         /// <remarks>
-        /// Don't use this method to create image with unknown/unspecified stride (like <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>).
-        /// For such formats, size of image in bytes must be specified to create image: <see cref="Image(ImageFormat, int, int, int, int)"/>.
+        /// This version of image construction should be preferred in case of OrbbecSDK-K4A-Wrapper usage.
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -87,6 +86,10 @@ namespace K4AdotNet.Sensor
         /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
         /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
         /// <param name="sizeBytes">Size of image buffer in size. Non negative. Cannot be less than size calculated from image parameters.</param>
+        /// <remarks>
+        /// This version of image construction allocates memory buffer via <see cref="Sdk.CustomMemoryAllocator"/>
+        /// or <see cref="HGlobalMemoryAllocator"/> if not set.
+        /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
         /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
@@ -106,6 +109,23 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
             if (strideBytes > 0 && sizeBytes < format.ImageSizeBytes(strideBytes, heightPixels))
                 throw new ArgumentOutOfRangeException(nameof(sizeBytes));
+
+#if ORBBECSDK_K4A_WRAPPER
+            // OrbbecSDK K4A Wrapper has limited support of image creation from provided memory buffer.
+            // For this reason, trying to use "standard" image creation, if possible.
+            if (strideBytes == 0 && sizeBytes % heightPixels == 0)
+                strideBytes = sizeBytes / heightPixels;
+            if (strideBytes > 0 && strideBytes * heightPixels == sizeBytes)
+            {
+                var result = NativeApi.ImageCreate(format, widthPixels, heightPixels, strideBytes, out var imageHandle);
+                if (result == NativeCallResults.Result.Succeeded && !imageHandle.IsValid)
+                {
+                    this.handle = imageHandle;
+                    this.handle.Disposed += Handle_Disposed;
+                    return;
+                }
+            }
+#endif
 
             // Gets current memory allocator
             Sdk.GetCustomMemoryAllocator(out var memoryAllocator, out var memoryDestroyCallback);
@@ -144,6 +164,8 @@ namespace K4AdotNet.Sensor
         /// For other formats use <see cref="CreateFromArray{T}(T[], ImageFormat, int, int, int)"/>.
         /// </para><para>
         /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
+        /// </para><para>
+        /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -166,6 +188,8 @@ namespace K4AdotNet.Sensor
         /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>        /// <returns>Created image. Not <see langword="null"/>.</returns>
         /// <remarks><para>
         /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
+        /// </para><para>
+        /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -197,7 +221,14 @@ namespace K4AdotNet.Sensor
                 pinnedArrayReleaseCallback, (IntPtr)bufferPin,
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
+            {
+                bufferPin.Free();
+#if ORBBECSDK_K4A_WRAPPER
+                throw new NotSupportedException("OrbbecSDK-K4A-Wrapper has limited support of this functionality. Please, prefer image creation via constructors.");
+#else
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from buffer of size {sizeBytes} bytes.");
+#endif
+            }
 
             return Create(handle)!;
         }
@@ -273,14 +304,21 @@ namespace K4AdotNet.Sensor
                 pinnedMemoryReleaseCallback, PinnedMemoryContext.Create(memoryOwner, memoryPin),
                 out var handle);
             if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
+            {
+                memoryPin.Dispose();
+#if ORBBECSDK_K4A_WRAPPER
+                throw new NotSupportedException("OrbbecSDK-K4A-Wrapper has limited support of this functionality. Please, prefer image creation via constructors.");
+#else
                 throw new ArgumentException($"Cannot create image with format {format}, size {widthPixels}x{heightPixels} pixels, stride {strideBytes} bytes from memory of size {sizeBytes} bytes.");
+#endif
+            }
 
             return Create(handle)!;
         }
 
 #endif
 
-        private void Handle_Disposed(object? sender, EventArgs e)
+                private void Handle_Disposed(object? sender, EventArgs e)
         {
             handle.Disposed -= Handle_Disposed;
             Disposed?.Invoke(this, EventArgs.Empty);
