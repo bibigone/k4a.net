@@ -77,9 +77,6 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(format, image.Format);
             Assert.AreEqual(testWidth, image.WidthPixels);
             Assert.AreEqual(testHeight, image.HeightPixels);
-#if !ORBBECSDK_K4A_WRAPPER
-            Assert.AreEqual(stride, image.StrideBytes);
-#endif
             Assert.AreEqual(expectedSize, image.SizeBytes);
         }
 
@@ -442,7 +439,6 @@ namespace K4AdotNet.Tests.Unit.Sensor
             }
         }
 
-#if !ORBBECSDK_K4A_WRAPPER
         [TestMethod]
         public void TestImageSizeCalculationCustom()
         {
@@ -452,7 +448,6 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Custom.ImageSizeBytes(image.StrideBytes, 720));
             }
         }
-#endif
 
 #endregion
 

@@ -814,7 +814,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float3 targetPoint3DMm,
-            out byte valid);
+            out int valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_3d_to_2d(const k4a_calibration_t *calibration,
         //                                                  const k4a_float3_t *source_point3d_mm,
@@ -857,7 +857,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float2 targetPoint2D,
-            out byte valid);
+            out int valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_2d_to_2d(const k4a_calibration_t *calibration,
         //                                                  const k4a_float2_t *source_point2d,
@@ -892,8 +892,8 @@ namespace K4AdotNet.Sensor
         /// </returns>
         /// <remarks>
         /// This function maps a pixel between the coordinate systems of the depth and color cameras. It is equivalent to calling
-        /// <see cref="Calibration2DTo3D(in Calibration, in Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out byte)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
-        /// <see cref="Calibration3DTo2D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out byte)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
+        /// <see cref="Calibration2DTo3D(in Calibration, in Float2, float, CalibrationGeometry, CalibrationGeometry, out Float3, out int)"/> to compute the 3D point corresponding to <paramref name="sourcePoint2D"/> and then using
+        /// <see cref="Calibration3DTo2D(in Calibration, in Float3, CalibrationGeometry, CalibrationGeometry, out Float2, out int)"/> to map the 3D point into the coordinate system of the <paramref name="targetCamera"/>.
         /// 
         /// If <paramref name="sourceCamera"/> and <paramref name="targetCamera"/> are identical, the function immediately sets <paramref name="targetPoint2D"/> to
         /// <paramref name="sourcePoint2D"/> and returns without computing any transformations.
@@ -910,7 +910,7 @@ namespace K4AdotNet.Sensor
             CalibrationGeometry sourceCamera,
             CalibrationGeometry targetCamera,
             out Float2 targetPoint2D,
-            out byte valid);
+            out int valid);
 
         // K4A_EXPORT k4a_result_t k4a_calibration_color_2d_to_depth_2d(const k4a_calibration_t* calibration,
         //                                                     const k4a_float2_t* source_point2d,
@@ -950,7 +950,7 @@ namespace K4AdotNet.Sensor
             in Float2 sourcePoint2D,
             NativeHandles.ImageHandle depthImage,
             out Float2 targetPoint2D,
-            out byte valid);
+            out int valid);
 
         // K4A_EXPORT k4a_transformation_t k4a_transformation_create(const k4a_calibration_t *calibration);
         /// <summary>Get handle to transformation.</summary>
@@ -1168,9 +1168,13 @@ namespace K4AdotNet.Sensor
         /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Reset"/>: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
         /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Sync"/>: The interval for auto-repeated synchronization, in microseconds. If the value is 0, synchronization is performed only once.
         /// </param>
-        /// <remarks>
+        /// <remarks><para>
         /// This API is used for device clock synchronization mode switching.
-        /// </remarks>
+        /// </para><para>
+        /// It is necessary to ensure that the mode switching of all devices is completed before any device start_cameras.
+        /// </para><para>
+        /// It is necessary to ensure that the master and slave devices are configured in the same mode.
+        /// </para></remarks>
         [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_device_switch_device_clock_sync_mode", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result DeviceSwitchDeviceClockSyncMode(NativeHandles.DeviceHandle deviceHandle, DeviceClockSyncMode timestampMode, uint param);
 

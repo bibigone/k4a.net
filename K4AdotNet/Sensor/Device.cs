@@ -410,9 +410,13 @@ namespace K4AdotNet.Sensor
         /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Reset"/>: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
         /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Sync"/>: The interval for auto-repeated synchronization, in microseconds. If the value is <see cref="Microseconds32.Zero"/>, synchronization is performed only once.
         /// </param>
-        /// <remarks>
+        /// <remarks><para>
         /// This API is used for device clock synchronization mode switching.
-        /// </remarks>
+        /// </para><para>
+        /// It is necessary to ensure that the mode switching of all devices is completed before any device start_cameras.
+        /// </para><para>
+        /// It is necessary to ensure that the master and slave devices are configured in the same mode.
+        /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="interval"/> cannot be negative.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with the device has been lost.</exception>

@@ -22,7 +22,7 @@ extern "C" {
 
 #define WRAPPER_VERSION_MAJOR 1
 #define WRAPPER_VERSION_MINOR 9
-#define WRAPPER_VERSION_PATCH 2
+#define WRAPPER_VERSION_PATCH 3
 
 /**
  * \defgroup Functions Functions
@@ -82,6 +82,10 @@ K4A_EXPORT k4a_result_t k4a_device_enable_soft_filter(k4a_device_t device_handle
  * If timestamp_mode is K4A_DEVICE_CLOCK_SYNC_MODE_SYNC: The interval for auto-repeated synchronization, in microseconds. If the value is 0, synchronization is performed only once.
  *
  * \remarks This API is used for device clock synchronization mode switching.
+ *
+ * \remarks It is necessary to ensure that the mode switching of all devices is completed before any device start_cameras.
+ *
+ * \remarks It is necessary to ensure that the master and slave devices are configured in the same mode.
  *
  * \xmlonly
  * <requirements>
