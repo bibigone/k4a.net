@@ -4,13 +4,16 @@ namespace K4AdotNet.BodyTracking
 {
     /// <summary>Azure Kinect body tracking frame.</summary>
     public sealed class BodyFrame
-        : IDisposablePlus, IReferenceDuplicatable<BodyFrame>, IEquatable<BodyFrame>
+        : SdkObject, IDisposablePlus, IReferenceDuplicatable<BodyFrame>, IEquatable<BodyFrame>
     {
+        private readonly NativeApi api;
         private readonly ChildrenDisposer children = new();                                    // to track returned Image objects
         private readonly NativeHandles.HandleWrapper<NativeHandles.BodyFrameHandle> handle;    // this class is an wrapper around this handle
 
-        private BodyFrame(NativeHandles.BodyFrameHandle handle)
+        private BodyFrame(NativeHandles.BodyFrameHandle handle, bool isOrbbec)
+            : base(isOrbbec)
         {
+            api = NativeApi.GetInstance(IsOrbbec);
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
         }
@@ -53,7 +56,7 @@ namespace K4AdotNet.BodyTracking
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         /// <seealso cref="Dispose"/>
         public BodyFrame DuplicateReference()
-            => new(handle.ValueNotDisposed.DuplicateReference());
+            => new(handle.ValueNotDisposed.DuplicateReference(), IsOrbbec);
 
         /// <summary>Gets the body frame's device timestamp.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
@@ -89,7 +92,7 @@ namespace K4AdotNet.BodyTracking
         /// use <see cref="Sensor.Capture.DuplicateReference"/> method.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Sensor.Capture Capture => children.Register(Sensor.Capture.Create(NativeApi.FrameGetCapture(handle.ValueNotDisposed)))!;
+        public Sensor.Capture Capture => children.Register(Sensor.Capture.Create(api.FrameGetCapture(handle.ValueNotDisposed)))!;
 
         /// <summary>Non-a-body value on index body map.</summary>
         /// <seealso cref="BodyIndexMap"/>
@@ -115,7 +118,7 @@ namespace K4AdotNet.BodyTracking
         /// use <see cref="Sensor.Image.DuplicateReference"/> method.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Sensor.Image BodyIndexMap => children.Register(Sensor.Image.Create(NativeApi.FrameGetBodyIndexMap(handle.ValueNotDisposed)))!;
+        public Sensor.Image BodyIndexMap => children.Register(Sensor.Image.Create(api.FrameGetBodyIndexMap(handle.ValueNotDisposed)))!;
 
         /// <summary>Gets the joint information for a particular person index.</summary>
         /// <param name="bodyIndex">Zero-based index of a tracked body. Must me positive number. Must be less than <see cref="BodyCount"/>.</param>
@@ -144,8 +147,8 @@ namespace K4AdotNet.BodyTracking
             return NativeApi.FrameGetBodyId(handle.ValueNotDisposed, (uint)bodyIndex);
         }
 
-        internal static BodyFrame? Create(NativeHandles.BodyFrameHandle bodyFrameHandle)
-            => bodyFrameHandle.IsValid ? new(bodyFrameHandle) : null;
+        internal static BodyFrame? Create(NativeHandles.BodyFrameHandle? bodyFrameHandle, bool isOrbbec)
+            => bodyFrameHandle is not null && !bodyFrameHandle.IsInvalid ? new(bodyFrameHandle, isOrbbec) : null;
 
         #region Equatable
 

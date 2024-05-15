@@ -11,7 +11,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             var config = DeviceConfiguration.DisableAll;
 
-            Assert.IsTrue(config.IsValid(out var message));
+            Assert.IsTrue(config.IsValid(false, out var message));
             Assert.IsNull(message);
         }
 
@@ -27,7 +27,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 WiredSyncMode = WiredSyncMode.Standalone,
             };
 
-            Assert.IsTrue(config.IsValid(out var message));
+            Assert.IsTrue(config.IsValid(false, out var message));
             Assert.IsNull(message);
         }
 
@@ -43,7 +43,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 WiredSyncMode = WiredSyncMode.Standalone,
             };
 
-            Assert.IsFalse(config.IsValid(out var message));
+            Assert.IsFalse(config.IsValid(false, out var message));
             Assert.IsNotNull(message);
 
 #if !ORBBECSDK_K4A_WRAPPER
@@ -56,7 +56,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 WiredSyncMode = WiredSyncMode.Standalone,
             };
 
-            Assert.IsFalse(config.IsValid(out message));
+            Assert.IsFalse(config.IsValid(false, out message));
             Assert.IsNotNull(message);
 #endif
 
@@ -69,7 +69,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 WiredSyncMode = WiredSyncMode.Standalone,
             };
 
-            Assert.IsFalse(config.IsValid(out message));
+            Assert.IsFalse(config.IsValid(false, out message));
             Assert.IsNotNull(message);
 
             config = new DeviceConfiguration
@@ -81,7 +81,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 WiredSyncMode = WiredSyncMode.Standalone,
             };
 
-            Assert.IsFalse(config.IsValid(out message));
+            Assert.IsFalse(config.IsValid(false,out message));
             Assert.IsNotNull(message);
         }
     }

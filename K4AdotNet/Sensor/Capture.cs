@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace K4AdotNet.Sensor
 {
@@ -18,24 +19,22 @@ namespace K4AdotNet.Sensor
     /// </para></remarks>
     /// <seealso cref="Device.GetCapture"/>
     /// <seealso cref="Device.TryGetCapture(out Capture, Timeout)"/>
-    public sealed class Capture
-        : IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
+    public abstract partial class Capture
+        : SdkObject, IDisposablePlus, IReferenceDuplicatable<Capture>, IEquatable<Capture>
     {
         private readonly ChildrenDisposer children = new();                                 // to track returned Image objects
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
 
         /// <summary>Creates an empty capture object.</summary>
-        /// <exception cref="InvalidOperationException">
-        /// Sensor SDK fails to create empty capture object for some reason. For details see logs.
-        /// </exception>
-        public Capture()
-        {
-            var res = NativeApi.CaptureCreate(out var handle);
-            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
-                throw new InvalidOperationException("Failed to create blank capture instance");
-            this.handle = handle;
-            this.handle.Disposed += Handle_Disposed;
-        }
+        public static Capture Create()
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Both => throw new InvalidOperationException($"In {nameof(ComboMode)}.{nameof(ComboMode.Both)} this method cannot be used. Use constructors of {nameof(Capture)}.{nameof(Azure)} or {nameof(Capture)}.{nameof(Capture)} classes."),
+                ComboMode.Azure => new Azure(),
+                ComboMode.Orbbec => new Orbbec(),
+                _ => throw new NotSupportedException(),
+            };
 
         private void Handle_Disposed(object? sender, EventArgs e)
         {
@@ -44,13 +43,19 @@ namespace K4AdotNet.Sensor
         }
 
         private Capture(NativeHandles.CaptureHandle handle)
+            : base(handle.IsOrbbec)
         {
+            api = NativeApi.GetInstance(IsOrbbec);
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
         }
 
-        internal static Capture? Create(NativeHandles.CaptureHandle handle)
-            => handle.IsValid ? new(handle) : null;
+        internal static Capture? Create(NativeHandles.CaptureHandle? handle)
+        {
+            if (handle is null || handle.IsInvalid)
+                return null;
+            return handle.IsOrbbec ? new Orbbec(handle) : new Azure(handle);
+        }
 
         /// <summary>
         /// Call this method to free unmanaged resources associated with current instance.
@@ -83,8 +88,7 @@ namespace K4AdotNet.Sensor
         /// <remarks>It helps to manage underlying object lifetime and to access capture from different threads and different components of application.</remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed objects.</exception>
         /// <seealso cref="Dispose"/>
-        public Capture DuplicateReference()
-            => new(handle.ValueNotDisposed.DuplicateReference());
+        public abstract Capture DuplicateReference();
 
         /// <summary>Get and set the color image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have color data.</summary>
         /// <remarks><para>
@@ -110,8 +114,16 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Image? ColorImage
         {
-            get => children.Register(Image.Create(NativeApi.CaptureGetColorImage(handle.ValueNotDisposed)));
-            set => NativeApi.CaptureSetColorImage(handle.ValueNotDisposed, Image.ToHandle(value));
+            get => children.Register(Image.Create(api.CaptureGetColorImage(handle.ValueNotDisposed)));
+
+            set
+            {
+                if (value is not null && value.IsOrbbec != IsOrbbec)
+                    throw new ArgumentException($"{Helpers.GetImplementationName(value.IsOrbbec)} image cannot be used for {Helpers.GetImplementationName(IsOrbbec)} capture.");
+                var imageHandle = Image.ToHandle(value) ??
+                    (IsOrbbec ? NativeHandles.ImageHandle.Orbbec.Zero : NativeHandles.ImageHandle.Azure.Zero);
+                api.CaptureSetColorImage(handle.ValueNotDisposed, imageHandle);
+            }
         }
 
         /// <summary>Get and set the depth map associated with the given capture. Can be <see langword="null"/> if the capture doesn't have depth data.</summary>
@@ -138,8 +150,15 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Image? DepthImage
         {
-            get => children.Register(Image.Create(NativeApi.CaptureGetDepthImage(handle.ValueNotDisposed)));
-            set => NativeApi.CaptureSetDepthImage(handle.ValueNotDisposed, Image.ToHandle(value));
+            get => children.Register(Image.Create(api.CaptureGetDepthImage(handle.ValueNotDisposed)));
+            set
+            {
+                if (value is not null && value.IsOrbbec != IsOrbbec)
+                    throw new ArgumentException($"{Helpers.GetImplementationName(value.IsOrbbec)} image cannot be used for {Helpers.GetImplementationName(IsOrbbec)} capture.");
+                var imageHandle = Image.ToHandle(value) ??
+                    (IsOrbbec ? NativeHandles.ImageHandle.Orbbec.Zero : NativeHandles.ImageHandle.Azure.Zero);
+                api.CaptureSetDepthImage(handle.ValueNotDisposed, imageHandle);
+            }
         }
 
         /// <summary>Get and set the IR (infrared) image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have IR data.</summary>
@@ -166,30 +185,22 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
         public Image? IRImage
         {
-            get => children.Register(Image.Create(NativeApi.CaptureGetIRImage(handle.ValueNotDisposed)));
-            set => NativeApi.CaptureSetIRImage(handle.ValueNotDisposed, Image.ToHandle(value));
-        }
-
-        /// <summary>Get and set the temperature associated with the capture, in Celsius.</summary>
-        /// <remarks>
-        /// This function returns the temperature of the device at the time of the capture in Celsius. If
-        /// the temperature is unavailable, the function will return <see cref="float.NaN"/>.
-        /// </remarks>
-        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
-        public float TemperatureC
-        {
-            get => NativeApi.CaptureGetTemperatureC(handle.ValueNotDisposed);
-            set => NativeApi.CaptureSetTemperatureC(handle.ValueNotDisposed, value);
+            get => children.Register(Image.Create(api.CaptureGetIRImage(handle.ValueNotDisposed)));
+            set
+            {
+                if (value is not null && value.IsOrbbec != IsOrbbec)
+                    throw new ArgumentException($"{Helpers.GetImplementationName(value.IsOrbbec)} image cannot be used for {Helpers.GetImplementationName(IsOrbbec)} capture.");
+                var imageHandle = Image.ToHandle(value) ??
+                    (IsOrbbec ? NativeHandles.ImageHandle.Orbbec.Zero : NativeHandles.ImageHandle.Azure.Zero);
+                api.CaptureSetIRImage(handle.ValueNotDisposed, imageHandle);
+            }
         }
 
         /// <summary>Extracts handle from <paramref name="capture"/>.</summary>
-        /// <param name="capture">Managed object. Can be <see langword="null"/>.</param>
-        /// <returns>Appropriate unmanaged handle. Can be <see cref="IntPtr.Zero"/>.</returns>
-        internal static NativeHandles.CaptureHandle ToHandle(Capture? capture)
-            => capture?.handle?.ValueNotDisposed ?? default;
+        /// <param name="capture">Managed object. Not <see langword="null"/>.</param>
+        /// <returns>Appropriate unmanaged handle. Not <see langword="null"/>.</returns>
+        internal static NativeHandles.CaptureHandle ToHandle(Capture capture)
+            => capture.handle.ValueNotDisposed;
 
         #region Equatable
 
@@ -233,5 +244,13 @@ namespace K4AdotNet.Sensor
         /// <returns><c>{HandleTypeName}#{Address}</c></returns>
         public override string ToString()
             => handle.ToString();
+
+        internal static NativeHandles.CaptureHandle CreateCaptureHandle(NativeApi api)
+        {
+            var res = api.CaptureCreate(out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle is null || handle.IsInvalid)
+                throw new InvalidOperationException("Failed to create blank capture instance");
+            return handle;
+        }
     }
 }

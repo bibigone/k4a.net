@@ -8,32 +8,65 @@ namespace K4AdotNet.NativeHandles
     //
     /// <summary>Handle to an Azure Kinect image.</summary>
     /// <remarks>Images from a device are retrieved through a <c>k4a_capture_t</c> object returned by <c>k4a_device_get_capture()</c>.</remarks>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct ImageHandle : INativeHandle
+    internal abstract class ImageHandle : HandleBase, IReferenceDuplicatable<ImageHandle>
     {
-        private readonly IntPtr value;
+        private ImageHandle() { }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
+        /// <inheritdoc cref="IReferenceDuplicatable{ImageHandle}.DuplicateReference"/>
+        public abstract ImageHandle DuplicateReference();
 
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
+        public abstract bool IsOrbbec { get; }
 
-        /// <summary>Call this method if you want to have one more reference to the same image.</summary>
-        /// <remarks>Returns the same handle.</remarks>
-        public ImageHandle DuplicateReference()
+        public class Azure : ImageHandle
         {
-            if (!IsValid)
-                throw new InvalidOperationException("Invalid handle");
-            NativeApi.ImageReference(this);
-            return this;
+            public static readonly Azure Zero = new() { handle = IntPtr.Zero };
+
+            private Azure() { }
+
+            /// <inheritdoc cref="IReferenceDuplicatable{ImageHandle}.DuplicateReference"/>
+            public override ImageHandle DuplicateReference()
+            {
+                if (IsInvalid)
+                    throw new InvalidOperationException("Invalid handle");
+                NativeApi.Azure.ImageReference(this);
+                return new Azure() { handle = handle };
+            }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.ImageRelease(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => false;
         }
 
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Orbbec : ImageHandle
         {
-            if (IsValid)
-                NativeApi.ImageRelease(this);
+            public static readonly Orbbec Zero = new() { handle = IntPtr.Zero };
+
+            private Orbbec() { }
+
+            /// <inheritdoc cref="IReferenceDuplicatable{ImageHandle}.DuplicateReference"/>
+            public override ImageHandle DuplicateReference()
+            {
+                if (IsInvalid)
+                    throw new InvalidOperationException("Invalid handle");
+                NativeApi.Orbbec.ImageReference(this);
+                return new Orbbec() { handle = handle };
+            }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.ImageRelease(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => true;
         }
     }
 }

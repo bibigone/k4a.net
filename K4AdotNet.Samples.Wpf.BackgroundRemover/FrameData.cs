@@ -40,7 +40,9 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
                 try
                 {
                     ImageConverters.DecodeMjpegToBgra(colorFrame, bgraBuffer);
-                    var res = new Image(ImageFormat.ColorBgra32, colorFrame.WidthPixels, colorFrame.HeightPixels);
+                    var res = colorFrame is Image.Azure
+                        ? (Image)new Image.Azure(ImageFormat.ColorBgra32, colorFrame.WidthPixels, colorFrame.HeightPixels)
+                        : new Image.Orbbec(ImageFormat.ColorBgra32, colorFrame.WidthPixels, colorFrame.HeightPixels);
                     res.FillFrom(bgraBuffer);
                     return res;
                 }

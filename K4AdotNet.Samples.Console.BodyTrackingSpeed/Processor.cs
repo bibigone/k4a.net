@@ -24,13 +24,13 @@ namespace K4AdotNet.Samples.Console.BodyTrackingSpeed
             playback = new(processingParameters.MkvPath!);
             playback.GetRecordConfiguration(out recordConfig);
             RecordLength = playback.RecordLength;
-            playback.GetCalibration(out calibration);
+            calibration = playback.GetCalibration();
             if (processingParameters.StartTime.HasValue)
                 Seek(processingParameters.StartTime.Value);
             var config = BodyTracking.TrackerConfiguration.Default;
             config.ProcessingMode = processingParameters.ProcessingMode;
             config.ModelPath = GetModelPath(processingParameters.DnnModel);
-            tracker = new(in calibration, config);
+            tracker = new(in calibration.Data, config);
         }
 
         private static string GetModelPath(DnnModel dnnModel)

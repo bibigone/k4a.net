@@ -11,11 +11,15 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
 
         public BodyIndexMapTransformation(in Calibration calibration)
         {
-            transformation = new(in calibration);
+            transformation = calibration.CreateTransformation();
             var colorWidth = calibration.ColorResolution.WidthPixels();
             var colorHeight = calibration.ColorResolution.HeightPixels();
-            transformedDepthMap = new(ImageFormat.Depth16, colorWidth, colorHeight);
-            transformedBodyIndexMap = new(ImageFormat.Custom8, colorWidth, colorHeight, strideBytes: colorWidth, sizeBytes: colorWidth * colorHeight);
+            transformedDepthMap = calibration.IsOrbbec
+                ? new Image.Orbbec(ImageFormat.Depth16, colorWidth, colorHeight)
+                : new Image.Azure(ImageFormat.Depth16, colorWidth, colorHeight);
+            transformedBodyIndexMap = calibration.IsOrbbec
+                ? new Image.Orbbec(ImageFormat.Custom8, colorWidth, colorHeight, strideBytes: colorWidth, sizeBytes: colorWidth * colorHeight)
+                : new Image.Azure(ImageFormat.Custom8, colorWidth, colorHeight, strideBytes: colorWidth, sizeBytes: colorWidth * colorHeight);
         }
 
         public void Dispose()

@@ -16,7 +16,7 @@ namespace K4AdotNet.Record
     //      int32_t depth_delay_off_color_usec;
     //      k4a_wired_sync_mode_t wired_sync_mode;
     //      uint32_t subordinate_delay_off_master_usec;
-    //      uint32_t start_timestamp_offset_usec;
+    //      uint64_t start_timestamp_offset_usec;
     // } k4a_record_configuration_t;
     //
     /// <summary>Structure containing the device configuration used to record.</summary>
@@ -70,10 +70,6 @@ namespace K4AdotNet.Record
         /// The timestamp offset of the start of the recording. All recorded timestamps are offset by this value such that
         /// the recording starts at timestamp <see cref="Microseconds32.Zero"/>. This value can be used to synchronize timestamps between two recording files.
         /// </summary>
-#if ORBBECSDK_K4A_WRAPPER
         public Microseconds64 StartTimeOffset;
-#else
-        public Microseconds32 StartTimeOffset;
-#endif
     }
 }

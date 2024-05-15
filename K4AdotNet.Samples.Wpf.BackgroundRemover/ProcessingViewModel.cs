@@ -22,12 +22,12 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         {
             this.readingLoop = readingLoop ?? throw new ArgumentNullException(nameof(readingLoop));
 
-            readingLoop.GetCalibration(out var calibration);
+            var calibration = readingLoop.GetCalibration();
             transformation = calibration.CreateTransformation();
 
             var frameWidth = readingLoop.ColorResolution.WidthPixels();
             var frameHeight = readingLoop.ColorResolution.HeightPixels();
-            depthImage = new(ImageFormat.Depth16, frameWidth, frameHeight);
+            depthImage = new Image.Azure(ImageFormat.Depth16, frameWidth, frameHeight);
             bitmap = dispatcher.Invoke(new Func<WriteableBitmap>(
                 () => new(frameWidth, frameHeight, 96, 96, PixelFormats.Bgra32, null)));
 

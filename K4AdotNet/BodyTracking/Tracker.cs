@@ -13,8 +13,9 @@ namespace K4AdotNet.BodyTracking
     /// Use <see cref="TryPopResult(out BodyFrame, Timeout)"/> to extract processed capture and body data from pipeline.
     /// </para></remarks>
     /// <seealso cref="BodyFrame"/>
-    public sealed class Tracker : IDisposablePlus
+    public sealed class Tracker : SdkObject, IDisposablePlus
     {
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.TrackerHandle> handle;   // this class is an wrapper around this handle
         private volatile int queueSize;                                                     // captures in queue
         private volatile bool isDisposed;
@@ -47,12 +48,15 @@ namespace K4AdotNet.BodyTracking
         /// </exception>
         /// <seealso cref="Sdk.IsBodyTrackingRuntimeAvailable(out string)"/>
         /// <seealso cref="Sdk.TryInitializeBodyTrackingRuntime(TrackerProcessingMode, out string)"/>
-        public Tracker(in Calibration calibration, TrackerConfiguration config)
+        public Tracker(in CalibrationData calibration, TrackerConfiguration config)
+            : base(Sdk.DetermineDefaultImplIsOrbbec())
         {
             if (!calibration.DepthMode.HasDepth())
                 throw new ArgumentOutOfRangeException(nameof(calibration) + "." + nameof(calibration.DepthMode));
             if (!string.IsNullOrWhiteSpace(config.ModelPath) && (config.ModelPath.IndexOfAny(Path.GetInvalidPathChars()) >= 0 || !Helpers.IsAsciiCompatible(config.ModelPath)))
                 throw new ArgumentException($"Path \"{config.ModelPath}\" contains invalid/unsupported characters.", nameof(config) + "." + nameof(config.ModelPath));
+
+            api = NativeApi.GetInstance(IsOrbbec);
 
             DepthMode = calibration.DepthMode;
 
@@ -177,6 +181,9 @@ namespace K4AdotNet.BodyTracking
             if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
 
+            if (capture.IsOrbbec != IsOrbbec)
+                throw new ArgumentException($"{Helpers.GetImplementationName(capture.IsOrbbec)} capture cannot be enqueued. {Helpers.GetImplementationName(IsOrbbec)} capture is expected.", nameof(capture));
+
             if (isDisposed)
                 throw new ObjectDisposedException(nameof(Tracker));
 
@@ -288,7 +295,7 @@ namespace K4AdotNet.BodyTracking
                 // to throw ObjectDisposedException() if failure is a result of disposing
                 if (isDisposed)
                     throw new ObjectDisposedException(nameof(Tracker));
-                handle.CheckNotDisposed(); 
+                handle.CheckNotDisposed();
 
                 throw new BodyTrackingException("Cannot extract tracking result from body tracking pipeline. See logs for details.");
             }
@@ -296,7 +303,7 @@ namespace K4AdotNet.BodyTracking
             Interlocked.Decrement(ref queueSize);
             QueueSizeDecreased?.Invoke(this, EventArgs.Empty);
 
-            bodyFrame = BodyFrame.Create(bodyFrameHandle);
+            bodyFrame = BodyFrame.Create(bodyFrameHandle, IsOrbbec);
             return bodyFrame != null;
         }
 

@@ -133,10 +133,21 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         private FrameRate frameRate = FrameRate.Thirty;
 
         public bool IsOpenDeviceEnabled
-            => (ColorResolution != ColorResolution.Off || DepthMode != DepthMode.Off)
-            && ColorResolution.IsCompatibleWith(FrameRate)
-            && DepthMode.IsCompatibleWith(FrameRate)
-            && DeviceIndex >= 0 && DeviceIndex < DeviceIndicies.Count;
+        {
+            get
+            {
+                var isOrbbec = false;
+                if (Sdk.ComboMode == ComboMode.Orbbec)
+                    isOrbbec = true;
+                else if (Sdk.ComboMode == ComboMode.Both && DeviceIndex >= Device.Azure.InstalledCount)
+                    isOrbbec = true;
+
+                return (ColorResolution != ColorResolution.Off || DepthMode != DepthMode.Off)
+                    && ColorResolution.IsCompatibleWith(FrameRate, isOrbbec)
+                    && DepthMode.IsCompatibleWith(FrameRate)
+                    && DeviceIndex >= 0 && DeviceIndex < DeviceIndicies.Count;
+            }
+        }
 
         public void OpenDevice()
         {

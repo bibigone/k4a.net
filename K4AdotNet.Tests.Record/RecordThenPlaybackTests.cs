@@ -10,6 +10,13 @@ namespace K4AdotNet.Tests.Record
     [TestClass]
     public class RecordThenPlaybackTests
     {
+        [AssemblyInitialize]
+        public static void GlobalInit(TestContext _)
+        {
+            // Sdk.Init(ComboMode.Orbbec);
+            Sdk.Init(ComboMode.Azure);
+        }
+
         [TestMethod]
         public void TestBasicScenario()
         {
@@ -650,7 +657,7 @@ namespace K4AdotNet.Tests.Record
 
         private static Capture CreateTestCapture(DeviceConfiguration config, Microseconds64 colorTimestamp)
         {
-            var capture = new Capture();
+            var capture = Capture.Create();
             using (var image = CreateTestColorImage(config, colorTimestamp))
                 capture.ColorImage = image;
             using (var image = CreateTestIRImage(config, colorTimestamp))

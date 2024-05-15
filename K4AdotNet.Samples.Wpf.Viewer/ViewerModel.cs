@@ -52,9 +52,11 @@ namespace K4AdotNet.Samples.Wpf.Viewer
 
                 if (depthMode.HasDepth())
                 {
-                    readingLoop.GetCalibration(out var calibration);
+                    var calibration = readingLoop.GetCalibration();
                     transformation = calibration.CreateTransformation();
-                    depthOverColorImage = new(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
+                    depthOverColorImage = calibration.IsOrbbec
+                        ? new Image.Orbbec(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels())
+                        : new Image.Azure(ImageFormat.Depth16, colorRes.WidthPixels(), colorRes.HeightPixels());
                     depthOverColorImageVisualizer = ImageVisualizer.CreateForDepth(dispatcher, colorRes.WidthPixels(), colorRes.HeightPixels());
                 }
 
@@ -104,15 +106,18 @@ namespace K4AdotNet.Samples.Wpf.Viewer
                 var was = depthImageVisualizer?.Update(depthImage);
                 UpdateFpsIfNeeded(was, depthFps, nameof(DepthFps));
 
-                if (depthImage != null && transformation != null && depthOverColorImage != null && depthOverColorImageVisualizer != null)
+                if (depthImage != null && transformation != null)
                 {
-                    // Object can be disposed from different thread
-                    // As a result depthOverColorImage may be disposed while we're working with it
-                    // To protect from such scenario, keep reference to it
-                    using (var depthOverColorImageRef = depthOverColorImage.DuplicateReference())
+                    if (depthOverColorImage != null && depthOverColorImageVisualizer != null)
                     {
-                        transformation.DepthImageToColorCamera(depthImage, depthOverColorImageRef);
-                        depthOverColorImageVisualizer?.Update(depthOverColorImageRef);
+                        // Object can be disposed from different thread
+                        // As a result depthOverColorImage may be disposed while we're working with it
+                        // To protect from such scenario, keep reference to it
+                        using (var depthOverColorImageRef = depthOverColorImage.DuplicateReference())
+                        {
+                            transformation.DepthImageToColorCamera(depthImage, depthOverColorImageRef);
+                            depthOverColorImageVisualizer?.Update(depthOverColorImageRef);
+                        }
                     }
                 }
             }

@@ -4,13 +4,18 @@ using System.Runtime.InteropServices;
 namespace K4AdotNet.BodyTracking
 {
     /// <summary>DLL imports for most of native functions from <c>k4abt.h</c> header file.</summary>
-    internal static class NativeApi
+    internal abstract partial class NativeApi
     {
         public const int MAX_TRACKING_QUEUE_SIZE = 3;
 
         // #define K4ABT_DEFAULT_TRACKER_SMOOTHING_FACTOR 0.0f
         /// <summary>The default tracker temporal smoothing factor.</summary>
         public const float DEFAULT_TRACKER_SMOOTHING_FACTOR = 0.0f;
+
+        public static NativeApi GetInstance(bool isOrbbec)
+            => isOrbbec ? Orbbec.Instance : Azure.Instance;
+
+        public abstract bool IsOrbbec { get; }
 
         // K4ABT_EXPORT k4a_result_t k4abt_tracker_create(const k4a_calibration_t* sensor_calibration,
         //                                                k4abt_tracker_configuration_t config,
@@ -22,13 +27,13 @@ namespace K4AdotNet.BodyTracking
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if the body tracker handle was created successfully.</returns>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_create", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.Result TrackerCreate(
-            in Sensor.Calibration sensorCalibration,
+            in Sensor.CalibrationData sensorCalibration,
             TrackerConfiguration config,
-            out NativeHandles.TrackerHandle trackerHandle);
+            out NativeHandles.TrackerHandle? trackerHandle);
 
         // K4ABT_EXPORT void k4abt_tracker_set_temporal_smoothing(k4abt_tracker_t tracker_handle, float smoothing_factor);
         /// <summary>Control the temporal smoothing across frames.</summary>
-        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
+        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.CalibrationData, TrackerConfiguration, out NativeHandles.TrackerHandle?)"/>.</param>
         /// <param name="smoothingFactor">
         /// Set between 0 for no smoothing and 1 for full smoothing.
         /// Less smoothing will increase the responsiveness of the
@@ -44,9 +49,9 @@ namespace K4AdotNet.BodyTracking
         //                                                              k4a_capture_t sensor_capture_handle,
         //                                                              int32_t timeout_in_ms);
         /// <summary>Add a Azure Kinect sensor capture to the tracker input queue to generate its body tracking result asynchronously.</summary>
-        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.Calibration, TrackerConfiguration, out NativeHandles.TrackerHandle)"/>.</param>
+        /// <param name="trackerHandle">Handle obtained by <see cref="TrackerCreate(in Sensor.CalibrationData, TrackerConfiguration, out NativeHandles.TrackerHandle?)"/>.</param>
         /// <param name="sensorCaptureHandle">
-        /// Handle to a sensor capture returned by <see cref="Sensor.NativeApi.CaptureCreate(out NativeHandles.CaptureHandle)"/> from Sensor SDK.
+        /// Handle to a sensor capture returned by <see cref="Sensor.NativeApi.CaptureCreate(out NativeHandles.CaptureHandle?)"/> from Sensor SDK.
         /// It should contain the depth data for this function to work. Otherwise the function will return failure.
         /// </param>
         /// <param name="timeout">
@@ -62,7 +67,7 @@ namespace K4AdotNet.BodyTracking
         /// <remarks>
         /// Add a Azure Kinect capture to the tracker input queue so that it can be processed asynchronously to generate the body tracking
         /// result. The processed results will be added to an output queue maintained by <see cref="NativeHandles.TrackerHandle"/> instance. Call
-        /// <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> to get the result and pop it from the output queue.
+        /// <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> to get the result and pop it from the output queue.
         /// If the input queue or output queue is full, this function will block up until the timeout is reached.
         /// 
         /// Upon successfully insert a sensor capture to the input queue this function will return success.
@@ -105,7 +110,7 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_pop_result", CallingConvention = CallingConvention.Cdecl)]
         public static extern NativeCallResults.WaitResult TrackerPopResult(
             NativeHandles.TrackerHandle trackerHandle,
-            out NativeHandles.BodyFrameHandle bodyFrameHandle,
+            out NativeHandles.BodyFrameHandle? bodyFrameHandle,
             Timeout timeout);
 
         //  K4ABT_EXPORT void k4abt_tracker_shutdown(k4abt_tracker_t tracker_handle);
@@ -114,8 +119,8 @@ namespace K4AdotNet.BodyTracking
         /// <remarks>
         /// Once the tracker is shutdown, <see cref="TrackerEnqueueCapture(NativeHandles.TrackerHandle, NativeHandles.CaptureHandle, Timeout)"/> API will always immediately return failure.
         ///
-        /// If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> can
-        /// still return successfully. Once the tracker queue is empty, the <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> call will always immediately
+        /// If there are remaining captures in the tracker queue after the tracker is shutdown, <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> can
+        /// still return successfully. Once the tracker queue is empty, the <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> call will always immediately
         /// return failure.
         /// </remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_tracker_shutdown", CallingConvention = CallingConvention.Cdecl)]
@@ -123,7 +128,7 @@ namespace K4AdotNet.BodyTracking
 
         // K4ABT_EXPORT uint32_t k4abt_frame_get_num_bodies(k4abt_frame_t body_frame_handle);
         /// <summary>Get the number of people from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <returns>Returns the number of detected bodies. 0 if the function fails.</returns>
         /// <remarks>Called when the user has received a body frame handle and wants to access the data contained in it.</remarks>
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_num_bodies", CallingConvention = CallingConvention.Cdecl)]
@@ -131,7 +136,7 @@ namespace K4AdotNet.BodyTracking
 
         // K4ABT_EXPORT k4a_result_t k4abt_frame_get_body_skeleton(k4abt_frame_t body_frame_handle, uint32_t index, k4abt_skeleton_t* skeleton);
         /// <summary>Get the joint information for a particular person index from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <param name="index">The index of the body of which the joint information is queried.</param>
         /// <param name="skeleton">If successful this contains the body skeleton information.</param>
         /// <returns><see cref="NativeCallResults.Result.Succeeded"/> if a valid body skeleton is returned. All failures will return <see cref="NativeCallResults.Result.Failed"/>.</returns>
@@ -144,7 +149,7 @@ namespace K4AdotNet.BodyTracking
 
         // K4ABT_EXPORT uint32_t k4abt_frame_get_body_id(k4abt_frame_t body_frame_handle, uint32_t index);
         /// <summary>Get the body id for a particular person index from the <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <param name="index">The index of the body of which the body id information is queried.</param>
         /// <returns>Returns the body id. All failures will return <see cref="BodyId.Invalid"/>.</returns>
         /// <remarks>
@@ -157,7 +162,7 @@ namespace K4AdotNet.BodyTracking
 
         // K4ABT_EXPORT uint64_t k4abt_frame_get_device_timestamp_usec(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body frame's device timestamp.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <returns>
         /// Returns the device timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return <see cref="Microseconds64.Zero"/>.
         /// It is also possible for <see cref="Microseconds64.Zero"/> to be a valid timestamp originating from the beginning of a recording or the start of streaming.
@@ -167,7 +172,7 @@ namespace K4AdotNet.BodyTracking
 
         // K4ABT_EXPORT uint64_t k4abt_frame_get_system_timestamp_nsec(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body frame's system timestamp in nanoseconds.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <returns>
         /// Returns the system timestamp of the body frame. If the <paramref name="bodyFrameHandle"/> is invalid this function will return 0.
         /// It is also possible for 0 to be a valid timestamp originating from the beginning of a recording or the start of streaming.
@@ -175,9 +180,8 @@ namespace K4AdotNet.BodyTracking
         [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_system_timestamp_nsec", CallingConvention = CallingConvention.Cdecl)]
         public static extern Nanoseconds64 FrameGetSystemTimestamp(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
-        // K4ABT_EXPORT k4a_image_t k4abt_frame_get_body_index_map(k4abt_frame_t body_frame_handle);
         /// <summary>Get the body index map from <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <returns>Call this function to access the body index map image. Don't forget to call <see cref="IDisposable.Dispose"/> for returned handle after usage.</returns>
         /// <remarks>
         /// Called when the user has received a body frame handle and wants to access the data contained in it.
@@ -186,17 +190,14 @@ namespace K4AdotNet.BodyTracking
         /// depth image or the IR image. The value for each pixel represents which body the pixel belongs to. It can be either
         /// background (value <c>0xFF</c>) or the index of a detected body.
         /// </remarks>
-        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_body_index_map", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeHandles.ImageHandle FrameGetBodyIndexMap(NativeHandles.BodyFrameHandle bodyFrameHandle);
+        public abstract NativeHandles.ImageHandle? FrameGetBodyIndexMap(NativeHandles.BodyFrameHandle bodyFrameHandle);
 
-        // K4ABT_EXPORT k4a_capture_t k4abt_frame_get_capture(k4abt_frame_t body_frame_handle);
         /// <summary>Get the original capture that is used to calculate <see cref="NativeHandles.BodyFrameHandle"/>.</summary>
-        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle, Timeout)"/> function.</param>
+        /// <param name="bodyFrameHandle">Handle to a body frame object returned by <see cref="TrackerPopResult(NativeHandles.TrackerHandle, out NativeHandles.BodyFrameHandle?, Timeout)"/> function.</param>
         /// <returns>Call this function to access the original <see cref="NativeHandles.CaptureHandle"/>. Don't forget to call <see cref="IDisposable.Dispose"/> for returned handle after usage.</returns>
         /// <remarks>
         /// Called when the user has received a body frame handle and wants to access the data contained in it.
         /// </remarks>
-        [DllImport(Sdk.BODY_TRACKING_DLL_NAME, EntryPoint = "k4abt_frame_get_capture", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeHandles.CaptureHandle FrameGetCapture(NativeHandles.BodyFrameHandle bodyFrameHandle);
+        public abstract NativeHandles.CaptureHandle? FrameGetCapture(NativeHandles.BodyFrameHandle bodyFrameHandle);
     }
 }

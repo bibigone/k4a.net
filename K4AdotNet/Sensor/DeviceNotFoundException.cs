@@ -3,16 +3,17 @@ using System.Runtime.Serialization;
 
 namespace K4AdotNet.Sensor
 {
-    /// <summary>Exception: Azure Kinect device not found.</summary>
+    /// <summary>Exception: Azure Kinect or Orbbec Femto device not found.</summary>
     /// <seealso cref="Device.Open(int)"/>
     [Serializable]
     public class DeviceNotFoundException : DeviceException
     {
         /// <summary>Creates exception for device with specified index.</summary>
         /// <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="DeviceException.DeviceIndex"/> property.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for ORBBEC devices, <see langword="false"/> for AZURE Kinect devices.</param>
         /// <seealso cref="Device.DeviceIndex"/>
-        public DeviceNotFoundException(int deviceIndex)
-            : base("Azure Kinect device" + FormatDeviceIndex(deviceIndex) + " not found. Make sure that Azure Kinect device is connected and has power supply.",
+        public DeviceNotFoundException(int deviceIndex, bool? isOrbbec = null)
+            : base(Helpers.GetDeviceModelName(isOrbbec) + " device" + FormatDeviceIndex(deviceIndex) + " not found. Make sure that the device is connected and has power supply.",
                   deviceIndex)
         { }
 

@@ -7,10 +7,12 @@ namespace K4AdotNet.Record
     /// <seealso cref="PlaybackTrack"/>
     public sealed class PlaybackDataBlock : IDisposablePlus
     {
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.PlaybackDataBlockHandle> handle;     // this class is an wrapper around this handle
 
         private PlaybackDataBlock(NativeHandles.PlaybackDataBlockHandle handle)
         {
+            api = NativeApi.GetInstance(handle.IsOrbbec);
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
         }
@@ -40,18 +42,18 @@ namespace K4AdotNet.Record
         /// <summary>Gets the device timestamp of a data block in microseconds.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
         public Microseconds64 DeviceTimestamp
-            => NativeApi.PlaybackDataBlockGetDeviceTimestamp(handle.ValueNotDisposed);
+            => api.PlaybackDataBlockGetDeviceTimestamp(handle.ValueNotDisposed);
 
         /// <summary>Gets the buffer size of a data block in bytes.</summary>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
         public int SizeBytes
-            => Helpers.UIntPtrToInt32(NativeApi.PlaybackDataBlockGetBufferSize(handle.ValueNotDisposed));
+            => Helpers.UIntPtrToInt32(api.PlaybackDataBlockGetBufferSize(handle.ValueNotDisposed));
 
         /// <summary>Gets the buffer of a data block.</summary>
         /// <remarks>Use this buffer to access the data written to a custom recording track.</remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
         public IntPtr Buffer
-            => NativeApi.PlaybackDataBlockGetBuffer(handle.ValueNotDisposed);
+            => api.PlaybackDataBlockGetBuffer(handle.ValueNotDisposed);
 
         /// <summary>Copies block data from <see cref="Buffer"/> to <paramref name="dst"/> array.</summary>
         /// <param name="dst">Destination array for block data. Cannot be <see langword="null"/>. Must be long enough (see <see cref="SizeBytes"/>).</param>
@@ -133,7 +135,7 @@ namespace K4AdotNet.Record
             return dstCount;
         }
 
-        internal static PlaybackDataBlock? Create(NativeHandles.PlaybackDataBlockHandle handle)
-            => handle.IsValid ? new(handle) : null;
+        internal static PlaybackDataBlock? Create(NativeHandles.PlaybackDataBlockHandle? handle)
+            => handle is not null && !handle.IsInvalid ? new(handle) : null;
     }
 }

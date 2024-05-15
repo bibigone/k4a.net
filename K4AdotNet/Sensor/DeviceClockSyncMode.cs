@@ -1,6 +1,5 @@
 ﻿namespace K4AdotNet.Sensor
 {
-#if ORBBECSDK_K4A_WRAPPER
     // typedef enum {
     //      K4A_DEVICE_CLOCK_SYNC_MODE_RESET = 0,
     //      K4A_DEVICE_CLOCK_SYNC_MODE_SYNC
@@ -14,5 +13,4 @@
         /// <summary>device clock sync mode is asynchronous timing</summary>
         Sync,
     }
-#endif
 }

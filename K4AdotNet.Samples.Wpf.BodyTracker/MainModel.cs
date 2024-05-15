@@ -125,9 +125,24 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private FrameRate frameRate = FrameRate.Thirty;
 
         public bool IsOpenDeviceEnabled
-            => ColorResolution.IsCompatibleWith(FrameRate)
-            && DepthMode.IsCompatibleWith(FrameRate)
-            && DeviceIndex >= 0 && DeviceIndex < DeviceIndicies.Count;
+        {
+            get
+            {
+                // In ComboMode.Both mode, body tracking can be run only for Orbbec devices
+                if (Sdk.ComboMode == ComboMode.Both && DeviceIndex < Device.Azure.InstalledCount)
+                    return false;
+
+                var isOrbbec = false;
+                if (Sdk.ComboMode == ComboMode.Orbbec)
+                    isOrbbec = true;
+                else if (Sdk.ComboMode == ComboMode.Both && DeviceIndex >= Device.Azure.InstalledCount)
+                    isOrbbec = true;
+
+                return ColorResolution.IsCompatibleWith(FrameRate, isOrbbec)
+                    && DepthMode.IsCompatibleWith(FrameRate)
+                    && DeviceIndex >= 0 && DeviceIndex < DeviceIndicies.Count;
+            }
+        }
 
         public void OpenDevice()
         {

@@ -10,21 +10,8 @@ using System.Linq;
 namespace K4AdotNet
 {
     /// <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
-    public static class Sdk
+    public static partial class Sdk
     {
-        /// <summary>Is underlying level the OrbbecSDK K4A Wrapper rather than original Kinect for Azure SDK?</summary>
-        /// <remarks>
-        /// K4A.Net library can be compiled in version that supports Orbbec Femto depth sensors via Orbbec SDK K4A Wrapper.
-        /// There is no full compatibility between original Kinect for Azure SDK and OrbbecSDK-K4A-Wrapper.
-        /// To distinguish between them in client code, one can use this property.
-        /// </remarks>
-        public static bool IsOrbbecSdkK4AWrapper
-#if ORBBECSDK_K4A_WRAPPER
-            => true;
-#else
-            => false;
-#endif
-
         #region Dependencies
 
         /// <summary>Name of main library (DLL) from Azure Kinect Sensor SDK.</summary>
@@ -89,8 +76,19 @@ namespace K4AdotNet
         /// </summary>
         public static TraceLevel TraceLevel
         {
-            get => Logging.LogImpl.TraceLevel;
-            set => Logging.LogImpl.TraceLevel = value;
+            get => ComboMode switch
+            {
+                ComboMode.Orbbec => Orbbec.TraceLevel,
+                _ => Azure.TraceLevel,
+            };
+
+            set
+            {
+                if ((ComboMode & ComboMode.Azure) == ComboMode.Azure)
+                    Logging.LogImpl.Azure.TraceLevel = value;
+                if ((ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
+                    Logging.LogImpl.Orbbec.TraceLevel = value;
+            }
         }
 
         /// <summary>The Sensor SDK can log data to the console, files, or to a custom handler.</summary>
@@ -155,13 +153,62 @@ namespace K4AdotNet
 
         #endregion
 
+        #region Combo mode
+
+        private static volatile ComboMode comboMode;
+        private static readonly object initSync = new();
+
+        public static ComboMode ComboMode
+        {
+            get
+            {
+                var mode = comboMode;
+                if (mode == default)
+                    throw new InvalidOperationException($"{nameof(Sdk)}.{nameof(Init)}() method must be called first.");
+                return mode;
+            }
+        }
+
+        public static void Init(ComboMode comboMode)
+        {
+            lock (initSync)
+            {
+                if (Sdk.comboMode != default && comboMode != Sdk.comboMode)
+                    throw new InvalidOperationException($"{nameof(Sdk)}.{nameof(Init)}() method can be called only once.");
+                if ((comboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
+                    Orbbec.Init();
+                if ((comboMode & ComboMode.Azure) == ComboMode.Azure)
+                    Azure.Init();
+                Sdk.comboMode = comboMode;
+            }
+        }
+
+        internal static bool DetermineDefaultImplIsOrbbec()
+            => ComboMode != ComboMode.Azure;
+
+        #endregion
+
         #region Custom memory allocation
 
         private static volatile ICustomMemoryAllocator? customMemoryAllocator;
-        private static readonly object customMemoryAllocatorSync = new object();
+        private static readonly object customMemoryAllocatorSync = new();
         // to keep callbacks alive
         private static readonly LinkedList<Sensor.NativeApi.MemoryAllocateCallback> allocateCallbacks = new();
         private static readonly LinkedList<Sensor.NativeApi.MemoryDestroyCallback> destroyCallbacks = new();
+
+        /// <summary>Gets information about current memory allocator in use. For internal needs.</summary>
+        /// <param name="memoryAllocator">Instance of memory allocator.</param>
+        /// <param name="memoryDestroyCallback">Reference to native callback to destroy memory.</param>
+        internal static void GetCustomMemoryAllocator(
+            out ICustomMemoryAllocator? memoryAllocator,
+            out Sensor.NativeApi.MemoryDestroyCallback? memoryDestroyCallback)
+        {
+            lock (customMemoryAllocatorSync)
+            {
+                memoryAllocator = customMemoryAllocator;
+                memoryDestroyCallback = destroyCallbacks.FirstOrDefault();
+            }
+        }
 
         /// <summary>
         /// Sets or clears custom memory allocator to be use by internals of Azure Kinect SDK.
@@ -173,9 +220,6 @@ namespace K4AdotNet
         /// All instances of <see cref="ICustomMemoryAllocator"/> will be keeping alive forever because they can be used
         /// to free memory even after setting custom allocator to <see langword="null"/>.
         /// </para></remarks>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
         public static ICustomMemoryAllocator? CustomMemoryAllocator
         {
             get => customMemoryAllocator;
@@ -189,9 +233,18 @@ namespace K4AdotNet
 
                     if (value is null)
                     {
-                        var res = Sensor.NativeApi.SetAllocator(null, null);
-                        if (res != NativeCallResults.Result.Succeeded)
-                            throw new InvalidOperationException("Cannot clear custom memory allocator");
+                        if ((ComboMode & ComboMode.Azure) == ComboMode.Azure)
+                        {
+                            var res = Sensor.NativeApi.Azure.Instance.SetAllocator(null, null);
+                            if (res != NativeCallResults.Result.Succeeded)
+                                throw new InvalidOperationException("Cannot clear custom memory allocator for Azure");
+                        }
+                        if ((ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
+                        {
+                            var res = Sensor.NativeApi.Orbbec.Instance.SetAllocator(null, null);
+                            if (res != NativeCallResults.Result.Succeeded)
+                                throw new InvalidOperationException("Cannot clear custom memory allocator for Orbbec");
+                        }
                         customMemoryAllocator = null;
                         return;
                     }
@@ -203,30 +256,35 @@ namespace K4AdotNet
                     allocateCallbacks.AddFirst(allocateCallback);
                     destroyCallbacks.AddFirst(destroyCallback);
 
-                    var rs = Sensor.NativeApi.SetAllocator(allocateCallback, destroyCallback);
-                    if (rs != NativeCallResults.Result.Succeeded)
+                    var wasUsed = false;
+                    if ((ComboMode & ComboMode.Azure) == ComboMode.Azure)
                     {
-                        allocateCallbacks.RemoveFirst();
-                        destroyCallbacks.RemoveFirst();
-                        throw new InvalidOperationException("Cannot set custom memory allocator");
+                        var res = Sensor.NativeApi.Azure.Instance.SetAllocator(allocateCallback, destroyCallback);
+                        if (res != NativeCallResults.Result.Succeeded)
+                        {
+                            allocateCallbacks.RemoveFirst();
+                            destroyCallbacks.RemoveFirst();
+                            throw new InvalidOperationException("Cannot set custom memory allocator for Azure");
+                        }
+                        wasUsed = true;
+                        customMemoryAllocator = value;
                     }
 
-                    customMemoryAllocator = value;
+                    if ((ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
+                    {
+                        var res = Sensor.NativeApi.Orbbec.Instance.SetAllocator(allocateCallback, destroyCallback);
+                        if (res != NativeCallResults.Result.Succeeded)
+                        {
+                            if (!wasUsed)
+                            {
+                                allocateCallbacks.RemoveFirst();
+                                destroyCallbacks.RemoveFirst();
+                            }
+                            throw new InvalidOperationException("Cannot set custom memory allocator for Orbbec");
+                        }
+                        customMemoryAllocator = value;
+                    }
                 }
-            }
-        }
-
-        /// <summary>Gets information about current memory allocator in use. For internal needs.</summary>
-        /// <param name="memoryAllocator">Instance of memory allocator.</param>
-        /// <param name="memoryDestroyCallback">Reference to native callback to destroy memory.</param>
-        internal static void GetCustomMemoryAllocator(
-            out ICustomMemoryAllocator? memoryAllocator,
-            out Sensor.NativeApi.MemoryDestroyCallback? memoryDestroyCallback)
-        {
-            lock (customMemoryAllocatorSync)
-            {
-                memoryAllocator = customMemoryAllocator;
-                memoryDestroyCallback = destroyCallbacks.FirstOrDefault();
             }
         }
 
@@ -364,7 +422,7 @@ namespace K4AdotNet
         /// <seealso cref="BodyTracking.Tracker.Tracker"/>
         public static bool TryInitializeBodyTrackingRuntime(BodyTracking.TrackerProcessingMode mode, [NotNullWhen(returnValue: false)] out string? message)
         {
-            Sensor.Calibration.CreateDummy(Sensor.DepthMode.NarrowView2x2Binned, Sensor.ColorResolution.Off, out var calibration);
+            Sensor.CalibrationData.CreateDummy(Sensor.DepthMode.NarrowView2x2Binned, Sensor.ColorResolution.Off, DetermineDefaultImplIsOrbbec(), out var calibration);
 
             var config = BodyTracking.TrackerConfiguration.Default;
             config.ProcessingMode = mode;
@@ -374,7 +432,7 @@ namespace K4AdotNet
                 return false;
             }
 
-            trackerHandle.Release();
+            trackerHandle.Dispose();
             message = null;
             return true;
         }
@@ -579,8 +637,8 @@ namespace K4AdotNet
             return true;
         }
 
-        internal static bool TryCreateTrackerHandle(in Sensor.Calibration calibration, BodyTracking.TrackerConfiguration config,
-            [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle trackerHandle,
+        internal static bool TryCreateTrackerHandle(in Sensor.CalibrationData calibration, BodyTracking.TrackerConfiguration config,
+            [NotNullWhen(returnValue: true)] out NativeHandles.TrackerHandle? trackerHandle,
             [NotNullWhen(returnValue: false)] out string? message)
         {
             string runtimePath;
@@ -610,11 +668,6 @@ namespace K4AdotNet
                     return false;
                 }
 
-                // Force loading of k4a.dll,
-                // because k4abt.dll depends on it
-                var tmp = new Sensor.Capture();
-                tmp.Dispose();
-
                 // Append directory with Body Tracking Runtime to PATH environment variable
                 const string PATH_ENV_NAME = "PATH";
                 var pathEnvVar = Environment.GetEnvironmentVariable(PATH_ENV_NAME, EnvironmentVariableTarget.Process);
@@ -641,7 +694,7 @@ namespace K4AdotNet
 
             // Try to create body tracker instance
             if (BodyTracking.NativeApi.TrackerCreate(in calibration, config, out trackerHandle) != NativeCallResults.Result.Succeeded
-                || !trackerHandle.IsValid)
+                || trackerHandle is null || trackerHandle.IsInvalid)
             {
                 // Why we failed?
                 if (IsBodyTrackingRuntimeAvailable(out message))

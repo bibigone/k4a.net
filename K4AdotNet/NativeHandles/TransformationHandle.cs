@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -8,22 +7,38 @@ namespace K4AdotNet.NativeHandles
     //
     /// <summary>Handle to an Azure Kinect transformation context.</summary>
     /// <remarks>Handles are created with <c>k4a_transformation_create()</c>.</remarks>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct TransformationHandle : INativeHandle
+    internal abstract class TransformationHandle : HandleBase
     {
-        private readonly IntPtr value;
+        public abstract bool IsOrbbec { get; }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
-
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Azure : TransformationHandle
         {
-            if (IsValid)
-                NativeApi.TransformationDestroy(this);
+            private Azure() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.TransformationDestroy(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => false;
+        }
+
+        public class Orbbec : TransformationHandle
+        {
+            private Orbbec() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.TransformationDestroy(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => true;
         }
     }
 }

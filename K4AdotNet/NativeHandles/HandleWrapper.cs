@@ -4,29 +4,30 @@ using System.Threading;
 namespace K4AdotNet.NativeHandles
 {
     /// <summary>
-    /// Helper wrapper around native handle structures that implement <see cref="INativeHandle"/> interface.
+    /// Helper wrapper around <see cref="HandleBase"/> objects.
     /// Implements <see cref="IDisposablePlus"/> interface, which is really helpful in implementation of public classes.
-    /// Plus this class has a finalyzer that calls <see cref="INativeHandle.Release"/> for objects that were not disposed in an explicit manner.
     /// </summary>
     /// <typeparam name="T">Type of native handle.</typeparam>
     internal sealed class HandleWrapper<T> : IDisposablePlus, IEquatable<HandleWrapper<T>>
-        where T : struct, INativeHandle
+        where T : HandleBase
     {
-        private readonly T handle;                  // underlying native handle
-        private volatile int releaseCounter;        // to release handle only once
+        private volatile int disposeCounter;        // to dispose handle only once
 
         /// <summary>Creates <see cref="IDisposablePlus"/>-wrapper around specified handle.</summary>
-        /// <param name="handle">Handle to be wrapped. Must be valid.</param>
-        /// <exception cref="ArgumentException">If <paramref name="handle"/> is invalid.</exception>
+        /// <param name="handle">Handle to be wrapped. Not <see langword="null"/>. And must be valid and not closed.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="handle"/> is null.</exception>
+        /// <exception cref="ArgumentException">If <paramref name="handle"/> is invalid or closed.</exception>
         public HandleWrapper(T handle)
         {
-            if (!handle.IsValid)
+            if (handle == null)
+                throw new ArgumentNullException(nameof(handle));
+            if (handle.IsInvalid || handle.IsClosed)
                 throw new ArgumentException("Handle must be valid", nameof(handle));
-            this.handle = handle;
+            Value = handle;
         }
 
         /// <summary>Direct access to the underlying handle object.</summary>
-        public T Value => handle;
+        public T Value { get; }
 
         /// <summary>Like <see cref="Value"/> but checks that object is not disposed in addition.</summary>
         /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
@@ -36,13 +37,9 @@ namespace K4AdotNet.NativeHandles
             get
             {
                 CheckNotDisposed();
-                return handle;
+                return Value;
             }
         }
-
-        /// <summary>Calls <see cref="INativeHandle.Release"/> for objects that were not disposed in an explicit manner.</summary>
-        ~HandleWrapper()
-            => ReleaseHandle();
 
         /// <summary>
         /// Disposes underlying handle
@@ -51,30 +48,17 @@ namespace K4AdotNet.NativeHandles
         /// <seealso cref="IsDisposed"/>
         public void Dispose()
         {
-            if (ReleaseHandle())
+            var incrementedValue = Interlocked.Increment(ref disposeCounter);
+            if (incrementedValue == 1)
             {
-                GC.SuppressFinalize(this);
+                Value.Dispose();
                 Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        /// <summary>Releases handle only once.</summary>
-        /// <returns><see langword="true"/> - handle was release.</returns>
-        private bool ReleaseHandle()
-        {
-            // Release only once
-            var incrementedValue = Interlocked.Increment(ref releaseCounter);
-            if (incrementedValue == 1)
-            {
-                handle.Release();
-                return true;
-            }
-            return false;
-        }
-
         /// <summary>Gets a value indicating whether the object has been disposed of.</summary>
         /// <seealso cref="Dispose"/>
-        public bool IsDisposed => releaseCounter > 0;
+        public bool IsDisposed => disposeCounter > 0;
 
         /// <summary>Raised on object disposing (only once).</summary>
         /// <seealso cref="Dispose"/>
@@ -84,7 +68,7 @@ namespace K4AdotNet.NativeHandles
         /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
         public void CheckNotDisposed()
         {
-            if (releaseCounter > 0)
+            if (disposeCounter > 0)
                 throw new ObjectDisposedException(ToString());
         }
 
@@ -96,20 +80,20 @@ namespace K4AdotNet.NativeHandles
         /// <summary>String representation of underlying native handle.</summary>
         /// <returns><c>{HandleTypeName}#{Address}</c></returns>
         public override string ToString()
-            => handle.GetType().Name + "#" + handle.UnsafeValue.ToString("X");
+            => Value.ToString();
 
         #region Equatable
 
         /// <summary>Delegates hash code calculation to handle implementation.</summary>
         /// <returns>Hash code consistent with <see cref="Equals(HandleWrapper{T})"/>.</returns>
         public override int GetHashCode()
-            => unchecked((int)handle.UnsafeValue.ToInt64());
+            => Value.GetHashCode();
 
         /// <summary>Delegates comparison to handle.</summary>
         /// <param name="other">Another handle to be compared with this one. Can be <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if both handles reference to one and the same object.</returns>
         public bool Equals(HandleWrapper<T>? other)
-            => other is not null && other.handle.UnsafeValue == handle.UnsafeValue;
+            => other is not null && other.Value.Equals(Value);
 
         /// <summary>Two objects are equal when they reference to one and the same unmanaged object.</summary>
         /// <param name="obj">Another handle to be compared with this one. Can be <see langword="null"/>.</param>

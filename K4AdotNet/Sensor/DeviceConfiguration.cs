@@ -37,11 +37,11 @@ namespace K4AdotNet.Sensor
         /// <remarks>
         /// Not all combinations of <see cref="ColorFormat"/>, <see cref="ColorResolution"/>
         /// and <see cref="DepthMode"/> are supported. To check compatibility use
-        /// <see cref="ColorResolutions.IsCompatibleWith(ColorResolution, FrameRate)"/>
-        /// and <see cref="ColorResolutions.IsCompatibleWith(ColorResolution, ImageFormat)"/>.
+        /// <see cref="ColorResolutions.IsCompatibleWith(ColorResolution, FrameRate, bool)"/>
+        /// and <see cref="ColorResolutions.IsCompatibleWith(ColorResolution, ImageFormat, bool)"/>.
         /// </remarks>
-        /// <seealso cref="ColorResolutions.IsCompatibleWith(ColorResolution, FrameRate)"/>
-        /// <seealso cref="ColorResolutions.IsCompatibleWith(ColorResolution, ImageFormat)"/>
+        /// <seealso cref="ColorResolutions.IsCompatibleWith(ColorResolution, FrameRate, bool)"/>
+        /// <seealso cref="ColorResolutions.IsCompatibleWith(ColorResolution, ImageFormat, bool)"/>
         public ColorResolution ColorResolution;
 
         /// <summary>Capture mode for the depth camera.</summary>
@@ -55,10 +55,10 @@ namespace K4AdotNet.Sensor
         /// <summary>Desired frame rate for the color and depth camera.</summary>
         /// <remarks>
         /// <see cref="FrameRate.Thirty"/> cannot be used with <see cref="ColorResolution.R3072p"/>
-        /// and <see cref="DepthMode.WideViewUnbinned"/>. Use <see cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution)"/>
+        /// and <see cref="DepthMode.WideViewUnbinned"/>. Use <see cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution, bool)"/>
         /// and <see cref="FrameRates.IsCompatibleWith(FrameRate, DepthMode)"/> to check compatibility.
         /// </remarks>
-        /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution)"/>
+        /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution, bool)"/>
         /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, DepthMode)"/>
         public FrameRate CameraFps;
 
@@ -116,7 +116,7 @@ namespace K4AdotNet.Sensor
         /// <see langword="true"/> if configuration is valid and can be used in <see cref="Device.StartCameras(DeviceConfiguration)"/>.
         /// <see langword="false"/> if configuration has some invalid or incompatible parameters.
         /// </returns>
-        public bool IsValid([NotNullWhen(returnValue: false)] out string? message)
+        public bool IsValid(bool isOrbbec, [NotNullWhen(returnValue: false)] out string? message)
         {
             if (!ColorFormat.IsColor())
             {
@@ -130,13 +130,13 @@ namespace K4AdotNet.Sensor
                 return false;
             }
 
-            if (!CameraFps.IsCompatibleWith(ColorResolution))
+            if (!CameraFps.IsCompatibleWith(ColorResolution, isOrbbec))
             {
                 message = $"{nameof(CameraFps)} = {CameraFps} is not compatible with {nameof(ColorResolution)} = {ColorResolution}";
                 return false;
             }
 
-            if (!ColorResolution.IsCompatibleWith(ColorFormat))
+            if (!ColorResolution.IsCompatibleWith(ColorFormat, isOrbbec))
             {
                 message = $"{nameof(ColorFormat)} = {ColorFormat} is not compatible with {nameof(ColorResolution)} = {ColorResolution}";
                 return false;
@@ -164,7 +164,7 @@ namespace K4AdotNet.Sensor
         //                                                                                false };
         /// <summary>Initial configuration setting for disabling all sensors.</summary>
         /// <remarks>Use this setting to initialize a <see cref="DeviceConfiguration"/> to a disabled state.</remarks>
-        public static readonly DeviceConfiguration DisableAll = new DeviceConfiguration
+        public static readonly DeviceConfiguration DisableAll = new()
         {
              ColorFormat = ImageFormat.ColorMjpg,
              ColorResolution = ColorResolution.Off,

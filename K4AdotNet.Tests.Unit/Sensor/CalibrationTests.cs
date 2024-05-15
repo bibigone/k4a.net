@@ -17,12 +17,12 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             foreach (var depthMode in DepthModes.All)
             {
-                foreach (var colorResolution in ColorResolutions.All)
+                foreach (var colorResolution in ColorResolutions.AllSupportedByAzure)
                 {
                     if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
                         continue;
 
-                    Calibration.CreateFromRaw(rawCalibration, depthMode, colorResolution, out var calibration);
+                    var calibration = Calibration.CreateFromRaw(rawCalibration, depthMode, colorResolution);
 
                     Assert.IsTrue(calibration.IsValid);
 
@@ -61,7 +61,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestDummyCalibration(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution);
 
             Assert.IsTrue(calibration.IsValid);
 
@@ -86,7 +86,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestConvert2DTo2D(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution);
 
             var point2d = calibration.Convert2DTo2D(new Float2(100f, 10f), 2000f, CalibrationGeometry.Depth, CalibrationGeometry.Depth);
             Assert.IsNotNull(point2d);
@@ -133,7 +133,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestConvert2DTo3D(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution);
 
             var depthCenter = new Float2(calibration.DepthCameraCalibration.Intrinsics.Parameters.Cx, calibration.DepthCameraCalibration.Intrinsics.Parameters.Cy);
             var colorCenter = new Float2(calibration.ColorCameraCalibration.Intrinsics.Parameters.Cx, calibration.ColorCameraCalibration.Intrinsics.Parameters.Cy);
@@ -193,7 +193,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestConvert3DTo2D(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution);
 
             var depthCenter = new Float2(calibration.DepthCameraCalibration.Intrinsics.Parameters.Cx, calibration.DepthCameraCalibration.Intrinsics.Parameters.Cy);
 
@@ -223,7 +223,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestConvert3DTo3D(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution);
 
             var testPoint = new Float3(10f, 10f, 1000f);
 
@@ -248,7 +248,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
         private void TestConvertColor2DToDepth2D(DepthMode depthMode, ColorResolution colorResolution)
         {
-            Calibration.CreateDummy(depthMode, colorResolution, 30, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution, 30);
 
             var depth2d = new Float2(calibration.DepthCameraCalibration.Intrinsics.Parameters.Cx, calibration.DepthCameraCalibration.Intrinsics.Parameters.Cy);
             var depthMm = (short)1800;
@@ -257,7 +257,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var depthImageBuffer = new short[depthMode.WidthPixels() * depthMode.HeightPixels()];
             for (var i = 0; i < depthImageBuffer.Length; i++)
                 depthImageBuffer[i] = depthMm;
-            var depthImage = new Image(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
+            var depthImage = new Image.Azure(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
             depthImage.FillFrom(depthImageBuffer);
 
             var point2d = calibration.ConvertColor2DToDepth2D(color2d, depthImage);
@@ -278,19 +278,19 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var depthMode = DepthMode.NarrowViewUnbinned;
             var colorResolution = ColorResolution.R720p;
 
-            Calibration.CreateDummy(depthMode, colorResolution, 30, out var calibration);
+            var calibration = Calibration.CreateDummy(depthMode, colorResolution, 30);
 
             var depthMm = (short)1_000;
 
             var depthImageBuffer = new short[depthMode.WidthPixels() * depthMode.HeightPixels()];
             for (var i = 0; i < depthImageBuffer.Length; i++)
                 depthImageBuffer[i] = depthMm;
-            var depthImage = new Image(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
+            var depthImage = new Image.Azure(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
             depthImage.FillFrom(depthImageBuffer);
 
-            var xyzImage = new Image(ImageFormat.Custom, depthMode.WidthPixels(), depthMode.HeightPixels(), depthMode.WidthPixels() * 6);
+            var xyzImage = new Image.Azure(ImageFormat.Custom, depthMode.WidthPixels(), depthMode.HeightPixels(), depthMode.WidthPixels() * 6);
 
-            using (var transform = new Transformation(in calibration))
+            using (var transform = calibration.CreateTransformation())
             {
                 transform.DepthImageToPointCloud(depthImage, CalibrationGeometry.Depth, xyzImage);
                 var xyzData = new short[depthMode.WidthPixels() * depthMode.HeightPixels() * 3];

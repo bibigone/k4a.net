@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Logging
 {
     /// <summary>
     /// Internal helper class which implements logging-related logic.
     /// </summary>
-    internal static class LogImpl
+    internal sealed class LogImpl
     {
-        private static readonly NativeApi.LoggingMessageCallback debugMessageHandler = OnDebugMessage;
-        private static TraceLevel traceLevel = TraceLevel.Off;
-        private static readonly object traceLevelSync = new();
+        public static readonly LogImpl Azure = new(NativeApi.Azure.Instance);
 
-        public static TraceLevel TraceLevel
+        public static readonly LogImpl Orbbec = new(NativeApi.Orbbec.Instance);
+
+        private readonly NativeApi nativeApi;
+        private readonly NativeApi.LoggingMessageCallback debugMessageHandler = OnDebugMessage;
+        private TraceLevel traceLevel = TraceLevel.Off;
+        private readonly object traceLevelSync = new();
+
+        private LogImpl(NativeApi nativeApi)
+            => this.nativeApi = nativeApi;
+
+        public TraceLevel TraceLevel
         {
             get
             {
@@ -29,14 +36,14 @@ namespace K4AdotNet.Logging
 
                     if (traceLevel != TraceLevel.Off)
                     {
-                        var res = NativeApi.SetDebugMessageHandler(null, IntPtr.Zero, traceLevel.ToLogLevel());
+                        var res = nativeApi.SetDebugMessageHandler(null, IntPtr.Zero, ToLogLevel(traceLevel));
                         if (res != NativeCallResults.Result.Succeeded)
                             throw new InvalidOperationException("Failed to clear the debug message handler.");
                     }
 
                     if (value != TraceLevel.Off)
                     {
-                        var res = NativeApi.SetDebugMessageHandler(debugMessageHandler, IntPtr.Zero, value.ToLogLevel());
+                        var res = nativeApi.SetDebugMessageHandler(debugMessageHandler, IntPtr.Zero, ToLogLevel(value));
                         if (res != NativeCallResults.Result.Succeeded)
                             throw new InvalidOperationException("Failed to set the debug message handler.");
 
@@ -79,14 +86,14 @@ namespace K4AdotNet.Logging
             }
         }
 
-        private static void CurrentDomain_Exit(object? sender, EventArgs e)
+        private void CurrentDomain_Exit(object? sender, EventArgs e)
         {
-            var res = NativeApi.SetDebugMessageHandler(null, IntPtr.Zero, traceLevel.ToLogLevel());
+            var res = nativeApi.SetDebugMessageHandler(null, IntPtr.Zero, ToLogLevel(traceLevel));
             if (res != NativeCallResults.Result.Succeeded)
                 Trace.TraceWarning("Failed to clear the debug message handler");
         }
 
-        private static LogLevel ToLogLevel(this TraceLevel level)
+        private static LogLevel ToLogLevel(TraceLevel level)
             => level switch
             {
                 TraceLevel.Off => LogLevel.Off,
@@ -99,12 +106,12 @@ namespace K4AdotNet.Logging
 
         public static void ConfigureLogging(string variableNamePrefix, TraceLevel level, bool logToStdout, string? logToFile)
         {
-            Environment.SetEnvironmentVariable(variableNamePrefix + "LOG_LEVEL", level.ToSdkLogLevelLetter(), EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable(variableNamePrefix + "LOG_LEVEL", ToSdkLogLevelLetter(level), EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_STDOUT", logToStdout ? "1" : "0", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable(variableNamePrefix + "ENABLE_LOG_TO_A_FILE", string.IsNullOrWhiteSpace(logToFile) ? "0" : logToFile, EnvironmentVariableTarget.Process);
         }
 
-        private static string ToSdkLogLevelLetter(this TraceLevel level)
+        private static string ToSdkLogLevelLetter(TraceLevel level)
             => level switch
             {
                 TraceLevel.Off => "c",

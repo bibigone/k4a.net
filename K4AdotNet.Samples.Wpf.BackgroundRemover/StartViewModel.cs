@@ -105,7 +105,15 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         }
 
         private bool CanOpenDevice()
-            => DepthMode.IsCompatibleWith(FrameRate) && ColorResolution.IsCompatibleWith(FrameRate);
+        {
+            var isOrbbec = false;
+            if (Sdk.ComboMode == ComboMode.Orbbec)
+                isOrbbec = true;
+            else if (Sdk.ComboMode == ComboMode.Both && Device.Azure.InstalledCount == 0)
+                isOrbbec = true;
+
+            return DepthMode.IsCompatibleWith(FrameRate) && ColorResolution.IsCompatibleWith(FrameRate, isOrbbec);
+        }
 
         #endregion
 

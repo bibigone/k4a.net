@@ -10,9 +10,10 @@ namespace K4AdotNet.Sensor
     {
         /// <summary>Creates exception for device with specified index.</summary>
         /// <param name="deviceIndex">Zero-based device index. Can be reached then via <see cref="DeviceException.DeviceIndex"/> property.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for ORBBEC devices, <see langword="false"/> for AZURE Kinect devices.</param>
         /// <seealso cref="Device.DeviceIndex"/>
-        public DeviceOccupiedException(int deviceIndex)
-            : base("Cannot open Azure Kinect device" + FormatDeviceIndex(deviceIndex) + ". Possibly, it is occupied by another software or has insufficient power supply.",
+        public DeviceOccupiedException(int deviceIndex, bool? isOrbbec = null)
+            : base("Cannot open " + Helpers.GetDeviceModelName(isOrbbec) + " device" + FormatDeviceIndex(deviceIndex) + ". Possibly, the device is occupied by another software or has insufficient power supply.",
                   deviceIndex)
         { }
 

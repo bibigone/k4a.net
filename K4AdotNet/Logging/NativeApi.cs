@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace K4AdotNet.Logging
 {
     /// <summary>DLL imports from <c>k4a.h</c> header file for native functions that are connected with logging.</summary>
-    internal static class NativeApi
+    internal abstract partial class NativeApi
     {
         // typedef void (k4a_logging_message_cb_t) (void* context,
         //                                          k4a_log_level_t level,
@@ -59,11 +59,10 @@ namespace K4AdotNet.Logging
         /// default behavior when using this function.By default, when \p k4a_set_debug_message_handler() has not been used to
         /// register a message callback, the default for environmental variable controls is to send debug messages as if
         /// <c>K4A_ENABLE_LOG_TO_STDOUT= 1</c> were set. If this method registers a callback function before
-        /// <see cref="Sensor.NativeApi.DeviceOpen(uint, out NativeHandles.DeviceHandle)"/> is called, then the default for environmental controls
+        /// <see cref="Sensor.NativeApi.DeviceOpen(uint, out NativeHandles.DeviceHandle?)"/> is called, then the default for environmental controls
         /// is as if <c>K4A_ENABLE_LOG_TO_STDOUT= 0</c> was specified. Physically specifying the environmental control will override the default.
         /// </para></remarks>
-        [DllImport(Sdk.SENSOR_DLL_NAME, EntryPoint = "k4a_set_debug_message_handler", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NativeCallResults.Result SetDebugMessageHandler(
+        public abstract NativeCallResults.Result SetDebugMessageHandler(
             LoggingMessageCallback? messageCallback,
             IntPtr messageCallbackContext,
             LogLevel minLevel);

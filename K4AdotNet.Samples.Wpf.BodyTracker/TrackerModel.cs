@@ -31,6 +31,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             Title = "Kinect for Azure #123456";
             DepthColumnWidth = ColorColumnWidth = new(1, GridUnitType.Star);
+            calibration = default!;
         }
 
         public TrackerModel(IApp app, BackgroundReadingLoop readingLoop,
@@ -38,8 +39,8 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             : base(app)
         {
             // try to create tracking loop first
-            readingLoop.GetCalibration(out calibration);
-            trackingLoop = new(in calibration, processingMode, dnnModel, sensorOrientation, smoothingFactor);
+            calibration = readingLoop.GetCalibration();
+            trackingLoop = new(calibration, processingMode, dnnModel, sensorOrientation, smoothingFactor);
             trackingLoop.BodyFrameReady += TrackingLoop_BodyFrameReady;
             trackingLoop.Failed += BackgroundLoop_Failed;
 

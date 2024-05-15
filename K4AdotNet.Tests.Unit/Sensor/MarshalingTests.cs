@@ -11,7 +11,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         public void TestSizesOfStructures()
         {
             // sizeof(k4a_calibration_t) == 1032
-            Assert.AreEqual(1032, Marshal.SizeOf<Calibration>());
+            Assert.AreEqual(1032, Marshal.SizeOf<CalibrationData>());
 
             // sizeof(k4a_calibration_camera_t) == 128
             Assert.AreEqual(128, Marshal.SizeOf<CameraCalibration>());

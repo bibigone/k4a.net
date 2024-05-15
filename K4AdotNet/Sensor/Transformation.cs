@@ -9,36 +9,36 @@ namespace K4AdotNet.Sensor
     /// Can be used to transform images and depth maps between cameras and to reproject depth map to 3D space.
     /// It uses <see cref="Calibration"/> data for transformations.
     /// </summary>
-    public sealed class Transformation : IDisposablePlus
+    public abstract partial class Transformation : SdkObject, IDisposablePlus
     {
-        private readonly NativeHandles.HandleWrapper<NativeHandles.TransformationHandle> handle;
-        private readonly Calibration calibration;
-
-        /// <summary>
-        /// Creates transformation object for a give calibration data.
-        /// </summary>
-        /// <param name="calibration">Camera calibration data.</param>
-        /// <remarks><para>
-        /// Each transformation instance requires some pre-computed resources to be allocated,
-        /// which are retained until the call of <see cref="Dispose"/> method.
-        /// </para><para>
-        /// <see cref="Sdk.DEPTHENGINE_DLL_NAME"/> library is required for this functionality.
-        /// </para></remarks>
-        /// <exception cref="InvalidOperationException">Something wrong with calibration data or <see cref="Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be loaded.</exception>
-        /// <seealso cref="Dispose"/>
-        public Transformation(in Calibration calibration)
+        private static NativeHandles.TransformationHandle CreateTransformation(NativeApi api, in CalibrationData calibration)
         {
-            var handle = NativeApi.TransformationCreate(in calibration);
-            if (!handle.IsValid)
+            var handle = api.TransformationCreate(in calibration);
+            if (handle is null || handle.IsInvalid)
             {
                 throw new InvalidOperationException(
-                    $"Cannot create transformation object from specified calibration data or {Sdk.DEPTHENGINE_DLL_NAME} library cannot be found).");
+                    $"Cannot create transformation object from specified calibration data.");
             }
+            return handle;
+        }
+
+        private readonly NativeApi api;
+        private readonly NativeHandles.HandleWrapper<NativeHandles.TransformationHandle> handle;
+        private readonly CalibrationData calibration;
+
+        private Transformation(NativeHandles.TransformationHandle handle, in CalibrationData calibration)
+            : base(handle.IsOrbbec)
+        {
+            api = NativeApi.GetInstance(IsOrbbec);
 
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
 
             this.calibration = calibration;
+
+            Calibration = IsOrbbec
+                ? new Calibration.Orbbec(in calibration)
+                : new Calibration.Azure(in calibration);
         }
 
         private void Handle_Disposed(object? sender, EventArgs e)
@@ -64,7 +64,7 @@ namespace K4AdotNet.Sensor
         public event EventHandler? Disposed;
 
         /// <summary>Calibration data for which this transformation was created.</summary>
-        public Calibration Calibration => calibration;
+        public Calibration Calibration { get; }
 
         /// <summary>Depth mode for which this transformation was created.</summary>
         public DepthMode DepthMode => calibration.DepthMode;
@@ -89,7 +89,7 @@ namespace K4AdotNet.Sensor
             CheckImageParameter(nameof(depthImage), depthImage, ImageFormat.Depth16, calibration.DepthCameraCalibration);
             CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, calibration.ColorCameraCalibration);
 
-            var res = NativeApi.TransformationDepthImageToColorCamera(handle.ValueNotDisposed,
+            var res = api.TransformationDepthImageToColorCamera(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(transformedDepthImage));
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Failed to transform specified depth image to color camera.");
@@ -150,7 +150,7 @@ namespace K4AdotNet.Sensor
             CheckImageParameter(nameof(transformedDepthImage), transformedDepthImage, ImageFormat.Depth16, calibration.ColorCameraCalibration);
             CheckImageParameter(nameof(transformedCustomImage), transformedCustomImage, customImage.Format, calibration.ColorCameraCalibration);
 
-            var res = NativeApi.TransformationDepthImageToColorCameraCustom(handle.ValueNotDisposed,
+            var res = api.TransformationDepthImageToColorCameraCustom(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(customImage),
                 Image.ToHandle(transformedDepthImage), Image.ToHandle(transformedCustomImage),
                 interpolation, invalidCustomValue);
@@ -183,7 +183,7 @@ namespace K4AdotNet.Sensor
             CheckImageParameter(nameof(colorImage), colorImage, ImageFormat.ColorBgra32, calibration.ColorCameraCalibration);
             CheckImageParameter(nameof(transformedColorImage), transformedColorImage, ImageFormat.ColorBgra32, calibration.DepthCameraCalibration);
 
-            var res = NativeApi.TransformationColorImageToDepthCamera(handle.ValueNotDisposed,
+            var res = api.TransformationColorImageToDepthCamera(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), Image.ToHandle(colorImage), Image.ToHandle(transformedColorImage));
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Failed to transform specified color image to depth camera.");
@@ -238,7 +238,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentException($"{xyzImage} must have a stride in bytes of at least 6 times its width in pixels.");
             }
 
-            var res = NativeApi.TransformationDepthImageToPointCloud(handle.ValueNotDisposed,
+            var res = api.TransformationDepthImageToPointCloud(handle.ValueNotDisposed,
                 Image.ToHandle(depthImage), camera, Image.ToHandle(xyzImage));
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"Failed to transform specified depth image to point cloud in coordinates of {camera} camera.");

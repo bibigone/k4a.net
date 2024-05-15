@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -6,8 +7,9 @@ namespace K4AdotNet.Record
 {
     /// <summary>Kinect for Azure recording opened for writing.</summary>
     /// <seealso cref="Playback"/>
-    public sealed class Recorder : IDisposablePlus
+    public sealed class Recorder : SdkObject, IDisposablePlus
     {
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.RecordHandle> handle;        // This class is an wrapper around this handle
 
         /// <summary>
@@ -30,19 +32,30 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
         /// <exception cref="RecordingException">Cannot initialize recording to <paramref name="filePath"/>.</exception>
         public Recorder(string filePath, Sensor.Device? device, Sensor.DeviceConfiguration config)
+            : base(Sdk.DetermineDefaultImplIsOrbbec())
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
             if (filePath.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
                 throw new ArgumentException($"Path \"{filePath}\" contains invalid characters.", nameof(filePath));
-            if (!config.IsValid(out var message))
+            if (!config.IsValid(IsOrbbec, out var message))
                 throw new ArgumentException(message, nameof(config));
+
+            if (device is not null && device.IsOrbbec != IsOrbbec)
+                throw new InvalidOperationException($"{nameof(Recorder)} cannot be created for {Helpers.GetDeviceModelName(device.IsOrbbec)} device in the {nameof(ComboMode)}.{Sdk.ComboMode} mode.");
+
+            api = NativeApi.GetInstance(IsOrbbec);
 
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
-            var res = NativeApi.RecordCreate(pathAsBytes, Sensor.Device.ToHandle(device), config, out var handle);
-            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
+            var deviceHandle = Sensor.Device.ToHandle(device) ??
+                (IsOrbbec ? NativeHandles.DeviceHandle.Orbbec.Zero : NativeHandles.DeviceHandle.Azure.Zero);
+
+            var res = api.RecordCreate(pathAsBytes, deviceHandle, config, out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle is null || handle.IsInvalid)
                 throw new RecordingException($"Cannot initialize recording to file \"{filePath}\".", filePath);
+
+            System.Diagnostics.Debug.Assert(handle.IsOrbbec == IsOrbbec);
 
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
@@ -115,7 +128,7 @@ namespace K4AdotNet.Record
             var tagNameAsBytes = Helpers.StringToBytes(tagName, Encoding.ASCII);
             var tagValueAsBytes = Helpers.StringToBytes(tagValue, Encoding.UTF8);
 
-            var res = NativeApi.RecordAddTag(handle.ValueNotDisposed, tagNameAsBytes, tagValueAsBytes);
+            var res = api.RecordAddTag(handle.ValueNotDisposed, tagNameAsBytes, tagValueAsBytes);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"Cannot add tag \"{tagName}\" with value \"{tagValue}\". Method {nameof(AddTag)}() must be called before {nameof(WriteHeader)}().");
         }
@@ -126,7 +139,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void AddImuTrack()
         {
-            var res = NativeApi.RecordAddImuTrack(handle.ValueNotDisposed);
+            var res = api.RecordAddImuTrack(handle.ValueNotDisposed);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"{nameof(AddImuTrack)}() must be called before {nameof(WriteHeader)}().");
         }
@@ -152,7 +165,7 @@ namespace K4AdotNet.Record
             var attachmentNameAsBytes = Helpers.StringToBytes(attachmentName, Encoding.UTF8);
             var attachmentDataLength = Helpers.Int32ToUIntPtr(attachmentData.Length);
 
-            var res = NativeApi.RecordAddAttachment(handle.ValueNotDisposed, attachmentNameAsBytes, attachmentData, attachmentDataLength);
+            var res = api.RecordAddAttachment(handle.ValueNotDisposed, attachmentNameAsBytes, attachmentData, attachmentDataLength);
 
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"{nameof(AddAttachment)}() must be called before {nameof(WriteHeader)}().");
@@ -163,7 +176,7 @@ namespace K4AdotNet.Record
         /// <exception cref="RecordingException">Some error during recording to file. See logs for details.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void WriteHeader()
-            => CheckResult(NativeApi.RecordWriteHeader(handle.ValueNotDisposed));
+            => CheckResult(api.RecordWriteHeader(handle.ValueNotDisposed));
 
         /// <summary>
         /// Writes a camera capture to file.
@@ -182,7 +195,9 @@ namespace K4AdotNet.Record
         {
             if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
-            CheckResult(NativeApi.RecordWriteCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture)));
+            if (capture.IsOrbbec != IsOrbbec)
+                throw new ArgumentException($"{Helpers.GetImplementationName(capture.IsOrbbec)} capture cannot be written by this instance of recorder. {Helpers.GetImplementationName(IsOrbbec)} capture is expected.", nameof(capture));
+            CheckResult(api.RecordWriteCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture)));
         }
 
         /// <summary>Writes an IMU sample to file.</summary>
@@ -195,7 +210,7 @@ namespace K4AdotNet.Record
         /// <exception cref="RecordingException">Some error during recording to file. See logs for details.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void WriteImuSample(Sensor.ImuSample imuSample)
-            => CheckResult(NativeApi.RecordWriteImuSample(handle.ValueNotDisposed, imuSample));
+            => CheckResult(api.RecordWriteImuSample(handle.ValueNotDisposed, imuSample));
 
         /// <summary>Flushes all pending recording data to disk.</summary>
         /// <remarks><para>
@@ -208,7 +223,7 @@ namespace K4AdotNet.Record
         /// <exception cref="RecordingException">Some error during recording to file. See logs for details.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public void Flush()
-            => CheckResult(NativeApi.RecordFlush(handle.ValueNotDisposed));
+            => CheckResult(api.RecordFlush(handle.ValueNotDisposed));
 
         private void CheckResult(NativeCallResults.Result result)
         {
@@ -216,7 +231,8 @@ namespace K4AdotNet.Record
                 throw new RecordingException(FilePath);
         }
 
-        internal static NativeHandles.RecordHandle ToHandle(Recorder? recorder)
-            => recorder?.handle.ValueNotDisposed ?? default;
+        [return:NotNullIfNotNull(nameof(recorder))]
+        internal static NativeHandles.RecordHandle? ToHandle(Recorder? recorder)
+            => recorder?.handle?.ValueNotDisposed;
     }
 }

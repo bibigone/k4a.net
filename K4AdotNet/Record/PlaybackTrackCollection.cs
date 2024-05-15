@@ -11,13 +11,16 @@ namespace K4AdotNet.Record
     public sealed class PlaybackTrackCollection : IReadOnlyList<PlaybackTrack>
     {
         private readonly Playback playback;
+        private readonly NativeApi api;
         private readonly Lazy<PlaybackTrack>[] tracks;
 
         internal PlaybackTrackCollection(Playback playback)
         {
             this.playback = playback;
 
-            var count = Helpers.UIntPtrToInt32(NativeApi.PlaybackGetTrackCount(PlaybackHandle));
+            api = NativeApi.GetInstance(playback.IsOrbbec);
+
+            var count = Helpers.UIntPtrToInt32(api.PlaybackGetTrackCount(PlaybackHandle));
             tracks = new Lazy<PlaybackTrack>[count];
             for (var i = 0; i < tracks.Length; i++)
             {
@@ -83,7 +86,7 @@ namespace K4AdotNet.Record
             if (string.IsNullOrEmpty(trackName))
                 throw new ArgumentNullException(nameof(trackName));
             var trackNameAsBytes = Helpers.StringToBytes(trackName, Encoding.UTF8);
-            return NativeApi.PlaybackCheckTrackExists(PlaybackHandle, trackNameAsBytes) != 0;
+            return api.PlaybackCheckTrackExists(PlaybackHandle, trackNameAsBytes) != 0;
         }
 
         private NativeHandles.PlaybackHandle PlaybackHandle => Playback.ToHandle(playback);

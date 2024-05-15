@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -7,22 +6,38 @@ namespace K4AdotNet.NativeHandles
     // K4A_DECLARE_HANDLE(k4a_record_t);
     //
     /// <summary>Handle to a Kinect for Azure recording opened for writing.</summary>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct RecordHandle : INativeHandle
+    internal abstract class RecordHandle : HandleBase
     {
-        private readonly IntPtr value;
+        public abstract bool IsOrbbec { get; }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
-
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Azure : RecordHandle
         {
-            if (IsValid)
-                NativeApi.RecordClose(this);
+            private Azure() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.RecordClose(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => false;
+        }
+
+        public class Orbbec : RecordHandle
+        {
+            private Orbbec() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.RecordClose(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => true;
         }
     }
 }

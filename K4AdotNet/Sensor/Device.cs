@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace K4AdotNet.Sensor
 {
@@ -17,12 +16,15 @@ namespace K4AdotNet.Sensor
     /// </para></remarks>
     /// <seealso cref="Capture"/>
     /// <seealso cref="ImuSample"/>
-    public sealed class Device : IDisposablePlus
+    public abstract partial class Device : SdkObject, IDisposablePlus
     {
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.DeviceHandle> handle;    // This class is an wrapper around this native handle
 
-        private Device(NativeHandles.DeviceHandle handle, int deviceIndex, string serialNumber, HardwareVersion version)
+        internal Device(NativeHandles.DeviceHandle handle, int deviceIndex, string serialNumber, HardwareVersion version)
+            : base(handle.IsOrbbec)
         {
+            this.api = NativeApi.GetInstance(IsOrbbec);
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
             DeviceIndex = deviceIndex;
@@ -65,56 +67,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Is this device still connected?</summary>
         /// <seealso cref="DeviceConnectionLostException"/>
-        public bool IsConnected
-            => !handle.IsDisposed
-#if ORBBECSDK_K4A_WRAPPER
-                && NativeApi.DeviceGetVersion(handle.Value, out _) == NativeCallResults.Result.Succeeded;
-#else
-                && NativeApi.DeviceGetSyncJack(handle.Value, out _, out _) == NativeCallResults.Result.Succeeded;
-#endif
-
-        /// <summary>Gets the device jack status for the synchronization in connectors.</summary>
-        /// <remarks>
-        /// If <see cref="IsSyncInConnected"/> is <see langword="true"/> then
-        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Subordinate"/>.
-        /// </remarks>
-        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
-        /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
-        /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
-        public bool IsSyncInConnected
-        {
-            get
-            {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnectedFlag, out _));
-                return syncInConnectedFlag != 0;
-            }
-        }
-
-        /// <summary>Gets the device jack status for the synchronization out connectors.</summary>
-        /// <remarks>
-        /// If <see cref="IsSyncOutConnected"/> is <see langword="true"/> then
-        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Master"/>.
-        /// If <see cref="IsSyncInConnected"/> is also <see langword="true"/> then
-        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Subordinate"/> (in this case 'Sync Out' is driven for the
-        /// next device in the chain).
-        /// </remarks>
-        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
-        /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
-        /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
-        public bool IsSyncOutConnected
-        {
-            get
-            {
-                CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out _, out var syncOutConnectedFlag));
-                return syncOutConnectedFlag != 0;
-            }
-        }
+        public abstract bool IsConnected { get; }
 
         /// <summary>Starts color and depth camera capture.</summary>
         /// <param name="config">The configuration we want to run the device in. This can be initialized with <see cref="DeviceConfiguration.DisableAll"/>.</param>
@@ -124,19 +77,22 @@ namespace K4AdotNet.Sensor
         /// It is not valid to call this method a second time on the same device until <see cref="StopCameras"/> has been called.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        /// <exception cref="ArgumentException">Configuration in <paramref name="config"/> is not valid. For details see <see cref="DeviceConfiguration.IsValid(out string)"/>.</exception>
+        /// <exception cref="ArgumentException">Configuration in <paramref name="config"/> is not valid. For details see <see cref="DeviceConfiguration.IsValid(bool, out string)"/>.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
-        /// <exception cref="InvalidOperationException">Cameras streaming is already running, or something wrong with <paramref name="config"/>, or <see cref="Sdk.DEPTHENGINE_DLL_NAME"/> library cannot be found.</exception>
+        /// <exception cref="InvalidOperationException">Cameras streaming is already running, or something wrong with <paramref name="config"/>.</exception>
         /// <seealso cref="StopCameras"/>
         public void StartCameras(DeviceConfiguration config)
         {
-            if (!config.IsValid(out var message))
+            if (!config.IsValid(IsOrbbec, out var message))
                 throw new ArgumentException(message, nameof(config));
-
+            CheckDeviceConfiguration(config);
             CheckResult(
-                NativeApi.DeviceStartCameras(handle.ValueNotDisposed, in config),
-                $"Cameras streaming is already running, or invalid configuration specified, or {Sdk.DEPTHENGINE_DLL_NAME} library cannot be found.");
+                api.DeviceStartCameras(handle.ValueNotDisposed, in config),
+                $"Cameras streaming is already running, or invalid configuration specified.");
         }
+
+        private protected virtual void CheckDeviceConfiguration(DeviceConfiguration config)
+        { }
 
         /// <summary>Stops the color and depth camera capture.</summary>
         /// <remarks><para>
@@ -149,7 +105,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="StartCameras(DeviceConfiguration)"/>
         public void StopCameras()
-            => NativeApi.DeviceStopCameras(handle.ValueNotDisposed);
+            => api.DeviceStopCameras(handle.ValueNotDisposed);
 
         /// <summary>Starts the IMU sample stream.</summary>
         /// <remarks><para>
@@ -164,7 +120,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="StopImu"/>
         public void StartImu()
             => CheckResult(
-                NativeApi.DeviceStartImu(handle.ValueNotDisposed),
+                api.DeviceStartImu(handle.ValueNotDisposed),
                 "IMU streaming is already running or cameras streaming is not running.");
 
         /// <summary>Stops the IMU capture.</summary>
@@ -178,7 +134,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="StartImu"/>
         public void StopImu()
-            => NativeApi.DeviceStopImu(handle.ValueNotDisposed);
+            => api.DeviceStopImu(handle.ValueNotDisposed);
 
         /// <summary>Reads a sensor capture.</summary>
         /// <param name="capture">
@@ -204,7 +160,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="InvalidOperationException">Camera streaming is not running or has been stopped during this call.</exception>
         public bool TryGetCapture([NotNullWhen(returnValue: true)] out Capture? capture, Timeout timeout = default)
         {
-            var res = NativeApi.DeviceGetCapture(handle.ValueNotDisposed, out var captureHandle, timeout);
+            var res = api.DeviceGetCapture(handle.ValueNotDisposed, out var captureHandle, timeout);
 
             if (res == NativeCallResults.WaitResult.Succeeded)
             {
@@ -261,7 +217,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="InvalidOperationException">IMU streaming is not running or has been stopped during this call.</exception>
         public bool TryGetImuSample(out ImuSample imuSample, Timeout timeout = default)
         {
-            var res = NativeApi.DeviceGetImuSample(handle.ValueNotDisposed, out imuSample, timeout);
+            var res = api.DeviceGetImuSample(handle.ValueNotDisposed, out imuSample, timeout);
 
             if (res == NativeCallResults.WaitResult.Succeeded)
                 return true;
@@ -310,7 +266,7 @@ namespace K4AdotNet.Sensor
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         public bool TrySetColorControl(ColorControlCommand command, ColorControlMode mode, int value)
-            => NativeApi.DeviceSetColorControl(handle.ValueNotDisposed, command, mode, value) == NativeCallResults.Result.Succeeded;
+            => api.DeviceSetColorControl(handle.ValueNotDisposed, command, mode, value) == NativeCallResults.Result.Succeeded;
 
         /// <summary>Gets the Azure Kinect color sensor control value.</summary>
         /// <param name="command">Color sensor control command.</param>
@@ -331,7 +287,7 @@ namespace K4AdotNet.Sensor
         /// <exception cref="InvalidOperationException">Not supported <paramref name="command"/>.</exception>
         public void GetColorControl(ColorControlCommand command, out ColorControlMode mode, out int value)
             => CheckResult(
-                NativeApi.DeviceGetColorControl(handle.ValueNotDisposed, command, out mode, out value),
+                api.DeviceGetColorControl(handle.ValueNotDisposed, command, out mode, out value),
                 "Not supported command: " + command);
 
         /// <summary>Gets the Azure Kinect color sensor control capabilities.</summary>
@@ -351,9 +307,9 @@ namespace K4AdotNet.Sensor
         {
             byte supportsAutoFlag;
             CheckResult(
-                NativeApi.DeviceGetColorControlCapabilities(handle.ValueNotDisposed, command,
-                                                            out supportsAutoFlag, out minValue, out maxValue, out valueStep,
-                                                            out defaultValue, out defaultMode),
+                api.DeviceGetColorControlCapabilities(handle.ValueNotDisposed, command,
+                                                        out supportsAutoFlag, out minValue, out maxValue, out valueStep,
+                                                        out defaultValue, out defaultMode),
                 "Not supported command: " + command);
             supportsAuto = supportsAutoFlag != 0;
         }
@@ -363,10 +319,10 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Cannot read calibration data for some unexpected reason. See logs for details.</exception>
-        /// <seealso cref="GetCalibration(DepthMode, ColorResolution, out Calibration)"/>
+        /// <seealso cref="GetCalibration(DepthMode, ColorResolution)"/>
         public byte[] GetRawCalibration()
         {
-            if (!Helpers.TryGetValueInByteBuffer(NativeApi.DeviceGetRawCalibration, handle.ValueNotDisposed, out var result))
+            if (!Helpers.TryGetValueInByteBuffer(api.DeviceGetRawCalibration, handle.ValueNotDisposed, out var result))
                 ThrowException();
             return result;
         }
@@ -374,74 +330,19 @@ namespace K4AdotNet.Sensor
         /// <summary>Gets the camera calibration for the entire Azure Kinect device.</summary>
         /// <param name="depthMode">Mode in which depth camera is operated.</param>
         /// <param name="colorResolution">Resolution in which color camera is operated.</param>
-        /// <param name="calibration">Output: calibration data.</param>
+        /// <returns>Calibration data.</returns>
         /// <remarks><para>
-        /// The <paramref name="calibration"/> represents the data needed to transform between the camera views and may be
+        /// The return value represents the data needed to transform between the camera views and may be
         /// different for each operating <paramref name="depthMode"/> and <paramref name="colorResolution"/> the device is configured to operate in.
         /// </para><para>
-        /// The <paramref name="calibration"/> output is used as input to all calibration and transformation functions.
+        /// The return value is used as input to all calibration and transformation functions.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with Azure Kinect device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Cannot read calibration data for some unexpected reason. See logs for details.</exception>
-        /// <seealso cref="GetCalibration(DepthMode, ColorResolution, out Calibration)"/>
-        public void GetCalibration(DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
-        {
-            if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
-                throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
-
-            CheckResult(NativeApi.DeviceGetCalibration(handle.ValueNotDisposed, depthMode, colorResolution, out calibration));
-        }
-
-        /// <summary>Convenient string representation of object.</summary>
-        /// <returns><c>Azure Kinect #{SerialNumber}</c> or <c>"Orbbec Femto #{SerialNumber}</c>.</returns>
-        public override string ToString()
-#if ORBBECSDK_K4A_WRAPPER
-            => "Orbbec Femto #" + SerialNumber;
-#else
-            => "Azure Kinect #" + SerialNumber;
-#endif
-
-#if ORBBECSDK_K4A_WRAPPER
-        /// <summary>Switches device clock sync mode (OrbbecSDK-K4A-Wrapper only).</summary>
-        /// <param name="timestampMode">Device clock synchronization mode</param>
-        /// <param name="interval">
-        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Reset"/>: The delay time of executing the timestamp reset function after receiving the command or signal in microseconds.
-        /// If <paramref name="timestampMode"/> is <see cref="DeviceClockSyncMode.Sync"/>: The interval for auto-repeated synchronization, in microseconds. If the value is <see cref="Microseconds32.Zero"/>, synchronization is performed only once.
-        /// </param>
-        /// <remarks><para>
-        /// This API is used for device clock synchronization mode switching.
-        /// </para><para>
-        /// It is necessary to ensure that the mode switching of all devices is completed before any device start_cameras.
-        /// </para><para>
-        /// It is necessary to ensure that the master and slave devices are configured in the same mode.
-        /// </para></remarks>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="interval"/> cannot be negative.</exception>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        /// <exception cref="DeviceConnectionLostException">Connection with the device has been lost.</exception>
-        public void SwitchDeviceClockSyncMode(DeviceClockSyncMode timestampMode, Microseconds32 interval)
-        {
-            if (interval.ValueUsec < 0)
-                throw new ArgumentOutOfRangeException(nameof(interval));
-            CheckResult(NativeApi.DeviceSwitchDeviceClockSyncMode(handle.ValueNotDisposed, timestampMode, (uint)interval.ValueUsec));
-        }
-
-        /// <summary>Enables/disables soft filter for depth camera (OrbbecSDK-K4A-Wrapper only).</summary>
-        /// <param name="filterSwitch">Device software filtering switch: <see langword="true"/> - enable software filtering; <see langword="false"/> - disable software filtering.</param>
-        /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
-        /// <exception cref="DeviceConnectionLostException">Connection with the device has been lost.</exception>
-        public void SetSoftFilter(bool filterSwitch)
-            => CheckResult(NativeApi.DeviceEnableSoftFilter(handle.ValueNotDisposed, filterSwitch ? (byte)1 : (byte)0));
-
-        /// <summary>Gets device sync mode (OrbbecSDK-K4A-Wrapper only).</summary>
-        /// <remarks>The device synchronization mode will change according to the mode configured in the <see cref="StartCameras(DeviceConfiguration)"/> method.</remarks>
-        /// <exception cref="ObjectDisposedException">This property cannot be called for disposed object.</exception>
-        /// <seealso cref="DeviceConfiguration.WiredSyncMode"/>
-        /// <seealso cref="StartCameras(DeviceConfiguration)"/>
-        public WiredSyncMode WiredSyncMode
-            => NativeApi.DeviceGetWiredSyncMode(handle.ValueNotDisposed);
-#endif
+        /// <seealso cref="GetRawCalibration()"/>
+        public abstract Calibration GetCalibration(DepthMode depthMode, ColorResolution colorResolution);
 
         private void CheckResult(NativeCallResults.Result result, string? invalidOperationMessage = null)
         {
@@ -460,12 +361,23 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Gets the number of connected devices.</summary>
         /// <remarks>Some devices can be occupied by other processes by they are counted here as connected.</remarks>
-        public static int InstalledCount => checked((int)NativeApi.DeviceGetInstalledCount());
+        public static int InstalledCount
+        {
+            get
+            {
+                var count = 0;
+                if ((Sdk.ComboMode & ComboMode.Azure) == ComboMode.Azure)
+                    count += Azure.InstalledCount;
+                if ((Sdk.ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
+                    count += Orbbec.InstalledCount;
+                return count;
+            }
+        }
 
         /// <summary>Index for default device (the first connected device). Use it when you're working with single device solutions.</summary>
         public const int DefaultDeviceIndex = 0;
 
-        /// <summary>Tries to open an Azure Kinect device.</summary>
+        /// <summary>Tries to open an Azure Kinect or Orbbec Femto device.</summary>
         /// <param name="device">Opened device on success, or <see langword="null"/> in case of failure.</param>
         /// <param name="index">Zero-based index of device to be opened. By default - <see cref="DefaultDeviceIndex"/>.</param>
         /// <returns>
@@ -480,26 +392,33 @@ namespace K4AdotNet.Sensor
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            var res = NativeApi.DeviceOpen(checked((uint)index), out var deviceHandle);
-            if (res != NativeCallResults.Result.Succeeded || !deviceHandle.IsValid)
+            if ((Sdk.ComboMode & ComboMode.Azure) == ComboMode.Azure)
             {
-                device = null;
-                return false;
+                var azureCount = Azure.InstalledCount;
+                if (index < azureCount)
+                {
+                    var azureRes = Azure.TryOpen(out var azureDevice, index);
+                    device = azureDevice;
+                    return azureRes;
+                }
+                index -= azureCount;
             }
 
-            if (!TryGetSerialNumber(deviceHandle, out var serialNumber)
-                || !TryGetHardwareVersion(deviceHandle, out var version))
+            if ((Sdk.ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
             {
-                deviceHandle.Release();
-                device = null;
-                return false;
+                if (index >= 0 && index < Orbbec.InstalledCount)
+                {
+                    var orrbecRes = Orbbec.TryOpen(out var orbbecDevice, index);
+                    device = orbbecDevice;
+                    return orrbecRes;
+                }
             }
 
-            device = new Device(deviceHandle, index, serialNumber, version);
-            return true;
+            device = null;
+            return false;
         }
 
-        /// <summary>Opens an Azure Kinect device. Like <see cref="TryOpen(out Device, int)"/> but raises exception in case of failure.</summary>
+        /// <summary>Opens an Azure Kinect or Orbbec Femto device. Like <see cref="TryOpen(out Device, int)"/> but raises exception in case of failure.</summary>
         /// <param name="index">Zero-based index of device to be opened. By default - <see cref="DefaultDeviceIndex"/>.</param>
         /// <returns>Opened device. Not <see langword="null"/>. Don't forget to call <see cref="Dispose"/> method for this object after usage.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.</exception>
@@ -522,25 +441,8 @@ namespace K4AdotNet.Sensor
             return device;
         }
 
-        private static bool TryGetSerialNumber(NativeHandles.DeviceHandle deviceHandle, [NotNullWhen(returnValue: true)] out string? serialNumber)
-        {
-            if (!Helpers.TryGetValueInByteBuffer(NativeApi.DeviceGetSerialnum, deviceHandle, out var result))
-            {
-                serialNumber = null;
-                return false;
-            }
-
-            serialNumber = result.Length > 1
-                ? Encoding.ASCII.GetString(result, 0, result.Length - 1)
-                : string.Empty;
-
-            return true;
-        }
-
-        private static bool TryGetHardwareVersion(NativeHandles.DeviceHandle deviceHandle, out HardwareVersion version)
-            => NativeApi.DeviceGetVersion(deviceHandle, out version) == NativeCallResults.Result.Succeeded;
-
-        internal static NativeHandles.DeviceHandle ToHandle(Device? device)
-            => device?.handle.ValueNotDisposed ?? default;
+        [return:NotNullIfNotNull(nameof(device))]
+        internal static NativeHandles.DeviceHandle? ToHandle(Device? device)
+            => device?.handle?.ValueNotDisposed;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -7,22 +6,42 @@ namespace K4AdotNet.NativeHandles
     // K4A_DECLARE_HANDLE(k4a_device_t);
     //
     /// <summary>Handle to an Azure Kinect device.</summary>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct DeviceHandle : INativeHandle
+    internal abstract class DeviceHandle : HandleBase
     {
-        private readonly IntPtr value;
+        public abstract bool IsOrbbec { get; }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
-
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Azure : DeviceHandle
         {
-            if (IsValid)
-                NativeApi.DeviceClose(this);
+            public static readonly Azure Zero = new() { handle = System.IntPtr.Zero };
+
+            private Azure() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.DeviceClose(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => false;
+        }
+
+        public class Orbbec : DeviceHandle
+        {
+            public static readonly Orbbec Zero = new() { handle = System.IntPtr.Zero };
+
+            private Orbbec() { }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.DeviceClose(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => true;
         }
     }
 }

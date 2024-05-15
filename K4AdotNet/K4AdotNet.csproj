@@ -6,7 +6,7 @@
     <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <Platforms>x64</Platforms>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <IsPublishable>False</IsPublishable>
@@ -21,20 +21,59 @@
     <Reference Include="System.Core" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x64' And $(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" Link="OrbbecSDK.dll">
+  <!-- Disable warnings regarding nullable references which rely on missing attributes -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461'">
+    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604</NoWarn>
+  </PropertyGroup>
+
+  <!-- To support nullable reference types in .NET Standard 2.0 -->
+  <ItemGroup>
+    <PackageReference Include="Nullable" Version="1.3.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ItemGroup>
+    <Folder Include="k4a-azure\">
+      <Visible>False</Visible>
+    </Folder>
+    <Folder Include="k4a-orbbec\">
+      <Visible>False</Visible>
+    </Folder>
+  </ItemGroup -->
+
+  <!-- Native libraries -->
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll" Link="k4a-azure\depthengine_2_0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll" Link="k4a.dll">
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a-azure\k4a.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll" Link="k4arecord.dll">
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="k4a-azure\k4arecord.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll" Link="k4a-orbbec\depthengine_2_0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll" Link="k4a-orbbec\k4a.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll" Link="k4a-orbbec\k4arecord.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" Link="k4a-orbbec\OrbbecSDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDKConfig_v1.0.xml" Link="k4a-orbbec\OrbbecSDKConfig_v1.0.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
@@ -54,65 +93,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Platform)' == 'x64' And !$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll" Link="k4a.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" Link="k4arecord.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll" Link="depthengine_2_0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\Microsoft.VC141.CRT\x64\msvcp140.dll" Link="msvcp140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140.dll" Link="vcruntime140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Platform)' == 'x86' And !$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Content Include="..\externals\k4a\windows-desktop\x86\k4a.dll" Link="k4a.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\x86\k4arecord.dll" Link="k4arecord.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\k4a\windows-desktop\x86\depthengine_2_0.dll" Link="depthengine_2_0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\Microsoft.VC141.CRT\x86\msvcp140.dll" Link="msvcp140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-    <Content Include="..\externals\Microsoft.VC141.CRT\x86\vcruntime140.dll" Link="vcruntime140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-  </ItemGroup>
-
-  <!-- Disable warnings regarding nullable references which rely on missing attributes -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461'">
-    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604</NoWarn>
-  </PropertyGroup>
-
-  <!-- To support nullable reference types in .NET Standard 2.0 -->
-  <ItemGroup>
-    <PackageReference Include="Nullable" Version="1.3.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>

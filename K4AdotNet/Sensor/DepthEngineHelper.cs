@@ -2,20 +2,19 @@
 
 namespace K4AdotNet.Sensor
 {
-#if ORBBECSDK_K4A_WRAPPER
     // Inspired by <c>depthengine_helper</c> class from <c>k4a.hpp</c>
     //
-    /// <summary>Avoid deep engine initialization failures when using multiple OpenGL contexts within user applications and SDKs. OrbbecSDK-K4A-Wrapper only.</summary>
+    /// <summary>Avoid deep engine initialization failures when using multiple OpenGL contexts within user applications and SDKs. Only for ORBBEC.</summary>
     /// <remarks>This function only needs to be called when on the Linux platform</remarks>
-    public sealed class DepthEngineHelper : IDisposablePlus
+    public sealed class DepthEngineHelper : SdkObject, IDisposablePlus
     {
-        /// <summary>Creates depthengine helper (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <summary>Creates depthengine helper (ORBBEC only).</summary>
         /// <returns>Created depthengine helper. Not <see langword="null"/>. To release, call <see cref="Dispose"/> method.</returns>
         /// <exception cref="InvalidOperationException">Cannot create depthengine helper for some internal reason. For error details see logs.</exception>
         public static DepthEngineHelper Create()
         {
-            var res = NativeApi.DepthEngineHelperCreate(out var handle);
-            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
+            var res = NativeApi.Orbbec.Instance.DepthEngineHelperCreate(out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle is null || handle.IsInvalid)
                 throw new InvalidOperationException("Failed to create depthengine helper");
             return new DepthEngineHelper(handle);
         }
@@ -23,6 +22,7 @@ namespace K4AdotNet.Sensor
         private readonly NativeHandles.HandleWrapper<NativeHandles.DepthEngineHandle> handle;    // This class is an wrapper around this native handle
 
         private DepthEngineHelper(NativeHandles.DepthEngineHandle handle)
+            : base(isOrbbec: true)
         {
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
@@ -50,5 +50,4 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public event EventHandler? Disposed;
     }
-#endif
 }

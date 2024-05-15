@@ -10,11 +10,6 @@ namespace K4AdotNet.Tests.Unit.Record
         [TestMethod]
         public void TestSizesOfStructures()
         {
-#if !ORBBECSDK_K4A_WRAPPER
-            // sizeof(k4a_record_configuration_t) == 36
-            Assert.AreEqual(36, Marshal.SizeOf<RecordConfiguration>());
-#endif
-
             // sizeof(k4a_record_video_settings_t) == 24
             Assert.AreEqual(24, Marshal.SizeOf<RecordVideoSettings>());
 

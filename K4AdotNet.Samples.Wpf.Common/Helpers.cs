@@ -24,13 +24,9 @@ namespace K4AdotNet.Samples.Wpf
                 { ColorResolution.R720p, "1280x720 (16:9)" },
                 { ColorResolution.R1080p, "1920x1080 (16:9)" },
                 { ColorResolution.R1440p, "2560x1440 (16:9)" },
-#if !ORBBECSDK_K4A_WRAPPER
                 { ColorResolution.R1536p, "2048x1536 (4:3)" },
-#endif
                 { ColorResolution.R2160p, "3840x2160 (16:9)" },
-#if !ORBBECSDK_K4A_WRAPPER
                 { ColorResolution.R3072p, "4096x3072 (4:3)" },
-#endif
             }.ToList();
 
         public static readonly IReadOnlyList<KeyValuePair<FrameRate, string>> AllFrameRates
@@ -38,9 +34,6 @@ namespace K4AdotNet.Samples.Wpf
             {
                 { FrameRate.Five, "5 FPS" },
                 { FrameRate.Fifteen, "15 FPS" },
-#if ORBBECSDK_K4A_WRAPPER
-                { FrameRate.TwentyFive, "25 FPS" },
-#endif
                 { FrameRate.Thirty, "30 FPS" },
             }.ToList();
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace K4AdotNet.Sensor
 {
@@ -15,14 +14,24 @@ namespace K4AdotNet.Sensor
     //
     /// <summary>Information about device calibration in particular depth mode and color resolution.</summary>
     /// <seealso cref="Transformation"/>
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Calibration
+    public abstract partial class Calibration : SdkObject
     {
+        private readonly NativeApi api;
+
+        public readonly CalibrationData Data;
+
+        private Calibration(NativeApi api, in CalibrationData data)
+            : base(api.IsOrbbec)
+        {
+            this.api = api;
+            Data = data;
+        }
+
         /// <summary>Depth camera calibration.</summary>
-        public CameraCalibration DepthCameraCalibration;
+        public CameraCalibration DepthCameraCalibration => Data.DepthCameraCalibration;
 
         /// <summary>Color camera calibration.</summary>
-        public CameraCalibration ColorCameraCalibration;
+        public CameraCalibration ColorCameraCalibration => Data.ColorCameraCalibration;
 
         /// <summary>Extrinsic transformation parameters.</summary>
         /// <remarks>
@@ -32,16 +41,13 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         /// <seealso cref="GetExtrinsics(CalibrationGeometry, CalibrationGeometry)"/>
         /// <seealso cref="SetExtrinsics(CalibrationGeometry, CalibrationGeometry, CalibrationExtrinsics)"/>
-#pragma warning disable CS0618 // Type or member is obsolete: UnmanagedType.Struct is obsolete in .NET Standard 2.1
-        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = (int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count)]
-#pragma warning restore CS0618 // Type or member is obsolete
-        public CalibrationExtrinsics[]? Extrinsics;
+        public CalibrationExtrinsics[]? Extrinsics => Data.Extrinsics;
 
         /// <summary>Depth camera mode for which calibration was obtained.</summary>
-        public DepthMode DepthMode;
+        public DepthMode DepthMode => Data.DepthMode;
 
         /// <summary>Color camera resolution for which calibration was obtained.</summary>
-        public ColorResolution ColorResolution;
+        public ColorResolution ColorResolution => Data.ColorResolution;
 
         #region Helper methods
 
@@ -50,18 +56,7 @@ namespace K4AdotNet.Sensor
         /// WARNING! This property performs only some basic and simple checks.
         /// If it returns <see langword="true"/>, calibration data can still be meaningless/incorrect.
         /// </remarks>
-        public bool IsValid
-            => Extrinsics != null
-            && Extrinsics.Length == (int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count
-            && (DepthMode != DepthMode.Off || ColorResolution != ColorResolution.Off)
-            && ColorCameraCalibration.ResolutionWidth == ColorResolution.WidthPixels()
-            && ColorCameraCalibration.ResolutionHeight == ColorResolution.HeightPixels()
-            && DepthCameraCalibration.ResolutionWidth == DepthMode.WidthPixels()
-            && DepthCameraCalibration.ResolutionHeight == DepthMode.HeightPixels()
-            && ColorCameraCalibration.Intrinsics.ParameterCount >= 0
-            && ColorCameraCalibration.Intrinsics.ParameterCount <= CalibrationIntrinsicParameters.ParameterCount
-            && DepthCameraCalibration.Intrinsics.ParameterCount >= 0
-            && DepthCameraCalibration.Intrinsics.ParameterCount <= CalibrationIntrinsicParameters.ParameterCount;
+        public bool IsValid => Data.IsValid;
 
         /// <summary>Helper method to get mutual extrinsics parameters for a given couple of sensors in Azure Kinect device.</summary>
         /// <param name="sourceSensor">Source coordinate system for transformation.</param>
@@ -70,7 +65,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="SetExtrinsics(CalibrationGeometry, CalibrationGeometry, CalibrationExtrinsics)"/>
         /// <seealso cref="Extrinsics"/>
         public CalibrationExtrinsics GetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor)
-            => Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor];
+            => Data.Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor];
 
         /// <summary>Helper method to set mutual extrinsics parameters for a given couple of sensors in Azure Kinect device.</summary>
         /// <param name="sourceSensor">Source coordinate system for transformation.</param>
@@ -79,7 +74,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="GetExtrinsics(CalibrationGeometry, CalibrationGeometry)"/>
         /// <seealso cref="Extrinsics"/>
         public void SetExtrinsics(CalibrationGeometry sourceSensor, CalibrationGeometry targetSensor, CalibrationExtrinsics extrinsics)
-            => Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
+            => Data.Extrinsics![(int)sourceSensor * (int)CalibrationGeometry.Count + (int)targetSensor] = extrinsics;
 
         #endregion
 
@@ -91,34 +86,16 @@ namespace K4AdotNet.Sensor
         /// </summary>
         /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
-        /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+        /// <returns>Created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
-        public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
-        {
-            if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
-                throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
-
-            calibration = default;
-
-            // depth camera
-            calibration.DepthMode = depthMode;
-            depthMode.GetNominalFov(out var hFovDegrees, out var vFovDegrees);
-            InitDummyCameraCalibration(ref calibration.DepthCameraCalibration,
-                depthMode.WidthPixels(), depthMode.HeightPixels(),
-                hFovDegrees, vFovDegrees);
-
-            // color camera
-            calibration.ColorResolution = colorResolution;
-            colorResolution.GetNominalFov(out hFovDegrees, out vFovDegrees);
-            InitDummyCameraCalibration(ref calibration.ColorCameraCalibration,
-                colorResolution.WidthPixels(), colorResolution.HeightPixels(),
-                hFovDegrees, vFovDegrees);
-
-            // extrinsics
-            calibration.Extrinsics = new CalibrationExtrinsics[(int)CalibrationGeometry.Count * (int)CalibrationGeometry.Count];
-            for (var i = 0; i < calibration.Extrinsics.Length; i++)
-                InitDummyExtrinsics(ref calibration.Extrinsics[i]);
-        }
+        public static Calibration CreateDummy(DepthMode depthMode, ColorResolution colorResolution)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Azure => Azure.CreateDummy(depthMode, colorResolution),
+                ComboMode.Orbbec => Orbbec.CreateDummy(depthMode, colorResolution),
+                ComboMode.Both => throw new InvalidOperationException(),
+                _ => throw new NotSupportedException(),
+            };
 
         /// <summary>
         /// Creates dummy (no distortions, ideal pin-hole geometry, all sensors are aligned, there is specified distance between depth and color cameras) but valid calibration data.
@@ -127,50 +104,16 @@ namespace K4AdotNet.Sensor
         /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
         /// <param name="distanceBetweenDepthAndColorMm">Distance (horizontal) between depth and color cameras.</param>
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
-        /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
+        /// <returns>Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
-        public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, float distanceBetweenDepthAndColorMm,
-            out Calibration calibration)
-        {
-            CreateDummy(depthMode, colorResolution, out calibration);
-
-            var extr = calibration.GetExtrinsics(CalibrationGeometry.Color, CalibrationGeometry.Depth);
-            extr.Translation = new Float3(distanceBetweenDepthAndColorMm, 0, 0);
-            calibration.SetExtrinsics(CalibrationGeometry.Color, CalibrationGeometry.Depth, extr);
-
-            extr = calibration.GetExtrinsics(CalibrationGeometry.Depth, CalibrationGeometry.Color);
-            extr.Translation = new Float3(-distanceBetweenDepthAndColorMm, 0, 0);
-            calibration.SetExtrinsics(CalibrationGeometry.Depth, CalibrationGeometry.Color, extr);
-        }
-
-        // Ideal pin-hole camera. No distortions.
-        private static void InitDummyCameraCalibration(ref CameraCalibration cameraCalibration, int widthPixels, int heightPixels,
-            float hFovDegrees, float vFovDegrees)
-        {
-            if (widthPixels <= 0 || heightPixels <= 0)
-                return;
-
-            cameraCalibration.ResolutionWidth = widthPixels;
-            cameraCalibration.ResolutionHeight = heightPixels;
-            cameraCalibration.MetricRadius = 1.7f;
-
-            cameraCalibration.Intrinsics.Model = CalibrationModel.BrownConrady;     // This model is in use in Azure Kinect Sensor SDK
-            cameraCalibration.Intrinsics.ParameterCount = 14;                       // Corresponds to BrownConrady model
-            cameraCalibration.Intrinsics.Parameters.Cx = (widthPixels - 1f) / 2f;
-            cameraCalibration.Intrinsics.Parameters.Cy = (heightPixels - 1f) / 2f;
-            cameraCalibration.Intrinsics.Parameters.Fx = SizeAndFovToFocus(widthPixels, hFovDegrees);
-            cameraCalibration.Intrinsics.Parameters.Fy = SizeAndFovToFocus(heightPixels, vFovDegrees);
-
-            InitDummyExtrinsics(ref cameraCalibration.Extrinsics);
-        }
-
-        // Ideal pin-hole camera. No distortions.
-        private static float SizeAndFovToFocus(int sizePixels, float fovDegrees)
-            => sizePixels / (float)(2 * Math.Tan(fovDegrees * Math.PI / 360));
-
-        // Identity transformation. All sensors are ideally aligned in dummy calibration data.
-        private static void InitDummyExtrinsics(ref CalibrationExtrinsics extrinsics)
-            => extrinsics.Rotation.M11 = extrinsics.Rotation.M22 = extrinsics.Rotation.M33 = 1f;
+        public static Calibration CreateDummy(DepthMode depthMode, ColorResolution colorResolution, float distanceBetweenDepthAndColorMm)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Azure => Azure.CreateDummy(depthMode, colorResolution, distanceBetweenDepthAndColorMm),
+                ComboMode.Orbbec => Orbbec.CreateDummy(depthMode, colorResolution, distanceBetweenDepthAndColorMm),
+                ComboMode.Both => throw new InvalidOperationException(),
+                _ => throw new NotSupportedException(),
+            };
 
         #endregion
 
@@ -180,22 +123,18 @@ namespace K4AdotNet.Sensor
         /// <param name="rawCalibration">Raw calibration blob obtained from a device or recording. The raw calibration must be <c>0</c>-terminated. Cannot be <see langword="null"/>.</param>
         /// <param name="depthMode">Mode in which depth camera is operated.</param>
         /// <param name="colorResolution">Resolution in which color camera is operated.</param>
-        /// <param name="calibration">Result: calibration data.</param>
+        /// <returns>Calibration data.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="rawCalibration"/> cannot be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="rawCalibration"/> must be 0-terminated.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
-        public static void CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution, out Calibration calibration)
-        {
-            if (rawCalibration == null)
-                throw new ArgumentNullException(nameof(rawCalibration));
-            if (rawCalibration.IndexOf(0) < 0)
-                throw new ArgumentException($"{nameof(rawCalibration)} must be 0-terminated.", nameof(rawCalibration));
-            if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
-                throw new ArgumentOutOfRangeException(nameof(depthMode) + " and " + nameof(colorResolution), $"{nameof(depthMode)} and {nameof(colorResolution)} cannot be equal to Off simultaneously.");
-            var res = NativeApi.CalibrationGetFromRaw(rawCalibration, Helpers.Int32ToUIntPtr(rawCalibration.Length), depthMode, colorResolution, out calibration);
-            if (res == NativeCallResults.Result.Failed)
-                throw new InvalidOperationException("Cannot create calibration from parameters specified.");
-        }
+        public static Calibration CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Azure => Azure.CreateFromRaw(rawCalibration, depthMode, colorResolution),
+                ComboMode.Orbbec => Orbbec.CreateFromRaw(rawCalibration, depthMode, colorResolution),
+                ComboMode.Both => throw new InvalidOperationException(),
+                _ => throw new NotSupportedException(),
+            };
 
         /// <summary>Transform a 2D pixel coordinate with an associated depth value of the source camera into a 2D pixel coordinate of the target camera.</summary>
         /// <param name="sourcePoint2D">The 2D pixel in <paramref name="sourceCamera"/> coordinates.</param>
@@ -226,7 +165,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
             if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
-            var res = NativeApi.Calibration2DTo2D(in this, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var validFlag);
+            var res = api.Calibration2DTo2D(in Data, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCamera, out var targetPoint2D, out var validFlag);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 2D point to 2D point: invalid calibration data.");
             if (validFlag == 0)
@@ -265,7 +204,7 @@ namespace K4AdotNet.Sensor
                 throw new ObjectDisposedException(nameof(depthImage));
             if (depthImage.Format != ImageFormat.Depth16 || depthImage.WidthPixels != DepthMode.WidthPixels() || depthImage.HeightPixels != DepthMode.HeightPixels())
                 throw new ArgumentException($"Invalid format or size of {nameof(depthImage)}", nameof(depthImage));
-            var res = NativeApi.CalibrationColor2DToDepth2D(in this, in sourcePoint2D, Image.ToHandle(depthImage), out var targetPoint2D, out var validFlag);
+            var res = api.CalibrationColor2DToDepth2D(in Data, in sourcePoint2D, Image.ToHandle(depthImage), out var targetPoint2D, out var validFlag);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform color 2D point to depth 2D point: invalid calibration data.");
             if (validFlag == 0)
@@ -305,7 +244,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCamera));
             if (!targetCameraOrSensor.IsCamera() && !targetCameraOrSensor.IsImuPart())
                 throw new ArgumentOutOfRangeException(nameof(targetCameraOrSensor));
-            var res = NativeApi.Calibration2DTo3D(in this, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCameraOrSensor, out var targetPoint3DMm, out var validFlag);
+            var res = api.Calibration2DTo3D(in Data, in sourcePoint2D, sourceDepthMm, sourceCamera, targetCameraOrSensor, out var targetPoint3DMm, out var validFlag);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 2D point to 3D point: invalid calibration data.");
             if (validFlag == 0)
@@ -340,7 +279,7 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCameraOrSensor));
             if (!targetCamera.IsCamera())
                 throw new ArgumentOutOfRangeException(nameof(targetCamera));
-            var res = NativeApi.Calibration3DTo2D(in this, in sourcePoint3DMm, sourceCameraOrSensor, targetCamera, out var targetPoint2D, out var validFlag);
+            var res = api.Calibration3DTo2D(in Data, in sourcePoint3DMm, sourceCameraOrSensor, targetCamera, out var targetPoint2D, out var validFlag);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 3D point to 2D point: invalid calibration data.");
             if (validFlag == 0)
@@ -368,17 +307,16 @@ namespace K4AdotNet.Sensor
                 throw new ArgumentOutOfRangeException(nameof(sourceCameraOrSensor));
             if (!targetCameraOrSensor.IsCamera() && !targetCameraOrSensor.IsImuPart())
                 throw new ArgumentOutOfRangeException(nameof(targetCameraOrSensor));
-            var res = NativeApi.Calibration3DTo3D(in this, in sourcePoint3DMm, sourceCameraOrSensor, targetCameraOrSensor, out var targetPoint3DMm);
+            var res = api.Calibration3DTo3D(in Data, in sourcePoint3DMm, sourceCameraOrSensor, targetCameraOrSensor, out var targetPoint3DMm);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException("Cannot transform 3D point to 3D point: invalid calibration data.");
             return targetPoint3DMm;
         }
 
-        /// <summary>Helper method to create <see cref="Transformation"/> object from this calibration data. For details see <see cref="Transformation(in Calibration)"/>.</summary>
+        /// <summary>Helper method to create <see cref="Transformation"/> object from this calibration data. For details see <see cref="Transformation"/>.</summary>
         /// <returns>Created transformation object. Not <see langword="null"/>.</returns>
-        /// <seealso cref="Transformation(in Calibration)"/>.
-        public Transformation CreateTransformation()
-            => new(in this);
+        /// <seealso cref="Transformation"/>.
+        public abstract Transformation CreateTransformation();
 
         #endregion
     }

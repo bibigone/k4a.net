@@ -95,7 +95,8 @@ namespace K4AdotNet.Record
             var codecIdAsBytes = Helpers.StringToBytes(codecId, Encoding.UTF8);
             var codecContextLength = Helpers.Int32ToUIntPtr(codecContext.Length);
 
-            var res = NativeApi.RecordAddCustomVideoTrack(RecorderHandle, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, in trackSettings);
+            var api = NativeApi.GetInstance(recorder.IsOrbbec);
+            var res = api.RecordAddCustomVideoTrack(RecorderHandle, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, in trackSettings);
 
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"{nameof(AddVideoTrack)}() must be called before {nameof(Recorder)}.{nameof(Recorder.WriteHeader)}().");
@@ -149,7 +150,8 @@ namespace K4AdotNet.Record
             var codecIdAsBytes = Helpers.StringToBytes(codecId, Encoding.UTF8);
             var codecContextLength = Helpers.Int32ToUIntPtr(codecContext.Length);
 
-            var res = NativeApi.RecordAddCustomSubtitleTrack(RecorderHandle, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, in trackSettings);
+            var api = NativeApi.GetInstance(recorder.IsOrbbec);
+            var res = api.RecordAddCustomSubtitleTrack(RecorderHandle, trackNameAsBytes, codecIdAsBytes, codecContext, codecContextLength, in trackSettings);
 
             if (res != NativeCallResults.Result.Succeeded)
                 throw new InvalidOperationException($"{nameof(AddCustomSubtitleTrack)}() must be called before {nameof(Recorder)}.{nameof(Recorder.WriteHeader)}().");

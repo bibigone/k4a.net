@@ -8,6 +8,8 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
         [STAThread]
         public static void Main()
         {
+            Sdk.Init(ComboMode.Azure);
+
 #if DEBUG
             Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
 #else

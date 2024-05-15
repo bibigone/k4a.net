@@ -127,5 +127,35 @@ namespace K4AdotNet
 
         private static bool IsValidTagOrTrackNameCharacter(char chr)
             => (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9') || chr == '-' || chr == '_';
+
+        public static string GetDeviceModelName(bool? isOrbbec)
+        {
+            if (isOrbbec == null)
+            {
+                return Sdk.ComboMode switch
+                {
+                    ComboMode.Azure => GetDeviceModelName(isOrbbec: false),
+                    ComboMode.Orbbec => GetDeviceModelName(isOrbbec: true),
+                    _ => GetDeviceModelName(isOrbbec: false) + " or " + GetDeviceModelName(isOrbbec: true),
+                };
+            }
+
+            return isOrbbec.Value
+                ? "Orbbec Femto"
+                : "Azure Kinect";
+        }
+
+        public static string GetImplementationName(bool isOrbbec)
+            => isOrbbec ? "ORBBEC" : "AZURE";
+
+        public static string GetBaseDir()
+#if !(NETSTANDARD2_0 || NET461)
+            => Path.GetDirectoryName(new Uri(typeof(Helpers).Assembly.Location).LocalPath) ?? string.Empty;
+#else
+            => Path.GetDirectoryName(new Uri(typeof(Helpers).Assembly.CodeBase).LocalPath) ?? string.Empty;
+#endif
+
+        public static string GetFullPathToSubdir(string subdir)
+            => Path.Combine(GetBaseDir(), subdir);
     }
 }

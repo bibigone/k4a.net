@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -7,22 +6,16 @@ namespace K4AdotNet.NativeHandles
     // K4A_DECLARE_HANDLE(k4abt_tracker_t);
     //
     /// <summary>Handle to Azure Kinect body tracking component.</summary>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct TrackerHandle : INativeHandle
+    internal class TrackerHandle : HandleBase
     {
-        private readonly IntPtr value;
+        private TrackerHandle() { }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
-
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+        protected override bool ReleaseHandle()
         {
-            if (IsValid)
-                NativeApi.TrackerDestroy(this);
+            if (!IsInvalid)
+                NativeApi.TrackerDestroy(handle);
+            return true;
         }
     }
 }

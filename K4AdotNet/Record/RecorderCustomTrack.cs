@@ -59,7 +59,8 @@ namespace K4AdotNet.Record
                 throw new ArgumentNullException(nameof(customData));
 
             var customDataLength = Helpers.Int32ToUIntPtr(customData.Length);
-            var res = NativeApi.RecordWriteCustomTrackData(RecorderHandle, trackNameAsBytes, deviceTimestamp, customData, customDataLength);
+            var api = NativeApi.GetInstance(recorder.IsOrbbec);
+            var res = api.RecordWriteCustomTrackData(RecorderHandle, trackNameAsBytes, deviceTimestamp, customData, customDataLength);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new RecordingException(recorder.FilePath);
         }

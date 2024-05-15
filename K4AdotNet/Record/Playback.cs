@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
@@ -7,8 +8,9 @@ namespace K4AdotNet.Record
 {
     /// <summary>Kinect for Azure recording opened for playback.</summary>
     /// <seealso cref="Recorder"/>
-    public sealed class Playback : IDisposablePlus
+    public sealed class Playback : SdkObject, IDisposablePlus
     {
+        private readonly NativeApi api;
         private readonly NativeHandles.HandleWrapper<NativeHandles.PlaybackHandle> handle;      // This class is an wrapper around this handle
         private readonly Lazy<PlaybackTrackCollection> tracks;
 
@@ -19,6 +21,7 @@ namespace K4AdotNet.Record
         /// <exception cref="FileNotFoundException">Files specified in <paramref name="filePath"/> does not exist.</exception>
         /// <exception cref="PlaybackException">Cannot open file specified in <paramref name="filePath"/> for playback. See logs for details.</exception>
         public Playback(string filePath)
+            : base(Sdk.DetermineDefaultImplIsOrbbec())
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -27,11 +30,15 @@ namespace K4AdotNet.Record
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Cannot find file \"{filePath}\".", filePath);
 
+            api = NativeApi.GetInstance(IsOrbbec);
+
             var pathAsBytes = Helpers.FilePathNameToBytes(filePath);
 
-            var res = NativeApi.PlaybackOpen(pathAsBytes, out var handle);
-            if (res != NativeCallResults.Result.Succeeded || !handle.IsValid)
+            var res = api.PlaybackOpen(pathAsBytes, out var handle);
+            if (res != NativeCallResults.Result.Succeeded || handle is null || handle.IsInvalid)
                 throw new PlaybackException($"Cannot open file \"{filePath}\" for playback.", filePath);
+
+            Debug.Assert(IsOrbbec == handle.IsOrbbec);
 
             this.handle = handle;
             this.handle.Disposed += Handle_Disposed;
@@ -73,7 +80,7 @@ namespace K4AdotNet.Record
         /// </remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed object.</exception>
         /// <seealso cref="Sensor.Image.DeviceTimestamp"/>
-        public Microseconds64 RecordLength => NativeApi.PlaybackGetRecordingLength(handle.ValueNotDisposed);
+        public Microseconds64 RecordLength => api.PlaybackGetRecordingLength(handle.ValueNotDisposed);
 
         /// <summary>Gets the last timestamp in a recording, relative to the start of the recording.</summary>
         /// <remarks>
@@ -108,25 +115,30 @@ namespace K4AdotNet.Record
         /// <seealso cref="Sensor.Device.GetRawCalibration"/>
         public byte[] GetRawCalibration()
         {
-            if (!Helpers.TryGetValueInByteBuffer(NativeApi.PlaybackGetRawCalibration, handle.ValueNotDisposed, out var result))
+            if (!Helpers.TryGetValueInByteBuffer(api.PlaybackGetRawCalibration, handle.ValueNotDisposed, out var result))
                 throw new PlaybackException(FilePath);
             return result;
         }
 
         /// <summary>Get the camera calibration for Azure Kinect device used during recording.</summary>
-        /// <param name="calibration">Output: calibration data.</param>
+        /// <returns>Calibration data.</returns>
         /// <remarks>The calibration may not exist if the device was not specified during recording.</remarks>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="PlaybackException">Cannot read calibration data from recording. See logs for details.</exception>
-        public void GetCalibration(out Sensor.Calibration calibration)
-            => CheckResult(NativeApi.PlaybackGetCalibration(handle.ValueNotDisposed, out calibration));
+        public Sensor.Calibration GetCalibration()
+        {
+            CheckResult(api.PlaybackGetCalibration(handle.ValueNotDisposed, out var calibrationData));
+            return IsOrbbec
+                ? new Sensor.Calibration.Orbbec(in calibrationData)
+                : new Sensor.Calibration.Azure(in calibrationData);
+        }
 
         /// <summary>Get the device configuration used during recording.</summary>
         /// <param name="config">Output: recording configuration.</param>
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <exception cref="PlaybackException">Cannot read configuration from recording. See logs for details.</exception>
         public void GetRecordConfiguration(out RecordConfiguration config)
-            => CheckResult(NativeApi.PlaybackGetRecordConfiguration(handle.ValueNotDisposed, out config));
+            => CheckResult(api.PlaybackGetRecordConfiguration(handle.ValueNotDisposed, out config));
 
         /// <summary>Reads the value of a tag from a recording.</summary>
         /// <param name="name">The name of the tag to read. Not <see langword="null"/> and not empty. Can contain only ASCII characters.</param>
@@ -163,7 +175,7 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetTag(byte[] name, IntPtr buffer, ref UIntPtr size)
-            => NativeApi.PlaybackGetTag(handle.ValueNotDisposed, name, buffer, ref size);
+            => api.PlaybackGetTag(handle.ValueNotDisposed, name, buffer, ref size);
 
         /// <summary>Reads an attachment file from a recording.</summary>
         /// <param name="attachmentName">Attachment file name. Not <see langword="null"/>, not empty.</param>
@@ -185,7 +197,7 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetAttachment(byte[] attachmentName, IntPtr buffer, ref UIntPtr size)
-            => NativeApi.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, buffer, ref size);
+            => api.PlaybackGetAttachment(handle.ValueNotDisposed, attachmentName, buffer, ref size);
 
         /// <summary>
         /// Sets the image format that color captures will be converted to. By default the conversion format will be the same as
@@ -204,7 +216,7 @@ namespace K4AdotNet.Record
         /// <exception cref="NotSupportedException">Format <paramref name="format"/> is not supported for color conversion.</exception>
         public void SetColorConversion(Sensor.ImageFormat format)
         {
-            var res = NativeApi.PlaybackSetColorConversion(handle.ValueNotDisposed, format);
+            var res = api.PlaybackSetColorConversion(handle.ValueNotDisposed, format);
             if (res != NativeCallResults.Result.Succeeded)
                 throw new NotSupportedException($"Format {format} is not supported for color conversion.");
         }
@@ -242,7 +254,7 @@ namespace K4AdotNet.Record
         /// <exception cref="ObjectDisposedException">This method cannot be called for disposed object.</exception>
         /// <seealso cref="SeekTimestamp(Microseconds64, PlaybackSeekOrigin)"/>
         public bool TrySeekTimestamp(Microseconds64 offset, PlaybackSeekOrigin origin)
-            => NativeApi.PlaybackSeekTimestamp(handle.ValueNotDisposed, offset, origin) == NativeCallResults.Result.Succeeded;
+            => api.PlaybackSeekTimestamp(handle.ValueNotDisposed, offset, origin) == NativeCallResults.Result.Succeeded;
 
         /// <summary>
         /// Seeks to a specific timestamp within a recording.
@@ -305,7 +317,7 @@ namespace K4AdotNet.Record
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         public bool TryGetNextCapture([NotNullWhen(returnValue: true)] out Sensor.Capture? capture)
         {
-            var res = NativeApi.PlaybackGetNextCapture(handle.ValueNotDisposed, out var captureHandle);
+            var res = api.PlaybackGetNextCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
             {
                 capture = null;
@@ -344,7 +356,7 @@ namespace K4AdotNet.Record
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         public bool TryGetPreviousCapture([NotNullWhen(returnValue: true)] out Sensor.Capture? capture)
         {
-            var res = NativeApi.PlaybackGetPreviousCapture(handle.ValueNotDisposed, out var captureHandle);
+            var res = api.PlaybackGetPreviousCapture(handle.ValueNotDisposed, out var captureHandle);
             if (res == NativeCallResults.StreamResult.Eof)
             {
                 capture = null;
@@ -378,7 +390,7 @@ namespace K4AdotNet.Record
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         public bool TryGetNextImuSample(out Sensor.ImuSample imuSample)
         {
-            var res = NativeApi.PlaybackGetNextImuSample(handle.ValueNotDisposed, out imuSample);
+            var res = api.PlaybackGetNextImuSample(handle.ValueNotDisposed, out imuSample);
             if (res == NativeCallResults.StreamResult.Eof)
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)
@@ -406,7 +418,7 @@ namespace K4AdotNet.Record
         /// <exception cref="PlaybackException">Error during reading from recording. See logs for details.</exception>
         public bool TryGetPreviousImuSample(out Sensor.ImuSample imuSample)
         {
-            var res = NativeApi.PlaybackGetPreviousImuSample(handle.ValueNotDisposed, out imuSample);
+            var res = api.PlaybackGetPreviousImuSample(handle.ValueNotDisposed, out imuSample);
             if (res == NativeCallResults.StreamResult.Eof)
                 return false;
             if (res == NativeCallResults.StreamResult.Succeeded)
@@ -420,7 +432,8 @@ namespace K4AdotNet.Record
                 throw new PlaybackException(FilePath);
         }
 
-        internal static NativeHandles.PlaybackHandle ToHandle(Playback? playback)
-            => playback?.handle.ValueNotDisposed ?? default;
+        [return:NotNullIfNotNull(nameof(playback))]
+        internal static NativeHandles.PlaybackHandle? ToHandle(Playback? playback)
+            => playback?.handle?.ValueNotDisposed;
     }
 }

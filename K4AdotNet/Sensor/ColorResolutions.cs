@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace K4AdotNet.Sensor
 {
@@ -8,36 +7,43 @@ namespace K4AdotNet.Sensor
     public static class ColorResolutions
     {
         private static readonly int[] heights = new[] { 0, 720, 1080, 1440, 1536, 2160, 3072 };
-#if ORBBECSDK_K4A_WRAPPER
-        private const float NOMINAL_HFOV_4_3_DEGREES = 65f;
-        private const float NOMINAL_HFOV_16_9_DEGREES = 80f;
-        private const float NOMINAL_VFOV_4_3_DEGREES = 51f;
-        private const float NOMINAL_VFOV_16_9_DEGREES = 51f;
-#else
-        private const float NOMINAL_HFOV_4_3_DEGREES = 90f;
-        private const float NOMINAL_HFOV_16_9_DEGREES = 90f;
-        private const float NOMINAL_VFOV_4_3_DEGREES = 74.3f;
-        private const float NOMINAL_VFOV_16_9_DEGREES = 59f;
-#endif
+
+        private const float NOMINAL_HFOV_4_3_DEGREES_ORBBEC = 65f;
+        private const float NOMINAL_HFOV_16_9_DEGREES_ORBBEC = 80f;
+        private const float NOMINAL_VFOV_4_3_DEGREES_ORBBEC = 51f;
+        private const float NOMINAL_VFOV_16_9_DEGREES_ORBBEC = 51f;
+
+        private const float NOMINAL_HFOV_4_3_DEGREES_AZURE = 90f;
+        private const float NOMINAL_HFOV_16_9_DEGREES_AZURE = 90f;
+        private const float NOMINAL_VFOV_4_3_DEGREES_AZURE = 74.3f;
+        private const float NOMINAL_VFOV_16_9_DEGREES_AZURE = 59f;
 
         /// <summary>
         /// All possible <see cref="ColorResolution"/>s including <see cref="ColorResolution.Off"/>.
         /// May be helpful for UI, tests, etc.
         /// </summary>
-        public static readonly IReadOnlyList<ColorResolution> All = new[]
+        public static readonly IReadOnlyList<ColorResolution> AllSupportedByAzure = new[]
         {
             ColorResolution.Off,
             ColorResolution.R720p,
             ColorResolution.R1080p,
             ColorResolution.R1440p,
-#if !ORBBECSDK_K4A_WRAPPER
-            ColorResolution.R1536p,
-#endif
+            ColorResolution.R1536p,         // Not supported by ORBBEC
             ColorResolution.R2160p,
-#if !ORBBECSDK_K4A_WRAPPER
-            ColorResolution.R3072p,
-#endif
+            ColorResolution.R3072p,         // Not supported by ORBBEC
         };
+
+        public static readonly IReadOnlyList<ColorResolution> AllSupportedByOrbbec = new[]
+        {
+            ColorResolution.Off,
+            ColorResolution.R720p,
+            ColorResolution.R1080p,
+            ColorResolution.R1440p,
+            ColorResolution.R2160p,
+        };
+
+        public static IReadOnlyList<ColorResolution> All(bool isOrbbec)
+            => isOrbbec ? AllSupportedByOrbbec : AllSupportedByAzure;
 
         /// <summary>Checks that resolution is compatible with a given frame rate.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="frameRate"/>.</param>
@@ -50,15 +56,14 @@ namespace K4AdotNet.Sensor
         /// For details see:
         /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
-        /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution)"/>
-        public static bool IsCompatibleWith(this ColorResolution colorResolution, FrameRate frameRate)
-#if ORBBECSDK_K4A_WRAPPER
-#pragma warning disable CS0618 // Type or member is obsolete
-            => colorResolution != ColorResolution.R1536p && colorResolution != ColorResolution.R3072p;
-#pragma warning restore CS0618 // Type or member is obsolete
-#else
-            => !(colorResolution == ColorResolution.R3072p && frameRate == FrameRate.Thirty);
-#endif
+        /// <seealso cref="FrameRates.IsCompatibleWith(FrameRate, ColorResolution, bool)"/>
+        public static bool IsCompatibleWith(this ColorResolution colorResolution, FrameRate frameRate, bool isOrbbec)
+        {
+            if (isOrbbec)
+                return colorResolution != ColorResolution.R1536p && colorResolution != ColorResolution.R3072p;
+            else
+                return !(colorResolution == ColorResolution.R3072p && frameRate == FrameRate.Thirty);
+        }
 
         /// <summary>Checks that resolution is compatible with a given image format.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="imageFormat"/>.</param>
@@ -72,9 +77,19 @@ namespace K4AdotNet.Sensor
         /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         /// <seealso cref="ImageFormat"/>
-        public static bool IsCompatibleWith(this ColorResolution colorResolution, ImageFormat imageFormat)
-            => imageFormat == ImageFormat.ColorBgra32 || imageFormat == ImageFormat.ColorMjpg
-            || (colorResolution == ColorResolution.R720p && (imageFormat == ImageFormat.ColorNV12 || imageFormat == ImageFormat.ColorYUY2));
+        public static bool IsCompatibleWith(this ColorResolution colorResolution, ImageFormat imageFormat, bool isOrbbec)
+        {
+            if (isOrbbec
+                && (imageFormat == ImageFormat.ColorBgra32
+                    || colorResolution == ColorResolution.R1536p
+                    || colorResolution == ColorResolution.R3072p))
+            {
+                return false;
+            }
+
+            return imageFormat == ImageFormat.ColorBgra32 || imageFormat == ImageFormat.ColorMjpg
+                || (colorResolution == ColorResolution.R720p && (imageFormat == ImageFormat.ColorNV12 || imageFormat == ImageFormat.ColorYUY2));
+        }
 
         /// <summary>Returns image width in pixels for a given resolution.</summary>
         /// <param name="resolution">Color resolution (element of enumeration).</param>
@@ -98,17 +113,17 @@ namespace K4AdotNet.Sensor
         /// For details see:
         /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
-        public static void GetNominalFov(this ColorResolution resolution, out float horizontalDegrees, out float verticalDegrees)
+        public static void GetNominalFov(this ColorResolution resolution, bool isOrbbec, out float horizontalDegrees, out float verticalDegrees)
         {
             if (resolution.IsAspectRatio16to9())
             {
-                horizontalDegrees = NOMINAL_HFOV_16_9_DEGREES;
-                verticalDegrees = NOMINAL_VFOV_16_9_DEGREES;
+                horizontalDegrees = isOrbbec ? NOMINAL_HFOV_16_9_DEGREES_ORBBEC : NOMINAL_HFOV_16_9_DEGREES_AZURE;
+                verticalDegrees = isOrbbec ? NOMINAL_VFOV_16_9_DEGREES_ORBBEC : NOMINAL_VFOV_16_9_DEGREES_AZURE;
             }
             else if (resolution.IsAspectRatio4to3())
             {
-                horizontalDegrees = NOMINAL_HFOV_4_3_DEGREES;
-                verticalDegrees = NOMINAL_VFOV_4_3_DEGREES;
+                horizontalDegrees = isOrbbec ? NOMINAL_HFOV_4_3_DEGREES_ORBBEC : NOMINAL_HFOV_4_3_DEGREES_AZURE;
+                verticalDegrees = isOrbbec ? NOMINAL_VFOV_4_3_DEGREES_ORBBEC : NOMINAL_VFOV_4_3_DEGREES_AZURE;
             }
             else
             {
@@ -128,9 +143,7 @@ namespace K4AdotNet.Sensor
         /// https://docs.microsoft.com/en-us/azure/Kinect-dk/hardware-specification#color-camera-supported-operating-modes
         /// </remarks>
         public static bool IsAspectRatio4to3(this ColorResolution resolution)
-#pragma warning disable CS0618 // Type or member is obsolete
             => resolution == ColorResolution.R1536p || resolution == ColorResolution.R3072p;
-#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>Aspect ratio of a given resolution: is it 16:9?</summary>
         /// <param name="resolution">Element of enumeration.</param>

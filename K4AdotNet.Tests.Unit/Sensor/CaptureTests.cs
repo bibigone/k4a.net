@@ -10,22 +10,21 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestEmptyCaptureCreation()
         {
-            using (var capture = new Capture())
+            using (var capture = Capture.Create())
             {
                 Assert.IsFalse(capture.IsDisposed);
                 Assert.IsNull(capture.ColorImage);
                 Assert.IsNull(capture.DepthImage);
                 Assert.IsNull(capture.IRImage);
-#if !ORBBECSDK_K4A_WRAPPER
-                Assert.IsTrue(float.IsNaN(capture.TemperatureC));
-#endif
+                if (capture is Capture.Azure captureAzure)
+                    Assert.IsTrue(float.IsNaN(captureAzure.TemperatureC));
             }
         }
 
         [TestMethod]
         public void TestDisposing()
         {
-            var capture = new Capture();
+            var capture = Capture.Create();
 
             // Check disposing
             Assert.IsFalse(capture.IsDisposed);
@@ -46,7 +45,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [ExpectedException(typeof(ObjectDisposedException))]
         public void TestObjectDisposedException()
         {
-            var capture = new Capture();
+            var capture = Capture.Create();
             capture.Dispose();
             _ = capture.DepthImage;     // <- ObjectDisposedException
         }
@@ -54,11 +53,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestSettingOfColorImage()
         {
-            using (var capture = new Capture())
+            using (var capture = Capture.Create())
             {
                 IntPtr imageBuffer;
 
-                using (var image = new Image(ImageFormat.ColorBgra32, 2, 2))
+                using (var image = new Image.Azure(ImageFormat.ColorBgra32, 2, 2))
                 {
                     capture.ColorImage = image;
 
@@ -89,11 +88,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestSettingOfDepthImage()
         {
-            using (var capture = new Capture())
+            using (var capture = Capture.Create())
             {
                 IntPtr imageBuffer;
 
-                using (var image = new Image(ImageFormat.Depth16, 2, 2))
+                using (var image = new Image.Azure(ImageFormat.Depth16, 2, 2))
                 {
                     capture.DepthImage = image;
 
@@ -124,11 +123,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestSettingOfIRImage()
         {
-            using (var capture = new Capture())
+            using (var capture = Capture.Create())
             {
                 IntPtr imageBuffer;
 
-                using (var image = new Image(ImageFormat.IR16, 2, 2))
+                using (var image = new Image.Azure(ImageFormat.IR16, 2, 2))
                 {
                     capture.IRImage = image;
 
@@ -162,10 +161,13 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             var testTemperatureC = 48.3f;
 
-            using (var capture = new Capture())
+            using (var capture = Capture.Create())
             {
-                capture.TemperatureC = testTemperatureC;
-                Assert.AreEqual(testTemperatureC, capture.TemperatureC);
+                if (capture is Capture.Azure captureAzure)
+                {
+                    captureAzure.TemperatureC = testTemperatureC;
+                    Assert.AreEqual(testTemperatureC, captureAzure.TemperatureC);
+                }
             }
         }
 #endif
@@ -173,7 +175,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestDuplicateReference()
         {
-            var capture = new Capture();
+            var capture = Capture.Create();
             var refCapture = capture.DuplicateReference();
 
             Assert.AreEqual(capture, refCapture);
@@ -181,20 +183,24 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.IsFalse(capture != refCapture);
 
 #if !ORBBECSDK_K4A_WRAPPER
-            var testTemperatureC = 48.3f;
+            if (capture is Capture.Azure captureAzure)
+            {
+                var refCaptureAzure = (Capture.Azure)refCapture;
+                var testTemperatureC = 48.3f;
 
-            // Check that when we change property of source capture,
-            // then property of refCapture is also synchronously changed
-            capture.TemperatureC = testTemperatureC;
-            Assert.AreEqual(testTemperatureC, refCapture.TemperatureC);
+                // Check that when we change property of source capture,
+                // then property of refCapture is also synchronously changed
+                captureAzure.TemperatureC = testTemperatureC;
+                Assert.AreEqual(testTemperatureC, refCaptureAzure.TemperatureC);
 
-            // And vice versa
-            refCapture.TemperatureC = -testTemperatureC;
-            Assert.AreEqual(-testTemperatureC, capture.TemperatureC);
+                // And vice versa
+                refCaptureAzure.TemperatureC = -testTemperatureC;
+                Assert.AreEqual(-testTemperatureC, captureAzure.TemperatureC);
+            }
 #endif
 
             // And for image properties
-            using (var depthMap = new Image(ImageFormat.Depth16, 2, 2))
+            using (var depthMap = new Image.Azure(ImageFormat.Depth16, 2, 2))
             {
                 capture.DepthImage = depthMap;
                 using (var retDepthMap = refCapture.DepthImage)
@@ -215,16 +221,16 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestAutomaticDisposingOfAllReturnedImages()
         {
-            var capture = new Capture();
-            using (var image = new Image(ImageFormat.ColorBgra32, 2, 2))
+            var capture = Capture.Create();
+            using (var image = new Image.Azure(ImageFormat.ColorBgra32, 2, 2))
             {
                 capture.ColorImage = image;
             }
-            using (var image = new Image(ImageFormat.Depth16, 2, 2))
+            using (var image = new Image.Azure(ImageFormat.Depth16, 2, 2))
             {
                 capture.DepthImage = image;
             }
-            using (var image = new Image(ImageFormat.IR16, 2, 2))
+            using (var image = new Image.Azure(ImageFormat.IR16, 2, 2))
             {
                 capture.IRImage = image;
             }

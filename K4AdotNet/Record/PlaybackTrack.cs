@@ -10,6 +10,7 @@ namespace K4AdotNet.Record
     public sealed class PlaybackTrack
     {
         private readonly Playback playback;
+        private readonly NativeApi api;
         private readonly byte[] nameAsBytes;
 
         /// <summary>Creates track object with specified <paramref name="index"/> for specified <paramref name="playback"/>.</summary>
@@ -20,9 +21,10 @@ namespace K4AdotNet.Record
         internal PlaybackTrack(Playback playback, int index)
         {
             this.playback = playback;
+            api = NativeApi.GetInstance(playback.IsOrbbec);
             Index = index;
             Name = GetTrackName(out nameAsBytes);
-            IsBuiltIn = NativeApi.PlaybackTrackIsBuiltIn(PlaybackHandle, nameAsBytes) != 0;
+            IsBuiltIn = api.PlaybackTrackIsBuiltIn(PlaybackHandle, nameAsBytes) != 0;
         }
 
         private string GetTrackName(out byte[] nameAsBytes)
@@ -34,7 +36,7 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetTrackName(int trackIndex, IntPtr buffer, ref UIntPtr size)
-            => NativeApi.PlaybackGetTrackName(PlaybackHandle, Helpers.Int32ToUIntPtr(trackIndex), buffer, ref size);
+            => api.PlaybackGetTrackName(PlaybackHandle, Helpers.Int32ToUIntPtr(trackIndex), buffer, ref size);
 
         /// <summary>Zero-based index of track.</summary>
         public int Index { get; }
@@ -53,7 +55,7 @@ namespace K4AdotNet.Record
         {
             get
             {
-                var res = NativeApi.PlaybackTrackGetVideoSetting(PlaybackHandle, nameAsBytes, out var videoSettings);
+                var res = api.PlaybackTrackGetVideoSetting(PlaybackHandle, nameAsBytes, out var videoSettings);
                 if (res != NativeCallResults.Result.Succeeded)
                     throw new InvalidOperationException("This is not a video track.");
                 return videoSettings;
@@ -78,7 +80,7 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetCodecId(byte[] trackNameAsBytes, IntPtr buffer, ref UIntPtr size)
-            => NativeApi.PlaybackTrackGetCodecId(PlaybackHandle, trackNameAsBytes, buffer, ref size);
+            => api.PlaybackTrackGetCodecId(PlaybackHandle, trackNameAsBytes, buffer, ref size);
 
         /// <summary>Gets the codec context for this track.</summary>
         /// <remarks>
@@ -98,7 +100,7 @@ namespace K4AdotNet.Record
         }
 
         private NativeCallResults.BufferResult GetCodecContext(byte[] trackNameAsBytes, IntPtr buffer, ref UIntPtr size)
-            => NativeApi.PlaybackTrackGetCodecContext(PlaybackHandle, trackNameAsBytes, buffer, ref size);
+            => api.PlaybackTrackGetCodecContext(PlaybackHandle, trackNameAsBytes, buffer, ref size);
 
         /// <summary>Reads the next data block for this track.</summary>
         /// <param name="dataBlock">Output: data block object on success or <see langword="null"/> on EOF. Don't forget to dispose this object after usage.</param>
@@ -127,7 +129,7 @@ namespace K4AdotNet.Record
             if (IsBuiltIn)
                 throw new InvalidOperationException("This method cannot be called for built-in tracks like COLOR, DEPTH, etc.");
 
-            var res = NativeApi.PlaybackGetNextDataBlock(PlaybackHandle, nameAsBytes, out var dataHandle);
+            var res = api.PlaybackGetNextDataBlock(PlaybackHandle, nameAsBytes, out var dataHandle);
 
             if (res == NativeCallResults.StreamResult.Eof)
             {
@@ -135,7 +137,7 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle.IsValid)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle is not null && !dataHandle.IsInvalid)
             {
                 dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;
@@ -171,7 +173,7 @@ namespace K4AdotNet.Record
             if (IsBuiltIn)
                 throw new InvalidOperationException("This method cannot be called for built-in tracks like COLOR, DEPTH, etc.");
 
-            var res = NativeApi.PlaybackGetPreviousDataBlock(PlaybackHandle, nameAsBytes, out var dataHandle);
+            var res = api.PlaybackGetPreviousDataBlock(PlaybackHandle, nameAsBytes, out var dataHandle);
 
             if (res == NativeCallResults.StreamResult.Eof)
             {
@@ -179,7 +181,7 @@ namespace K4AdotNet.Record
                 return false;
             }
 
-            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle.IsValid)
+            if (res == NativeCallResults.StreamResult.Succeeded && dataHandle is not null && !dataHandle.IsInvalid)
             {
                 dataBlock = PlaybackDataBlock.Create(dataHandle)!;
                 return true;

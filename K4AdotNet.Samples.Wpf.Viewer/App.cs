@@ -10,6 +10,7 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         {
             try
             {
+                Sdk.Init(ComboMode.Both);
 #if DEBUG
                 Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
 #else

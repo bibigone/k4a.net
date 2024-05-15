@@ -21,7 +21,7 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             this.frameWidth = frameWidth;
             this.frameHeight = frameHeight;
 
-            image = new(ImageFormat.ColorBgra32, frameWidth, frameHeight);
+            image = new Image.Azure(ImageFormat.ColorBgra32, frameWidth, frameHeight);
         }
 
         public void Dispose()
@@ -150,11 +150,12 @@ namespace K4AdotNet.Samples.Wpf.BackgroundRemover
             lock (image)
             {
                 image.DeviceTimestamp = frameData.ColorFrame.DeviceTimestamp;
-#if !ORBBECSDK_K4A_WRAPPER
-                image.Exposure = frameData.ColorFrame.Exposure;
-                image.IsoSpeed = frameData.ColorFrame.IsoSpeed;
-                image.WhiteBalance = frameData.ColorFrame.WhiteBalance;
-#endif
+                if (image is Image.Azure imageAzure && frameData.ColorFrame is Image.Azure colorFrameAzure)
+                {
+                    imageAzure.Exposure = colorFrameAzure.Exposure;
+                    imageAzure.IsoSpeed = colorFrameAzure.IsoSpeed;
+                    imageAzure.WhiteBalance = colorFrameAzure.WhiteBalance;
+                }
                 Buffer.MemoryCopy((void*)frameData.ColorFrame.Buffer, (void*)image.Buffer, image.SizeBytes, frameData.ColorFrame.SizeBytes);
             }
         }

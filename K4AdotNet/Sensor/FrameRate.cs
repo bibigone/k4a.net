@@ -29,10 +29,5 @@
 
         /// <summary>Thirty (30) frames per second.</summary>
         Thirty,
-
-#if ORBBECSDK_K4A_WRAPPER
-        /// <summary>Twenty five (25) frames per second. Only for ORBBEC devices.</summary>
-        TwentyFive,
-#endif
     }
 }

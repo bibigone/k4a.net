@@ -68,8 +68,8 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 expectedSize = expectedSize * 3 / 2;
 
             var image = strideOrNull.HasValue
-                ? new Image(format, testWidth, testHeight, strideOrNull.Value)
-                : new Image(format, testWidth, testHeight);
+                ? new Image.Azure(format, testWidth, testHeight, strideOrNull.Value)
+                : new Image.Azure(format, testWidth, testHeight);
 
             Assert.AreNotEqual(IntPtr.Zero, image.Buffer);
 
@@ -91,7 +91,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var strideBytes = 0;
             var sizeBytes = testWidth * testHeight * 2 + 1976;
 
-            using (var image = new Image(format, testWidth, testHeight, strideBytes, sizeBytes))
+            using (var image = new Image.Azure(format, testWidth, testHeight, strideBytes, sizeBytes))
             {
                 Assert.AreNotEqual(IntPtr.Zero, image.Buffer);
                 Assert.AreEqual(format, image.Format);
@@ -193,7 +193,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestDisposing()
         {
-            var image = new Image(ImageFormat.Depth16, testWidth, testHeight);
+            var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight);
 
             // Check disposing
             Assert.IsFalse(image.IsDisposed);
@@ -238,7 +238,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [ExpectedException(typeof(ObjectDisposedException))]
         public void TestObjectDisposedException()
         {
-            var image = new Image(ImageFormat.Depth16, testWidth, testHeight);
+            var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight);
             image.Dispose();
             _ = image.Buffer;      // <- ObjectDisposedException
         }
@@ -250,7 +250,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestMutableProperties()
         {
-            using (var image = new Image(ImageFormat.Depth16, testWidth, testHeight))
+            using (var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight))
             {
                 // Check DeviceTimestamp property
                 Assert.AreEqual(Microseconds64.Zero, image.DeviceTimestamp);
@@ -306,15 +306,18 @@ namespace K4AdotNet.Tests.Unit.Sensor
             image.DeviceTimestamp = testDeviceTimestamp;
             Assert.AreEqual(testDeviceTimestamp, refImage.DeviceTimestamp);
 
-#if !ORBBECSDK_K4A_WRAPPER
-            // And vice versa
-            refImage.WhiteBalance = testWhiteBalance;
-            Assert.AreEqual(testWhiteBalance, image.WhiteBalance);
+            if (image is Image.Azure imageAzure)
+            {
+                var refImageAzure = (Image.Azure)refImage;
 
-            // And for one more property
-            image.IsoSpeed = testIsoSpeed;
-            Assert.AreEqual(testIsoSpeed, refImage.IsoSpeed);
-#endif
+                // And vice versa
+                refImageAzure.WhiteBalance = testWhiteBalance;
+                Assert.AreEqual(testWhiteBalance, imageAzure.WhiteBalance);
+
+                // And for one more property
+                imageAzure.IsoSpeed = testIsoSpeed;
+                Assert.AreEqual(testIsoSpeed, refImageAzure.IsoSpeed);
+            }
 
             // Dispose source image
             image.Dispose();
@@ -339,7 +342,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForByteArray()
         {
-            using (var image = new Image(ImageFormat.ColorBgra32, 1, 1))
+            using (var image = new Image.Azure(ImageFormat.ColorBgra32, 1, 1))
             {
                 var src = new byte[] { 127, 63, 255, 0 };
                 image.FillFrom(src);
@@ -353,7 +356,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForShortArray()
         {
-            using (var image = new Image(ImageFormat.Depth16, 2, 2))
+            using (var image = new Image.Azure(ImageFormat.Depth16, 2, 2))
             {
                 var src = new short[] { -1234, 0, short.MinValue, short.MaxValue };
                 image.FillFrom(src);
@@ -367,7 +370,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForIntArray()
         {
-            using (var image = new Image(ImageFormat.Custom, 2, 2, 2 * sizeof(int)))
+            using (var image = new Image.Azure(ImageFormat.Custom, 2, 2, 2 * sizeof(int)))
             {
                 var src = new int[] { -1234, 0, int.MinValue, int.MaxValue };
                 image.FillFrom(src);
@@ -381,7 +384,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForFloatArray()
         {
-            using (var image = new Image(ImageFormat.Custom, 2, 2, 2 * sizeof(float)))
+            using (var image = new Image.Azure(ImageFormat.Custom, 2, 2, 2 * sizeof(float)))
             {
                 var src = new float[] { -1234.56f, 0f, float.MinValue, float.MaxValue };
                 image.FillFrom(src);
@@ -402,7 +405,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 #endif
         public void TestImageSizeCalculationNV12()
         {
-            using (var image = new Image(ImageFormat.ColorNV12, 1280, 720))
+            using (var image = new Image.Azure(ImageFormat.ColorNV12, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.ColorNV12.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.ColorNV12.ImageSizeBytes(image.StrideBytes, 720));
@@ -412,7 +415,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationYUY2()
         {
-            using (var image = new Image(ImageFormat.ColorYUY2, 1280, 720))
+            using (var image = new Image.Azure(ImageFormat.ColorYUY2, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.ColorYUY2.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.ColorYUY2.ImageSizeBytes(image.StrideBytes, 720));
@@ -422,7 +425,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationDepth()
         {
-            using (var image = new Image(ImageFormat.Depth16, 1280, 720))
+            using (var image = new Image.Azure(ImageFormat.Depth16, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.Depth16.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Depth16.ImageSizeBytes(image.StrideBytes, 720));
@@ -432,7 +435,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationIR16()
         {
-            using (var image = new Image(ImageFormat.IR16, 1280, 720))
+            using (var image = new Image.Azure(ImageFormat.IR16, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.IR16.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.IR16.ImageSizeBytes(image.StrideBytes, 720));
@@ -443,7 +446,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         public void TestImageSizeCalculationCustom()
         {
             var bytesPerPixel = 4;
-            using (var image = new Image(ImageFormat.Custom, 1280, 720, 1280 * bytesPerPixel))
+            using (var image = new Image.Azure(ImageFormat.Custom, 1280, 720, 1280 * bytesPerPixel))
             {
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Custom.ImageSizeBytes(image.StrideBytes, 720));
             }
@@ -493,7 +496,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             // The first test image - should result in one memory allocation
             var testContextA = testAllocator.AllocContextValue = 12345;
-            var testImageA = new Image(ImageFormat.Depth16, 1, 1);
+            var testImageA = new Image.Azure(ImageFormat.Depth16, 1, 1);
             // One allocation but no calls of Free
             Assert.AreEqual(1, testAllocator.AllocateCount);    // 0 -> 1 !
             Assert.AreEqual(0, testAllocator.FreeCount);        // unchanged
@@ -504,7 +507,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             // The second test image - should result in one more memory allocation
             var testContextB = testAllocator.AllocContextValue = 98765;
-            var testImageB = new Image(ImageFormat.ColorBgra32, 1, 1);
+            var testImageB = new Image.Azure(ImageFormat.ColorBgra32, 1, 1);
             // Two allocations but still no calls of Free
             Assert.AreEqual(2, testAllocator.AllocateCount);    // 1 -> 2 !
             Assert.AreEqual(0, testAllocator.FreeCount);        // unchanged
@@ -524,7 +527,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Sdk.CustomMemoryAllocator = null;
 
             // Now creation of test image does not result in calls to our testAllocator instance
-            var testImageC = new Image(ImageFormat.ColorYUY2, testWidth, testHeight);
+            var testImageC = new Image.Azure(ImageFormat.ColorYUY2, testWidth, testHeight);
             Assert.AreEqual(2, testAllocator.AllocateCount);
             Assert.AreEqual(1, testAllocator.FreeCount);
 

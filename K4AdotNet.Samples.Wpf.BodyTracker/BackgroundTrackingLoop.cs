@@ -11,7 +11,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         private readonly Thread backgroundThread;
         private volatile bool isRunning;
 
-        public BackgroundTrackingLoop(in Calibration calibration, TrackerProcessingMode processingMode, DnnModel dnnModel, SensorOrientation sensorOrientation, float smoothingFactor)
+        public BackgroundTrackingLoop(Calibration calibration, TrackerProcessingMode processingMode, DnnModel dnnModel, SensorOrientation sensorOrientation, float smoothingFactor)
         {
             var config = new TrackerConfiguration
             {
@@ -19,7 +19,7 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
                 ProcessingMode = processingMode,
                 ModelPath = GetModelPath(dnnModel),
             };
-            tracker = new(in calibration, config) { TemporalSmoothingFactor = smoothingFactor };
+            tracker = new(in calibration.Data, config) { TemporalSmoothingFactor = smoothingFactor };
             isRunning = true;
             backgroundThread = new(BackgroundLoop) { IsBackground = true };
             backgroundThread.Start();

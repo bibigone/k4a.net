@@ -100,8 +100,7 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         PowerlineFrequency,
 
-#if ORBBECSDK_K4A_WRAPPER
-        /// <summary>HDR setting (OrbbecSDK-K4A-Wrapper only).</summary>
+        /// <summary>HDR setting (only for ORBBEC devices).</summary>
         /// <remarks><para>
         /// May only be set to <see cref="ColorControlMode.Manual"/>.
         /// Must stop color camera before setting HDR mode.
@@ -109,6 +108,5 @@ namespace K4AdotNet.Sensor
         /// Value of 0 means HDR is disabled. Value of 1 means HDR is enabled.
         /// </para></remarks>
         Hdr,
-#endif
     }
 }

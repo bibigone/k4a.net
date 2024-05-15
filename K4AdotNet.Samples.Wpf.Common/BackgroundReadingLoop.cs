@@ -9,11 +9,7 @@ namespace K4AdotNet.Samples.Wpf
     public abstract class BackgroundReadingLoop : IDisposable
     {
         public const ImageFormat DefaultColorFormat =
-#if ORBBECSDK_K4A_WRAPPER
             ImageFormat.ColorMjpg;          // It looks like that OrbbecSDK-K4A-Wrapper does not support BGRA
-#else
-            ImageFormat.ColorBgra32;        // Allow Azure Kinect SDK to convert color images to BGRA internally
-#endif
 
         public static BackgroundReadingLoop CreateForPlayback(
             string filePath,
@@ -50,7 +46,7 @@ namespace K4AdotNet.Samples.Wpf
             }
         }
 
-        public abstract void GetCalibration(out Calibration calibration);
+        public abstract Calibration GetCalibration();
 
         protected abstract void BackgroundLoop();
 
@@ -108,8 +104,8 @@ namespace K4AdotNet.Samples.Wpf
 
             public override DepthMode DepthMode { get; }
 
-            public override void GetCalibration(out Calibration calibration)
-                => playback.GetCalibration(out calibration);
+            public override Calibration GetCalibration()
+                => playback.GetCalibration();
 
             public override string ToString()
                 => playback.FilePath;
@@ -191,11 +187,11 @@ namespace K4AdotNet.Samples.Wpf
 
             public override ImageFormat ColorFormat { get; }
 
-            public override void GetCalibration(out Calibration calibration)
-                => device.GetCalibration(DepthMode, ColorResolution, out calibration);
+            public override Calibration GetCalibration()
+                => device.GetCalibration(DepthMode, ColorResolution);
 
             public override string ToString()
-                => device.ToString();
+                => device?.ToString() ?? string.Empty;
 
             protected override void BackgroundLoop()
             {
@@ -208,6 +204,7 @@ namespace K4AdotNet.Samples.Wpf
                         ColorResolution = ColorResolution,
                         DepthMode = DepthMode,
                         WiredSyncMode = WiredSyncMode.Standalone,
+                        SynchronizedImagesOnly = ColorResolution != ColorResolution.Off && DepthMode != DepthMode.Off,
                     });
 
                     while (isRunning)

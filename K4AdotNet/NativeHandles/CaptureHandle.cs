@@ -11,34 +11,59 @@ namespace K4AdotNet.NativeHandles
     /// Empty captures are created with <c>k4a_capture_create()</c>.
     /// Captures can be obtained from a device using <c>k4a_device_get_capture()</c>.
     /// </remarks>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct CaptureHandle : INativeHandle
+    internal abstract class CaptureHandle : HandleBase, IReferenceDuplicatable<CaptureHandle>
     {
-        private readonly IntPtr value;
+        /// <inheritdoc cref="IReferenceDuplicatable{CaptureHandle}.DuplicateReference"/>
+        public abstract CaptureHandle DuplicateReference();
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
+        public abstract bool IsOrbbec { get; }
 
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <summary>
-        /// Call this method if you want to have one more reference to the same capture.
-        /// </summary>
-        /// <remarks>Returns the same handle.</remarks>
-        public CaptureHandle DuplicateReference()
+        public class Azure : CaptureHandle
         {
-            if (!IsValid)
-                throw new InvalidOperationException("Invalid handle");
-            NativeApi.CaptureReference(this);
-            return this;
+            private Azure() { }
+
+            /// <inheritdoc cref="IReferenceDuplicatable{CaptureHandle}.DuplicateReference"/>
+            public override CaptureHandle DuplicateReference()
+            {
+                if (IsInvalid)
+                    throw new InvalidOperationException("Invalid handle");
+                NativeApi.Azure.CaptureReference(this);
+                return new Azure() { handle = handle };
+            }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.CaptureRelease(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => false;
         }
 
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Orbbec : CaptureHandle
         {
-            if (IsValid)
-                NativeApi.CaptureRelease(this);
+            private Orbbec() { }
+
+            /// <inheritdoc cref="IReferenceDuplicatable{CaptureHandle}.DuplicateReference"/>
+            public override CaptureHandle DuplicateReference()
+            {
+                if (IsInvalid)
+                    throw new InvalidOperationException("Invalid handle");
+                NativeApi.Orbbec.CaptureReference(this);
+                return new Orbbec() { handle = handle };
+            }
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.CaptureRelease(handle);
+                return true;
+            }
+
+            public override bool IsOrbbec => true;
         }
     }
 }

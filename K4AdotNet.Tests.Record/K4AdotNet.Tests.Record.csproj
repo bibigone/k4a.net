@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <IsPackable>False</IsPackable>
-    <Platforms>x64;x86</Platforms>
+    <Platforms>x64</Platforms>
     <Description>Integration tests on Record API from K4AdotNet library</Description>
     <IsPublishable>False</IsPublishable>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>

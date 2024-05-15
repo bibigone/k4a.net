@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -7,22 +6,38 @@ namespace K4AdotNet.NativeHandles
     // K4A_DECLARE_HANDLE(k4a_playback_data_block_t);
     //
     /// <summary>Handle to a block of data read from a <see cref="PlaybackHandle"/> custom track.</summary>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct PlaybackDataBlockHandle : INativeHandle
+    internal abstract class PlaybackDataBlockHandle : HandleBase
     {
-        private readonly IntPtr value;
+        public abstract bool IsOrbbec { get; }
 
-        /// <inheritdoc cref="INativeHandle.UnsafeValue"/>
-        IntPtr INativeHandle.UnsafeValue => value;
-
-        /// <inheritdoc cref="INativeHandle.IsValid"/>
-        public bool IsValid => value != IntPtr.Zero;
-
-        /// <inheritdoc cref="INativeHandle.Release"/>
-        public void Release()
+        public class Azure : PlaybackDataBlockHandle
         {
-            if (IsValid)
-                NativeApi.PlaybackDataBlockRelease(this);
+            private Azure() { }
+
+            public override bool IsOrbbec => false;
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Azure.PlaybackDataBlockRelease(handle);
+                return true;
+            }
+        }
+
+        public class Orbbec : PlaybackDataBlockHandle
+        {
+            private Orbbec() { }
+
+            public override bool IsOrbbec => true;
+
+            /// <inheritdoc cref="SafeHandle.ReleaseHandle"/>
+            protected override bool ReleaseHandle()
+            {
+                if (!IsInvalid)
+                    NativeApi.Orbbec.PlaybackDataBlockRelease(handle);
+                return true;
+            }
         }
     }
 }
