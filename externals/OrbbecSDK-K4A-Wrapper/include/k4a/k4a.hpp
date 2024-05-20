@@ -1444,41 +1444,33 @@ public:
     /** Get the device jack status for the synchronization in connector
      * Throws error on failure.
      *
-     * \attention The Orbbec device does not support retrieving the jack connection status, so this function will always
-     * return false (disconnected).
+     * \attention Orbbec cameras must preset the synchronization mode in advance, which can be achieved through k4aviewer advance preset,
+     * This synchronization mode is implemented using the mapping orbbecsdk synchronization mode.
      *
      * \sa k4a_device_get_sync_jack
      */
     bool is_sync_in_connected() const
     {
-        bool sync_in_jack_connected, sync_out_jack_connected;
-        k4a_result_t result = k4a_device_get_sync_jack(m_handle, &sync_in_jack_connected, &sync_out_jack_connected);
-
-        if (K4A_RESULT_SUCCEEDED != result)
-        {
-            throw error("Failed to read sync jack status!");
+        if(k4a_device_get_wired_sync_mode(m_handle) == K4A_WIRED_SYNC_MODE_SUBORDINATE){
+            return true;
         }
-        return sync_in_jack_connected;
+        return false;
     }
 
     /** Get the device jack status for the synchronization out connector
      * Throws error on failure.
      *
-     * \attention The Orbbec device does not support retrieving the jack connection status, so this function will
-     * always return false (disconnected).
+     * \attention Orbbec cameras must preset the synchronization mode in advance, which can be achieved through k4aviewer advance preset,
+     * This synchronization mode is implemented using the mapping orbbecsdk synchronization mode.
      *
      * \sa k4a_device_get_sync_jack
      */
     bool is_sync_out_connected() const
     {
-        bool sync_in_jack_connected, sync_out_jack_connected;
-        k4a_result_t result = k4a_device_get_sync_jack(m_handle, &sync_in_jack_connected, &sync_out_jack_connected);
-
-        if (K4A_RESULT_SUCCEEDED != result)
-        {
-            throw error("Failed to read sync jack status!");
+        if(k4a_device_get_wired_sync_mode(m_handle) == K4A_WIRED_SYNC_MODE_MASTER){
+            return true;
         }
-        return sync_out_jack_connected;
+        return false;
     }
 
     /** Get the version numbers of the K4A subsystems' firmware

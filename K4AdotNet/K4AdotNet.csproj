@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'x64' And $(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\OrbbecSDKConfig_v1.0.xml" Link="OrbbecSDKConfig_v1.0.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
     <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" Link="OrbbecSDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>

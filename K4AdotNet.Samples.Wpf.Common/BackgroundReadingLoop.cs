@@ -195,7 +195,7 @@ namespace K4AdotNet.Samples.Wpf
                 => device.GetCalibration(DepthMode, ColorResolution, out calibration);
 
             public override string ToString()
-                => device.ToString();
+                => device?.ToString() ?? string.Empty;
 
             protected override void BackgroundLoop()
             {

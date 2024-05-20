@@ -52,7 +52,18 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         public event EventHandler<FailedEventArgs>? Failed;
 
         public void Enqueue(Capture capture)
-            => tracker.EnqueueCapture(capture);
+        {
+            // Body tracking needs IR and Depth images in capture
+            using var irImage = capture.IRImage;
+            if (irImage is null)
+                return;
+
+            using var depthImage = capture.DepthImage;
+            if (depthImage is null)
+                return;
+
+            tracker.EnqueueCapture(capture);
+        }
 
         private void BackgroundLoop()
         {

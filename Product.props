@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <AssemblyVersion>1.4.16.0</AssemblyVersion>
-    <FileVersion>1.4.16.0</FileVersion>
+    <AssemblyVersion>1.4.17.0</AssemblyVersion>
+    <FileVersion>1.4.17.0</FileVersion>
   </PropertyGroup>
   <!-- To build version for Orbbec Femto devices, ORBBECSDK_K4A_WRAPPER constant should be defined -->
   <!-- Add /p:Devices=Femto to arguments of MSBuild to build version for Orbbec Femto devices -->

@@ -74,45 +74,55 @@ namespace K4AdotNet.Sensor
 #endif
 
         /// <summary>Gets the device jack status for the synchronization in connectors.</summary>
-        /// <remarks>
+        /// <remarks><para>For Azure Kinect devices:
         /// If <see cref="IsSyncInConnected"/> is <see langword="true"/> then
         /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Subordinate"/>.
-        /// </remarks>
+        /// </para><para>
+        /// For Orbbec Femto devices: Orbbec cameras must preset the synchronization mode in advance, which can be achieved through k4aviewer advance preset,
+        /// this synchronization mode is implemented using the mapping Orbbec SDK synchronization mode.
+        /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
         public bool IsSyncInConnected
         {
             get
             {
+#if ORBBECSDK_K4A_WRAPPER
+                // Inspired by the latest changes in k4a.hpp (`device` class)
+                return WiredSyncMode == WiredSyncMode.Subordinate;
+#else
                 CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out var syncInConnectedFlag, out _));
                 return syncInConnectedFlag != 0;
+#endif
             }
         }
 
         /// <summary>Gets the device jack status for the synchronization out connectors.</summary>
-        /// <remarks>
+        /// <remarks><para>For Azure Kinect devices:
         /// If <see cref="IsSyncOutConnected"/> is <see langword="true"/> then
         /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Master"/>.
         /// If <see cref="IsSyncInConnected"/> is also <see langword="true"/> then
         /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Subordinate"/> (in this case 'Sync Out' is driven for the
         /// next device in the chain).
-        /// </remarks>
+        /// </para><para>
+        /// For Orbbec Femto devices: Orbbec cameras must preset the synchronization mode in advance, which can be achieved through k4aviewer advance preset,
+        /// this synchronization mode is implemented using the mapping Orbbec SDK synchronization mode.
+        /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
         /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
         /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
-#if ORBBECSDK_K4A_WRAPPER
-        [Obsolete("Not supported by OrbbecSDK-K4A-Wrapper")]
-#endif
         public bool IsSyncOutConnected
         {
             get
             {
+#if ORBBECSDK_K4A_WRAPPER
+                // Inspired by the latest changes in k4a.hpp (`device` class)
+                return WiredSyncMode == WiredSyncMode.Master;
+#else
                 CheckResult(NativeApi.DeviceGetSyncJack(handle.ValueNotDisposed, out _, out var syncOutConnectedFlag));
                 return syncOutConnectedFlag != 0;
+#endif
             }
         }
 

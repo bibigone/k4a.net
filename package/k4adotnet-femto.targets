@@ -5,5 +5,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/*.xml">
+      <Link>%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
   </ItemGroup>
 </Project>

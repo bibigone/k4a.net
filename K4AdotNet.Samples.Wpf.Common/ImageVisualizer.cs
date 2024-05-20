@@ -93,7 +93,7 @@ namespace K4AdotNet.Samples.Wpf.Common
                 ResetInnerBodyIndexBuffer();
 
             // 2nd step: we can update WritableBitmap only from its owner thread (as a rule, UI thread)
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(FillWritableBitmap));
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(FillWritableBitmap));
 
             // Updated
             return true;
