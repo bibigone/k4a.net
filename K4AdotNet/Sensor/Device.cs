@@ -69,6 +69,29 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="DeviceConnectionLostException"/>
         public abstract bool IsConnected { get; }
 
+        /// <summary>Gets the device jack status for the synchronization in connectors.</summary>
+        /// <remarks>
+        /// If <see cref="IsSyncInConnected"/> is <see langword="true"/> then
+        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Subordinate"/>.
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
+        /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
+        /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+        public abstract bool IsSyncInConnected { get; }
+
+        /// <summary>Gets the device jack status for the synchronization out connectors.</summary>
+        /// <remarks>
+        /// If <see cref="IsSyncOutConnected"/> is <see langword="true"/> then
+        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Standalone"/> or <see cref="WiredSyncMode.Master"/>.
+        /// If <see cref="IsSyncInConnected"/> is also <see langword="true"/> then
+        /// <see cref="DeviceConfiguration.WiredSyncMode"/> mode can be set to <see cref="WiredSyncMode.Subordinate"/> (in this case 'Sync Out' is driven for the
+        /// next device in the chain).
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This property cannot be asked for disposed objects.</exception>
+        /// <exception cref="DeviceConnectionLostException">Connection with device has been lost.</exception>
+        /// <exception cref="InvalidOperationException">Some unspecified error in Sensor SDK. See logs for details.</exception>
+        public abstract bool IsSyncOutConnected { get; }
+
         /// <summary>Starts color and depth camera capture.</summary>
         /// <param name="config">The configuration we want to run the device in. This can be initialized with <see cref="DeviceConfiguration.DisableAll"/>.</param>
         /// <remarks><para>

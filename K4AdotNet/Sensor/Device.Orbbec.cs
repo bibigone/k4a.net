@@ -109,6 +109,40 @@ namespace K4AdotNet.Sensor
                 => !handle.IsDisposed
                     && api.DeviceGetVersion(handle.Value, out _) == NativeCallResults.Result.Succeeded;
 
+            /// <summary>Can Orbbec camera be started in Subordinate mode?</summary>
+            /// <remarks>
+            /// Orbbec camera must preset the synchronization mode in advance,
+            /// which can be achieved through `k4aviewer` advance preset,
+            /// this synchronization mode is implemented using the mapping Orbbec SDK synchronization mode.
+            /// </remarks>
+            /// <exception cref="ObjectDisposedException">This property cannot be called for disposed object.</exception>
+            /// <seealso cref="WiredSyncMode"/>
+            public override bool IsSyncInConnected
+            {
+                get
+                {
+                    // Inspired by the latest changes in k4a.hpp (`device` class)
+                    return WiredSyncMode == WiredSyncMode.Subordinate;
+                }
+            }
+
+            /// <summary>Can Orbbec camera be started in Master mode?</summary>
+            /// <remarks>
+            /// Orbbec camera must preset the synchronization mode in advance,
+            /// which can be achieved through `k4aviewer` advance preset,
+            /// this synchronization mode is implemented using the mapping Orbbec SDK synchronization mode.
+            /// </remarks>
+            /// <exception cref="ObjectDisposedException">This property cannot be called for disposed object.</exception>
+            /// <seealso cref="WiredSyncMode"/>
+            public override bool IsSyncOutConnected
+            {
+                get
+                {
+                    // Inspired by the latest changes in k4a.hpp (`device` class)
+                    return WiredSyncMode == WiredSyncMode.Master;
+                }
+            }
+
             /// <summary>Switches device clock sync mode (OrbbecSDK-K4A-Wrapper only).</summary>
             /// <param name="timestampMode">Device clock synchronization mode</param>
             /// <param name="interval">

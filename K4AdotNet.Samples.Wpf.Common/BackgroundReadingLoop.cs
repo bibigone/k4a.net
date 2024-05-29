@@ -204,7 +204,6 @@ namespace K4AdotNet.Samples.Wpf
                         ColorResolution = ColorResolution,
                         DepthMode = DepthMode,
                         WiredSyncMode = WiredSyncMode.Standalone,
-                        SynchronizedImagesOnly = ColorResolution != ColorResolution.Off && DepthMode != DepthMode.Off,
                     });
 
                     while (isRunning)

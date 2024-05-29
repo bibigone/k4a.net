@@ -19,7 +19,7 @@
         <!--Default log output file number (circular overwrite), int type-->
         <MaxFileNum>3</MaxFileNum>
         <!--Log asynchronous output, changing to asynchronous output can reduce the blocking time of printing logs, but some logs may be lost when the program exits abnormally; true-enable, false-disable (default)-->
-        <Async>false</Async>
+        <Async>true</Async>
     </Log>
 
     <Memory>
