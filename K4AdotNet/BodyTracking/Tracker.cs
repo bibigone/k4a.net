@@ -184,13 +184,12 @@ namespace K4AdotNet.BodyTracking
             if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
 
-            if (capture.IsOrbbec != IsOrbbec)
-                throw new ArgumentException($"{Helpers.GetImplementationName(capture.IsOrbbec)} capture cannot be enqueued. {Helpers.GetImplementationName(IsOrbbec)} capture is expected.", nameof(capture));
+            using var c = capture.ConvertTo(IsOrbbec);
 
             if (isDisposed)
                 throw new ObjectDisposedException(nameof(Tracker));
 
-            var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Capture.ToHandle(capture), timeout);
+            var res = NativeApi.TrackerEnqueueCapture(handle.ValueNotDisposed, Capture.ToHandle(c), timeout);
             if (res == NativeCallResults.WaitResult.Timeout)
                 return false;
             if (res == NativeCallResults.WaitResult.Failed)
@@ -200,9 +199,9 @@ namespace K4AdotNet.BodyTracking
                     throw new ObjectDisposedException(nameof(Tracker));
                 handle.CheckNotDisposed();
 
-                using (var depthImage = capture.DepthImage)
+                using (var depthImage = c.DepthImage)
                 {
-                    if (depthImage == null)
+                    if (depthImage is null)
                     {
                         throw new ArgumentException(
                             "Capture should contain the depth data.",
@@ -222,9 +221,9 @@ namespace K4AdotNet.BodyTracking
                     }
                 }
 
-                using (var irImage = capture.IRImage)
+                using (var irImage = c.IRImage)
                 {
-                    if (irImage == null)
+                    if (irImage is null)
                     {
                         throw new ArgumentException(
                             "Capture should contain the IR data.",

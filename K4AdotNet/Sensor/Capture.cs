@@ -96,6 +96,40 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public abstract Capture DuplicateReference();
 
+        /// <summary>
+        /// Converts the capture to required implementation.
+        /// </summary>
+        /// <param name="isOrbbec">
+        ///     <see langword="true"/> if destination capture should be implemented via `Orbbec SDK K4A Wrapper` (<see cref="Orbbec"/>),
+        ///     <see langword="false"/> if destination capture should be implemented via `original K4A` (<see cref="Azure"/>).</param>
+        /// <returns>
+        /// Creates new capture and copies all data to it if <paramref name="isOrbbec"/> is not equal to <see cref="SdkObject.IsOrbbec"/>,
+        /// or simply returns result of <see cref="DuplicateReference"/> when <paramref name="isOrbbec"/> is equal to <see cref="SdkObject.IsOrbbec"/>.
+        /// </returns>
+        /// <remarks><see cref="Dispose"/> method must be called for returned object.</remarks>
+        /// <seealso cref="Azure"/>
+        /// <seealso cref="Orbbec"/>
+        public Capture ConvertTo(bool isOrbbec)
+        {
+            if (isOrbbec == IsOrbbec)
+                return DuplicateReference();
+
+            var capture = isOrbbec
+                ? (Capture)new Orbbec()
+                : new Azure();
+
+            using var colorImage = ColorImage;
+            capture.ColorImage = colorImage?.ConvertTo(isOrbbec);
+
+            using var irImage = IRImage;
+            capture.IRImage = irImage?.ConvertTo(isOrbbec);
+
+            using var depthImage = DepthImage;
+            capture.DepthImage = depthImage?.ConvertTo(isOrbbec);
+
+            return capture;
+        }
+
         /// <summary>Get and set the color image associated with the given capture. Can be <see langword="null"/> if the capture doesn't have color data.</summary>
         /// <remarks><para>
         /// It is highly recommended to call <see cref="Image.Dispose"/> for returned image explicitly:

@@ -128,10 +128,6 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
         {
             get
             {
-                // In ComboMode.Both mode, body tracking can be run only for Orbbec devices
-                if (Sdk.ComboMode == ComboMode.Both && DeviceIndex < Device.Azure.InstalledCount)
-                    return false;
-
                 var isOrbbec = false;
                 if (Sdk.ComboMode == ComboMode.Orbbec)
                     isOrbbec = true;

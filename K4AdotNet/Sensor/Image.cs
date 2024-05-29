@@ -239,6 +239,21 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="Dispose"/>
         public abstract Image DuplicateReference();
 
+        /// <summary>
+        /// Converts the image to required implementation.
+        /// </summary>
+        /// <param name="isOrbbec">
+        ///     <see langword="true"/> if destination image should be implemented via `Orbbec SDK K4A Wrapper` (<see cref="Orbbec"/>),
+        ///     <see langword="false"/> if destination image should be implemented via `original K4A` (<see cref="Azure"/>).</param>
+        /// <returns>
+        /// Creates new image and copies all data to it if <paramref name="isOrbbec"/> is not equal to <see cref="SdkObject.IsOrbbec"/>,
+        /// or simply returns result of <see cref="DuplicateReference"/> when <paramref name="isOrbbec"/> is equal to <see cref="SdkObject.IsOrbbec"/>.
+        /// </returns>
+        /// <remarks><see cref="Dispose"/> method must be called for returned object.</remarks>
+        /// <seealso cref="Azure"/>
+        /// <seealso cref="Orbbec"/>
+        public abstract Image ConvertTo(bool isOrbbec);
+
         /// <summary>Get the image buffer.</summary>
         /// <remarks>Use this buffer to access the raw image data.</remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>

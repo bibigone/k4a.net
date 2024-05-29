@@ -32,7 +32,12 @@ namespace K4AdotNet.Record
         /// in other mode (including <see cref="ComboMode.Both"/>) created object operates via `Orbbec SDK K4A Wrapper` native libraries.
         /// </para></remarks>
         /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
-        /// <exception cref="ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
+        /// <exception cref="ArgumentException">
+        ///     <paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character.
+        ///     Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.
+        ///     Or <paramref name="device"/> is not <see langword="null"/> and implemented via incompatible version
+        ///     of native libraries (for example, <paramref name="device"/> is Azure Kinect in <see cref="ComboMode.Both"/> mode).
+        /// </exception>
         /// <exception cref="RecordingException">Cannot initialize recording to <paramref name="filePath"/>.</exception>
         public Recorder(string filePath, Sensor.Device? device, Sensor.DeviceConfiguration config)
             : base(Sdk.DetermineDefaultImplIsOrbbec())
@@ -198,9 +203,8 @@ namespace K4AdotNet.Record
         {
             if (capture is null)
                 throw new ArgumentNullException(nameof(capture));
-            if (capture.IsOrbbec != IsOrbbec)
-                throw new ArgumentException($"{Helpers.GetImplementationName(capture.IsOrbbec)} capture cannot be written by this instance of recorder. {Helpers.GetImplementationName(IsOrbbec)} capture is expected.", nameof(capture));
-            CheckResult(api.RecordWriteCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(capture)));
+            using var c = capture.ConvertTo(IsOrbbec);
+            CheckResult(api.RecordWriteCapture(handle.ValueNotDisposed, Sensor.Capture.ToHandle(c)));
         }
 
         /// <summary>Writes an IMU sample to file.</summary>

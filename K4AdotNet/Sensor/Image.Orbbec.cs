@@ -87,6 +87,22 @@ namespace K4AdotNet.Sensor
             public override Image DuplicateReference()
                 => new Orbbec((NativeHandles.ImageHandle.Orbbec)handle.ValueNotDisposed.DuplicateReference());
 
+            /// <inheritdoc cref="Image.ConvertTo(bool)"/>
+            public override unsafe Image ConvertTo(bool isOrbbec)
+            {
+                if (isOrbbec)
+                    return DuplicateReference();
+
+                var size = SizeBytes;
+                var image = new Azure(Format, WidthPixels, HeightPixels, StrideBytes, size)
+                {
+                    DeviceTimestamp = DeviceTimestamp,
+                    SystemTimestamp = SystemTimestamp,
+                };
+                System.Buffer.MemoryCopy(Buffer.ToPointer(), image.Buffer.ToPointer(), size, size);
+                return image;
+            }
+
             /// <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
             /// <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
             /// <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>

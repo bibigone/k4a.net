@@ -39,8 +39,11 @@ namespace K4AdotNet.Samples.Wpf.BodyTracker
             using (var transformedDepthMapRef = transformedDepthMap.DuplicateReference())
             using (var transformedBodyIndexMapRef = transformedBodyIndexMap.DuplicateReference())
             {
+                using var dm = depthMap.ConvertTo(transformation.IsOrbbec);
+                using var bim = bodyIndexMap.ConvertTo(transformation.IsOrbbec);
+
                 transformation.DepthImageToColorCameraCustom(
-                    depthMap, bodyIndexMap,
+                    dm, bim,
                     transformedDepthMapRef, transformedBodyIndexMapRef,
                     TransformationInterpolation.Nearest, BodyTracking.BodyFrame.NotABodyIndexMapPixelValue);
 
