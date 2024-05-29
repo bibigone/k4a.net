@@ -14,6 +14,11 @@ namespace K4AdotNet.Sensor
     // } k4a_calibration_t;
     //
     /// <summary>Information about device calibration in particular depth mode and color resolution.</summary>
+    /// <remarks>
+    /// This structure represents calibration data itself.
+    /// All implementation-specific methods can be found in the <see cref="Calibration"/> wrapper class.
+    /// </remarks>
+    /// <seealso cref="Calibration"/>
     /// <seealso cref="Transformation"/>
     [StructLayout(LayoutKind.Sequential)]
     public struct CalibrationData
@@ -91,6 +96,7 @@ namespace K4AdotNet.Sensor
         /// </summary>
         /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for `Orbbec SDK K4A Wrapper` implementation, <see langword="false"/> for `original K4A` implementation.</param>
         /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, bool isOrbbec, out CalibrationData calibration)
@@ -127,6 +133,7 @@ namespace K4AdotNet.Sensor
         /// <param name="depthMode">Depth mode for which dummy calibration should be created. Can be <see cref="DepthMode.Off"/>.</param>
         /// <param name="distanceBetweenDepthAndColorMm">Distance (horizontal) between depth and color cameras.</param>
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for `Orbbec SDK K4A Wrapper` implementation, <see langword="false"/> for `original K4A` implementation.</param>
         /// <param name="calibration">Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
         public static void CreateDummy(DepthMode depthMode, ColorResolution colorResolution, bool isOrbbec, float distanceBetweenDepthAndColorMm,

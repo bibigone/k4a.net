@@ -5,6 +5,9 @@ namespace K4AdotNet.Sensor
 {
     partial class NativeApi
     {
+        /// <summary>
+        /// Implementation of <see cref="NativeApi"/> for Orbbec Femto devices.
+        /// </summary>
         public class Orbbec : NativeApi
         {
             public static readonly Orbbec Instance = new();
@@ -117,11 +120,6 @@ namespace K4AdotNet.Sensor
             // K4A_EXPORT void k4a_capture_set_ir_image(k4a_capture_t capture_handle, k4a_image_t image_handle);
             [DllImport(Sdk.Orbbec.SENSOR_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
             private static extern void k4a_capture_set_ir_image(NativeHandles.CaptureHandle.Orbbec captureHandle, NativeHandles.ImageHandle.Orbbec imageHandle);
-
-            public override NativeCallResults.Result SetAllocator(
-                MemoryAllocateCallback? allocate,
-                MemoryDestroyCallback? free)
-                => throw new NotSupportedException("OrbbecSDK K4A Wrapper does not support custom memory allocators");
 
             public override NativeCallResults.Result ImageCreate(
                 ImageFormat format,

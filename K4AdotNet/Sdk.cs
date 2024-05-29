@@ -9,7 +9,14 @@ using System.Linq;
 
 namespace K4AdotNet
 {
-    /// <summary>Static class with common basic things for Sensor, Record and Body Tracking APIs like logging, initializing, loading of dependencies, etc.</summary>
+    /// <summary>
+    /// Static class with common basic things for Sensor, Record and Body Tracking APIs like
+    /// logging, initializing, loading of dependencies, etc.
+    /// </summary>
+    /// <remarks>
+    /// Before usage of this library, <see cref="Init(ComboMode)"/> method must be called.
+    /// </remarks>
+    /// <seealso cref="ComboMode"/>
     public static partial class Sdk
     {
         #region Dependencies
@@ -74,6 +81,12 @@ namespace K4AdotNet
         /// Use this property to choose the level of such logging, or set it to <see cref="TraceLevel.Off"/> to turn it off.
         /// Default value is <see cref="TraceLevel.Off"/>.
         /// </summary>
+        /// <remarks>
+        /// To set trace levels separately for each implementation in <see cref="ComboMode.Both"/> mode,
+        /// one can use <see cref="Azure.TraceLevel"/> and <see cref="Orbbec.TraceLevel"/> properties.
+        /// </remarks>
+        /// <seealso cref="Azure.TraceLevel"/>
+        /// <seealso cref="Orbbec.TraceLevel"/>
         public static TraceLevel TraceLevel
         {
             get => ComboMode switch
@@ -158,6 +171,11 @@ namespace K4AdotNet
         private static volatile ComboMode comboMode;
         private static readonly object initSync = new();
 
+        /// <summary>
+        /// Current operational mode of the library.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"><see cref="Init(ComboMode)"/> must be called first.</exception>
+        /// <seealso cref="Init(ComboMode)"/>
         public static ComboMode ComboMode
         {
             get
@@ -169,20 +187,41 @@ namespace K4AdotNet
             }
         }
 
+        /// <summary>
+        /// Before usage, this library must be initialized.
+        /// </summary>
+        /// <param name="comboMode">Operational mode in which library will be used.</param>
+        /// <exception cref="InvalidOperationException">Already initialized with different mode.</exception>
+        /// <seealso cref="ComboMode"/>
         public static void Init(ComboMode comboMode)
         {
             lock (initSync)
             {
                 if (Sdk.comboMode != default && comboMode != Sdk.comboMode)
                     throw new InvalidOperationException($"{nameof(Sdk)}.{nameof(Init)}() method can be called only once.");
+
+                // Important! In `ComboMode.Both` Orbbec SDK must be initialized first,
+                // because all implementations will use one and the same instance of `depthengine_2_0.dll` library,
+                // and the first loaded version will be used. And Azure Kinects work almost Okay with `depthengine_2_0.dll`
+                // from `Orbbec SDK K4A Wrapper`, while Orbbec Femto devices do not provide reasonable depth maps when
+                // working via `depthengine_2_0.dll` from `original K4A`.
+
                 if ((comboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
                     Orbbec.Init();
+
                 if ((comboMode & ComboMode.Azure) == ComboMode.Azure)
                     Azure.Init();
+
                 Sdk.comboMode = comboMode;
             }
         }
 
+        /// <summary>
+        /// Determines "default" implementation for playback, recording and body tracking functionality.
+        /// This functionality depends on <c>k4a.dll</c> native library and uses the first instance loaded to the
+        /// process. This why in <see cref="ComboMode.Both"/> instance from `Orbbec SDK K4A Wrapper` is used.
+        /// </summary>
+        /// <returns><see langword="true"/> for Orbbec implementation, <see langword="false"/> for original Azure implementation.</returns>
         internal static bool DetermineDefaultImplIsOrbbec()
             => ComboMode != ComboMode.Azure;
 
@@ -214,6 +253,7 @@ namespace K4AdotNet
         /// Sets or clears custom memory allocator to be use by internals of Azure Kinect SDK.
         /// </summary>
         /// <exception cref="InvalidOperationException">Setting or clearing of custom memory allocator was failed. See log for details.</exception>
+        /// <exception cref="NotSupportedException">`Orbbec SDK K4A Wrapper` does not support custom memory allocators.</exception>
         /// <remarks><para>
         /// Assigning <see langword="null"/> means the clearing of custom memory allocator (that is, to switch to standard built-in SDK's allocator).
         /// </para><para>
@@ -238,12 +278,6 @@ namespace K4AdotNet
                             var res = Sensor.NativeApi.Azure.Instance.SetAllocator(null, null);
                             if (res != NativeCallResults.Result.Succeeded)
                                 throw new InvalidOperationException("Cannot clear custom memory allocator for Azure");
-                        }
-                        if ((ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
-                        {
-                            var res = Sensor.NativeApi.Orbbec.Instance.SetAllocator(null, null);
-                            if (res != NativeCallResults.Result.Succeeded)
-                                throw new InvalidOperationException("Cannot clear custom memory allocator for Orbbec");
                         }
                         customMemoryAllocator = null;
                         return;
@@ -272,17 +306,12 @@ namespace K4AdotNet
 
                     if ((ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
                     {
-                        var res = Sensor.NativeApi.Orbbec.Instance.SetAllocator(allocateCallback, destroyCallback);
-                        if (res != NativeCallResults.Result.Succeeded)
+                        if (!wasUsed)
                         {
-                            if (!wasUsed)
-                            {
-                                allocateCallbacks.RemoveFirst();
-                                destroyCallbacks.RemoveFirst();
-                            }
-                            throw new InvalidOperationException("Cannot set custom memory allocator for Orbbec");
+                            allocateCallbacks.RemoveFirst();
+                            destroyCallbacks.RemoveFirst();
                         }
-                        customMemoryAllocator = value;
+                        throw new NotSupportedException("Orbbec SDK K4A Wrapper does not support custom memory allocators.");
                     }
                 }
             }

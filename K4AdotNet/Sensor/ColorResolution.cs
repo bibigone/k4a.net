@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace K4AdotNet.Sensor
+﻿namespace K4AdotNet.Sensor
 {
     // Defined in k4atypes.h:
     // typedef enum
@@ -34,15 +32,15 @@ namespace K4AdotNet.Sensor
         /// <summary>2560x1440 16:9</summary>
         R1440p,
 
-        /// <summary>2048x1536 4:3 (only for AZURE Kinect devices)</summary>
-        /// <remarks>Not supported by ORBBEC</remarks>
+        /// <summary>2048x1536 4:3 (only for Azure Kinect devices)</summary>
+        /// <remarks>Not supported by Orbbec Femto</remarks>
         R1536p,
 
         /// <summary>3840x2160 16:9</summary>
         R2160p,
 
-        /// <summary>4096x3072 4:3 (only for AZURE Kinect devices)</summary>
-        /// <remarks>Not supported by ORBBEC</remarks>
+        /// <summary>4096x3072 4:3 (only for Azure Kinect devices)</summary>
+        /// <remarks>Not supported by Orbbec Femto</remarks>
         R3072p,
     }
 }

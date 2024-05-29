@@ -5,7 +5,7 @@ namespace K4AdotNet.Sensor
 {
     // Inspired by <c>device</c> class from <c>k4a.hpp</c>
     //
-    /// <summary>Azure Kinect device. The main class in Sensor part of API.</summary>
+    /// <summary>Azure Kinect or Orbbec Femto device itself. The main class in Sensor part of API.</summary>
     /// <remarks><para>
     /// To open device use <see cref="TryOpen(out Device, int)"/> or <see cref="Open(int)"/> method,
     /// to start cameras streaming call <see cref="StartCameras(DeviceConfiguration)"/>,
@@ -59,7 +59,7 @@ namespace K4AdotNet.Sensor
         /// <seealso cref="TryOpen(out Device, int)"/>
         public int DeviceIndex { get; }
 
-        /// <summary>Azure Kinect device serial number. Not <see langword="null"/>.</summary>
+        /// <summary>Device serial number. Not <see langword="null"/>.</summary>
         public string SerialNumber { get; }
 
         /// <summary>Version numbers of the device's subsystems.</summary>
@@ -360,7 +360,12 @@ namespace K4AdotNet.Sensor
         }
 
         /// <summary>Gets the number of connected devices.</summary>
-        /// <remarks>Some devices can be occupied by other processes by they are counted here as connected.</remarks>
+        /// <remarks><para>
+        /// Some devices can be occupied by other processes by they are counted here as connected.
+        /// </para><para>
+        /// In <see cref="ComboMode.Both"/> mode <see cref="InstalledCount"/> is equal to the sum of
+        /// <see cref="Azure.InstalledCount"/> and <see cref="Orbbec.InstalledCount"/>.
+        /// </para></remarks>
         public static int InstalledCount
         {
             get
@@ -374,7 +379,10 @@ namespace K4AdotNet.Sensor
             }
         }
 
-        /// <summary>Index for default device (the first connected device). Use it when you're working with single device solutions.</summary>
+        /// <summary>
+        /// Index for default device (the first connected device).
+        /// Use it when you're working with single device solutions.
+        /// </summary>
         public const int DefaultDeviceIndex = 0;
 
         /// <summary>Tries to open an Azure Kinect or Orbbec Femto device.</summary>
@@ -384,6 +392,13 @@ namespace K4AdotNet.Sensor
         /// <see langword="true"/> if device has been successfully opened,
         /// <see langword="false"/> - otherwise.
         /// </returns>
+        /// <remarks>
+        /// In <see cref="ComboMode.Both"/> mode:
+        /// If <paramref name="index"/> is less than <see cref="Azure.InstalledCount"/>
+        /// then Azure Kinect device will be opened with <paramref name="index"/> index via <see cref="Azure.TryOpen(out Azure?, int)"/>.
+        /// Otherwise Orbbec Femto device will be opened with <paramref name="index"/> minus <see cref="Azure.InstalledCount"/> index
+        /// via <see cref="Orbbec.TryOpen(out Orbbec?, int)"/>.
+        /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.</exception>
         /// <seealso cref="Open(int)"/>
         /// <seealso cref="InstalledCount"/>

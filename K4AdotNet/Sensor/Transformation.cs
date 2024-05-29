@@ -5,7 +5,7 @@ namespace K4AdotNet.Sensor
     // Inspired by <c>transformation</c> class from <c>k4a.hpp</c>
     //
     /// <summary>
-    /// Azure Kinect transformation functionality.
+    /// Azure Kinect/Orbbec Femto transformation functionality.
     /// Can be used to transform images and depth maps between cameras and to reproject depth map to 3D space.
     /// It uses <see cref="Calibration"/> data for transformations.
     /// </summary>

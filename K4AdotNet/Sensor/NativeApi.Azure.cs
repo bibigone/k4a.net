@@ -5,6 +5,9 @@ namespace K4AdotNet.Sensor
 {
     partial class NativeApi
     {
+        /// <summary>
+        /// Implementation of <see cref="NativeApi"/> for Azure Kinect devices.
+        /// </summary>
         public class Azure : NativeApi
         {
             public static readonly Azure Instance = new();
@@ -141,7 +144,30 @@ namespace K4AdotNet.Sensor
             [DllImport(Sdk.Azure.SENSOR_DLL_NAME, EntryPoint = "k4a_capture_get_temperature_c", CallingConvention = CallingConvention.Cdecl)]
             private static extern float k4a_capture_get_temperature_c(NativeHandles.CaptureHandle.Azure captureHandle);
 
-            public override NativeCallResults.Result SetAllocator(
+            /// <summary>Sets the callback functions for the SDK allocator</summary>
+            /// <param name="allocate">
+            /// The callback function to allocate memory. When the SDK requires memory allocation this callback will be
+            /// called and the application can provide a buffer and a context.
+            /// </param>
+            /// <param name="free">
+            /// The callback function to free memory.
+            /// The SDK will call this function when memory allocated by <paramref name="allocate"/> is no longer needed.</param>
+            /// <returns>
+            /// <see cref="NativeCallResults.Result.Succeeded"/> if the callback function was set or cleared successfully.
+            /// <see cref="NativeCallResults.Result.Failed"/> if an error is encountered or the callback function has already been set.
+            /// </returns>
+            /// <remarks>
+            /// Call this function to hook memory allocation by the SDK. Calling with both <paramref name="allocate"/> and <paramref name="free"/>
+            /// as <see langword="null"/> will clear the hook and reset to the default allocator.
+            /// 
+            /// If this function is called after memory has been allocated, the previous version of <paramref name="free"/> function may still be
+            /// called in the future. The SDK will always call the <paramref name="free"/> function that was set at the time that the memory
+            /// was allocated.
+            /// 
+            /// Not all memory allocation by the SDK is performed by this allocate function.
+            /// Small allocations or allocations from special pools may come from other sources.
+            /// </remarks>
+            public NativeCallResults.Result SetAllocator(
                 MemoryAllocateCallback? allocate,
                 MemoryDestroyCallback? free)
                 => k4a_set_allocator(allocate, free);

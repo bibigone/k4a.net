@@ -4,6 +4,9 @@ namespace K4AdotNet.BodyTracking
 {
     partial class NativeApi
     {
+        /// <summary>
+        /// Implementation of <see cref="NativeApi"/> for Orbbec Femtos.
+        /// </summary>
         public sealed class Orbbec : NativeApi
         {
             public static readonly Orbbec Instance = new();

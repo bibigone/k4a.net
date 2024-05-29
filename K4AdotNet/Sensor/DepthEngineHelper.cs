@@ -8,7 +8,7 @@ namespace K4AdotNet.Sensor
     /// <remarks>This function only needs to be called when on the Linux platform</remarks>
     public sealed class DepthEngineHelper : SdkObject, IDisposablePlus
     {
-        /// <summary>Creates depthengine helper (ORBBEC only).</summary>
+        /// <summary>Creates depthengine helper (Orbbec only).</summary>
         /// <returns>Created depthengine helper. Not <see langword="null"/>. To release, call <see cref="Dispose"/> method.</returns>
         /// <exception cref="InvalidOperationException">Cannot create depthengine helper for some internal reason. For error details see logs.</exception>
         public static DepthEngineHelper Create()

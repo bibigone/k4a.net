@@ -4,8 +4,17 @@ namespace K4AdotNet.Sensor
 {
     partial class Calibration
     {
+        /// <summary>
+        /// Implementation of base <see cref="Calibration"/> class for Orbbec Femto devices.
+        /// This class works via `Orbbec SDK K4A Wrapper` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Orbbec"/> and <see cref="ComboMode.Both"/>.</remarks>
         public sealed class Orbbec : Calibration
         {
+            /// <summary>
+            /// Creates the object for a given calibration data.
+            /// </summary>
+            /// <param name="data">Calibration data.</param>
             public Orbbec(in CalibrationData data)
                 : base(NativeApi.Orbbec.Instance, data) { }
 

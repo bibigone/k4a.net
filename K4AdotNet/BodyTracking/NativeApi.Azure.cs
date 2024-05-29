@@ -4,6 +4,9 @@ namespace K4AdotNet.BodyTracking
 {
     partial class NativeApi
     {
+        /// <summary>
+        /// Implementation of <see cref="NativeApi"/> for Azure Kinects.
+        /// </summary>
         public sealed class Azure : NativeApi
         {
             public static readonly Azure Instance = new();

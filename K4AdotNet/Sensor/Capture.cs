@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace K4AdotNet.Sensor
 {
     // Inspired by <c>capture</c> class from <c>k4a.hpp</c>
     //
-    /// <summary>A capture represents a set of images that were captured by a Azure Kinect device at approximately the same time.</summary>
+    /// <summary>A capture represents a set of images that were captured by a Azure Kinect/Orbbec Femto device at approximately the same time.</summary>
     /// <remarks><para>
     /// A capture may have a color, IR, and depth image.A capture may have up to one image of each type.
     /// A capture may have no image for a given type as well.
@@ -27,10 +26,17 @@ namespace K4AdotNet.Sensor
         private readonly NativeHandles.HandleWrapper<NativeHandles.CaptureHandle> handle;   // this class is an wrapper around this handle
 
         /// <summary>Creates an empty capture object.</summary>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called <see cref="ComboMode.Both"/> mode. In <see cref="ComboMode.Both"/> mode
+        /// one should call <see cref="Azure()"/> or <see cref="Orbbec()"/> constructors
+        /// to create an empty capture object for appropriate implementation.
+        /// </exception>
+        /// <seealso cref="Azure()"/>
+        /// <seealso cref="Orbbec()"/>
         public static Capture Create()
             => Sdk.ComboMode switch
             {
-                ComboMode.Both => throw new InvalidOperationException($"In {nameof(ComboMode)}.{nameof(ComboMode.Both)} this method cannot be used. Use constructors of {nameof(Capture)}.{nameof(Azure)} or {nameof(Capture)}.{nameof(Capture)} classes."),
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Capture)),
                 ComboMode.Azure => new Azure(),
                 ComboMode.Orbbec => new Orbbec(),
                 _ => throw new NotSupportedException(),

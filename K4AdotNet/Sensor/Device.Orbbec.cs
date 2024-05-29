@@ -7,6 +7,11 @@ namespace K4AdotNet.Sensor
 {
     partial class Device
     {
+        /// <summary>
+        /// Implementation of base <see cref="Device"/> class for Orbbec Femto devices.
+        /// This class works via `Orbbec SDK K4A Wrapper` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Orbbec"/> and <see cref="ComboMode.Both"/>.</remarks>
         public class Orbbec : Device
         {
             internal Orbbec(NativeHandles.DeviceHandle handle, int deviceIndex, string serialNumber, HardwareVersion version)
@@ -15,7 +20,7 @@ namespace K4AdotNet.Sensor
                 Debug.Assert(handle is NativeHandles.DeviceHandle.Orbbec);
             }
 
-            /// <summary>Gets the number of connected devices.</summary>
+            /// <summary>Gets the number of connected Orbbec Femto devices.</summary>
             /// <remarks>Some devices can be occupied by other processes by they are counted here as connected.</remarks>
             public static new int InstalledCount => checked((int)NativeApi.Orbbec.Instance.DeviceGetInstalledCount());
 
@@ -99,6 +104,7 @@ namespace K4AdotNet.Sensor
             public override string ToString()
                 => "Orbbec Femto #" + SerialNumber;
 
+            /// <inheritdoc cref="Device.IsConnected"/>
             public override bool IsConnected
                 => !handle.IsDisposed
                     && api.DeviceGetVersion(handle.Value, out _) == NativeCallResults.Result.Succeeded;
@@ -141,6 +147,7 @@ namespace K4AdotNet.Sensor
             public WiredSyncMode WiredSyncMode
                 => NativeApi.Orbbec.Instance.DeviceGetWiredSyncMode(handle.ValueNotDisposed);
 
+            /// <inheritdoc cref="Device.GetCalibration(DepthMode, ColorResolution)"/>
             public override Calibration GetCalibration(DepthMode depthMode, ColorResolution colorResolution)
             {
                 if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)

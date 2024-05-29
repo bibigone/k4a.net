@@ -100,7 +100,7 @@ namespace K4AdotNet.Sensor
         /// </remarks>
         PowerlineFrequency,
 
-        /// <summary>HDR setting (only for ORBBEC devices).</summary>
+        /// <summary>HDR setting (only for Orbbec Femto devices).</summary>
         /// <remarks><para>
         /// May only be set to <see cref="ColorControlMode.Manual"/>.
         /// Must stop color camera before setting HDR mode.

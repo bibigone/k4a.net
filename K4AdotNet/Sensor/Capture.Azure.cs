@@ -5,11 +5,18 @@ namespace K4AdotNet.Sensor
 {
     partial class Capture
     {
+        /// <summary>
+        /// Implementation of base <see cref="Capture"/> class for Azure Kinect devices.
+        /// This class works via `original K4A` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Azure"/> and <see cref="ComboMode.Both"/>.</remarks>
         public class Azure : Capture
         {
-            /// <summary>Creates an empty capture object.</summary>
+            /// <summary>Creates an empty capture object for Azure implementation.</summary>
             /// <exception cref="InvalidOperationException">
-            /// Sensor SDK fails to create empty capture object for some reason. For details see logs.
+            /// Sensor SDK fails to create empty capture object for some reason.
+            /// Or the library is not initialized.
+            /// Or the library is initialized in incompatible mode.
             /// </exception>
             public Azure()
                 : base(CreateCaptureHandle(NativeApi.Azure.Instance))
@@ -21,6 +28,7 @@ namespace K4AdotNet.Sensor
                 Debug.Assert(handle is NativeHandles.CaptureHandle.Azure);
             }
 
+            /// <inheritdoc cref="Capture.DuplicateReference"/>
             public override Capture DuplicateReference()
                 => new Azure(handle.ValueNotDisposed.DuplicateReference());
 

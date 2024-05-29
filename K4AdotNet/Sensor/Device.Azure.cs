@@ -7,6 +7,11 @@ namespace K4AdotNet.Sensor
 {
     partial class Device
     {
+        /// <summary>
+        /// Implementation of base <see cref="Device"/> class for Azure Kinect devices.
+        /// This class works via `original K4A` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Azure"/> and <see cref="ComboMode.Both"/>.</remarks>
         public class Azure : Device
         {
             internal Azure(NativeHandles.DeviceHandle handle, int deviceIndex, string serialNumber, HardwareVersion version)
@@ -15,7 +20,7 @@ namespace K4AdotNet.Sensor
                 Debug.Assert(handle is NativeHandles.DeviceHandle.Azure);
             }
 
-            /// <summary>Gets the number of connected devices.</summary>
+            /// <summary>Gets the number of connected Azure Kinect devices.</summary>
             /// <remarks>Some devices can be occupied by other processes by they are counted here as connected.</remarks>
             public static new int InstalledCount => checked((int)NativeApi.Azure.Instance.DeviceGetInstalledCount());
 
@@ -99,6 +104,7 @@ namespace K4AdotNet.Sensor
             public override string ToString()
                 => "Azure Kinect #" + SerialNumber;
 
+            /// <inheritdoc cref="Device.IsConnected"/>
             public override bool IsConnected
                 => !handle.IsDisposed
                     && NativeApi.Azure.Instance.DeviceGetSyncJack(handle.Value, out _, out _) == NativeCallResults.Result.Succeeded;
@@ -140,6 +146,7 @@ namespace K4AdotNet.Sensor
                 }
             }
 
+            /// <inheritdoc cref="Device.GetCalibration(DepthMode, ColorResolution)"/>
             public override Calibration GetCalibration(DepthMode depthMode, ColorResolution colorResolution)
             {
                 if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)

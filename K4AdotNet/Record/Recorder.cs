@@ -27,6 +27,9 @@ namespace K4AdotNet.Record
         /// </para><para>
         /// Subsequent calls to <see cref="WriteCapture"/> will need to have images in the resolution and format defined
         /// in <paramref name="config"/>.
+        /// </para><para>
+        /// In <see cref="ComboMode.Azure"/> mode created object operates via `original K4A` native libraries,
+        /// in other mode (including <see cref="ComboMode.Both"/>) created object operates via `Orbbec SDK K4A Wrapper` native libraries.
         /// </para></remarks>
         /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is null or empty.</exception>
         /// <exception cref="ArgumentException"><paramref name="config"/> is invalid or <paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>

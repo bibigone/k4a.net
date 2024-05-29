@@ -19,7 +19,8 @@ namespace K4AdotNet.Sensor
         private const float NOMINAL_VFOV_16_9_DEGREES_AZURE = 59f;
 
         /// <summary>
-        /// All possible <see cref="ColorResolution"/>s including <see cref="ColorResolution.Off"/>.
+        /// All possible <see cref="ColorResolution"/>s including <see cref="ColorResolution.Off"/>
+        /// supported by Azure Kinect devices.
         /// May be helpful for UI, tests, etc.
         /// </summary>
         public static readonly IReadOnlyList<ColorResolution> AllSupportedByAzure = new[]
@@ -28,11 +29,16 @@ namespace K4AdotNet.Sensor
             ColorResolution.R720p,
             ColorResolution.R1080p,
             ColorResolution.R1440p,
-            ColorResolution.R1536p,         // Not supported by ORBBEC
+            ColorResolution.R1536p,         // Not supported by Orbbec Femto
             ColorResolution.R2160p,
-            ColorResolution.R3072p,         // Not supported by ORBBEC
+            ColorResolution.R3072p,         // Not supported by Orbbec Femto
         };
 
+        /// <summary>
+        /// All possible <see cref="ColorResolution"/>s including <see cref="ColorResolution.Off"/>
+        /// supported by Orbbec Femto devices.
+        /// May be helpful for UI, tests, etc.
+        /// </summary>
         public static readonly IReadOnlyList<ColorResolution> AllSupportedByOrbbec = new[]
         {
             ColorResolution.Off,
@@ -42,12 +48,18 @@ namespace K4AdotNet.Sensor
             ColorResolution.R2160p,
         };
 
+        /// <summary>
+        /// All supported resolutions depending on implementation.
+        /// </summary>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
+        /// <returns>All supported color resolutions including <see cref="ColorResolution.Off"/></returns>
         public static IReadOnlyList<ColorResolution> All(bool isOrbbec)
             => isOrbbec ? AllSupportedByOrbbec : AllSupportedByAzure;
 
         /// <summary>Checks that resolution is compatible with a given frame rate.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="frameRate"/>.</param>
         /// <param name="frameRate">Frame rate to be tested on compatibility with <paramref name="colorResolution"/>.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
         /// <returns>
         /// <see langword="true"/> if <paramref name="colorResolution"/> can be used in combination with <paramref name="frameRate"/>,
         /// <see langword="false"/> - otherwise.
@@ -68,6 +80,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Checks that resolution is compatible with a given image format.</summary>
         /// <param name="colorResolution">Color resolution to be tested on compatibility with <paramref name="imageFormat"/>.</param>
         /// <param name="imageFormat">Image format to be tested on compatibility with <paramref name="colorResolution"/>.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
         /// <returns>
         /// <see langword="true"/> if <paramref name="colorResolution"/> can be used for images of <paramref name="imageFormat"/> format,
         /// <see langword="false"/> - otherwise.
@@ -107,6 +120,7 @@ namespace K4AdotNet.Sensor
 
         /// <summary>Gets nominal (without taking into account distortions) field-of-view (FOV) for a given color resolution.</summary>
         /// <param name="resolution">Color resolution.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
         /// <param name="horizontalDegrees">Output: nominal horizontal field-of-view (FOV) in degrees.</param>
         /// <param name="verticalDegrees">Output: nominal vertical field-of-view (FOV) in degrees.</param>
         /// <remarks>

@@ -2,22 +2,19 @@
 
 namespace K4AdotNet.Sensor
 {
-    // Defined in k4atypes.h:
-    // typedef struct _k4a_calibration_t
-    // {
-    //     k4a_calibration_camera_t depth_camera_calibration;
-    //     k4a_calibration_camera_t color_camera_calibration;
-    //     k4a_calibration_extrinsics_t extrinsics[K4A_CALIBRATION_TYPE_NUM][K4A_CALIBRATION_TYPE_NUM];
-    //     k4a_depth_mode_t depth_mode;
-    //     k4a_color_resolution_t color_resolution;
-    // } k4a_calibration_t;
-    //
-    /// <summary>Information about device calibration in particular depth mode and color resolution.</summary>
+    /// <summary>
+    /// Implementation-dependent wrapper around <see cref="CalibrationData"/> - information about device calibration
+    /// in particular depth mode and color resolution.
+    /// </summary>
+    /// <seealso cref="CalibrationData"/>
     /// <seealso cref="Transformation"/>
     public abstract partial class Calibration : SdkObject
     {
         private readonly NativeApi api;
 
+        /// <summary>
+        /// Calibration data itself.
+        /// </summary>
         public readonly CalibrationData Data;
 
         private Calibration(NativeApi api, in CalibrationData data)
@@ -88,12 +85,17 @@ namespace K4AdotNet.Sensor
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
         /// <returns>Created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called <see cref="ComboMode.Both"/> mode. In <see cref="ComboMode.Both"/> mode
+        /// one should call <see cref="Azure.CreateDummy(DepthMode, ColorResolution)"/> or <see cref="Orbbec.CreateDummy(DepthMode, ColorResolution)"/>
+        /// to create dummy object for a specific implementation.
+        /// </exception>
         public static Calibration CreateDummy(DepthMode depthMode, ColorResolution colorResolution)
             => Sdk.ComboMode switch
             {
                 ComboMode.Azure => Azure.CreateDummy(depthMode, colorResolution),
                 ComboMode.Orbbec => Orbbec.CreateDummy(depthMode, colorResolution),
-                ComboMode.Both => throw new InvalidOperationException(),
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Calibration)),
                 _ => throw new NotSupportedException(),
             };
 
@@ -106,12 +108,17 @@ namespace K4AdotNet.Sensor
         /// <param name="colorResolution">Color resolution for which dummy calibration should be created. Can be <see cref="ColorResolution.Off"/>.</param>
         /// <returns>Result: created dummy calibration data for <paramref name="depthMode"/> and <paramref name="colorResolution"/> specified.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called <see cref="ComboMode.Both"/> mode. In <see cref="ComboMode.Both"/> mode
+        /// one should call <see cref="Azure.CreateDummy(DepthMode, ColorResolution, float)"/> or <see cref="Orbbec.CreateDummy(DepthMode, ColorResolution, float)"/>
+        /// to create dummy object for a specific implementation.
+        /// </exception>
         public static Calibration CreateDummy(DepthMode depthMode, ColorResolution colorResolution, float distanceBetweenDepthAndColorMm)
             => Sdk.ComboMode switch
             {
                 ComboMode.Azure => Azure.CreateDummy(depthMode, colorResolution, distanceBetweenDepthAndColorMm),
                 ComboMode.Orbbec => Orbbec.CreateDummy(depthMode, colorResolution, distanceBetweenDepthAndColorMm),
-                ComboMode.Both => throw new InvalidOperationException(),
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Calibration)),
                 _ => throw new NotSupportedException(),
             };
 
@@ -127,6 +134,11 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ArgumentNullException"><paramref name="rawCalibration"/> cannot be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="rawCalibration"/> must be 0-terminated.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="depthMode"/> and <paramref name="colorResolution"/> cannot be equal to <c>Off</c> simultaneously.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called <see cref="ComboMode.Both"/> mode. In <see cref="ComboMode.Both"/> mode
+        /// one should call <see cref="Azure.CreateFromRaw(byte[], DepthMode, ColorResolution)"/> or <see cref="Orbbec.CreateFromRaw(byte[], DepthMode, ColorResolution)"/>
+        /// to create dummy object for a specific implementation.
+        /// </exception>
         public static Calibration CreateFromRaw(byte[] rawCalibration, DepthMode depthMode, ColorResolution colorResolution)
             => Sdk.ComboMode switch
             {

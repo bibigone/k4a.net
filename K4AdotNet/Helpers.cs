@@ -157,5 +157,9 @@ namespace K4AdotNet
 
         public static string GetFullPathToSubdir(string subdir)
             => Path.Combine(GetBaseDir(), subdir);
+
+        public static InvalidOperationException InvalidOperationExceptionForComboModeBoth(Type baseType)
+            => new InvalidOperationException($"The method cannot be called in {nameof(ComboMode)}.{nameof(ComboMode.Both)} mode. " +
+                $"Use appropriate method from {baseType.Name}.Azure or {baseType.Name}.Orbbec nested subclass.");
     }
 }

@@ -127,33 +127,6 @@ namespace K4AdotNet.Sensor
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void MemoryDestroyCallback(IntPtr buffer, IntPtr context);
 
-        /// <summary>Sets the callback functions for the SDK allocator</summary>
-        /// <param name="allocate">
-        /// The callback function to allocate memory. When the SDK requires memory allocation this callback will be
-        /// called and the application can provide a buffer and a context.
-        /// </param>
-        /// <param name="free">
-        /// The callback function to free memory.
-        /// The SDK will call this function when memory allocated by <paramref name="allocate"/> is no longer needed.</param>
-        /// <returns>
-        /// <see cref="NativeCallResults.Result.Succeeded"/> if the callback function was set or cleared successfully.
-        /// <see cref="NativeCallResults.Result.Failed"/> if an error is encountered or the callback function has already been set.
-        /// </returns>
-        /// <remarks>
-        /// Call this function to hook memory allocation by the SDK. Calling with both <paramref name="allocate"/> and <paramref name="free"/>
-        /// as <see langword="null"/> will clear the hook and reset to the default allocator.
-        /// 
-        /// If this function is called after memory has been allocated, the previous version of <paramref name="free"/> function may still be
-        /// called in the future. The SDK will always call the <paramref name="free"/> function that was set at the time that the memory
-        /// was allocated.
-        /// 
-        /// Not all memory allocation by the SDK is performed by this allocate function.
-        /// Small allocations or allocations from special pools may come from other sources.
-        /// </remarks>
-        public abstract NativeCallResults.Result SetAllocator(
-            MemoryAllocateCallback? allocate,
-            MemoryDestroyCallback? free);
-
         /// <summary>
         /// Create an image.
         /// </summary>

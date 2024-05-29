@@ -7,7 +7,7 @@ namespace K4AdotNet.Sensor
 {
     // Inspired by <c>image</c> class from <c>k4a.hpp</c>
     //
-    /// <summary>An Azure Kinect image referencing its buffer and metadata.</summary>
+    /// <summary>An Azure Kinect/Orbbec Femto image referencing its buffer and metadata.</summary>
     /// <remarks><para>
     /// Is used for color images, IR images, depth maps, body index maps, 3D point clouds.
     /// </para></remarks>
@@ -106,7 +106,7 @@ namespace K4AdotNet.Sensor
         /// </para><para>
         /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
         /// </para><para>
-        /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
+        /// Orbbec SDK K4A Wrapper has limited support of this functionality.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -130,7 +130,7 @@ namespace K4AdotNet.Sensor
         /// <remarks><para>
         /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
         /// </para><para>
-        /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
+        /// OrbbecSDK K4A Wrapper has limited support of this functionality.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -141,7 +141,7 @@ namespace K4AdotNet.Sensor
             where T: struct
             => Sdk.ComboMode switch
             {
-                ComboMode.Both => throw new InvalidOperationException(),
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Image)),
                 ComboMode.Azure => Azure.CreateFromArray(buffer, format, widthPixels, heightPixels, strideBytes),
                 ComboMode.Orbbec => Orbbec.CreateFromArray(buffer, format, widthPixels, heightPixels, strideBytes),
                 _ => throw new NotSupportedException(),
@@ -195,7 +195,7 @@ namespace K4AdotNet.Sensor
             where T : unmanaged
             => Sdk.ComboMode switch
             {
-                ComboMode.Both => throw new InvalidOperationException(),
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Image)),
                 ComboMode.Azure => Azure.CreateFromMemory(memoryOwner, format, widthPixels, heightPixels, strideBytes),
                 ComboMode.Orbbec => Orbbec.CreateFromMemory(memoryOwner, format, widthPixels, heightPixels, strideBytes),
                 _ => throw new NotSupportedException(),

@@ -4,10 +4,15 @@ namespace K4AdotNet.Sensor
 {
     partial class Transformation
     {
+        /// <summary>
+        /// Implementation of base <see cref="Transformation"/> class for Azure Kinect devices.
+        /// This class works via `original K4A` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Azure"/> and <see cref="ComboMode.Both"/>.</remarks>
         public sealed class Azure : Transformation
         {
             /// <summary>
-            /// Creates transformation object for a give calibration data.
+            /// Creates transformation object for a give calibration data (implementation for Azure Kinect devices).
             /// </summary>
             /// <param name="calibration">Camera calibration data.</param>
             /// <remarks><para>

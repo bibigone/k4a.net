@@ -5,6 +5,11 @@ namespace K4AdotNet.Sensor
 {
     partial class Image
     {
+        /// <summary>
+        /// Implementation of base <see cref="Image"/> class for Azure Kinect devices.
+        /// This class works via `original K4A` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Azure"/> and <see cref="ComboMode.Both"/>.</remarks>
         public sealed class Azure : Image
         {
             internal Azure(NativeHandles.ImageHandle handle)
@@ -67,6 +72,7 @@ namespace K4AdotNet.Sensor
                 : base(CreateImage(NativeApi.Azure.Instance, format, widthPixels, heightPixels, strideBytes, sizeBytes))
             {}
 
+            /// <inheritdoc cref="Image.DuplicateReference"/>
             public override Image DuplicateReference()
                 => new Azure((NativeHandles.ImageHandle.Azure)handle.ValueNotDisposed.DuplicateReference());
 
@@ -83,8 +89,6 @@ namespace K4AdotNet.Sensor
             /// For other formats use <see cref="CreateFromArray{T}(T[], ImageFormat, int, int, int)"/>.
             /// </para><para>
             /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
-            /// </para><para>
-            /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
             /// </para></remarks>
             /// <exception cref="ArgumentOutOfRangeException">
             /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -253,7 +257,6 @@ namespace K4AdotNet.Sensor
                 get => checked((int)NativeApi.Azure.Instance.ImageGetIsoSpeed(handle.ValueNotDisposed));
                 set => NativeApi.Azure.Instance.ImageSetIsoSpeed(handle.ValueNotDisposed, checked((uint)value));
             }
-
         }
     }
 }

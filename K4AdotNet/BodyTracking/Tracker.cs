@@ -34,6 +34,9 @@ namespace K4AdotNet.BodyTracking
         /// directory with executable file,
         /// directory with <c>K4AdotNet</c> assembly,
         /// installation directory of Body Tracking SDK under <c>Program Files</c>.
+        /// </para><para>
+        /// In <see cref="ComboMode.Azure"/> mode created object operates via `original K4A` native libraries,
+        /// in other mode (including <see cref="ComboMode.Both"/>) created object operates via `Orbbec SDK K4A Wrapper` native libraries.
         /// </para></remarks>
         /// <exception cref="ArgumentOutOfRangeException">
         /// Invalid value of <paramref name="calibration"/>: <see cref="Calibration.DepthMode"/> cannot be <see cref="DepthMode.Off"/> and <see cref="DepthMode.PassiveIR"/>.

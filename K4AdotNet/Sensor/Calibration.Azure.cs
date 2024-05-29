@@ -4,8 +4,17 @@ namespace K4AdotNet.Sensor
 {
     partial class Calibration
     {
+        /// <summary>
+        /// Implementation of base <see cref="Calibration"/> class for Azure Kinect devices.
+        /// This class works via `original K4A` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Azure"/> and <see cref="ComboMode.Both"/>.</remarks>
         public sealed class Azure : Calibration
         {
+            /// <summary>
+            /// Creates the object for a given calibration data.
+            /// </summary>
+            /// <param name="data">Calibration data.</param>
             public Azure(in CalibrationData data)
                 : base(NativeApi.Azure.Instance, data) { }
 

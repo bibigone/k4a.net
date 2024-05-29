@@ -70,6 +70,7 @@ namespace K4AdotNet.Sensor
         /// <summary>Checks compatibility of a given frame rate with particular resolution of color camera.</summary>
         /// <param name="frameRate">Frame rate under test.</param>
         /// <param name="colorResolution">Color camera resolution to be checked for compatibility with <paramref name="frameRate"/>.</param>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
         /// <returns>
         /// <see langword="true"/> if <paramref name="colorResolution"/> can be used in combination with <paramref name="frameRate"/>,
         /// <see langword="false"/> - otherwise.

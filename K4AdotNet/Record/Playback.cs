@@ -6,7 +6,7 @@ using System.Text;
 
 namespace K4AdotNet.Record
 {
-    /// <summary>Kinect for Azure recording opened for playback.</summary>
+    /// <summary>MKV recording opened for playback.</summary>
     /// <seealso cref="Recorder"/>
     public sealed class Playback : SdkObject, IDisposablePlus
     {
@@ -20,6 +20,10 @@ namespace K4AdotNet.Record
         /// <exception cref="ArgumentException"><paramref name="filePath"/> contains some invalid character. Also, right now non-Latin letters are not supported in <paramref name="filePath"/> under Windows.</exception>
         /// <exception cref="FileNotFoundException">Files specified in <paramref name="filePath"/> does not exist.</exception>
         /// <exception cref="PlaybackException">Cannot open file specified in <paramref name="filePath"/> for playback. See logs for details.</exception>
+        /// <remarks>
+        /// In <see cref="ComboMode.Azure"/> mode created object operates via `original K4A` native libraries,
+        /// in other mode (including <see cref="ComboMode.Both"/>) created object operates via `Orbbec SDK K4A Wrapper` native libraries.
+        /// </remarks>
         public Playback(string filePath)
             : base(Sdk.DetermineDefaultImplIsOrbbec())
         {

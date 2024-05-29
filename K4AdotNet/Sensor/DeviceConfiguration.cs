@@ -17,7 +17,7 @@ namespace K4AdotNet.Sensor
     //      bool disable_streaming_indicator;
     // } k4a_device_configuration_t;
     //
-    /// <summary>Configuration parameters for an Azure Kinect device.</summary>
+    /// <summary>Configuration parameters for an Azure Kinect and Orbbec Femto device.</summary>
     /// <seealso cref="Device.StartCameras(DeviceConfiguration)"/>
     [StructLayout(LayoutKind.Sequential)]
     public struct DeviceConfiguration
@@ -109,6 +109,7 @@ namespace K4AdotNet.Sensor
         /// <summary>
         /// Checks that this configuration is OK (all parameters have correct and compatible values).
         /// </summary>
+        /// <param name="isOrbbec"><see langword="true"/> for Orbbec Femto devices, <see langword="false"/> for Azure Kinect devices.</param>
         /// <param name="message">
         /// What's wrong with configuration or <see langword="null"/> if configuration is valid.
         /// </param>

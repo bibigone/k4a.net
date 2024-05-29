@@ -7,12 +7,27 @@ namespace K4AdotNet
 {
     public static partial class Sdk
     {
+        /// <summary>
+        /// Common basic things that are relevant only for `Orbbec SDK K4A Wrapper` implementation.
+        /// </summary>
+        /// <see cref="ComboMode"/>
         public static class Orbbec
         {
+            /// <summary>
+            /// Name of subdirectory with native libraries for `Orbbec SDK K4A Wrapper` implementation.
+            /// </summary>
             public const string NATIVE_LIB_SUBDIR = "k4a-orbbec";
 
+            /// <summary>
+            /// Name of main library (DLL) from Orbbec SDK K4A Wrapper with subdirectory.
+            /// </summary>
+            /// <remarks>Is used for <c>DllImport</c>s.</remarks>
             public const string SENSOR_DLL_NAME = NATIVE_LIB_SUBDIR + "/" + Sdk.SENSOR_DLL_NAME;
 
+            /// <summary>
+            /// Name of record library (DLL) from Orbbec SDK K4A Wrapper with subdirectory.
+            /// </summary>
+            /// <remarks>Is used for <c>DllImport</c>s.</remarks>
             public const string RECORD_DLL_NAME = NATIVE_LIB_SUBDIR + "/" + Sdk.RECORD_DLL_NAME;
 
             private static DepthEngineHelper? depthEngineHelper;
@@ -20,10 +35,11 @@ namespace K4AdotNet
             private static readonly object initSync = new();
 
             /// <summary>
-            /// The K4A.Net can log data to a regular .Net Trace.
-            /// Use this property to choose the level of such logging, or set it to <see cref="TraceLevel.Off"/> to turn it off.
-            /// Default value is <see cref="TraceLevel.Off"/>.
+            /// Implementation of <see cref="Sdk.TraceLevel"/> property
+            /// for `Orbbec SDK K4A Wrapper` library.
             /// </summary>
+            /// <seealso cref="Sdk.TraceLevel"/>
+            /// <seealso cref="Azure.TraceLevel"/>
             public static TraceLevel TraceLevel
             {
                 get
@@ -39,6 +55,12 @@ namespace K4AdotNet
                 }
             }
 
+            /// <summary>
+            /// Checks that Orbbec implementation is enabled (initialized).
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Orbbec implementation is not available in the current mode.</exception>
+            /// <seealso cref="Sdk.Init(ComboMode)"/>
+            /// <seealso cref="ComboMode"/>
             internal static void CheckEnabled()
             {
                 if (isInitializing || (ComboMode & ComboMode.Orbbec) == ComboMode.Orbbec)
@@ -46,6 +68,10 @@ namespace K4AdotNet
                 throw new InvalidOperationException($"This functionality requires SDK initialization in {nameof(ComboMode)}.{nameof(ComboMode.Orbbec)} or {nameof(ComboMode.Both)}.");
             }
 
+            /// <summary>
+            /// Initializes Orbbec implementation and forces native library loading of `Orbbec SDK K4A Wrapper`.
+            /// </summary>
+            /// <seealso cref="Sdk.Init(ComboMode)"/>
             internal static void Init()
             {
                 lock (initSync)

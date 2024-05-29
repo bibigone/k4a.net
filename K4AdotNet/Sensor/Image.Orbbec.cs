@@ -5,6 +5,11 @@ namespace K4AdotNet.Sensor
 {
     partial class Image
     {
+        /// <summary>
+        /// Implementation of base <see cref="Image"/> class for Orbbec Femto devices.
+        /// This class works via `Orbbec SDK K4A Wrapper` native libraries.
+        /// </summary>
+        /// <remarks>Supported in modes <see cref="ComboMode.Orbbec"/> and <see cref="ComboMode.Both"/>.</remarks>
         public sealed class Orbbec : Image
         {
             internal Orbbec(NativeHandles.ImageHandle handle)
@@ -55,8 +60,7 @@ namespace K4AdotNet.Sensor
             /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
             /// <param name="sizeBytes">Size of image buffer in size. Non negative. Cannot be less than size calculated from image parameters.</param>
             /// <remarks>
-            /// This version of image construction allocates memory buffer via <see cref="Sdk.CustomMemoryAllocator"/>
-            /// or <see cref="HGlobalMemoryAllocator"/> if not set.
+            /// This version of image construction allocates memory buffer via <see cref="HGlobalMemoryAllocator"/> if not set.
             /// </remarks>
             /// <exception cref="ArgumentOutOfRangeException">
             /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -79,6 +83,7 @@ namespace K4AdotNet.Sensor
                 return CreateImage(NativeApi.Orbbec.Instance, format, widthPixels, heightPixels, strideBytes, sizeBytes);
             }
 
+            /// <inheritdoc cref="Image.DuplicateReference"/>
             public override Image DuplicateReference()
                 => new Orbbec((NativeHandles.ImageHandle.Orbbec)handle.ValueNotDisposed.DuplicateReference());
 
@@ -96,7 +101,7 @@ namespace K4AdotNet.Sensor
             /// </para><para>
             /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
             /// </para><para>
-            /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
+            /// OrbbecSDK K4A Wrapper has limited support of this functionality.
             /// </para></remarks>
             /// <exception cref="ArgumentOutOfRangeException">
             /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
@@ -120,7 +125,7 @@ namespace K4AdotNet.Sensor
             /// <remarks><para>
             /// <see cref="Buffer"/> points to pinned array <paramref name="buffer"/> for such images.
             /// </para><para>
-            /// OrbbecSDK-K4A-Wrapper has limited support of this functionality.
+            /// Orbbec SDK K4A Wrapper has limited support of this functionality.
             /// </para></remarks>
             /// <exception cref="ArgumentOutOfRangeException">
             /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
