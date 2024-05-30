@@ -46,19 +46,20 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.IsFalse(config.IsValid(false, out var message));
             Assert.IsNotNull(message);
 
-#if !ORBBECSDK_K4A_WRAPPER
-            config = new DeviceConfiguration
+            if (Sdk.ComboMode == ComboMode.Azure)
             {
-                CameraFps = FrameRate.Thirty,
-                ColorFormat = ImageFormat.ColorMjpg,
-                ColorResolution = ColorResolution.R3072p,   // this resolution is not compatible with 30 FPS
-                DepthMode = DepthMode.Off,
-                WiredSyncMode = WiredSyncMode.Standalone,
-            };
+                config = new DeviceConfiguration
+                {
+                    CameraFps = FrameRate.Thirty,
+                    ColorFormat = ImageFormat.ColorMjpg,
+                    ColorResolution = ColorResolution.R3072p,   // this resolution is not compatible with 30 FPS
+                    DepthMode = DepthMode.Off,
+                    WiredSyncMode = WiredSyncMode.Standalone,
+                };
 
-            Assert.IsFalse(config.IsValid(false, out message));
-            Assert.IsNotNull(message);
-#endif
+                Assert.IsFalse(config.IsValid(false, out message));
+                Assert.IsNotNull(message);
+            }
 
             config = new DeviceConfiguration
             {

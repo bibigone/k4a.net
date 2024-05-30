@@ -119,13 +119,16 @@ namespace K4AdotNet.Sensor
                 : new Azure();
 
             using var colorImage = ColorImage;
-            capture.ColorImage = colorImage?.ConvertTo(isOrbbec);
+            if (colorImage is not null)
+                capture.ColorImage = colorImage.ConvertTo(isOrbbec);
 
             using var irImage = IRImage;
-            capture.IRImage = irImage?.ConvertTo(isOrbbec);
+            if (irImage is not null)
+                capture.IRImage = irImage.ConvertTo(isOrbbec);
 
             using var depthImage = DepthImage;
-            capture.DepthImage = depthImage?.ConvertTo(isOrbbec);
+            if (depthImage is not null)
+                capture.DepthImage = depthImage.ConvertTo(isOrbbec);
 
             return capture;
         }
@@ -152,7 +155,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image? ColorImage
+        public virtual Image? ColorImage
         {
             get => children.Register(Image.Create(api.CaptureGetColorImage(handle.ValueNotDisposed)));
 
@@ -188,7 +191,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image? DepthImage
+        public virtual Image? DepthImage
         {
             get => children.Register(Image.Create(api.CaptureGetDepthImage(handle.ValueNotDisposed)));
             set
@@ -223,7 +226,7 @@ namespace K4AdotNet.Sensor
         /// If an existing image is being replaced, the previous image will have the reference released.
         /// </para></remarks>
         /// <exception cref="ObjectDisposedException">This property cannot be called for disposed objects.</exception>
-        public Image? IRImage
+        public virtual Image? IRImage
         {
             get => children.Register(Image.Create(api.CaptureGetIRImage(handle.ValueNotDisposed)));
             set

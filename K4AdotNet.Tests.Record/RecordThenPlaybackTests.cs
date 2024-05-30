@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace K4AdotNet.Tests.Record
 {
@@ -13,8 +14,13 @@ namespace K4AdotNet.Tests.Record
         [AssemblyInitialize]
         public static void GlobalInit(TestContext _)
         {
-            // Sdk.Init(ComboMode.Orbbec);
+#if AZURE
             Sdk.Init(ComboMode.Azure);
+#elif ORBBEC
+            Sdk.Init(ComboMode.Orbbec);
+#else
+#error Please define AZURE or ORBBEC constant
+#endif
         }
 
         [TestMethod]
@@ -25,7 +31,7 @@ namespace K4AdotNet.Tests.Record
             var config = new DeviceConfiguration
             {
                 CameraFps = FrameRate.Thirty,
-                ColorFormat = ImageFormat.ColorNV12,
+                ColorFormat = ImageFormat.ColorYUY2,
                 ColorResolution = ColorResolution.R720p,
                 DepthMode = DepthMode.NarrowView2x2Binned,
                 SubordinateDelayOffMaster = Microseconds32.FromSeconds(0.00001),
@@ -85,17 +91,17 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 // EoF
                 Assert.IsFalse(playback.TryGetNextCapture(out capture));
@@ -105,17 +111,17 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 // EoF
                 Assert.IsFalse(playback.TryGetPreviousCapture(out capture));
@@ -129,7 +135,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 // Seek to start
                 Assert.IsTrue(playback.TrySeekTimestamp(Microseconds64.Zero, PlaybackSeekOrigin.Begin));
@@ -139,7 +145,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
 
                 // Seek to device timestamp
                 var ts = GetStartTimestamp(config, deviceTimestamp1);
@@ -148,7 +154,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                capture.Dispose();
+                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
             }
 
             File.Delete(mkvPath);
@@ -162,7 +168,7 @@ namespace K4AdotNet.Tests.Record
             var config = new DeviceConfiguration
             {
                 CameraFps = FrameRate.Fifteen,
-                ColorFormat = ImageFormat.ColorNV12,
+                ColorFormat = ImageFormat.ColorYUY2,
                 ColorResolution = ColorResolution.R720p,
                 DepthMode = DepthMode.NarrowView2x2Binned,
             };
@@ -209,7 +215,7 @@ namespace K4AdotNet.Tests.Record
             var config = new DeviceConfiguration
             {
                 CameraFps = FrameRate.Five,
-                ColorFormat = ImageFormat.ColorNV12,
+                ColorFormat = ImageFormat.ColorYUY2,
                 ColorResolution = ColorResolution.R720p,
                 DepthMode = DepthMode.NarrowView2x2Binned,
             };
@@ -386,7 +392,7 @@ namespace K4AdotNet.Tests.Record
             var config = new DeviceConfiguration
             {
                 CameraFps = FrameRate.Five,
-                ColorFormat = ImageFormat.ColorNV12,
+                ColorFormat = ImageFormat.ColorYUY2,
                 ColorResolution = ColorResolution.R720p,
                 DepthMode = DepthMode.Off,
             };
@@ -651,8 +657,9 @@ namespace K4AdotNet.Tests.Record
 
         private static void WriteTestCapture(Recorder recorder, Microseconds64 colorTimestamp)
         {
-            using (var capture = CreateTestCapture(recorder.DeviceConfiguration, colorTimestamp))
-                recorder.WriteCapture(capture);
+            var capture = CreateTestCapture(recorder.DeviceConfiguration, colorTimestamp);
+            recorder.WriteCapture(capture);
+            Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
         }
 
         private static Capture CreateTestCapture(DeviceConfiguration config, Microseconds64 colorTimestamp)
@@ -675,9 +682,8 @@ namespace K4AdotNet.Tests.Record
             var width = config.ColorResolution.WidthPixels();
             var height = config.ColorResolution.HeightPixels();
             var stride = config.ColorFormat.StrideBytes(width);
-            var buffer = new byte[config.ColorFormat.ImageSizeBytes(stride, height)];
 
-            var image = Image.CreateFromArray(buffer, config.ColorFormat, width, height);
+            var image = Image.Create(config.ColorFormat, width, height, stride);
             image.DeviceTimestamp = colorTimestamp;
 
             return image;
@@ -690,9 +696,8 @@ namespace K4AdotNet.Tests.Record
 
             var width = config.DepthMode.WidthPixels();
             var height = config.DepthMode.HeightPixels();
-            var buffer = new short[width * height];
 
-            var image = Image.CreateFromArray(buffer, ImageFormat.IR16, width, height);
+            var image = Image.Create(ImageFormat.IR16, width, height);
             image.DeviceTimestamp = colorTimestamp + config.DepthDelayOffColor;
 
             return image;
@@ -705,9 +710,8 @@ namespace K4AdotNet.Tests.Record
 
             var width = config.DepthMode.WidthPixels();
             var height = config.DepthMode.HeightPixels();
-            var buffer = new short[width * height];
 
-            var image = Image.CreateFromArray(buffer, ImageFormat.Depth16, width, height);
+            var image = Image.Create(ImageFormat.Depth16, width, height);
             image.DeviceTimestamp = colorTimestamp + config.DepthDelayOffColor;
 
             return image;

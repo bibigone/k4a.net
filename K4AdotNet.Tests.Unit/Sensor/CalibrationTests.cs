@@ -17,7 +17,10 @@ namespace K4AdotNet.Tests.Unit.Sensor
 
             foreach (var depthMode in DepthModes.All)
             {
-                foreach (var colorResolution in ColorResolutions.AllSupportedByAzure)
+                var colorResolutions = Sdk.ComboMode == ComboMode.Azure
+                    ? ColorResolutions.AllSupportedByAzure
+                    : ColorResolutions.AllSupportedByOrbbec;
+                foreach (var colorResolution in colorResolutions)
                 {
                     if (depthMode == DepthMode.Off && colorResolution == ColorResolution.Off)
                         continue;
@@ -35,7 +38,10 @@ namespace K4AdotNet.Tests.Unit.Sensor
         private byte[] ReadRawCalibrationFromResources()
         {
             var assembly = GetType().Assembly;
-            using (var stream = assembly.GetManifestResourceStream("K4AdotNet.Tests.Unit.raw_calibration.bin"))
+            var resourceFullName = Sdk.ComboMode == ComboMode.Azure
+                ? "K4AdotNet.Tests.Unit-Azure.raw_calibration.bin"
+                : "K4AdotNet.Tests.Unit-Orbbec.raw_calibration.bin";
+            using (var stream = assembly.GetManifestResourceStream(resourceFullName))
             {
                 var rawCalibration = new byte[stream.Length];
                 var len = stream.Read(rawCalibration, 0, rawCalibration.Length);
@@ -53,10 +59,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestDummyCalibration(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestDummyCalibration(DepthMode.NarrowViewUnbinned, ColorResolution.Off);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestDummyCalibration(DepthMode.Off, ColorResolution.R1536p);
-            TestDummyCalibration(DepthMode.PassiveIR, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestDummyCalibration(DepthMode.Off, ColorResolution.R1536p);
+                TestDummyCalibration(DepthMode.PassiveIR, ColorResolution.R3072p);
+            }
         }
 
         private void TestDummyCalibration(DepthMode depthMode, ColorResolution colorResolution)
@@ -69,7 +76,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(colorResolution, calibration.ColorResolution);
         }
 
-#endregion
+        #endregion
 
         #region Convert2DTo2D
 
@@ -78,10 +85,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestConvert2DTo2D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestConvert2DTo2D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestConvert2DTo2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
-            TestConvert2DTo2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestConvert2DTo2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+                TestConvert2DTo2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+            }
         }
 
         private void TestConvert2DTo2D(DepthMode depthMode, ColorResolution colorResolution)
@@ -116,7 +124,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.IsNull(point2d);
         }
 
-#endregion
+        #endregion
 
         #region Convert2DTo3D
 
@@ -125,10 +133,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestConvert2DTo3D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestConvert2DTo3D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestConvert2DTo3D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
-            TestConvert2DTo3D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestConvert2DTo3D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+                TestConvert2DTo3D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+            }
         }
 
         private void TestConvert2DTo3D(DepthMode depthMode, ColorResolution colorResolution)
@@ -176,7 +185,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.IsNull(point3d);
         }
 
-#endregion
+        #endregion
 
         #region Convert3DTo2D
 
@@ -185,10 +194,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestConvert3DTo2D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestConvert3DTo2D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestConvert3DTo2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
-            TestConvert3DTo2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestConvert3DTo2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+                TestConvert3DTo2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+            }
         }
 
         private void TestConvert3DTo2D(DepthMode depthMode, ColorResolution colorResolution)
@@ -206,7 +216,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(depthCenter, point2d.Value);
         }
 
-#endregion
+        #endregion
 
         #region Convert3DTo3D
 
@@ -215,10 +225,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestConvert3DTo3D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestConvert3DTo3D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestConvert3DTo3D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
-            TestConvert3DTo3D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestConvert3DTo3D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+                TestConvert3DTo3D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+            }
         }
 
         private void TestConvert3DTo3D(DepthMode depthMode, ColorResolution colorResolution)
@@ -231,7 +242,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(testPoint, point3d);
         }
 
-#endregion
+        #endregion
 
         #region ConvertColor2DToDepth2D
 
@@ -240,10 +251,11 @@ namespace K4AdotNet.Tests.Unit.Sensor
         {
             TestConvertColor2DToDepth2D(DepthMode.NarrowView2x2Binned, ColorResolution.R720p);
             TestConvertColor2DToDepth2D(DepthMode.NarrowViewUnbinned, ColorResolution.R1080p);
-#if !ORBBECSDK_K4A_WRAPPER
-            TestConvertColor2DToDepth2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
-            TestConvertColor2DToDepth2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
-#endif
+            if (Sdk.ComboMode == ComboMode.Azure)
+            {
+                TestConvertColor2DToDepth2D(DepthMode.WideView2x2Binned, ColorResolution.R1536p);
+                TestConvertColor2DToDepth2D(DepthMode.WideViewUnbinned, ColorResolution.R3072p);
+            }
         }
 
         private void TestConvertColor2DToDepth2D(DepthMode depthMode, ColorResolution colorResolution)
@@ -257,7 +269,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var depthImageBuffer = new short[depthMode.WidthPixels() * depthMode.HeightPixels()];
             for (var i = 0; i < depthImageBuffer.Length; i++)
                 depthImageBuffer[i] = depthMm;
-            var depthImage = new Image.Azure(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
+            var depthImage = Image.Create(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
             depthImage.FillFrom(depthImageBuffer);
 
             var point2d = calibration.ConvertColor2DToDepth2D(color2d, depthImage);
@@ -285,10 +297,10 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var depthImageBuffer = new short[depthMode.WidthPixels() * depthMode.HeightPixels()];
             for (var i = 0; i < depthImageBuffer.Length; i++)
                 depthImageBuffer[i] = depthMm;
-            var depthImage = new Image.Azure(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
+            var depthImage = Image.Create(ImageFormat.Depth16, depthMode.WidthPixels(), depthMode.HeightPixels());
             depthImage.FillFrom(depthImageBuffer);
 
-            var xyzImage = new Image.Azure(ImageFormat.Custom, depthMode.WidthPixels(), depthMode.HeightPixels(), depthMode.WidthPixels() * 6);
+            var xyzImage = Image.Create(ImageFormat.Custom, depthMode.WidthPixels(), depthMode.HeightPixels(), depthMode.WidthPixels() * 6);
 
             using (var transform = calibration.CreateTransformation())
             {

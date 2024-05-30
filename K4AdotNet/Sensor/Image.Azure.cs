@@ -39,9 +39,6 @@ namespace K4AdotNet.Sensor
             /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
             /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
             /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
-            /// <remarks>
-            /// This version of image construction should be preferred in case of OrbbecSDK-K4A-Wrapper usage.
-            /// </remarks>
             /// <exception cref="ArgumentOutOfRangeException">
             /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
             /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>.

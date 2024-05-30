@@ -12,11 +12,8 @@ namespace K4AdotNet.Tests.Unit.Sensor
         private static readonly int testHeight = 16;
         private static readonly Microseconds64 testDeviceTimestamp = Microseconds64.FromSeconds(1.5);
         private static readonly Nanoseconds64 testSystemTimestamp = Nanoseconds64.FromSeconds(1.5001);
-
-#if !ORBBECSDK_K4A_WRAPPER
         private static readonly int testWhiteBalance = 300;
         private static readonly int testIsoSpeed = 100;
-#endif
 
         #region Testing image creation without size specifying
 
@@ -33,7 +30,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             => TestImageCreationWithNoSizeSpecified(ImageFormat.ColorBgra32);
 
         [TestMethod]
-#if ORBBECSDK_K4A_WRAPPER
+#if ORBBEC
         [Ignore("OrbbecSDK-K4A-Wrapper does not support stride and size calculation for NV12 format")]
 #endif
         public void TestColorNV12ImageCreation()
@@ -68,8 +65,8 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 expectedSize = expectedSize * 3 / 2;
 
             var image = strideOrNull.HasValue
-                ? new Image.Azure(format, testWidth, testHeight, strideOrNull.Value)
-                : new Image.Azure(format, testWidth, testHeight);
+                ? Image.Create(format, testWidth, testHeight, strideOrNull.Value)
+                : Image.Create(format, testWidth, testHeight);
 
             Assert.AreNotEqual(IntPtr.Zero, image.Buffer);
 
@@ -80,7 +77,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             Assert.AreEqual(expectedSize, image.SizeBytes);
         }
 
-#endregion
+        #endregion
 
         #region Testing of image creation with size specified and from array
 
@@ -91,7 +88,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
             var strideBytes = 0;
             var sizeBytes = testWidth * testHeight * 2 + 1976;
 
-            using (var image = new Image.Azure(format, testWidth, testHeight, strideBytes, sizeBytes))
+            using (var image = Image.Create(format, testWidth, testHeight, strideBytes, sizeBytes))
             {
                 Assert.AreNotEqual(IntPtr.Zero, image.Buffer);
                 Assert.AreEqual(format, image.Format);
@@ -105,7 +102,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCreationFromArray()
         {
-#if ORBBECSDK_K4A_WRAPPER
+#if ORBBEC
             var format = ImageFormat.Custom16;
 #else
             var format = ImageFormat.Depth16;
@@ -139,7 +136,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCreationFromMemory()
         {
-#if ORBBECSDK_K4A_WRAPPER
+#if ORBBEC
             var format = ImageFormat.Custom16;
 #else
             var format = ImageFormat.Depth16;
@@ -186,14 +183,14 @@ namespace K4AdotNet.Tests.Unit.Sensor
             
         }
 
-#endregion
+        #endregion
 
         #region Testing of IsDisposed property, Dispose() method and Disposed event
 
         [TestMethod]
         public void TestDisposing()
         {
-            var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight);
+            var image = Image.Create(ImageFormat.Depth16, testWidth, testHeight);
 
             // Check disposing
             Assert.IsFalse(image.IsDisposed);
@@ -238,7 +235,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [ExpectedException(typeof(ObjectDisposedException))]
         public void TestObjectDisposedException()
         {
-            var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight);
+            var image = Image.Create(ImageFormat.Depth16, testWidth, testHeight);
             image.Dispose();
             _ = image.Buffer;      // <- ObjectDisposedException
         }
@@ -250,7 +247,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestMutableProperties()
         {
-            using (var image = new Image.Azure(ImageFormat.Depth16, testWidth, testHeight))
+            using (var image = Image.Create(ImageFormat.Depth16, testWidth, testHeight))
             {
                 // Check DeviceTimestamp property
                 Assert.AreEqual(Microseconds64.Zero, image.DeviceTimestamp);
@@ -260,27 +257,28 @@ namespace K4AdotNet.Tests.Unit.Sensor
                 // Check SystemTimestamp property
                 Assert.AreEqual(Nanoseconds64.Zero, image.SystemTimestamp);
                 image.SystemTimestamp = testSystemTimestamp;
-#if !ORBBECSDK_K4A_WRAPPER
+#if AZURE
                 Assert.AreEqual(testSystemTimestamp, image.SystemTimestamp);
-#else
+#elif ORBBEC
                 Assert.AreEqual(testSystemTimestamp.ValueNsec / 1_000_000L, image.SystemTimestamp.ValueNsec / 1_000_000L);
 #endif
 
-#if !ORBBECSDK_K4A_WRAPPER
-                // Check WhiteBalance property
-                Assert.AreEqual(0, image.WhiteBalance);
-                image.WhiteBalance = testWhiteBalance;
-                Assert.AreEqual(testWhiteBalance, image.WhiteBalance);
+                if (image is Image.Azure azureImage)
+                {
+                    // Check WhiteBalance property
+                    Assert.AreEqual(0, azureImage.WhiteBalance);
+                    azureImage.WhiteBalance = testWhiteBalance;
+                    Assert.AreEqual(testWhiteBalance, azureImage.WhiteBalance);
 
-                // Check IsoSpeed property
-                Assert.AreEqual(0, image.IsoSpeed);
-                image.IsoSpeed = testIsoSpeed;
-                Assert.AreEqual(testIsoSpeed, image.IsoSpeed);
-#endif
+                    // Check IsoSpeed property
+                    Assert.AreEqual(0, azureImage.IsoSpeed);
+                    azureImage.IsoSpeed = testIsoSpeed;
+                    Assert.AreEqual(testIsoSpeed, azureImage.IsoSpeed);
+                }
             }
         }
 
-#endregion
+        #endregion
 
         #region Test duplicate reference
 
@@ -335,14 +333,14 @@ namespace K4AdotNet.Tests.Unit.Sensor
             refImage.Dispose();
         }
 
-#endregion
+        #endregion
 
         #region Testing of CopyTo and FillFrom
 
         [TestMethod]
         public void TestCopyToAndFillFromForByteArray()
         {
-            using (var image = new Image.Azure(ImageFormat.ColorBgra32, 1, 1))
+            using (var image = Image.Create(ImageFormat.ColorBgra32, 1, 1))
             {
                 var src = new byte[] { 127, 63, 255, 0 };
                 image.FillFrom(src);
@@ -356,7 +354,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForShortArray()
         {
-            using (var image = new Image.Azure(ImageFormat.Depth16, 2, 2))
+            using (var image = Image.Create(ImageFormat.Depth16, 2, 2))
             {
                 var src = new short[] { -1234, 0, short.MinValue, short.MaxValue };
                 image.FillFrom(src);
@@ -370,7 +368,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForIntArray()
         {
-            using (var image = new Image.Azure(ImageFormat.Custom, 2, 2, 2 * sizeof(int)))
+            using (var image = Image.Create(ImageFormat.Custom, 2, 2, 2 * sizeof(int)))
             {
                 var src = new int[] { -1234, 0, int.MinValue, int.MaxValue };
                 image.FillFrom(src);
@@ -384,7 +382,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestCopyToAndFillFromForFloatArray()
         {
-            using (var image = new Image.Azure(ImageFormat.Custom, 2, 2, 2 * sizeof(float)))
+            using (var image = Image.Create(ImageFormat.Custom, 2, 2, 2 * sizeof(float)))
             {
                 var src = new float[] { -1234.56f, 0f, float.MinValue, float.MaxValue };
                 image.FillFrom(src);
@@ -400,12 +398,12 @@ namespace K4AdotNet.Tests.Unit.Sensor
         #region Test image size calculations
 
         [TestMethod]
-#if ORBBECSDK_K4A_WRAPPER
+#if ORBBEC
         [Ignore("OrbbecSDK-K4A-Wrapper does not support stride and size calculation for NV12 format")]
 #endif
         public void TestImageSizeCalculationNV12()
         {
-            using (var image = new Image.Azure(ImageFormat.ColorNV12, 1280, 720))
+            using (var image = Image.Create(ImageFormat.ColorNV12, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.ColorNV12.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.ColorNV12.ImageSizeBytes(image.StrideBytes, 720));
@@ -415,7 +413,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationYUY2()
         {
-            using (var image = new Image.Azure(ImageFormat.ColorYUY2, 1280, 720))
+            using (var image = Image.Create(ImageFormat.ColorYUY2, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.ColorYUY2.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.ColorYUY2.ImageSizeBytes(image.StrideBytes, 720));
@@ -425,7 +423,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationDepth()
         {
-            using (var image = new Image.Azure(ImageFormat.Depth16, 1280, 720))
+            using (var image = Image.Create(ImageFormat.Depth16, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.Depth16.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Depth16.ImageSizeBytes(image.StrideBytes, 720));
@@ -435,7 +433,7 @@ namespace K4AdotNet.Tests.Unit.Sensor
         [TestMethod]
         public void TestImageSizeCalculationIR16()
         {
-            using (var image = new Image.Azure(ImageFormat.IR16, 1280, 720))
+            using (var image = Image.Create(ImageFormat.IR16, 1280, 720))
             {
                 Assert.AreEqual(image.StrideBytes, ImageFormat.IR16.StrideBytes(1280));
                 Assert.AreEqual(image.SizeBytes, ImageFormat.IR16.ImageSizeBytes(image.StrideBytes, 720));
@@ -446,15 +444,15 @@ namespace K4AdotNet.Tests.Unit.Sensor
         public void TestImageSizeCalculationCustom()
         {
             var bytesPerPixel = 4;
-            using (var image = new Image.Azure(ImageFormat.Custom, 1280, 720, 1280 * bytesPerPixel))
+            using (var image = Image.Create(ImageFormat.Custom, 1280, 720, 1280 * bytesPerPixel))
             {
                 Assert.AreEqual(image.SizeBytes, ImageFormat.Custom.ImageSizeBytes(image.StrideBytes, 720));
             }
         }
 
-#endregion
+        #endregion
 
-#if !ORBBECSDK_K4A_WRAPPER
+#if AZURE
 
         #region Test custom memory management
 

@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Product.props" />
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Platforms>x64</Platforms>
+    <Description>Unit tests on types from K4AdotNet library</Description>
+    <IsPublishable>False</IsPublishable>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <DefineConstants>ORBBEC</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="raw_calibration.bin" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="raw_calibration.bin" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.3.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\K4AdotNet\K4AdotNet.csproj" />
+  </ItemGroup>
+
+</Project>

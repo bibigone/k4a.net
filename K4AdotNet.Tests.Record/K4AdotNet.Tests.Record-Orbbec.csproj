@@ -5,20 +5,14 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <IsPackable>false</IsPackable>
+    <IsPackable>False</IsPackable>
     <Platforms>x64</Platforms>
-    <Description>Unit tests on types from K4AdotNet library</Description>
+    <Description>Integration tests on Record API from K4AdotNet library</Description>
     <IsPublishable>False</IsPublishable>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <DefineConstants>ORBBEC</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="raw_calibration.bin" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="raw_calibration.bin" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
@@ -29,5 +23,5 @@
   <ItemGroup>
     <ProjectReference Include="..\K4AdotNet\K4AdotNet.csproj" />
   </ItemGroup>
-
+  
 </Project>

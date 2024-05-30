@@ -8,8 +8,13 @@ namespace K4AdotNet.Tests.Unit
         [AssemblyInitialize]
         public static void GlobalInit(TestContext _)
         {
-            // Sdk.Init(ComboMode.Orbbec);
+#if AZURE
             Sdk.Init(ComboMode.Azure);
+#elif ORBBEC
+            Sdk.Init(ComboMode.Orbbec);
+#else
+#error Please define AZURE or ORBBEC constant
+#endif
         }
     }
 }

@@ -92,6 +92,90 @@ namespace K4AdotNet.Sensor
             return handle;
         }
 
+        /// <summary>Creates new image with specified format and size in pixels.</summary>
+        /// <param name="format">Format of image. Must be format with known stride: <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.</param>
+        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+        /// <remarks>
+        /// This method can be used only for <paramref name="format"/> with known dependency between image width in pixels and stride in bytes
+        /// and cannot be used for other formats. For details see <see cref="ImageFormats.StrideBytes(ImageFormat, int)"/>.
+        /// For other formats use <see cref="Create(ImageFormat, int, int, int)"/> or <see cref="Create(ImageFormat, int, int, int, int)"/>.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
+        /// </exception>
+        public static Image Create(ImageFormat format, int widthPixels, int heightPixels)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Image)),
+                ComboMode.Azure => new Azure(format, widthPixels, heightPixels),
+                ComboMode.Orbbec => new Orbbec(format, widthPixels, heightPixels),
+                _ => throw new NotSupportedException(),
+            };
+
+        /// <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
+        /// <param name="format">Format of image. Cannot be <see cref="ImageFormat.ColorMjpg"/>.</param>
+        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+        /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="strideBytes"/> is equal to zero. In this case size of image in bytes must be specified to create image.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
+        /// </exception>
+        public static Image Create(ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Image)),
+                ComboMode.Azure => new Azure(format, widthPixels, heightPixels, strideBytes),
+                ComboMode.Orbbec => new Orbbec(format, widthPixels, heightPixels, strideBytes),
+                _ => throw new NotSupportedException(),
+            };
+
+        /// <summary>Creates new image with specified format, size in pixels and stride in bytes.</summary>
+        /// <param name="format">Format of image.</param>
+        /// <param name="widthPixels">Width of image in pixels. Must be positive.</param>
+        /// <param name="heightPixels">Height of image in pixels. Must be positive.</param>
+        /// <param name="strideBytes">Image stride in bytes (the number of bytes per horizontal line of the image). Must be non-negative. Zero value can be used for <see cref="ImageFormat.ColorMjpg"/> and <see cref="ImageFormat.Custom"/>.</param>
+        /// <param name="sizeBytes">Size of image buffer in size. Non negative. Cannot be less than size calculated from image parameters.</param>
+        /// <remarks>
+        /// This version of image construction allocates memory buffer via <see cref="Sdk.CustomMemoryAllocator"/>
+        /// or <see cref="HGlobalMemoryAllocator"/> if not set.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
+        /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
+        /// or <paramref name="sizeBytes"/> is less than zero or <paramref name="sizeBytes"/> is less than size calculated from <paramref name="heightPixels"/> and <paramref name="strideBytes"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
+        /// </exception>
+        public static Image Create(ImageFormat format, int widthPixels, int heightPixels, int strideBytes, int sizeBytes)
+            => Sdk.ComboMode switch
+            {
+                ComboMode.Both => throw Helpers.InvalidOperationExceptionForComboModeBoth(typeof(Image)),
+                ComboMode.Azure => new Azure(format, widthPixels, heightPixels, strideBytes, sizeBytes),
+                ComboMode.Orbbec => new Orbbec(format, widthPixels, heightPixels, strideBytes, sizeBytes),
+                _ => throw new NotSupportedException(),
+            };
+
         /// <summary>Creates new image for specified underlying buffer with specified format and size in pixels.</summary>
         /// <typeparam name="T">Type of array elements in underlying buffer. Must be value type.</typeparam>
         /// <param name="buffer">Underlying buffer for image. Cannot be <see langword="null"/>. Object will pin and keep reference to this array during all lifetime.</param>
@@ -116,6 +200,11 @@ namespace K4AdotNet.Sensor
         /// Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
         /// </exception>
         /// <seealso cref="ImageFormats.StrideBytes(ImageFormat, int)"/>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
+        /// </exception>
         public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels)
             where T : struct
             => CreateFromArray(buffer, format, widthPixels, heightPixels, format.StrideBytes(widthPixels));
@@ -136,6 +225,11 @@ namespace K4AdotNet.Sensor
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
         /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
         /// or <paramref name="buffer"/> array is too small for specified image parameters.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
         /// </exception>
         public static Image CreateFromArray<T>(T[] buffer, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
             where T: struct
@@ -170,6 +264,11 @@ namespace K4AdotNet.Sensor
         /// <exception cref="ArgumentException">
         /// Image stride in bytes cannot be automatically calculated from <paramref name="widthPixels"/> for specified <paramref name="format"/>.
         /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
+        /// </exception>
         /// <seealso cref="ImageFormats.StrideBytes(ImageFormat, int)"/>
         public static Image CreateFromMemory<T>(System.Buffers.IMemoryOwner<T> memoryOwner, ImageFormat format, int widthPixels, int heightPixels)
             where T : unmanaged
@@ -190,6 +289,11 @@ namespace K4AdotNet.Sensor
         /// <paramref name="widthPixels"/> or <paramref name="heightPixels"/> is equal to or less than zero
         /// or <paramref name="strideBytes"/> is less than zero or <paramref name="strideBytes"/> is too small for specified <paramref name="format"/>
         /// or memory of <paramref name="memoryOwner"/> is too small for specified image parameters.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// This method cannot be called in <see cref="ComboMode.Both"/> mode.
+        /// In <see cref="ComboMode.Both"/> mode one should call appropriate method of
+        /// <see cref="Azure"/> or <see cref="Orbbec"/> nested subclass.
         /// </exception>
         public static Image CreateFromMemory<T>(System.Buffers.IMemoryOwner<T> memoryOwner, ImageFormat format, int widthPixels, int heightPixels, int strideBytes)
             where T : unmanaged
