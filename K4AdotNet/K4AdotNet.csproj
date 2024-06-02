@@ -6,7 +6,7 @@
     <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;AnyCPU</Platforms>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <IsPublishable>False</IsPublishable>
@@ -90,6 +90,68 @@
       <Visible>False</Visible>
     </Content>
     <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140_1.dll" Link="vcruntime140_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='AnyCPU'">
+    <Content Include="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll">
+      <Link>k4a-azure\depthengine_2_0.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4a.dll">
+      <Link>k4a-azure\k4a.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\k4a\windows-desktop\amd64\k4arecord.dll">
+      <Link>k4a-azure\k4arecord.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll">
+      <Link>k4a-orbbec\depthengine_2_0.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll">
+      <Link>k4a-orbbec\k4a.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll">
+      <Link>k4a-orbbec\k4arecord.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll">
+      <Link>k4a-orbbec\OrbbecSDK.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDKConfig_v1.0.xml">
+      <Link>k4a-orbbec\OrbbecSDKConfig_v1.0.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\msvcp140.dll">
+      <Link>msvcp140.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcomp140.dll">
+      <Link>vcomp140.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140.dll">
+      <Link>vcruntime140.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+    <Content Include="..\externals\Microsoft.VC141.CRT\x64\vcruntime140_1.dll">
+      <Link>vcruntime140_1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -63,5 +64,18 @@ namespace K4AdotNet.NativeHandles
             => !(left == right);
 
         #endregion
+
+        /// <summary>
+        /// For some unknown reason, disposing of Orbbec handles from the main UI thread results in magic troubles with working of some COM objects...
+        /// As a dirty fix, we're calling handle releasing from random background thread from the thread pool.
+        /// </summary>
+        /// <param name="releaser">Native method that releases native handle.</param>
+        /// <param name="wait"><see langword="true"/> wait for the end of releasing, <see langword="false"/> - do not wait.</param>
+        protected void ReleaseOrbbecHandle(Action<IntPtr> releaser, bool wait = false)
+        {
+            var t = Task.Run(() => releaser(handle));
+            if (wait)
+                t.Wait();
+        }
     }
 }

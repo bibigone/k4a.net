@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace K4AdotNet.Sensor
 {
@@ -17,7 +18,7 @@ namespace K4AdotNet.Sensor
             public override bool IsOrbbec => true;
 
             public override uint DeviceGetInstalledCount()
-                => k4a_device_get_installed_count();
+                => Task.Run(k4a_device_get_installed_count).Result;         // NB! For some unknown reason, calling of this method from the main UI thread results in magic troubles with working of some COM objects...
 
             // K4A_EXPORT uint32_t k4a_device_get_installed_count(void);
             [DllImport(Sdk.Orbbec.SENSOR_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]

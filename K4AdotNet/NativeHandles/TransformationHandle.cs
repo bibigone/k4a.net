@@ -34,7 +34,7 @@ namespace K4AdotNet.NativeHandles
             protected override bool ReleaseHandle()
             {
                 if (!IsInvalid)
-                    NativeApi.Orbbec.TransformationDestroy(handle);
+                    ReleaseOrbbecHandle(NativeApi.Orbbec.TransformationDestroy);
                 return true;
             }
 

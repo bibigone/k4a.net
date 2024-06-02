@@ -1,0 +1,30 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Condition="'$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU'">
+    <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/k4a-azure/*.dll">
+      <Link>k4a-azure/%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU'">
+    <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/k4a-orbbec/*.dll">
+      <Link>k4a-orbbec/%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU'">
+    <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/k4a-orbbec/*.xml">
+      <Link>k4a-orbbec/%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU'">
+    <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/*.dll">
+      <Link>%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </Content>
+  </ItemGroup>
+</Project>

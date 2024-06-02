@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace K4AdotNet.Tests.Record
 {
@@ -19,7 +18,7 @@ namespace K4AdotNet.Tests.Record
 #elif ORBBEC
             Sdk.Init(ComboMode.Orbbec);
 #else
-#error Please define AZURE or ORBBEC constant
+            #error Please define AZURE or ORBBEC constant
 #endif
         }
 
@@ -91,17 +90,17 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 // EoF
                 Assert.IsFalse(playback.TryGetNextCapture(out capture));
@@ -111,17 +110,17 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 // EoF
                 Assert.IsFalse(playback.TryGetPreviousCapture(out capture));
@@ -135,7 +134,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetPreviousCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp2);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 // Seek to start
                 Assert.IsTrue(playback.TrySeekTimestamp(Microseconds64.Zero, PlaybackSeekOrigin.Begin));
@@ -145,7 +144,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp0);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
 
                 // Seek to device timestamp
                 var ts = GetStartTimestamp(config, deviceTimestamp1);
@@ -154,7 +153,7 @@ namespace K4AdotNet.Tests.Record
                 Assert.IsTrue(playback.TryGetNextCapture(out capture));
                 Assert.IsNotNull(capture);
                 CheckCapture(capture, config, deviceTimestamp1);
-                Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
+                capture.Dispose();
             }
 
             File.Delete(mkvPath);
@@ -657,9 +656,8 @@ namespace K4AdotNet.Tests.Record
 
         private static void WriteTestCapture(Recorder recorder, Microseconds64 colorTimestamp)
         {
-            var capture = CreateTestCapture(recorder.DeviceConfiguration, colorTimestamp);
+            using var capture = CreateTestCapture(recorder.DeviceConfiguration, colorTimestamp);
             recorder.WriteCapture(capture);
-            Task.Run(capture.Dispose);  // in some cases with Orbbec it may take significant time for some unknown reason
         }
 
         private static Capture CreateTestCapture(DeviceConfiguration config, Microseconds64 colorTimestamp)

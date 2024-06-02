@@ -13,7 +13,7 @@ namespace K4AdotNet.Tests.Unit
 #elif ORBBEC
             Sdk.Init(ComboMode.Orbbec);
 #else
-#error Please define AZURE or ORBBEC constant
+            #error Please define AZURE or ORBBEC constant
 #endif
         }
     }

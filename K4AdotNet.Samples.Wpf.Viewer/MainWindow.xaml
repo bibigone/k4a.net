@@ -10,7 +10,7 @@
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Icon="K4AdotNet.ico"
+        Icon="K4AdotNet-Combo.ico"
         d:DataContext="{d:DesignInstance local:MainModel, IsDesignTimeCreatable=True}"
         Loaded="Window_Loaded">
     <Window.Resources>

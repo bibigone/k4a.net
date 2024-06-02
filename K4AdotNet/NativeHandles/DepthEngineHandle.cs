@@ -14,7 +14,7 @@ namespace K4AdotNet.NativeHandles
         protected override bool ReleaseHandle()
         {
             if (!IsInvalid)
-                NativeApi.Orbbec.DepthEngineHelperRelease(handle);
+                ReleaseOrbbecHandle(NativeApi.Orbbec.DepthEngineHelperRelease);
             return true;
         }
     }

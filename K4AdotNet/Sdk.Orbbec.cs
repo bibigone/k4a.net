@@ -85,11 +85,11 @@ namespace K4AdotNet
                     isInitializing = true;
                     try
                     {
-                        // Force depthengine_2_0.dll loading and initialization
-                        depthEngineHelper = DepthEngineHelper.Create();
-
                         // Force k4a.dll loading and initialization
                         NativeApi.Orbbec.Instance.DeviceGetInstalledCount();
+
+                        // Force depthengine_2_0.dll loading and initialization
+                        depthEngineHelper = DepthEngineHelper.Create();
 
                         // Set TraceLevel to default value
                         TraceLevel = TraceLevel.Off;

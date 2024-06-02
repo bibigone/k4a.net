@@ -14,7 +14,12 @@ namespace K4AdotNet.NativeHandles
         protected override bool ReleaseHandle()
         {
             if (!IsInvalid)
-                NativeApi.TrackerDestroy(handle);
+            {
+                if (Sdk.ComboMode == ComboMode.Azure)
+                    NativeApi.TrackerDestroy(handle);
+                else
+                    ReleaseOrbbecHandle(NativeApi.TrackerDestroy);
+            }
             return true;
         }
     }

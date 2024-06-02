@@ -11,7 +11,7 @@
     <Description>Sample WPF application which implements the background removal effect for color picture with the help of depth data.</Description>
     <AssemblyName>K4ABackgroundRemover</AssemblyName>
     <UseWPF>True</UseWPF>
-    <ApplicationIcon>..\K4AdotNet.ico</ApplicationIcon>
+    <ApplicationIcon>..\K4AdotNet-Combo.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -20,16 +20,9 @@
     <ProjectReference Include="..\K4AdotNet.Samples.Wpf.Common\K4AdotNet.Samples.Wpf.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="!$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Resource Include="..\K4AdotNet.ico" Link="K4AdotNet.ico" />
-    <Content Include="..\K4AdotNet.ico" Link="K4AdotNet.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(DefineConstants.Contains(ORBBECSDK_K4A_WRAPPER))">
-    <Resource Include="..\K4AdotNet-Femto.ico" Link="K4AdotNet.ico" />
-    <Content Include="..\K4AdotNet-Femto.ico" Link="K4AdotNet.ico">
+  <ItemGroup>
+    <Resource Include="..\K4AdotNet-Combo.ico" Link="K4AdotNet-Combo.ico" />
+    <Content Include="..\K4AdotNet-Combo.ico" Link="K4AdotNet-Combo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

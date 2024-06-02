@@ -11,7 +11,7 @@
         Loaded="Window_Loaded"
         Title="{Binding Title, Mode=OneWay}"
         WindowStyle="ToolWindow"
-        Icon="K4AdotNet.ico"
+        Icon="K4AdotNet-Combo.ico"
         d:DataContext="{d:DesignInstance local:TrackerModel, IsDesignTimeCreatable=True}">
     <Window.Resources>
         <Style x:Key="Header" TargetType="TextBlock">

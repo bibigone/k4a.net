@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:K4AdotNet.Samples.Wpf.BackgroundRemover"
         mc:Ignorable="d"
-        Title="K4AdotNet Sample - Background Remover" Icon="K4AdotNet.ico"
+        Title="K4AdotNet Sample - Background Remover" Icon="K4AdotNet-Combo.ico"
         SizeToContent="WidthAndHeight" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
 

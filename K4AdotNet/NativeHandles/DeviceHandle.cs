@@ -37,7 +37,7 @@ namespace K4AdotNet.NativeHandles
             protected override bool ReleaseHandle()
             {
                 if (!IsInvalid)
-                    NativeApi.Orbbec.DeviceClose(handle);
+                    ReleaseOrbbecHandle(NativeApi.Orbbec.DeviceClose);
                 return true;
             }
 

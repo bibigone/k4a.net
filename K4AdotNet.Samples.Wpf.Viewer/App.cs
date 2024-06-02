@@ -10,19 +10,24 @@ namespace K4AdotNet.Samples.Wpf.Viewer
         {
             try
             {
-                Sdk.Init(ComboMode.Both);
-#if DEBUG
-                Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
-#else
-                Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
-#endif
-
                 new App().Run();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ERROR");
             }
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            Sdk.Init(ComboMode.Both);
+#if DEBUG
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Info;
+#else
+            Sdk.TraceLevel = System.Diagnostics.TraceLevel.Warning;
+#endif
+
+            base.OnStartup(e);
         }
 
         protected override Window CreateMainWindow(StartupEventArgs e)

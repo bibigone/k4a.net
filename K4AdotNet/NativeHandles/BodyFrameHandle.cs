@@ -25,7 +25,12 @@ namespace K4AdotNet.NativeHandles
         protected override bool ReleaseHandle()
         {
             if (!IsInvalid)
-                NativeApi.FrameRelease(handle);
+            {
+                if (Sdk.ComboMode == ComboMode.Azure)
+                    NativeApi.FrameRelease(handle);
+                else
+                    ReleaseOrbbecHandle(NativeApi.FrameRelease);
+            }
             return true;
         }
     }

@@ -1,18 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
-    <id>K4AdotNet-Femto</id>
-    <version>1.4.16</version>
+    <id>K4AdotNet-Combo</id>
+    <version>0.9.0</version>
     <authors>bibigone,baSSiLL</authors>
     <owners></owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <projectUrl>https://github.com/bibigone/k4a.net/blob/master/README.md</projectUrl>
-    <iconUrl>https://github.com/bibigone/k4a.net/raw/master/K4AdotNet-Femto-64.png</iconUrl>
-    <description>Version of K4A.Net (K4AdotNet) library that works with Orbbec Femto Bolt and Mega depth sensors via Orbbec SDK K4A Wrapper. It includes sensor API, recording and playback API, body tracking API. The API is exactly the same as in original K4A.Net (K4AdotNet) library. Compatible with .NET Standard 2.0 and .Net Framework 4.6.1 and later, .NET 6 and later. All required binaries from Orbbec SDK K4A Wrapper (win x64) are included. Samples (WPF, .NET Core and Unity) can be found in the source repository.</description>
+    <projectUrl>https://github.com/bibigone/k4a.net/blob/combo/README.md</projectUrl>
+    <iconUrl>https://github.com/bibigone/k4a.net/raw/combo/K4AdotNet-Combo-64.png</iconUrl>
+    <description>
+      Version of K4A.Net (K4AdotNet) library that works with Azure Kinect and with Orbbec Femto Bolt and Mega depth cameras.
+      Compatible with .NET Standard 2.0 and .Net Framework 4.6.1 and later, .NET 6 and later.
+      All required binaries from Azure Kinect SDK (win x64) and Orbbec SDK K4A Wrapper (win x64) are included.
+      Samples (WPF, .NET and Unity) can be found in the source repository.</description>
     <releaseNotes>See https://github.com/bibigone/k4a.net/releases</releaseNotes>
     <copyright>Copyright (c) 2019-2024</copyright>
-    <tags>Orbbec Femto Bolt Mega Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking SDK Wrapper</tags>
+    <tags>Orbbec Femto Bolt Mega Kinect Azure .NET K4A Depth Sensor Body Tracking BodyTracking SDK Wrapper Combo</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1" />
       <group targetFramework="net6.0" />
@@ -26,7 +30,7 @@
   </metadata>
 
   <files>
-    <file src="k4adotnet-femto.targets" target="build\k4adotnet-femto.targets" />
+    <file src="k4adotnet-combo.targets" target="build\k4adotnet-combo.targets" />
 
     <file src="..\K4AdotNet\bin\Release\net461\K4AdotNet.dll" target="lib\net461\K4AdotNet.dll" />
     <file src="..\K4AdotNet\bin\Release\net461\K4AdotNet.pdb" target="lib\net461\K4AdotNet.pdb" />
@@ -40,10 +44,15 @@
     <file src="..\K4AdotNet\bin\Release\netstandard2.0\K4AdotNet.pdb" target="lib\netstandard2.0\K4AdotNet.pdb" />
     <file src="..\K4AdotNet\bin\Release\netstandard2.0\K4AdotNet.xml" target="lib\netstandard2.0\K4AdotNet.xml" />
 
-    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll" target="runtimes\win-x64\native\depthengine_2_0.dll" />
-    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll" target="runtimes\win-x64\native\k4a.dll" />
-    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll" target="runtimes\win-x64\native\k4arecord.dll" />
-    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" target="runtimes\win-x64\native\OrbbecSDK.dll" />
+    <file src="..\externals\k4a\windows-desktop\amd64\depthengine_2_0.dll" target="runtimes\win-x64\native\k4a-azure\depthengine_2_0.dll" />
+    <file src="..\externals\k4a\windows-desktop\amd64\k4a.dll" target="runtimes\win-x64\native\k4a-azure\k4a.dll" />
+    <file src="..\externals\k4a\windows-desktop\amd64\k4arecord.dll" target="runtimes\win-x64\native\k4a-azure\k4arecord.dll" />
+
+    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\depthengine_2_0.dll" target="runtimes\win-x64\native\k4a-orbbec\depthengine_2_0.dll" />
+    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4a.dll" target="runtimes\win-x64\native\k4a-orbbec\k4a.dll" />
+    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\k4arecord.dll" target="runtimes\win-x64\native\k4a-orbbec\k4arecord.dll" />
+    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDK.dll" target="runtimes\win-x64\native\k4a-orbbec\OrbbecSDK.dll" />
+    <file src="..\externals\OrbbecSDK-K4A-Wrapper\win-x64\OrbbecSDKConfig_v1.0.xml" target="runtimes\win-x64\native\k4a-orbbec\OrbbecSDKConfig_v1.0.xml" />
 
     <file src="..\externals\Microsoft.VC141.CRT\x64\msvcp140.dll" target="runtimes\win-x64\native\msvcp140.dll" />
     <file src="..\externals\Microsoft.VC141.CRT\x64\vcomp140.dll" target="runtimes\win-x64\native\vcomp140.dll" />

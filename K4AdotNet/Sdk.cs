@@ -200,6 +200,9 @@ namespace K4AdotNet
                 if (Sdk.comboMode != default && comboMode != Sdk.comboMode)
                     throw new InvalidOperationException($"{nameof(Sdk)}.{nameof(Init)}() method can be called only once.");
 
+                if (!Environment.Is64BitProcess)
+                    throw new NotSupportedException("Only 64-bit process is supported");
+
                 // Important! In `ComboMode.Both` Orbbec SDK must be initialized first,
                 // because all implementations will use one and the same instance of `depthengine_2_0.dll` library,
                 // and the first loaded version will be used. And Azure Kinects work almost Okay with `depthengine_2_0.dll`
