@@ -26,10 +26,10 @@ namespace K4AdotNet.NativeHandles
         {
             if (!IsInvalid)
             {
-                if (Sdk.ComboMode == ComboMode.Azure)
-                    NativeApi.FrameRelease(handle);
-                else
+                if (Sdk.DetermineDefaultImplIsOrbbec())
                     ReleaseOrbbecHandle(NativeApi.FrameRelease);
+                else
+                    NativeApi.FrameRelease(handle);
             }
             return true;
         }

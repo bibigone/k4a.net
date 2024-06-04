@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>K4AdotNet-Combo</id>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
     <authors>bibigone,baSSiLL</authors>
     <owners></owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

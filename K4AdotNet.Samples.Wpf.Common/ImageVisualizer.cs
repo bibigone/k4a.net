@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DO_NOT_USE_PARALLELISM
+using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -185,7 +186,7 @@ namespace K4AdotNet.Samples.Wpf.Common
                 {
 #if DO_NOT_USE_PARALLELISM
                     for (var y = 0; y < HeightPixels; y++)
-                        FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue);
+                        FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue, visParameter);
 #else
                     Parallel.For(0, HeightPixels, y => FillWritableBitmapLine(y, backBuffer, backBufferStride, nonBodyAlphaValue, visParameter));
 #endif

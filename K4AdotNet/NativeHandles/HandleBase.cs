@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace K4AdotNet.NativeHandles
 {
@@ -70,12 +69,18 @@ namespace K4AdotNet.NativeHandles
         /// As a dirty fix, we're calling handle releasing from random background thread from the thread pool.
         /// </summary>
         /// <param name="releaser">Native method that releases native handle.</param>
-        /// <param name="wait"><see langword="true"/> wait for the end of releasing, <see langword="false"/> - do not wait.</param>
-        protected void ReleaseOrbbecHandle(Action<IntPtr> releaser, bool wait = false)
+        protected void ReleaseOrbbecHandle(Action<IntPtr> releaser)
         {
-            var t = Task.Run(() => releaser(handle));
-            if (wait)
-                t.Wait();
+            var thread = System.Threading.Thread.CurrentThread;
+            if (thread.IsBackground || thread.IsThreadPoolThread)
+            {
+                releaser(handle);
+                return;
+            }
+
+            var t = System.Threading.Tasks.Task.Run(() => releaser(handle));
+            t.Wait();
+            t.Dispose();
         }
     }
 }

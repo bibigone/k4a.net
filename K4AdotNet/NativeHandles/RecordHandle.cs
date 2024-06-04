@@ -33,7 +33,7 @@ namespace K4AdotNet.NativeHandles
             protected override bool ReleaseHandle()
             {
                 if (!IsInvalid)
-                    ReleaseOrbbecHandle(NativeApi.Orbbec.RecordClose, wait: true);
+                    ReleaseOrbbecHandle(NativeApi.Orbbec.RecordClose);
                 return true;
             }
 

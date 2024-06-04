@@ -62,7 +62,7 @@ namespace K4AdotNet.NativeHandles
             protected override bool ReleaseHandle()
             {
                 if (!IsInvalid)
-                    ReleaseOrbbecHandle(NativeApi.Orbbec.ImageRelease, wait: true);
+                    ReleaseOrbbecHandle(NativeApi.Orbbec.ImageRelease);
                 return true;
             }
 

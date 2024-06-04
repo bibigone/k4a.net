@@ -15,10 +15,10 @@ namespace K4AdotNet.NativeHandles
         {
             if (!IsInvalid)
             {
-                if (Sdk.ComboMode == ComboMode.Azure)
-                    NativeApi.TrackerDestroy(handle);
-                else
+                if (Sdk.DetermineDefaultImplIsOrbbec())
                     ReleaseOrbbecHandle(NativeApi.TrackerDestroy);
+                else
+                    NativeApi.TrackerDestroy(handle);
             }
             return true;
         }
